@@ -1,0 +1,166 @@
+# ============================================================
+# Standard: aws-standard.yaml
+# 来源: AWS Cloud Architecture Standard v1.0
+# 用途: accuracy-rules、security-rules 的 AWS 专属校验基线
+# ============================================================
+
+standard:
+  name: "AWS Cloud Architecture Standard"
+  version: "1.0"
+  author: "Huiwen Han"
+  date: "2026-01-15"
+
+# ═══════════════════════════════════════════════════════════
+# 1. 网络拓扑强制要求
+# ═══════════════════════════════════════════════════════════
+topology:
+  model: "Hub–Spoke（强制）"
+
+  hub_vpc_services:
+    - "Centralized Firewall（AWS Network Firewall / Security Appliances）"
+    - "Bastion（优先 Privileged Access Workstation (PAW)；备选 AWS Systems Manager Session Manager 或 EC2 Bastion）"
+    - "Transit Gateway"
+    - "Route 53 Resolver & Private Hosted Zones"
+    - "Centralized Monitoring & SIEM（CloudWatch、CloudTrail、Security Hub、GuardDuty）"
+
+  spoke_vpc_allowed:
+    - "Application workloads"
+    - "Platform workloads"
+    - "API Gateway（WSO2）"
+    - "Ingress components（ALB/NLB/WAF）"
+
+  rules:
+    - "每个物理 AWS Region 需要一个独立的 Hub VPC"
+    - "生产和非生产工作负载必须在独立的 Hub VPC 和独立的 AWS 账户中"
+    - "跨 Region 连接使用 AWS Transit Gateway 跨区对等或 VPN"
+
+# ═══════════════════════════════════════════════════════════
+# 2. 资源部署规则
+# ═══════════════════════════════════════════════════════════
+deployment_rules:
+  - "应用工作负载不得部署在 Public Subnet"
+  - "所有托管 AWS 服务（RDS/S3/DynamoDB/EventBridge）必须仅通过 VPC Endpoints 访问"
+  - "公共访问必须禁用，除非服务本身固有需要"
+  - "禁止为工作负载分配公网 IP"
+  - "所有子网需要 Security Groups 和 NACLs"
+
+# ═══════════════════════════════════════════════════════════
+# 3. 应用平台策略
+# ═══════════════════════════════════════════════════════════
+platform_strategy:
+  it_department_core:
+    runtime: "Amazon ECS（自管理集群）"
+    reason: "支持混合云和多云可移植性"
+    platforms: ["Company Internal K8s Container Platform", "Company WSO API Gateway", "Company Kafka Platform"]
+
+  business_it_agile:
+    runtime: "AWS 托管服务（Lambda/AppRunner/Elastic Beanstalk）"
+    reason: "最大化开发敏捷性，减少运营负担"
+
+  uniform_connectivity:
+    - "VPC Endpoints / PrivateLink"
+    - "部署在 Spoke VPC 内"
+    - "零信任网络分段"
+    - "流量经 Hub 检查（除非豁免）"
+
+# ═══════════════════════════════════════════════════════════
+# 4. 混合云连接
+# ═══════════════════════════════════════════════════════════
+hybrid_connectivity:
+  primary_method: "AWS Direct Connect"
+  transit_gateway_location: "Hub VPC（必须）"
+  spoke_access: "通过 VPC Peering"
+  rule: "混合流量必须通过中央防火墙，除非正式豁免"
+
+# ═══════════════════════════════════════════════════════════
+# 5. 入口安全（North–South Ingress）
+# ═══════════════════════════════════════════════════════════
+ingress:
+  scenario_a_web:
+    name: "外部 Web 应用"
+    mandatory_components:
+      - "Application Load Balancer（ALB）+ AWS WAF"
+    optional_components:
+      - "Network Firewall（基于风险/成本/效率权衡）"
+    flow: "Internet → ALB(WAF) → Backend(PrivateLink) → Databases/internal services"
+    rules:
+      - "ALB + WAF 是所有 HTTP/S Web 流量的必选项"
+      - "禁止后端工作负载直接公网访问"
+      - "WAF 策略必须遵循 OWASP 核心规则集"
+
+  scenario_b_api:
+    name: "外部合作伙伴/客户 API"
+    mandatory_components:
+      - "ALB + WAF"
+      - "API Gateway（WSO2 API Gateway，部署在 Spoke VPC Private 模式）"
+    flow: "Internet → ALB(WAF) → API Gateway → Backend via PrivateLink"
+    rules:
+      - "所有外部 API 请求必须先过 WAF"
+      - "API Gateway 负责：认证/授权、限流/配额、协议转换"
+      - "后端服务无公网暴露"
+      - "API Gateway 位于 Spoke VPC（不在 Hub）"
+
+  protocol_restrictions:
+    - "Public Subnet 的 Security Groups 仅允许 TCP 443"
+    - "禁止 SSH/RDP 及其他协议"
+
+# ═══════════════════════════════════════════════════════════
+# 6. 出口控制（North–South Egress）
+# ═══════════════════════════════════════════════════════════
+egress:
+  rule: "所有 Spoke VPC 出站流量必须经过 Hub Firewall"
+  firewall_capabilities:
+    - "FQDN 过滤"
+    - "威胁情报（GuardDuty + Network Firewall 规则）"
+    - "DNS 代理（Route 53 Resolver / Firewall）"
+    - "默认拒绝全部出站"
+
+# ═══════════════════════════════════════════════════════════
+# 7. 运维访问
+# ═══════════════════════════════════════════════════════════
+operational_access:
+  primary: "Privileged Access Workstation (PAW)（堡垒机）"
+  backup: ["AWS Systems Manager Session Manager", "EC2 Bastion（备选）"]
+  rules:
+    - "禁止公网 SSH/RDP"
+    - "Just-In-Time 访问通过 AWS IAM & Session Manager"
+    - "Security Groups 仅允许 Bastion IP 范围访问"
+
+# ═══════════════════════════════════════════════════════════
+# 8. 数据安全与凭证保护
+# ═══════════════════════════════════════════════════════════
+data_security:
+  identity: "IAM Roles / Service-linked Roles（禁止硬编码凭证）"
+  credential_store: ["AWS Secrets Manager", "AWS KMS"]
+  in_transit: "TLS 1.3+"
+  at_rest: "AES-256"
+  key_rotation: "KMS 密钥启用自动轮换"
+
+# ═══════════════════════════════════════════════════════════
+# 9. 东西向流量分段
+# ═══════════════════════════════════════════════════════════
+east_west:
+  tiers: ["Web tier", "App tier", "Data tier"]
+  subnet_isolation: "每层使用独立 Subnet"
+  tools: ["Security Groups（Subnet 隔离）", "Security Groups + NACL（微分段）"]
+  spoke_to_spoke: "默认 DENY；例外须审批，并通过防火墙路由（除非豁免）"
+
+# ═══════════════════════════════════════════════════════════
+# 10. 可观测性
+# ═══════════════════════════════════════════════════════════
+observability:
+  centralized_logs:
+    - "Network Firewall"
+    - "ALB / WAF"
+    - "API Gateway"
+    - "VPC Flow Logs"
+    - "EC2 / Lambda logs"
+  tools: ["Security Hub", "GuardDuty", "CloudWatch", "CloudTrail"]
+
+# ═══════════════════════════════════════════════════════════
+# 11. 灾备与高可用
+# ═══════════════════════════════════════════════════════════
+disaster_recovery:
+  region_level_mandatory: ["API Gateway", "Secrets Manager", "S3", "Route 53"]
+  multi_az: "EKS 集群必须多 AZ 部署"
+  dns_failover: "VPC Endpoints + Private DNS 必须支持故障转移"

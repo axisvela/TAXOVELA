@@ -1,0 +1,232 @@
+# ============================================================
+# Rules: security-rules.yaml
+# 维度: Security_Compliance (S-)
+# 权重: 2.0 / 子项各 ~33%
+# ============================================================
+
+ruleset:
+  name: "security-rules"
+  version: "2.0"
+  dimension: "Security_Compliance"
+  weight_contribution: 2.0
+  subcategory_weight: 0.333     # 3个子项均分
+
+subcategories:
+  - id: "system_auth"           # S-A 系统间认证
+  - id: "user_auth"             # S-B 用户认证
+  - id: "credential_protection" # S-C 凭证保护
+
+rules:
+
+  # ── S-A: 系统间认证 ────────────────────────────────────────
+  - id: "S-001"
+    subcategory: "system_auth"
+    name: "每对直连技术组件之间必须标注认证机制"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      架构图中有通信连接的每一对技术组件之间，必须在连接线上明确标注认证机制。
+      
+      支持的认证方式及典型适用场景：
+      ┌─────────────────────────┬──────────────────────────────────────┐
+      │ 认证方式                 │ 典型场景                              │
+      ├─────────────────────────┼──────────────────────────────────────┤
+      │ OAuth2.0 Client Cred    │ 服务间 API 调用（首选）               │
+      │ Basic Auth              │ 简单 HTTP 场景（需配合 TLS）           │
+      │ mTLS（客户端证书）       │ 高安全服务间通信、Service Mesh        │
+      │ Azure SAS               │ Azure Blob Storage / Event Hub 等     │
+      │ SASL/SCRAM              │ Kafka 生产者/消费者                   │
+      │ 用户名/密码（PWD）       │ 数据库连接（JDBC/ODBC）               │
+      │ Kerberos                │ 内部企业系统、Active Directory 集成    │
+      │ API Key                 │ 第三方 API（必须说明 Key 传递方式）    │
+      └─────────────────────────┴──────────────────────────────────────┘
+    check_target: "all_component_connections"
+    validation_logic: "connection_has_auth_mechanism"
+    scoring:
+      deduction_unit: "per_missing_auth"
+      formula: "missing_auth_count / total_connections * subcategory_weight * dimension_weight"
+    impact: "未标注认证机制的通信路径可能是未受保护的攻击面"
+    suggestion: "在每条连接线旁补充认证方式标注；若使用 OAuth2.0，建议同时注明 Grant Type"
+
+  - id: "S-002"
+    subcategory: "system_auth"
+    name: "网络安全边界规则：外部流量必须经过 DMZ"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      来自公网（Internet）的流量不允许直接进入私有网络区域（App Zone / DB Zone / Private Subnet）。
+      必须经过 DMZ 层的安全组件中转，例如：
+      - WAF（Web Application Firewall）
+      - API Gateway（WSO2、APIH、AWS API GW、Azure APIM）
+      - Reverse Proxy / Load Balancer
+      
+      禁止的直连场景：
+      - Internet → App Zone（直接）
+      - Internet → DB Zone（直接）
+      - Internet → Private Subnet（直接）
+    check_target: "external_to_private_paths"
+    validation_logic: "no_direct_internet_to_private"
+    scoring:
+      deduction_unit: "per_violation"
+      formula: "violation_count / external_connection_total * subcategory_weight * dimension_weight"
+    impact: "绕过 DMZ 的直连路径使内网完全暴露于互联网，属于高危架构缺陷"
+    suggestion: "在外部流量和私有网络之间插入 DMZ 层组件（WAF/API Gateway）"
+
+  - id: "S-003"
+    subcategory: "system_auth"
+    name: "数据存储禁止部署在公网区域或 DMZ"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      所有数据存储组件（关系型数据库、NoSQL 数据库、对象存储、消息队列、缓存）
+      不允许部署在：
+      - 公网区域（Public Subnet / Internet Zone）
+      - DMZ 区域
+      
+      数据存储必须部署在：
+      - DB Zone（私有云）
+      - Private Subnet（公有云）
+      - 受私有端点（Private Endpoint）保护的 PaaS 存储服务
+    check_target: "data_store_network_location"
+    validation_logic: "data_store_not_in_public_or_dmz"
+    scoring:
+      deduction_unit: "per_violation"
+      formula: "violation_count / data_store_total * subcategory_weight * dimension_weight"
+    impact: "数据存储暴露在公网区域是极高危风险，可能导致数据泄露和合规违规"
+    suggestion: "将数据存储移至 Private Subnet / DB Zone，并通过私有端点访问"
+
+  # ── S-B: 用户认证 ──────────────────────────────────────────
+  - id: "S-004"
+    subcategory: "user_auth"
+    name: "内部用户访问须通过 ADFS 认证"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      企业内部员工访问系统时，前端或后端必须连接到 ADFS（Active Directory Federation Services）
+      进行身份认证。ADFS 节点必须在架构图中明确标注，并通过箭头连接到系统访问入口。
+      
+      必须在用户/前端 → ADFS 的连线上标注认证协议：
+      - SAML 2.0（最常见）
+      - CAS（Central Authentication Service）
+      - OAuth2 Authorization Code Grant
+    check_target: "user_facing_entry_points"
+    validation_logic: "internal_user_has_adfs_connection"
+    scoring:
+      deduction_unit: "per_missing_adfs"
+      formula: "missing_adfs_count / internal_entry_total * subcategory_weight * dimension_weight"
+    impact: "内部用户直连系统无企业级统一认证，无法实现单点登录和账号生命周期管理"
+    suggestion: "在内部用户入口处添加 ADFS 节点，并标注认证协议（SAML/CAS/OAuth2）"
+
+  - id: "S-005"
+    subcategory: "user_auth"
+    name: "外部用户访问须通过 EnterpriseID 认证"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      企业外部用户（合作伙伴、客户、供应商）访问系统时，必须通过 EnterpriseID 进行身份认证。
+      EnterpriseID 节点须在架构图中标注，并通过箭头连接到外部用户访问入口。
+      
+      认证协议标注要求同 S-004。
+    check_target: "external_user_entry_points"
+    validation_logic: "external_user_has_companyid_connection"
+    scoring:
+      deduction_unit: "per_missing_companyid"
+      formula: "missing_companyid_count / external_entry_total * subcategory_weight * dimension_weight"
+    impact: "外部用户缺少统一认证，无法实现外部身份管理和访问审计"
+    suggestion: "在外部用户访问入口处添加 EnterpriseID 节点，并标注认证协议"
+
+  - id: "S-006"
+    subcategory: "user_auth"
+    name: "须标注用户访问控制组件"
+    severity: "warning"
+    issue_type: "must_fix"
+    priority: "Medium"
+    description: >
+      架构图中须明确标注用户授权/访问控制机制，二选一：
+      1. 使用统一访问控制服务（UCA）：标注 UCA 节点及其与系统的连接
+      2. 使用应用自建访问控制组件：在技术组件信息中标注（如"内置 RBAC 模块"）
+    check_target: "authorization_components"
+    validation_logic: "authorization_component_exists"
+    scoring:
+      deduction_unit: "per_missing_authz"
+      formula: "missing_authz_count / system_total * subcategory_weight * dimension_weight"
+    impact: "缺少授权机制标注无法验证最小权限原则，存在越权访问风险"
+    suggestion: "标注使用 UCA 服务或描述应用内置的授权组件（RBAC/ABAC）"
+
+  # ── S-C: 凭证保护 ──────────────────────────────────────────
+  - id: "S-007"
+    subcategory: "credential_protection"
+    name: "必须声明凭证与密钥保护方案"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      架构图或其附注中必须明确声明凭证（API Key、密码、证书）的保护方案：
+      
+      ┌─────────────────────┬──────────────────────────────┐
+      │ 部署环境             │ 推荐/要求方案                 │
+      ├─────────────────────┼──────────────────────────────┤
+      │ Azure               │ Azure Key Vault              │
+      │ AWS                 │ AWS Secrets Manager          │
+      │ Kubernetes / 私有云  │ Kubernetes Secrets           │
+      │ 混合/其他           │ 须明确说明具体方案             │
+      └─────────────────────┴──────────────────────────────┘
+      
+      密钥轮换策略须以注释（Notes）形式在架构图中标注，或在附带文档中说明。
+    check_target: "credential_management_declaration"
+    validation_logic: "key_vault_or_equivalent_declared"
+    scoring:
+      deduction_unit: "binary"    # 有/无，无则全扣
+      formula: "0 if declared else subcategory_weight * dimension_weight"
+    impact: "未使用密钥管理服务意味着凭证可能以明文存储在代码或配置文件中"
+    suggestion: "在架构图中添加 Azure Key Vault / AWS Secrets Manager / K8s Secrets 节点，并用箭头连接使用方"
+
+  - id: "S-008"
+    subcategory: "credential_protection"
+    name: "跨境数据流须标注数据分类与合规依据"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      当数据流跨越国家/司法区边界，且涉及以下数据类型时，
+      必须在连接线或注释中标注数据分类和合规依据：
+      - PII（个人身份信息）
+      - 金融数据
+      - 医疗数据
+      - 绝密级/受限级数据（按组织信息分级）
+      
+      合规依据示例：GDPR、中国数据安全法、PDPA（泰国）、CCPA（美国加州）
+    check_target: "cross_border_data_flows"
+    validation_logic: "cross_border_pii_has_compliance_label"
+    scoring:
+      deduction_unit: "per_violation"
+      formula: "violation_count / cross_border_total * subcategory_weight * dimension_weight"
+    impact: "PII 跨境传输未标注合规依据可能导致违反数据主权法规，面临重大法律风险"
+    suggestion: "在跨境数据流箭头上标注：数据类型（PII/Financial）+ 合规依据（GDPR等）"
+
+  - id: "S-009"
+    subcategory: "credential_protection"
+    name: "高密级数据存储须标注加密方式"
+    severity: "warning"
+    issue_type: "suggestion"
+    priority: "Medium"
+    description: >
+      绝密级或受限级数据的存储组件须在架构图中标注加密方式。
+      标注方法（任选一）：
+      1. 在存储组件图标上叠加加密图标（锁形）
+      2. 在组件名称旁标注文字，如"AES-256"或"TDE"
+      
+      常见加密方式：
+      - AES-256（对称加密，最常见）
+      - TDE（Transparent Data Encryption，SQL Server/Oracle 等）
+      - 列级加密（针对特定敏感字段）
+    check_target: "sensitive_data_stores"
+    validation_logic: "sensitive_store_has_encryption_label"
+    scoring: null    # suggestion 类型，不扣分
+    impact: "高密级数据未加密存储违反信息安全基线要求"
+    suggestion: "在敏感数据存储组件上添加加密标注（AES-256 / TDE），并在 Key Vault 中管理加密密钥"

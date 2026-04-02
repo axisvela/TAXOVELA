@@ -1,0 +1,245 @@
+# ============================================================
+# Template: private-cloud.yaml
+# Source: Technology_Solution_Template_for_Private_Cloud-v2_0.drawio
+# Pattern: Standard private DC deployment (Hohhot 3-tier or Shenyang 2-tier)
+# Use when: Application runs only on Company private DCs, no public cloud
+# ============================================================
+
+_template:
+  id: "private-cloud"
+  name: "Private Cloud — Standard DC"
+  version: "2.0"
+  source_drawio: "Technology_Solution_Template_for_Private_Cloud-v2_0.drawio"
+  use_when:
+    - "Application deployed entirely on Company private DCs"
+    - "PRC-only or PRC + NA dual-region private cloud"
+    - "No public cloud dependency (or public cloud is secondary)"
+  typical_stack: ["Java/Spring Boot", "Internal K8s", "PostgreSQL", "WSO2/APIH", "Kafka"]
+  mixable_with: ["aws", "azure"]    # can add public cloud regions from other templates
+  placeholder_guide:
+    XXX: "Replace with your application name (e.g. OrderMgmt)"
+    REGION: "CN (China) or US (United States)"
+    ENV: "prod | nonprod | dev"
+
+arch:
+  id: "XXX-TechDiagram-V1.0"
+  name: "XXX Application — Technical Architecture"
+  platform: "private_cloud"
+  author: "Itcode-Firstname-Lastname"
+  owner_team: "Your Team"
+  version: "V1.0"
+
+  deployment:
+
+    # ── Hohhot DC (primary for PRC business) ──────────────────
+    - id: "hohhot-dc"
+      type: "private_dc"
+      role: "production"
+      location: "Neimeng DC (Company) [China]"
+      owner: "InfraSec"
+      network_zones:
+
+        - id: "hohhot-dmz"
+          type: "dmz"
+          components:
+            - id: "f5-hohhot"
+              name: "F5"
+              type: "LB"
+              shape: "hexagon"
+              notes: "Primary ingress load balancer"
+
+            - id: "fw-hohhot"
+              name: "FW"
+              type: "LB"
+              shape: "hexagon"
+
+            - id: "waf-hohhot"
+              name: "WAF (Optional)"
+              type: "LB"
+              shape: "hexagon"
+              status: "in_plan"
+
+            - id: "xxx-web"
+              name: "XXX-1 Web\n(Nginx)"
+              type: "FE"
+              language: "JavaScript"
+              framework: "Nginx/Vue"
+              runtime: "Internal K8s"
+              status: "newly_created"
+
+        - id: "hohhot-app-zone"
+          type: "app_zone"
+          components:
+            - id: "xxx-bff"
+              name: "XXX-1 BFF\n(Java Spring)"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "Internal K8s"
+              status: "newly_created"
+
+            - id: "svc-basic"
+              name: "Basic\n(Java, Spring)"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "Internal K8s"
+              status: "newly_created"
+
+            - id: "svc-program"
+              name: "Program\n(Java, Spring)"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "Internal K8s"
+              status: "newly_created"
+
+            - id: "svc-payment"
+              name: "Payment\n(Java, Spring)"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "Internal K8s"
+              sensitivity: "Company Restricted"
+              status: "newly_created"
+
+            - id: "adfs-hohhot"
+              name: "ADFS"
+              type: "SEC"
+              shape: "circle"
+              notes: "Internal user authentication"
+
+            - id: "internal-wso2"
+              name: "Internal WSO2 API Gateway"
+              type: "IP"
+              shape: "parallelogram"
+              notes: "Internal service integration platform"
+
+        - id: "hohhot-db-zone"
+          type: "db_zone"
+          components:
+            - id: "pg-hohhot"
+              name: "PostgreSQL HA GRP"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Confidential"
+              notes: "AES-256 encryption at rest"
+
+            - id: "opensearch-hohhot"
+              name: "OpenSearch HA GRP"
+              type: "DB"
+              shape: "cylinder"
+
+    # ── Shenyang DC (secondary / legacy integration) ──────────
+    # NOTE: Shenyang uses 2-tier (DMZ + Intranet). Uncomment if needed.
+    # - id: "shenyang-dc"
+    #   type: "private_dc"
+    #   role: "production"
+    #   location: "ShenYang DC (Company) [China]"
+    #   owner: "InfraSec"
+    #   network_zones:
+    #     - id: "shenyang-intranet"
+    #       type: "intranet"
+    #       components:
+    #         - id: "svc-calculation"
+    #           name: "Calculation\n(Java, Spring)"
+    #           type: "BE"
+    #           language: "Java-17"
+    #           framework: "Spring Boot"
+    #           runtime: "Internal K8s"
+    #         - id: "ludp-shenyang"
+    #           name: "LUDP Computing\n(Spark, Kafka, ETL)"
+    #           type: "MQ"
+    #           shape: "message_queue"
+    #           notes: "Big data computing platform"
+
+  interactions:
+    # ── External ingress ──────────────────────────────────────
+    - from: "internet"
+      to: "f5-hohhot"
+      protocol: "HTTPS"
+      auth: "—"
+      notes: "Customer / external user access"
+
+    - from: "internet"
+      to: "f5-hohhot"
+      protocol: "HTTPS/SAML"
+      auth: "ADFS"
+      notes: "Internal user SSO (via ADFS redirect)"
+
+    # ── DMZ → App Zone ────────────────────────────────────────
+    - from: "f5-hohhot"
+      to: "xxx-web"
+      protocol: "HTTPS"
+      auth: "—"
+
+    - from: "xxx-web"
+      to: "xxx-bff"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "HTTPS/User Token"
+
+    # ── BFF → Services ────────────────────────────────────────
+    - from: "xxx-bff"
+      to: "internal-wso2"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "internal-wso2"
+      to: "svc-basic"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "internal-wso2"
+      to: "svc-program"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "internal-wso2"
+      to: "svc-payment"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    # ── App → DB ──────────────────────────────────────────────
+    - from: "svc-basic"
+      to: "pg-hohhot"
+      protocol: "JDBC/SSL"
+      auth: "PWD"
+
+    - from: "svc-program"
+      to: "pg-hohhot"
+      protocol: "JDBC/SSL"
+      auth: "PWD"
+
+    - from: "svc-payment"
+      to: "pg-hohhot"
+      protocol: "JDBC/SSL"
+      auth: "PWD"
+
+    # ── User authentication ───────────────────────────────────
+    - from: "xxx-web"
+      to: "adfs-hohhot"
+      protocol: "HTTPS/SAML"
+      auth: "ADFS"
+      notes: "Internal user SSO"
+
+  security:
+    key_management:
+      private_dc: "Kubernetes Secrets (encrypted at rest) + Internal K8s Secret"
+    user_auth_internal:
+      server: "ADFS"
+      protocol: "SAML 2.0"
+    user_auth_external:
+      server: "Enterprise ID"
+      protocol: "OAuth2.0 Authorization Code"
+    authorization:
+      platform: "AuthZ Platform"
+    bastion:
+      unified: "Privileged Access Workstation (PAW)"
+      access_path: "Office Network → PAW → Hohhot DC Private Network"
+    operational_access:
+      - "No public SSH/RDP"
+      - "MFA required for all privileged access"
+    data_protection:
+      in_transit: "TLS 1.3"
+      at_rest: "AES-256 for Confidential/Restricted data"
+      cross_border: "PRC data stays in PRC DCs"

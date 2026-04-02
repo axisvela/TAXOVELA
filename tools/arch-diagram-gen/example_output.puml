@@ -1,0 +1,110 @@
+@startuml
+' Multi-Region Application Suite
+' ID: MultiRegion-AppSuite-Technical-V1.0
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 11
+skinparam nodeRoundCorner 8
+skinparam nodeBorderThickness 1.5
+skinparam componentRoundCorner 6
+skinparam componentBorderThickness 1
+skinparam arrowThickness 1
+skinparam arrowColor #555555
+skinparam arrowFontSize 9
+skinparam arrowFontColor #333333
+skinparam databaseBackgroundColor #FFF9C4
+skinparam databaseBorderColor #F9A825
+skinparam queueBackgroundColor #D1C4E9
+skinparam queueBorderColor #4527A0
+skinparam hexagonBackgroundColor #FFCDD2
+skinparam hexagonBorderColor #B71C1C
+
+actor User as USER
+cloud Internet as INTERNET {
+}
+
+node "Hohhot DC, Inner Mongolia [CN]\n[CHCS]" as hohhot_dc #FAFAFA [444444] {
+  node "Dmz" as hohhot_dmz #FFF9C4 [D6B656] {
+    hexagon "F5 Load Balancer" as F5_HOHHOT #FFCDD2
+    agent "Web Gateway (Nginx)" as WEB_GATEWAY_HOHHOT #E1BEE7
+  }
+
+  node "App Zone" as hohhot_app_zone #E8F5E9 [82B366] {
+    component "⚠ Application A\n(Java-17, Spring Boot)" <<Earth (K8s)>> as APP_A #FFFFFF
+    component "Application B\n(Java-17, Spring Boot)" <<Earth (K8s)>> as APP_B #FFFFFF
+    component "Application C\n(Node.js-20, Express)" <<Earth (K8s)>> as APP_C #FFFFFF
+  }
+
+  node "Db Zone" as hohhot_db_zone #E3F2FD [6C8EBF] {
+    database "⚠ PostgreSQL A" as DB_A #FFF9C4
+    database "PostgreSQL B/C" as DB_BC #FFF9C4
+  }
+
+}
+
+node "Shenyang DC, Liaoning [CN]\n[CHCS]" as shenyang_dc #FAFAFA [444444] {
+  node "Dmz" as shenyang_dmz #FFF9C4 [D6B656] {
+    hexagon "F5 Load Balancer" as F5_SHENYANG #FFCDD2
+  }
+
+  node "Intranet" as shenyang_intranet #EDE7F6 [9673A6] {
+    component "⚠ Application D\n(Java-17, Spring Boot)" <<Earth (K8s)>> as APP_D #FFFFFF
+    component "Application E\n(Python-3.11, FastAPI)" <<Earth (K8s)>> as APP_E #FFFFFF
+    component "Application F\n(Go-1.22, Gin)" <<Earth (K8s)>> as APP_F #FFFFFF
+    database "PostgreSQL D/E/F" as DB_DEF #FFF9C4
+  }
+
+}
+
+node "Reston DC, Virginia [US]\n[CHCS]" as reston_dc #FAFAFA [444444] {
+  node "Dmz" as reston_dmz #FFF9C4 [D6B656] {
+    hexagon "F5 Load Balancer" as F5_RESTON #FFCDD2
+    agent "WSO2 API Gateway" as WSO2_GATEWAY #E1BEE7
+  }
+
+  node "App Zone" as reston_app_zone #E8F5E9 [82B366] {
+    component "⚠ Application G\n(Java-17, Spring Boot)" <<Earth (K8s)>> as APP_G #FFFFFF
+    component "Application H\n(.NET-8, ASP.NET Core)" <<Earth (K8s)>> as APP_H #FFFFFF
+    queue "Kafka Platform" as KAFKA_CLUSTER #D1C4E9
+  }
+
+  node "Db Zone" as reston_db_zone #E3F2FD [6C8EBF] {
+    database "PostgreSQL G/H" as DB_GH #FFF9C4
+  }
+
+}
+
+node "AWS US East (N. Virginia) [US]\n[Business IT]" as aws_useast #FAFAFA [232F3E] {
+  node "Hub" as aws_hub_vpc #FFF8E1 [F9A825] {
+    hexagon "AWS Network Firewall" as AWS_FIREWALL #FFCDD2
+    component "Lenovo AWP" as AWS_BASTION #FFFFFF
+  }
+
+  node "Spoke" as aws_spoke_vpc #E8F5E9 [4CAF50] {
+    hexagon "ALB + AWS WAF" as ALB_WAF #FFCDD2
+    agent "WSO2 API Gateway" as WSO2_AWS #E1BEE7
+    component "Application I\n(Java-17, Spring Boot)" <<Amazon ECS>> as APP_I #FFFFFF
+    component "Application J\n(Node.js-20, Express)" <<Amazon ECS>> as APP_J #FFFFFF
+    database "Amazon RDS PostgreSQL" as RDS_IJ #FFF9C4
+  }
+
+}
+
+' ── Interactions ────────────────────────────────────
+
+INTERNET --> F5_HOHHOT : "HTTPS"
+INTERNET --> F5_SHENYANG : "HTTPS"
+INTERNET --> F5_RESTON : "HTTPS"
+INTERNET --> ALB_WAF : "HTTPS"
+F5_HOHHOT --> WEB_GATEWAY_HOHHOT : "HTTPS/TLS 1.3"
+WEB_GATEWAY_HOHHOT --> APP_A : "HTTPS/TLS 1.3\n(OAuth2.0)"
+APP_A --> WSO2_GATEWAY : "HTTPS/TLS 1.3\n(mTLS)"
+WSO2_GATEWAY --> APP_G : "HTTPS/TLS 1.3\n(OAuth2.0 Client Cred)"
+APP_B ..> KAFKA_CLUSTER : "Kafka/TLS\n(SASL/SCRAM)"
+ALB_WAF --> WSO2_AWS : "HTTPS/TLS 1.3"
+WSO2_AWS --> APP_I : "HTTPS/TLS 1.3\n(OAuth2.0 Client Cred)"
+APP_A --> DB_A : "JDBC\n(PWD)"
+
+@enduml

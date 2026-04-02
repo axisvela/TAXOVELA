@@ -1,0 +1,31 @@
+# Output (generated files — do not commit)
+output/
+*.drawio.bak
+
+# Input (may contain sensitive diagrams or documents)
+# Remove this line if you want to track input files in git
+input/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo

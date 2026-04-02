@@ -1,0 +1,314 @@
+# ============================================================
+# Rules: accuracy-rules.yaml
+# 维度: Cloud_Network_Completeness (E-) + Connectivity
+# 权重: Cloud_Network_Completeness=2.0（4类各25%）
+#        Connectivity=1.0
+# ============================================================
+
+ruleset:
+  name: "accuracy-rules"
+  version: "2.0"
+
+# ──────────────────────────────────────────────────────────────
+# 维度 1: Cloud_Network_Completeness（权重 2.0）
+# ──────────────────────────────────────────────────────────────
+cloud_network:
+  dimension: "Cloud_Network_Completeness"
+  weight: 2.0
+  subcategory_weight: 0.25    # 4个类别均分
+
+  known_datacenters:
+    - id: "hohhot-dc"
+      name: "内蒙古DC / Hohhot DC"
+      location: { city: "呼和浩特", province: "内蒙古", country: "CN" }
+      expected_zones: ["DMZ", "App Zone", "DB Zone"]
+    - id: "shenyang-dc"
+      name: "沈阳DC / Shenyang DC"
+      location: { city: "沈阳", province: "辽宁", country: "CN" }
+      expected_zones: ["DMZ", "Intranet"]
+    - id: "reston-dc"
+      name: "Reston DC"
+      location: { city: "Reston", state: "Virginia", country: "US" }
+      expected_zones: ["DMZ", "APP SEN", "DB SEN"]
+
+  rules:
+
+    # ── E-A: 部署位置/司法区 ───────────────────────────────────
+    - id: "E-001"
+      category: "location"
+      name: "数据中心须标注城市级位置"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "High"
+      description: >
+        所有私有数据中心节点须标注精确到城市的地理位置。
+        标注格式（任选）：
+        - 城市名 + DC 名称：如 "呼和浩特 DC" / "Hohhot DC"
+        - DC 名称内含位置：如 "Shenyang DC"
+      check_target: "private_dc_nodes"
+      validation_logic: "dc_has_city_location"
+      impact: "无位置信息无法判断数据主权和合规适用法规"
+      suggestion: "在数据中心节点上标注城市名称，参考 known_datacenters 配置"
+
+    - id: "E-002"
+      category: "location"
+      name: "公有云须标注 Region"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "High"
+      description: >
+        所有公有云节点须标注 Region 信息，支持全称或官方简写：
+        | 云平台 | 示例全称            | 示例简写         |
+        |--------|--------------------|--------------------|
+        | Azure  | Azure East US      | Azure PRC北三       |
+        | AWS    | AWS ap-southeast-1 | AWS Singapore      |
+        | GCP    | GCP asia-east1     | GCP 东亚-台湾      |
+        | 阿里云  | 阿里云 华东2（上海）  | AliCloud cn-shanghai |
+      check_target: "public_cloud_nodes"
+      validation_logic: "cloud_node_has_region"
+      impact: "无 Region 标注无法验证数据驻留合规性"
+      suggestion: "在公有云节点标题或副标题处添加 Region 标注"
+
+    - id: "E-003"
+      category: "location"
+      name: "SaaS 和第三方系统须标注司法区/国家"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "High"
+      description: >
+        所有 SaaS 服务和第三方系统节点须标注其运营所在的司法区（国家或州/省）。
+        标注格式示例：
+        - "Salesforce（美国）"
+        - "SAP S/4 HANA（CN）"
+        - "Workday（US - Oregon）"
+      check_target: "saas_and_third_party_nodes"
+      validation_logic: "external_node_has_jurisdiction"
+      impact: "SaaS 所在司法区影响数据跨境传输合规性评估"
+      suggestion: "在 SaaS/第三方节点名称后添加司法区标注"
+
+    # ── E-B: 所有权/供应商 ────────────────────────────────────
+    - id: "E-004"
+      category: "ownership"
+      name: "基础设施须标注所有者/供应商"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "Medium"
+      description: >
+        每个云/DC 节点须标注基础设施所有者或供应商：
+        - InfraSec 提供：标注 "InfraSec"（默认，若未标注则假定为 InfraSec）
+        - 其他供应商：必须显式标注，如 "公司提供" / "第三方托管"
+        - 业务部门自建：标注所属部门名称
+      check_target: "all_infra_nodes"
+      validation_logic: "node_has_owner_label"
+      impact: "所有权不明确影响安全责任划分和变更管理审批"
+      suggestion: "在节点标题区域添加所有者标注，格式：'[节点名称] (InfraSec)'"
+
+    # ── E-C: 网络分段 ─────────────────────────────────────────
+    - id: "E-005"
+      category: "network_segmentation"
+      name: "私有云须标注网络Zone"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "High"
+      description: >
+        私有数据中心内的技术组件必须位于明确的网络 Zone 内：
+        - DMZ（隔离区，对外暴露服务）
+        - App Zone（应用区，业务逻辑层）
+        - DB Zone（数据区，数据存储层）
+        - Intranet（内网，泛指非 DMZ 区域）
+        - APP SEN / DB SEN（Reston DC 专用分段）
+        
+        禁止技术组件"悬空"于数据中心内而不属于任何 Zone。
+      check_target: "private_dc_tech_components"
+      validation_logic: "component_has_network_zone"
+      impact: "无网络 Zone 标注无法评估防火墙策略和横向移动风险"
+      suggestion: "将每个技术组件拖入对应的 Zone 容器（DMZ/App Zone/DB Zone）"
+
+    - id: "E-006"
+      category: "network_segmentation"
+      name: "Azure 须标注 VNET 和 Subnet"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "High"
+      description: >
+        Azure 部署的技术组件须标注其所在的 VNET 和 Subnet：
+        - 使用 VNET（不得写 VPC）表示 Azure 网络隔离单元
+        - Subnet 须区分 Private Subnet 和 Public Subnet
+        - 部分 PaaS 服务不部署在 Subnet 内（如 Azure Storage、Azure Service Bus），
+          但须标注其访问方式（Public Endpoint / Private Endpoint）
+      check_target: "azure_cloud_components"
+      validation_logic: "azure_component_has_vnet_subnet"
+      impact: "VNET/Subnet 信息缺失无法验证网络隔离和私有端点配置"
+      suggestion: "在 Azure 节点中绘制 VNET 容器，内含 Private/Public Subnet 子容器，技术组件放入对应 Subnet"
+
+    - id: "E-007"
+      category: "network_segmentation"
+      name: "AWS/GCP/阿里云须标注 VPC 和 Subnet"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "High"
+      description: >
+        AWS、GCP、阿里云部署的技术组件须标注所在 VPC 和 Subnet（使用 VPC，不得写 VNET）。
+        PaaS 服务若不在 Subnet 内，须标注访问端点类型。
+      check_target: "aws_gcp_ali_cloud_components"
+      validation_logic: "cloud_component_has_vpc_subnet"
+      impact: "同 E-006"
+      suggestion: "在对应云节点中绘制 VPC 容器，内含 Subnet，技术组件放入对应 Subnet"
+
+    # ── E-D: 实体重复 ─────────────────────────────────────────
+    - id: "E-008"
+      category: "duplication"
+      name: "禁止重复绘制同一 DC 或 Region"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "High"
+      description: >
+        同一数据中心或公有云 Region 不得在架构图中出现多个独立节点。
+        若同一 DC 内有多个 Zone，应使用嵌套结构（Zone 在 DC 容器内）而非多个 DC 节点。
+      check_target: "all_infra_nodes"
+      validation_logic: "no_duplicate_dc_or_region"
+      impact: "重复 DC 节点导致通信路径分析错误和部署信息歧义"
+      suggestion: "合并重复的 DC/Region 节点，使用嵌套 Zone 表示内部分段"
+
+# ──────────────────────────────────────────────────────────────
+# 维度 2: Connectivity（权重 1.0）
+# ──────────────────────────────────────────────────────────────
+connectivity:
+  dimension: "Connectivity"
+  weight: 1.0
+
+  connection_types:
+    - "互联网（Internet）"
+    - "IPSec VPN"
+    - "SSL VPN"
+    - "MPLS 专线"
+    - "SD-WAN"
+    - "Azure ExpressRoute"
+    - "AWS Direct Connect"
+    - "GCP Cloud Interconnect"
+    - "阿里云高速通道"
+
+  rules:
+
+    - id: "E-009"
+      dimension: "Connectivity"
+      name: "跨 DC/云/SaaS 连接须标注连接方式"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "High"
+      description: >
+        不同数据中心之间、数据中心与公有云之间、以及与 SaaS/第三方之间的连接，
+        须在连接线旁或使用图标标注连接方式（见 connection_types）。
+        此标注位于 DC/云节点层级，不要求标注在每条通信流箭头上。
+      check_target: "inter_dc_cloud_connections"
+      validation_logic: "cross_boundary_connection_has_type_label"
+      scoring:
+        formula: "missing_label_count / total_cross_boundary_connections * dimension_weight"
+      impact: "连接方式不明确无法评估传输安全性和带宽/延迟风险"
+      suggestion: "在 DC/云之间的连接线旁添加连接方式图标或文字标注"
+
+    - id: "E-010"
+      dimension: "Connectivity"
+      name: "跨区连接须标注是否加密"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "High"
+      description: >
+        DC 间和 DC 与云间的连接须明确标注是否加密及加密方式：
+        - VPN 连接：标注 IPSec 或 SSL
+        - 专线/MPLS：标注是否叠加 IPSec 加密
+        - 互联网直连：必须标注 TLS 加密
+      check_target: "inter_dc_cloud_connections"
+      validation_logic: "cross_boundary_connection_has_encryption_label"
+      scoring:
+        formula: "missing_encryption_count / total_cross_boundary_connections * dimension_weight"
+      impact: "跨区明文传输存在数据泄露风险，可能违反等保/ISO27001 要求"
+      suggestion: "在连接方式标注旁补充加密方式，如 'IPSec VPN (AES-256)'"
+
+# ──────────────────────────────────────────────────────────────
+# 维度 3: Technical_Component_Completeness（权重 2.0）
+# ──────────────────────────────────────────────────────────────
+technical_component:
+  dimension: "Technical_Component_Completeness"
+  weight: 2.0
+  subcategory_weight: 0.333   # 3个类别均分
+
+  component_types:
+    - "Web Frontend"
+    - "Backend Service / API"
+    - "Background Job / Worker"
+    - "Database"
+    - "Message Queue"
+    - "Cache"
+    - "Integration Platform"
+    - "API Gateway"
+    - "Identity Provider"
+
+  runtime_types:
+    - "Container (Docker)"
+    - "Kubernetes Pod"
+    - "Virtual Machine (VM)"
+    - "Physical Machine"
+    - "PaaS Managed Service"
+    - "Serverless Function"
+
+  rules:
+
+    - id: "E-011"
+      category: "name_and_type"
+      name: "技术组件须标注名称和类别"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "High"
+      description: >
+        每个技术组件节点须包含：
+        1. 服务/进程名称（非泛称，如 "OrderService" 而非 "微服务"）
+        2. 组件类别（见 component_types）
+        缺少任一视为不完整。
+      check_target: "all_tech_components"
+      validation_logic: "component_has_name_and_type"
+      scoring:
+        formula: "incomplete_count / total_components * subcategory_weight * dimension_weight"
+      impact: "组件名称模糊导致无法与 IaC 代码对应，影响部署验证"
+      suggestion: "使用实际服务名称（如部署在 K8s 中的 Deployment name）标注组件"
+
+    - id: "E-012"
+      category: "tech_stack"
+      name: "技术组件须标注语言/框架/关键库"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "Medium"
+      description: >
+        自研技术组件须标注：
+        - 编程语言（Java / Python / Node.js / Go / .NET 等）
+        - 主要框架（Spring Boot / FastAPI / Express / Gin 等）
+        - 关键库（可选，用于安全审查）
+        
+        公有云托管服务须标注服务类型（如 Azure App Service / AWS Lambda）。
+        第三方商业软件（SAP、Salesforce）不要求标注语言/框架。
+      check_target: "custom_dev_components"
+      validation_logic: "custom_component_has_tech_stack"
+      scoring:
+        formula: "missing_stack_count / custom_component_total * subcategory_weight * dimension_weight"
+      impact: "缺少技术栈信息无法进行安全漏洞扫描范围界定"
+      suggestion: "在组件节点副标题或注释中添加：语言 + 框架，如 'Java / Spring Boot'"
+
+    - id: "E-013"
+      category: "runtime_environment"
+      name: "技术组件须标注运行环境"
+      severity: "error"
+      issue_type: "must_fix"
+      priority: "High"
+      description: >
+        每个技术组件须通过以下方式之一标注运行环境（见 runtime_types）：
+        1. 将组件放置在技术平台 Frame 内（如 Kubernetes Frame、VM Frame）
+        2. 在组件节点上使用运行环境图标
+        3. 在组件节点注释中文字说明
+        
+        技术平台自身须标注所有者（自建须注明所属部门）。
+      check_target: "all_tech_components"
+      validation_logic: "component_has_runtime_label"
+      scoring:
+        formula: "missing_runtime_count / total_components * subcategory_weight * dimension_weight"
+      impact: "运行环境不明确无法评估补丁管理责任和容器安全策略"
+      suggestion: "将技术组件放入对应的技术平台 Frame（K8s/VM）中，或在节点上标注运行环境"

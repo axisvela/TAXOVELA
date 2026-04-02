@@ -1,0 +1,208 @@
+# ============================================================
+# Standard: azure-standard.yaml
+# 来源: Azure Cloud Architecture Standard v1.0
+# 用途: accuracy-rules、security-rules 的 Azure 专属校验基线
+# ============================================================
+
+standard:
+  name: "Azure Cloud Architecture Standard"
+  version: "1.0"
+  author: "Huiwen Han"
+  date: "2026-01-15"
+
+# ═══════════════════════════════════════════════════════════
+# 1. 网络拓扑强制要求
+# ═══════════════════════════════════════════════════════════
+topology:
+  model: "Hub–Spoke（强制）"
+
+  hub_vnet_services:
+    - "Central Firewall（出口）"
+    - "Bastion"
+    - "Virtual Network Gateway"
+    - "DNS & DNS Forwarding"
+    - "Monitoring / SIEM Collector"
+
+  spoke_vnet_allowed:
+    - "Application workloads"
+    - "Platform workloads"
+    - "API Management（APIM，Internal VNET Mode，位于 Spoke）"
+    - "Ingress components"
+
+  rules:
+    - "每个物理 Region 需要一个独立的 Hub"
+    - "生产和非生产必须使用独立 Hub、独立订阅、独立路由"
+    - "Regional Hub 通过 ExpressRoute Global Reach 或 VPN 互连"
+    - "APIM 位于 Spoke VNET（不在 Hub），以最大化运营效率"
+
+# ═══════════════════════════════════════════════════════════
+# 2. 资源部署规则
+# ═══════════════════════════════════════════════════════════
+deployment_rules:
+  - "应用工作负载不得部署在 Public Subnet"
+  - "所有 PaaS 服务必须仅使用 Private Endpoint"
+  - "公共访问必须禁用，除非服务本身固有需要公网连接"
+
+  azure_policy:
+    - "禁止工作负载使用公网 IP"
+    - "强制 Private Endpoint"
+    - "所有 Subnet 必须配置 NSG"
+    - "命名和标签标准"
+    - "允许的 SKU 和 Region 限制"
+    - "强制诊断设置"
+
+# ═══════════════════════════════════════════════════════════
+# 3. 应用平台策略
+# ═══════════════════════════════════════════════════════════
+platform_strategy:
+  it_department_core:
+    runtime: "自管理 Kubernetes/容器平台"
+    reason: "支持跨混合/多云环境可移植性"
+    platforms: ["Internal K8s", "APIH", "内部中间件", "集成系统"]
+
+  business_it_agile:
+    runtime: "Azure PaaS（App Service/Functions/Logic Apps）"
+    reason: "加速交付，减少运营负担"
+
+  uniform_connectivity:
+    - "Private Link / ILB"
+    - "部署在 Spoke VNET 内"
+    - "零信任网络分段"
+    - "流量经 Hub 检查（除非豁免）"
+
+# ═══════════════════════════════════════════════════════════
+# 4. 混合云连接
+# ═══════════════════════════════════════════════════════════
+hybrid_connectivity:
+  primary_method: "ExpressRoute"
+  gateway_location: "Hub VNET（必须）"
+  spoke_access: "通过 VNET Peering"
+  routing: "UDR 必须确保混合流量经过防火墙（除非正式豁免）"
+
+# ═══════════════════════════════════════════════════════════
+# 5. 入口安全（North–South Ingress）
+# ═══════════════════════════════════════════════════════════
+ingress:
+  scenario_a_web:
+    name: "外部 Web 应用（公共 Web 流量）"
+    mandatory_components:
+      - "Application Gateway（WAF v2）"
+    optional_components:
+      - "Central Firewall（L4 入站检查，基于风险/成本/安全权衡）"
+    flow: "Internet → App Gateway(WAF) → Backend App(Private IP/PrivateLink) → Databases & internal"
+    rules:
+      - "App Gateway 是所有 HTTP/S Web 应用的必选前门"
+      - "禁止应用服务器或 PaaS 后端直接公网访问"
+      - "WAF 策略必须遵循 OWASP 核心规则集"
+
+  scenario_b_api:
+    name: "外部合作伙伴/客户 API"
+    mandatory_components:
+      - "Application Gateway（WAF v2）"
+      - "API Management（Internal VNET Mode，位于 Spoke）"
+    flow: "Internet → App Gateway(WAF) → APIM(Spoke Internal) → Backend services via Private Endpoint"
+    rules:
+      - "所有外部 API 请求必须先过 WAF，再到 APIM"
+      - "APIM 负责：认证/授权、限流/配额、协议/转换策略"
+      - "后端服务无公网暴露"
+      - "APIM 在 Spoke VNET（不在 Hub）"
+
+  protocol_restrictions:
+    - "Public Subnet 的 NSG 仅支持 TCP 443"
+    - "禁止 SSH/RDP 及其他协议"
+
+  azure_firewall_optional:
+    is_mandatory: false
+    deploy_when:
+      - "高业务价值/敏感或受监管数据/关键工作负载"
+      - "需要超出 Scenario B 的 L4 检查"
+      - "需要源 IP 允许/拒绝列表（WAF 前 L3/L4 过滤）"
+    note: "Azure Firewall 部署必须是成本-运营-安全权衡决策，而非默认要求"
+
+# ═══════════════════════════════════════════════════════════
+# 6. 出口控制（North–South Egress）
+# ═══════════════════════════════════════════════════════════
+egress:
+  rule: "所有 Spoke 出站流量必须经过 Hub Firewall"
+  firewall_capabilities:
+    - "FQDN 过滤"
+    - "威胁情报过滤"
+    - "DNS 代理"
+    - "默认拒绝所有出站"
+
+# ═══════════════════════════════════════════════════════════
+# 7. 运维访问
+# ═══════════════════════════════════════════════════════════
+operational_access:
+  primary: "Azure Bastion（Standard，唯一跳板机）"
+  jit: "通过 Defender for Cloud 启用"
+  rules:
+    - "禁止公网 SSH/RDP"
+    - "托管 VM 的 Subnet 的 NSG 仅允许来自 Bastion IP 范围的 SSH/RDP"
+
+# ═══════════════════════════════════════════════════════════
+# 8. 东西向流量分段
+# ═══════════════════════════════════════════════════════════
+east_west:
+  app_tiering:
+    - { tier: "Web tier",  subnet: "独立 Subnet" }
+    - { tier: "App tier",  subnet: "独立 Subnet" }
+    - { tier: "Data tier", subnet: "独立 Subnet" }
+  subnet_segmentation:
+    - "所有 Subnet 必须使用 NSG"
+    - "多应用共享 Subnet 时必须使用 ASG"
+  spoke_to_spoke:
+    default: "DENY ALL"
+    exceptions: "必须集中审批 + 特定 UDR 规则 + 经过防火墙（除非明确豁免）"
+
+# ═══════════════════════════════════════════════════════════
+# 9. PaaS 服务访问
+# ═══════════════════════════════════════════════════════════
+paas_access:
+  requirements:
+    - "Private Endpoint"
+    - "Private DNS Zone"
+    - "策略禁用公网访问"
+  dns: "所有私有端点区域集中管理；DNS 解析通过 DNS Forwarder + Firewall DNS 代理"
+
+# ═══════════════════════════════════════════════════════════
+# 10. 数据安全与凭证保护
+# ═══════════════════════════════════════════════════════════
+data_security:
+  identity: "Managed Identity（仅此，禁止硬编码凭证）"
+  credential_store: "Azure Key Vault（必选，用于 Secrets/CMK keys/Certificates）"
+  key_vault_config:
+    - "soft-delete 启用"
+    - "purge-protection 强制"
+  in_transit: "TLS 1.3+ 用于所有传输"
+  at_rest: "AES-256 静态加密"
+
+# ═══════════════════════════════════════════════════════════
+# 11. 可观测性
+# ═══════════════════════════════════════════════════════════
+observability:
+  centralized_logs:
+    workspace: "Central Log Analytics Workspace"
+    sources:
+      - "Firewall"
+      - "App Gateway"
+      - "APIM"
+      - "NSG flow logs"
+      - "VM logs"
+      - "所有 PaaS 诊断"
+  monitoring:
+    - "Azure Monitor Alerts（所有关键服务必须）"
+    - "Dashboard：网络流量/入口日志/API性能/PaaS指标"
+
+# ═══════════════════════════════════════════════════════════
+# 12. 灾备与高可用
+# ═══════════════════════════════════════════════════════════
+disaster_recovery:
+  region_level_mandatory:
+    - { service: "APIM",    strategy: "Zone redundancy or region replication" }
+    - { service: "Key Vault", strategy: "Zone redundancy or region replication" }
+    - { service: "Storage", strategy: "Zone redundancy or region replication" }
+    - { service: "DNS",     strategy: "Zone redundancy or region replication" }
+  platform_dr:
+    - "Kubernetes 集群必须支持多 Zone 节点"
+    - "Private Endpoint 故障转移和 Private DNS 必须预配置"

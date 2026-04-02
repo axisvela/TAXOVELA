@@ -1,0 +1,307 @@
+# ============================================================
+# Template: azure-hub-spoke.yaml
+# Source: Technology_Solution_Template_for_Azure-v1_0.drawio
+# Pattern: Azure Hub-Spoke VNET + private DC via ExpressRoute
+# Use when: EMEA/NA SaaS on Azure, or migrating to Azure from DC
+# ============================================================
+
+_template:
+  id: "azure-hub-spoke"
+  name: "Azure Hub-Spoke — VNET + DC Integration"
+  version: "1.0"
+  source_drawio: "Technology_Solution_Template_for_Azure-v1_0.drawio"
+  use_when:
+    - "Azure-based application with Hub-Spoke networking"
+    - "Azure PaaS (App Service, AKS, Functions)"
+    - "Integration with private DC via ExpressRoute"
+    - "External partner/customer APIs via APIM"
+  typical_stack: ["Java/Spring Boot", "AKS/Internal K8s", "Azure App Service", "APIM", "Kafka", "Azure Key Vault"]
+  mixable_with: ["private-cloud", "microsoft-graph"]
+  azure_regions:
+    primary: "Azure XXX [Region] [Country]"
+    secondary: "Microsoft Cloud (Company) [SG/HK]"
+  placeholder_guide:
+    XXX: "Application name"
+    Axx1: "App service abbreviation"
+    REGION: "East Asia | East US | West Europe"
+
+arch:
+  id: "XXX-Azure-TechDiagram-V1.0"
+  name: "XXX Application — Azure Hub-Spoke Architecture"
+  platform: "azure"
+  author: "Itcode-Firstname-Lastname"
+  owner_team: "Your Team"
+  version: "V1.0"
+
+  deployment:
+
+    # ── Azure Hub VNET ────────────────────────────────────────
+    - id: "azure-hub"
+      type: "azure_vnet"
+      role: "hub"
+      location: "Azure XXX [Region] [Country] (Company)"
+      owner: "InfraSec"
+      subnets:
+
+        - id: "hub-vnet"
+          type: "hub"
+          name: "Hub VNET (Company) {Hub}"
+          components:
+            - id: "azure-firewall"
+              name: "Azure Firewall"
+              type: "LB"
+              shape: "hexagon"
+              notes: "Central egress firewall (optional — deploy based on risk)"
+
+            - id: "azure-bastion"
+              name: "Azure Bastion"
+              type: "BE"
+              shape: "bastion"
+              notes: "Azure Bastion Standard — only jump host"
+
+            - id: "vnet-gateway"
+              name: "VNet Gateway"
+              type: "NW"
+              notes: "ExpressRoute / VPN gateway; must be in Hub VNET"
+
+            - id: "dns-forwarder"
+              name: "DNS Forwarder"
+              type: "NW"
+              notes: "Custom DNS for private endpoint resolution"
+
+        - id: "hub-fw-subnet"
+          type: "private"
+          name: "Firewall Subnet"
+          components:
+            - id: "ddos"
+              name: "DDoS Protection"
+              type: "SEC"
+
+            - id: "waf"
+              name: "WAF"
+              type: "LB"
+              shape: "hexagon"
+
+    # ── Azure Spoke VNET (Application) ───────────────────────
+    - id: "azure-spoke"
+      type: "azure_vnet"
+      role: "spoke"
+      location: "Azure XXX [Region] [Country] (Company)"
+      owner: "InfraSec"
+      subnets:
+
+        - id: "spoke-public-web"
+          type: "public"
+          name: "Public Subnet (Web)"
+          components:
+            - id: "app-gateway"
+              name: "Application Gateway\n(WAF v2)"
+              type: "LB"
+              shape: "hexagon"
+              notes: "Mandatory front door for all HTTP/S traffic; OWASP rules"
+
+            - id: "ingress-ctrl"
+              name: "Ingress Controller"
+              type: "IP"
+              shape: "parallelogram"
+
+        - id: "spoke-private-web"
+          type: "private"
+          name: "Private Subnet (Web)"
+          components:
+            - id: "xxx-web"
+              name: "XXX Web\n(Nginx/Vue)"
+              type: "FE"
+              language: "JavaScript"
+              framework: "Nginx/Vue"
+              runtime: "AKS"
+              status: "newly_created"
+
+        - id: "spoke-private-app"
+          type: "private"
+          name: "Private Subnet (App)"
+          components:
+            - id: "internal-k8s"
+              name: "Internal K8s/K8S Cluster\n(XXX)"
+              type: "BE"
+              runtime: "AKS"
+              notes: "Self-managed K8s for IT core platforms"
+
+            - id: "axx1-svc1"
+              name: "Axx1-XXX1\n(Spring Boot)"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "AKS"
+              status: "newly_created"
+
+            - id: "axx1-svc2"
+              name: "Axx1-XXX2\n(Spring Boot)"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "AKS"
+              status: "newly_created"
+
+            - id: "apim"
+              name: "APIM\n(Internal VNET)"
+              type: "IP"
+              shape: "parallelogram"
+              notes: "API Management in Spoke VNET Internal mode (NOT Hub)"
+
+            - id: "apih"
+              name: "APIH"
+              type: "IP"
+              shape: "parallelogram"
+              notes: "Internal API Hub integration platform"
+
+            - id: "kafka-azure"
+              name: "Kafka"
+              type: "MQ"
+              shape: "message_queue"
+
+        - id: "spoke-private-db"
+          type: "private"
+          name: "Private Subnet (DB)"
+          components:
+            - id: "pg-azure"
+              name: "PostgreSQL Flexible Server"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Confidential"
+              notes: "Azure managed; Private Endpoint; TDE encryption"
+
+            - id: "redis-azure"
+              name: "Azure Cache for Redis"
+              type: "DB"
+              shape: "cylinder"
+              notes: "Private Endpoint"
+
+            - id: "key-vault"
+              name: "Azure Key Vault"
+              type: "SEC"
+              notes: "Mandatory: soft-delete + purge-protection enabled; CMK + Secrets"
+
+        - id: "spoke-private-endpoint"
+          type: "private"
+          name: "Private Endpoint Subnet"
+          components:
+            - id: "storage-pe"
+              name: "Storage Account\n(Private Endpoint)"
+              type: "DS"
+              notes: "Public access disabled by Azure Policy"
+
+    # ── Private DC (existing, integrated via ExpressRoute) ───
+    - id: "xxx-dc"
+      type: "private_dc"
+      role: "production"
+      location: "XXX DC (Company) [Country]"
+      owner: "InfraSec"
+      network_zones:
+        - id: "dc-app-zone"
+          type: "app_zone"
+          components:
+            - id: "dc-app-x"
+              name: "Application X\n(existing)"
+              type: "BE"
+              status: "unchanged"
+              notes: "Existing on-prem app — not modified in this project"
+
+            - id: "dc-app-xx"
+              name: "App XX\n(existing)"
+              type: "BE"
+              status: "unchanged"
+
+    # ── External (partner/customer) ───────────────────────────
+    # Uncomment if external partner integration is needed
+    # - id: "internet-external"
+    #   type: "saas"
+    #   location: "Internet (XXX Company) [Country]"
+    #   owner: "Third Party"
+    #   components:
+    #     - id: "partner-app"
+    #       name: "Partner APP"
+    #       type: "BE"
+    #       owner_type: "third_party"
+
+  interactions:
+    # ── External ingress ──────────────────────────────────────
+    - from: "internet"
+      to: "app-gateway"
+      protocol: "HTTPS"
+      auth: "—"
+      notes: "All external traffic must pass through App Gateway WAF v2"
+
+    - from: "app-gateway"
+      to: "xxx-web"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "—"
+
+    # ── Web → APIM → Services ─────────────────────────────────
+    - from: "xxx-web"
+      to: "apim"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 (ADFS/EnterpriseID)"
+      notes: "APIM in Spoke VNET Internal mode"
+
+    - from: "apim"
+      to: "axx1-svc1"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "apim"
+      to: "axx1-svc2"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    # ── DC ↔ Azure via APIH ───────────────────────────────────
+    - from: "dc-app-x"
+      to: "apih"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "mTLS"
+
+    - from: "apih"
+      to: "axx1-svc1"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    # ── Async via Kafka ───────────────────────────────────────
+    - from: "axx1-svc1"
+      to: "kafka-azure"
+      protocol: "Kafka/TLS"
+      auth: "SASL/SCRAM"
+
+    # ── DB access ─────────────────────────────────────────────
+    - from: "axx1-svc1"
+      to: "pg-azure"
+      protocol: "TCP/TLS"
+      auth: "PWD"
+
+    - from: "axx1-svc2"
+      to: "pg-azure"
+      protocol: "TCP/TLS"
+      auth: "PWD"
+
+    # ── DC ↔ Azure connectivity ───────────────────────────────
+    - from: "xxx-dc"
+      to: "azure-hub"
+      protocol: "ExpressRoute"
+      auth: "IPSec"
+      notes: "ExpressRoute is mandatory for hybrid connectivity; VNet Gateway in Hub"
+
+  security:
+    key_management:
+      azure: "Azure Key Vault (soft-delete + purge-protection mandatory)"
+    user_auth_internal:
+      server: "ADFS"
+      protocol: "SAML 2.0"
+    user_auth_external:
+      server: "Enterprise ID"
+      protocol: "OAuth2.0 Authorization Code"
+    authorization:
+      platform: "AuthZ Platform"
+    bastion:
+      unified: "Azure Bastion (Standard) — only jump host, no public SSH/RDP"
+    data_protection:
+      in_transit: "TLS 1.3"
+      at_rest: "AES-256 / Azure TDE / CMK in Key Vault"

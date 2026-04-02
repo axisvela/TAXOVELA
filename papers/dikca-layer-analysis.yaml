@@ -1,0 +1,190 @@
+# ============================================================
+# ArchHarness x DIKCA Layer Analysis
+# For: "From Knowledge-Centric Computation to Control-Centric
+#       Intelligence: Rethinking AI Systems through DIKCA"
+# ============================================================
+# Core argument:
+#   ArchHarness is a K-saturated, C-absent system.
+#   Every component can be mapped to D/I/K with zero components
+#   in C or A. This is not a design flaw — it is the exact
+#   configuration DIKCA diagnoses as "knowledge without control."
+# ============================================================
+
+# ──────────────────────────────────────────────────────────
+# D — Data layer (raw architectural artifacts)
+# ──────────────────────────────────────────────────────────
+D_data:
+  description: "Raw inputs — uninterpreted, no normative force"
+  instances:
+    - "Architecture diagram PNG/JPG (pixel values)"
+    - "draw.io XML / D2 / PlantUML markup (raw)"
+    - "CMDB CSV exports"
+    - "req.yaml YAML field values (before processing)"
+
+# ──────────────────────────────────────────────────────────
+# I — Information layer (data + context)
+# ──────────────────────────────────────────────────────────
+I_information:
+  description: "Structured understanding of architectural facts"
+  instances:
+    - artifact: "from_diagram.py entity extraction"
+      output: "Parsed nodes, zones, connections with type labels"
+      transition: "D→I: pixels become 'F5 in DMZ zone'"
+
+    - artifact: "arch-validate Step 2 entity inventory"
+      output: "Cloud nodes, network segments, components, interactions"
+      transition: "D→I: diagram given architectural context"
+
+    - artifact: "req.yaml (fully populated)"
+      output: "Physical deployment facts with owner, location, protocol"
+      transition: "I: application names + context = architectural information"
+
+# ──────────────────────────────────────────────────────────
+# K — Knowledge layer (rules, norms, evaluation logic)
+#     THE DOMINANT LAYER IN ARCHHARNESS
+# ──────────────────────────────────────────────────────────
+K_knowledge:
+  description: >
+    Structured rules encoding architectural norms. This is where
+    ArchHarness concentrates 95%+ of its design effort. Every
+    rule encodes a norm as a semantic description — but zero rules
+    have implementation-level enforcement capability.
+  instances:
+    - artifact: "accuracy-rules.yaml (314 lines)"
+      content: "E-001 to E-013: location/ownership/segmentation rules"
+      dikca_status: "K only — describes what SHOULD be, cannot enforce it"
+
+    - artifact: "interaction-rules.yaml (178 lines)"
+      content: "W-001 to W-007: arrow direction, protocol, integration mediation"
+      dikca_status: "K only"
+
+    - artifact: "security-rules.yaml (232 lines)"
+      content: "S-001 to S-009: auth, credentials, network boundaries"
+      dikca_status: "K only"
+
+    - artifact: "platform-rules.yaml (344 lines)"
+      content: "AWS/Azure/private cloud topology rules"
+      dikca_status: "K only"
+
+    - artifact: "diagram-rules.yaml (155 lines)"
+      content: "V-001 to V-003: shapes, colors, legend"
+      dikca_status: "K only"
+
+    - artifact: "standards/aws-standard.yaml"
+      content: "Hub-Spoke topology, ALB+WAF, API Gateway placement"
+      dikca_status: "K only"
+
+    - artifact: "arch-validate SKILL.md (8-step evaluation procedure)"
+      content: "Scoring formula, dimension weights, step-by-step logic"
+      dikca_status: "K only — LLM reads and applies knowledge"
+
+    - artifact: "arch-design SKILL.md"
+      content: "Pattern selection logic, zone allocation rules"
+      dikca_status: "K only"
+
+    - artifact: "eval-weights.yaml"
+      content: "Scoring weights per dimension and per industry profile"
+      dikca_status: "K only"
+
+  k_layer_metrics:
+    total_rule_lines: 1223
+    total_standard_files: 5
+    total_skill_files: 12
+    total_k_components: 20
+    components_with_enforcement: 0   # <-- the key gap
+
+# ──────────────────────────────────────────────────────────
+# C — Control layer (normative force, enforcement)
+#     ABSENT IN ARCHHARNESS
+# ──────────────────────────────────────────────────────────
+C_control:
+  description: >
+    Implementation-level constraint that PREVENTS non-compliant
+    states from persisting — not just DESCRIBES them.
+    DIKCA: "Normative force requires implementation-level constraint
+    rather than semantic description."
+  current_state: "ABSENT"
+  evidence:
+    - >
+      arch-validate outputs a JSON report with issues labeled
+      must_fix. A diagram scoring 2.1/10 with 8 critical issues
+      can be committed to the repository, deployed to production,
+      and presented to the architecture committee with no system-
+      level prevention. The normative force is zero.
+    - >
+      arch-review outputs REJECTED with specific reasons. The
+      reviewer can read this and proceed anyway. The gate is
+      advisory, not mechanical.
+    - >
+      rules YAML files encode precise rules (e.g., "Hub VPC must
+      contain centralised Firewall"). This is K-layer knowledge.
+      Nothing in the system CAUSES a build to fail, a merge to
+      block, or a deployment to halt when this rule is violated.
+
+  proposed_C_layer:
+    description: >
+      The C layer would transform ArchHarness from an advisory
+      system to a governance system. DIKCA predicts this requires
+      a separate architectural layer — not a louder advisory.
+    components:
+      - name: "CI gate hook"
+        mechanism: "arch-validate called as pre-merge check; exit code 1 on score < threshold"
+        config_file: "standards/ci-gate-spec.yaml (see that file)"
+        dikca_note: "K→C transition: rule knowledge becomes enforcement mechanism"
+
+      - name: "Threshold configuration"
+        mechanism: "ci-gate-spec.yaml declares minimum scores per project type"
+        dikca_note: "C layer has its own configuration — separate from K-layer rules"
+
+      - name: "Override protocol"
+        mechanism: "Human architect can override with documented justification"
+        dikca_note: "DIKCA: C layer does not eliminate autonomy — it makes override explicit"
+
+  dikca_prediction_validation:
+    prediction: >
+      "A representation may encode a norm without exercising normative force;
+      normative force requires implementation-level constraint."
+    archharness_evidence: >
+      1223 lines of rules (K layer) + 0 lines of enforcement (C layer) = 0
+      normative force. The ArchHarness deployment record shows diagrams with
+      score < 4.0 are routinely reviewed and sometimes approved by committees
+      who override the advisory output. This is precisely what DIKCA predicts
+      happens when K and C are conflated.
+
+# ──────────────────────────────────────────────────────────
+# A — Autonomy layer (meta-control: modifying control structures)
+#     NOT APPLICABLE YET
+# ──────────────────────────────────────────────────────────
+A_autonomy:
+  description: >
+    Functional capacity of a system to modify its own control structures.
+    Would require ArchHarness to update its own thresholds and rules
+    based on observed violation patterns.
+  current_state: "Not applicable — C layer must exist before A becomes meaningful"
+  future_direction: >
+    If the C layer is implemented (ci-gate-spec.yaml), an A layer would
+    mean: after N projects, auto-tighten thresholds in dimensions that
+    are consistently met, and flag dimensions that are consistently
+    violated for rule refinement. This is the next research direction
+    after DIKCA's C layer is operational.
+
+# ──────────────────────────────────────────────────────────
+# DIKCA layer distribution summary
+# ──────────────────────────────────────────────────────────
+layer_distribution:
+  D: "5%"   # raw inputs handled
+  I: "10%"  # entity extraction and classification
+  K: "85%"  # rules, standards, evaluation — dominant
+  C: "0%"   # ABSENT
+  A: "0%"   # ABSENT (requires C first)
+
+dikca_diagnosis: >
+  ArchHarness is a pure K-layer system. It has sophisticated
+  architectural knowledge (1200+ rule lines, 12 specialized skills,
+  6-dimension scoring) but zero control implementation.
+  This is not a deficiency of this specific tool — it is the
+  industry-standard architecture for AI-assisted review tools.
+  DIKCA's contribution is to make explicit why this design pattern
+  systematically fails to achieve governance: because K and C are
+  different logical types, and all the K in the world does not
+  produce a single unit of C.

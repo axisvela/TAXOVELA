@@ -1,0 +1,190 @@
+# ============================================================
+# Standard: private-cloud-standard.yaml
+# 来源: Private Cloud Architecture Standard v1.0
+#        Private Cloud Architecture Diagram Shape Specification v1.0
+# 用途: accuracy-rules、security-rules、arch-validate-skill 的参考基线
+# ============================================================
+
+standard:
+  name: "Private Cloud Architecture Standard"
+  version: "1.0"
+  author: "Huiwen Han"
+  date: "2026-01-15"
+  classification: "Company Internal"
+
+# ═══════════════════════════════════════════════════════════
+# 1. 数据中心清单与网络分区
+#    用于 accuracy-rules.yaml known_datacenters 和 validate skill
+# ═══════════════════════════════════════════════════════════
+datacenters:
+  - id: "hohhot-dc"
+    aliases: ["Hohhot DC", "Neimeng DC", "内蒙DC", "内蒙古DC"]
+    location: { city: "呼和浩特", province: "内蒙古", country: "CN" }
+    owner: "InfraSec"
+    model: "three-tier"
+    network_zones:
+      - { name: "DMZ",      type: "dmz",      description: "Web层，对外暴露服务" }
+      - { name: "App Zone", type: "app_zone",  description: "应用层，业务逻辑" }
+      - { name: "DB Zone",  type: "db_zone",   description: "数据库层" }
+    recommended_for: ["PRC Business"]
+    notes: "三层经典分段，推荐参考模型"
+
+  - id: "shenyang-dc"
+    aliases: ["Shenyang DC", "沈阳DC"]
+    location: { city: "沈阳", province: "辽宁", country: "CN" }
+    owner: "InfraSec"
+    model: "two-tier"
+    network_zones:
+      - { name: "DMZ",      type: "dmz",      description: "Web层" }
+      - { name: "Intranet", type: "intranet",  description: "App+DB均在此区，内部须进一步隔离" }
+    recommended_for: ["PRC Business"]
+    notes: "两层传统分段；App和DB均在Intranet，需内部控制确保DB不被其他应用直接访问"
+
+  - id: "reston-dc"
+    aliases: ["Reston DC", "ROW DC", "Reston NA DC"]
+    location: { city: "Reston", state: "Virginia", country: "US" }
+    owner: "InfraSec"
+    model: "multi-zone"
+    network_zones:
+      - { name: "NA-PROD-DMZ-SERVER",      type: "dmz",        description: "Web入口" }
+      - { name: "NA-PROD-DMZ-K8S",       type: "dmz",        description: "容器区DMZ" }
+      - { name: "NA-PROD-INA-SAP",         type: "app_zone",   description: "SAP专区" }
+      - { name: "NA-PROD-INA-INTEGRATION", type: "app_zone",   description: "集成中间件Zone" }
+      - { name: "NA-PROD-INA-K8S",       type: "app_zone",   description: "容器平台Zone" }
+      - { name: "NA-PROD-INA-DB",          type: "db_zone",    description: "数据库Zone" }
+      - { name: "NA-PROD-INA-SERVER",      type: "app_zone",   description: "通用应用服务Zone" }
+      - { name: "NA-PROD-INA-LUDP",        type: "data_zone",  description: "大数据Zone" }
+      - { name: "NA-PROD-AI-COMPUTING",    type: "ai_zone",    description: "AI/ML计算Zone" }
+    recommended_for: ["NA Business"]
+    notes: "多Zone专区模型；只有Integration Zone可中介跨应用调用"
+
+  - id: "frankfurt-dc"
+    aliases: ["Frankfurt DC", "EMEA DC"]
+    location: { city: "Frankfurt", country: "DE" }
+    owner: "InfraSec"
+    model: "two-tier"
+    network_zones:
+      - { name: "DMZ",      type: "dmz" }
+      - { name: "Intranet", type: "intranet" }
+    recommended_for: ["EMEA Business"]
+    notes: "网络结构类似沈阳DC"
+
+# ═══════════════════════════════════════════════════════════
+# 2. 入口规范（North–South Ingress）
+# ═══════════════════════════════════════════════════════════
+ingress:
+  mandatory_gateway: "F5"
+  f5_responsibilities:
+    - "TLS 终止或透传"
+    - "Layer-7 访问控制"
+    - "流量路由和负载均衡"
+    - "威胁检测和协议验证"
+  rule: "任何系统不得绕过 F5 直接暴露到公共网络"
+
+  scenario_a_web:
+    name: "互联网面向 Web 应用"
+    flow: "Internet → Anti-DDoS/CDN（可选）→ F5（必须）→ DMZ Web层 → 内部应用层 → 内部DB层"
+    rules:
+      - "Web服务器必须部署在 DMZ"
+      - "应用服务器和数据库不得部署在 DMZ"
+      - "只有 Web 层可从 F5 网关可达"
+      - "入站仅允许 HTTPS（和必要端口）"
+      - "SSH/RDP 严禁从公网访问"
+      - "防火墙必须部署在：Internet→DMZ、DMZ→内网 之间"
+
+  scenario_b_api:
+    name: "外部合作伙伴/客户 API"
+    flow: "Internet/Partner → Anti-DDoS/CDN（可选）→ F5（必须）→ DMZ API网关 → 内部应用服务 → DB（内部）"
+    rules:
+      - "API 网关必须部署在 DMZ"
+      - "业务逻辑服务必须在内部网络"
+      - "数据库必须在内部受保护区域"
+      - "认证/授权/限流/Schema验证在 API 网关或集成平台处理"
+      - "外部方禁止直接访问内部服务或数据库"
+
+# ═══════════════════════════════════════════════════════════
+# 3. 东西向流量隔离（East–West）
+# ═══════════════════════════════════════════════════════════
+east_west:
+  principle: "默认拒绝所有东西向流量，除非明确批准并通过集成平台中介"
+
+  tier_rules:
+    web_tier:
+      location: "必须在 DMZ"
+      restriction: "不得直接访问 DB Zone 或 DB 层资源"
+    app_tier:
+      location: "App Zone / Intranet / 应用专区"
+      restriction: "只能访问同一应用对应的 DB 层，禁止跨应用 DB 访问"
+    db_tier:
+      location: "DB Zone / Intranet DB 分段"
+      restriction: "只允许同一应用的应用层访问，永不部署在 DMZ"
+
+  app_to_app_communication:
+    mandatory: "所有应用间通信必须通过集成平台，无论 DC 网络布局如何"
+    integration_platform_roles:
+      - "服务中介"
+      - "API 暴露和版本管理"
+      - "认证与授权"
+      - "流量治理"
+      - "日志与监控"
+      - "防止未授权横向移动"
+    prohibited:
+      - "应用A直接访问应用B的数据库"
+      - "应用A绕过集成平台调用应用B的服务层"
+      - "未经正式批准的跨Zone资源访问"
+
+# ═══════════════════════════════════════════════════════════
+# 4. 混合云连接
+# ═══════════════════════════════════════════════════════════
+hybrid_connectivity:
+  dc_to_dc: "MPLS 或等效专线"
+  dc_to_azure: "ExpressRoute 或等效私有连接"
+  dc_to_aws: "AWS Direct Connect 或等效私有连接"
+  rules:
+    - "所有混合流量必须经过已批准的网关，遵循网络分段和安全检查策略"
+    - "私有到公有云流量必须通过中央网关和防火墙"
+    - "路由策略必须防止跨DC或云的直接数据库访问；集成必须通过服务/集成层"
+
+# ═══════════════════════════════════════════════════════════
+# 5. 身份认证与授权
+# ═══════════════════════════════════════════════════════════
+identity_auth:
+  internal_users:
+    auth_server: "ADFS（Active Directory Federation Services）"
+  external_users:
+    auth_server: "Enterprise ID"
+  authorization_platform: "AuthZ Platform（Unified Permission Management Platform）"
+  rules:
+    - "所有应用必须集成 ADFS（内部）或 Enterprise ID（外部）"
+    - "应用必须接入 AuthZ Platform 进行权限执行"
+    - "无硬编码用户名/密码/Token/API Key"
+
+# ═══════════════════════════════════════════════════════════
+# 6. 凭证保护（私有云无集中 Vault 的替代方案）
+# ═══════════════════════════════════════════════════════════
+credential_protection:
+  note: "私有云当前无集中凭证管理平台（如 Vault），使用以下替代方案"
+  approved_methods:
+    - "Linux 文件系统加密存储（OS 级权限加固 + GPG 加密文件）"
+    - "Windows Credential Store / Certificate Store（DPAPI）"
+    - "应用 Keystore（JKS/PKCS#12，需独立管理 keystore 密码）"
+    - "中间件加密存储（如 Nacos Encryption Plugin）"
+    - "Kubernetes Secret（必须启用静态加密 + 工作负载身份 RBAC）"
+    - "数据库加密字段存储（加密密钥须独立存放）"
+  rules:
+    - "加密数据与加密密钥不得存储在同一位置"
+    - "禁止将密钥存入 Git/CI-CD 管道/Docker 镜像/源代码/明文环境变量"
+    - "备份和 DR 副本中的凭证文件必须保持加密状态"
+
+# ═══════════════════════════════════════════════════════════
+# 7. 运维访问
+# ═══════════════════════════════════════════════════════════
+operational_access:
+  mandatory_path: "内部办公网络 → PAW（堡垒机）→ 私有云内网 → 目标系统"
+  rules:
+    - "禁止从公网直接进行运维访问"
+    - "所有运维访问必须通过 Privileged Access Workstation (PAW) 堡垒平台"
+    - "MFA 对所有管理操作为必须"
+    - "Just-In-Time（JIT）审批工作流适用于特权操作"
+    - "所有会话必须记录、监控、可审计"
+    - "禁止公网 SSH/RDP/WinRM/VNC/数据库管理端口"

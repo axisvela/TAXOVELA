@@ -1,0 +1,103 @@
+# ============================================================
+# config.yaml — ArchHarness 公司专属配置
+#
+# 使用前请修改本文件，替换为实际的公司信息。
+# 所有 skill、rules YAML、Python 工具均从此处读取配置。
+# 不要在其他文件中硬编码公司名称、DC 名称或平台名称。
+# ============================================================
+
+# ──────────────────────────────────────────────────────────
+# 公司基础信息
+# ──────────────────────────────────────────────────────────
+company:
+  name: "Acme Corp"
+  # 文档分级前缀，生成的报告会用："{prefix} Internal / Confidential / Restricted"
+  classification_prefix: "Acme"
+
+# ──────────────────────────────────────────────────────────
+# 私有云数据中心清单
+# 每个 DC 条目字段：
+#   id          — 内部唯一标识，供规则引用
+#   aliases     — 架构图中可能出现的所有写法（用于 LLM 识别）
+#   location    — 城市级位置（数据主权合规必需）
+#   model       — three-tier | two-tier | multi-zone
+#   zones       — 该 DC 下的网络分区名称列表
+#   region      — 业务区域，用于报告分组
+# ──────────────────────────────────────────────────────────
+datacenters:
+  - id: "dc-cn-primary"
+    aliases: ["Primary DC", "CN Primary DC", "主DC"]
+    location: { city: "City A", province: "Province A", country: "CN" }
+    model: "three-tier"
+    zones: ["DMZ", "App Zone", "DB Zone"]
+    region: "APAC-CN"
+    notes: "三层经典分段，推荐参考模型"
+
+  - id: "dc-cn-secondary"
+    aliases: ["Secondary DC", "CN Secondary DC", "备DC"]
+    location: { city: "City B", province: "Province B", country: "CN" }
+    model: "two-tier"
+    zones: ["DMZ", "Intranet"]
+    region: "APAC-CN"
+    notes: "两层分段；App和DB均在Intranet，需内部控制确保DB隔离"
+
+  - id: "dc-us"
+    aliases: ["NA DC", "US DC"]
+    location: { city: "City C", state: "State X", country: "US" }
+    model: "multi-zone"
+    zones:
+      - "PROD-DMZ-SERVER"
+      - "PROD-DMZ-K8S"
+      - "PROD-INA-INTEGRATION"
+      - "PROD-INA-K8S"
+      - "PROD-INA-DB"
+      - "PROD-INA-SERVER"
+    region: "NA"
+    notes: "多Zone专区模型；只有Integration Zone可中介跨应用调用"
+
+  - id: "dc-eu"
+    aliases: ["EMEA DC", "EU DC"]
+    location: { city: "City D", country: "DE" }
+    model: "two-tier"
+    zones: ["DMZ", "Intranet"]
+    region: "EMEA"
+    notes: "网络结构类似 CN Secondary DC"
+
+# ──────────────────────────────────────────────────────────
+# 内部平台名称（用于规则校验 + 图例说明）
+# 修改此处即可同步影响所有 skill 和 rules
+# ──────────────────────────────────────────────────────────
+platforms:
+  # API 网关（私有云 DMZ / 公有云 Spoke）
+  api_gateway: "WSO2 API Gateway"           # 例如 Kong, APIM, Nginx API GW
+
+  # 消息/事件总线
+  message_bus: "Kafka"                      # 例如 RabbitMQ, Azure Service Bus, AWS SQS
+
+  # 容器平台（私有云 K8s）
+  k8s_platform: "Internal K8s Platform"    # 例如 Rancher, OpenShift
+
+  # 集成平台（跨应用通信必经）
+  # 在 interaction-rules 中作为合法中介节点
+  integration_platforms:
+    - "WSO2 API Gateway"
+    - "Kafka"
+    - "SFTP/MFT"
+    - "Talend"
+
+  # 身份认证
+  auth_internal: "ADFS"                    # 内部员工
+  auth_external: "Enterprise ID"           # 外部用户
+  authz_platform: "AuthZ Platform"         # 统一权限管理平台
+
+# ──────────────────────────────────────────────────────────
+# 输入 / 输出目录（供 Python 工具使用）
+# 相对路径从项目根目录（config.yaml 所在位置）解析
+# ──────────────────────────────────────────────────────────
+paths:
+  # 放置待处理文件：arch.yaml, 架构图 PNG, 需求文档等
+  input_dir: "./input"
+  # 生成文件的输出目录：drawio, PNG, REQ.md, report.md 等
+  output_dir: "./output"
+  # 标准规范文件目录（一般不需要修改）
+  standards_dir: "./standards"

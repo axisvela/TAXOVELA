@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="arch-harness" version="24.6.4" type="device">
+  <diagram id="diag-909e37d3d71b" name="Page-1">
+    <mxGraphModel dx="2000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1124" pageHeight="1550" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="hdr-5d7807e27e56" value="&lt;b&gt;Diagram: Multi-Region Application Suite&lt;/b&gt;&lt;br/&gt;ID: MultiRegion-AppSuite-Technical-V1.0&lt;br/&gt;Platform: hybrid_cloud" style="text;whiteSpace=wrap;overflow=hidden;rounded=0;fontFamily=Helvetica;fontSize=11;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="40" y="-120" width="600" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="inet-b73dfc1d6f20" value="Internet" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.internet;" parent="1" vertex="1">
+          <mxGeometry x="40" y="80" width="60" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="user-5f379ec0fac0" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;align=center;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="160" y="70" width="37" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-68c8758551bb" value="Hohhot DC, Inner Mongolia [CN]
+(CHCS)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="50" y="140" width="390" height="618" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-0f529a0e4b0f" value="DMZ" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-68c8758551bb" vertex="1">
+          <mxGeometry x="22" y="66" width="346" height="138" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-19b522d27166" value="F5 Load Balancer" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-0f529a0e4b0f" vertex="1">
+          <mxGeometry x="36" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-b6913088a903" value="Web Gateway (Nginx)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-0f529a0e4b0f" vertex="1">
+          <mxGeometry x="160" y="50" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-a4f10a9d659a" value="APP ZONE" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-68c8758551bb" vertex="1">
+          <mxGeometry x="22" y="222" width="346" height="196" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-fd56105d0ab7" value="⚠ Application A
+(Java-17, Spring Boot-3.5)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-a4f10a9d659a" vertex="1" tooltip="Lang: Java-17 | Framework: Spring Boot-3.5 | Runtime: Earth (K8s) | Classification: Lenovo Confidential">
+          <mxGeometry x="16" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-1c18b6b48335" value="Application B
+(Java-17, Spring Boot-3.5)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-a4f10a9d659a" vertex="1" tooltip="Lang: Java-17 | Framework: Spring Boot-3.5 | Runtime: Earth (K8s)">
+          <mxGeometry x="180" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-d21d11c43871" value="Application C
+(Node.js-20, Express)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-a4f10a9d659a" vertex="1" tooltip="Lang: Node.js-20 | Framework: Express | Runtime: Earth (K8s)">
+          <mxGeometry x="98" y="114" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-7d2d890a3c49" value="DB ZONE" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-68c8758551bb" vertex="1">
+          <mxGeometry x="22" y="436" width="346" height="142" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-3be2bee61e49" value="⚠ PostgreSQL A" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-7d2d890a3c49" vertex="1" tooltip="Classification: Lenovo Confidential">
+          <mxGeometry x="46" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-4d733c360695" value="PostgreSQL B/C" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-7d2d890a3c49" vertex="1">
+          <mxGeometry x="180" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-3a9d7f11974d" value="Shenyang DC, Liaoning [CN]
+(CHCS)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="510" y="140" width="514" height="470" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-974fe390c501" value="DMZ" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-3a9d7f11974d" vertex="1">
+          <mxGeometry x="22" y="66" width="470" height="138" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-8134eefb2bdc" value="F5 Load Balancer" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-974fe390c501" vertex="1">
+          <mxGeometry x="180" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-05de2ca2d458" value="INTRANET" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-3a9d7f11974d" vertex="1">
+          <mxGeometry x="22" y="222" width="470" height="208" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-10c1b4a4ecf7" value="⚠ Application D
+(Java-17, Spring Boot-3.5)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-05de2ca2d458" vertex="1" tooltip="Lang: Java-17 | Framework: Spring Boot-3.5 | Runtime: Earth (K8s) | Classification: Lenovo Confidential">
+          <mxGeometry x="78" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-2ba71dc762cb" value="Application E
+(Python-3.11, FastAPI)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-05de2ca2d458" vertex="1" tooltip="Lang: Python-3.11 | Framework: FastAPI | Runtime: Earth (K8s)">
+          <mxGeometry x="242" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-6fbaaf6c8c33" value="Application F
+(Go-1.22, Gin)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-05de2ca2d458" vertex="1" tooltip="Lang: Go-1.22 | Framework: Gin | Runtime: Earth (K8s)">
+          <mxGeometry x="93" y="120" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-ad03336d189f" value="PostgreSQL D/E/F" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-05de2ca2d458" vertex="1">
+          <mxGeometry x="257" y="114" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-232d62b349a7" value="Reston DC, Virginia [US]
+(CHCS)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="50" y="828" width="390" height="622" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-e8a35487498c" value="DMZ" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-232d62b349a7" vertex="1">
+          <mxGeometry x="22" y="66" width="346" height="138" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-1e9740f6a45a" value="F5 Load Balancer" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-e8a35487498c" vertex="1">
+          <mxGeometry x="36" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-7367d7cee97e" value="WSO2 API Gateway" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-e8a35487498c" vertex="1">
+          <mxGeometry x="160" y="50" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-3a8934fe3bc0" value="APP ZONE" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-232d62b349a7" vertex="1">
+          <mxGeometry x="22" y="222" width="346" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-3753a3d9cbdc" value="⚠ Application G
+(Java-17, Spring Boot-3.5)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-3a8934fe3bc0" vertex="1" tooltip="Lang: Java-17 | Framework: Spring Boot-3.5 | Runtime: Earth (K8s) | Classification: Lenovo Confidential">
+          <mxGeometry x="16" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-74ee40931698" value="Application H
+(.NET-8, ASP.NET Core)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-3a8934fe3bc0" vertex="1" tooltip="Lang: .NET-8 | Framework: ASP.NET Core | Runtime: Earth (K8s)">
+          <mxGeometry x="180" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-bbe31a4e79c2" value="Kafka Platform" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="zone-3a8934fe3bc0" vertex="1">
+          <mxGeometry x="98" y="114" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-5834f3fdd909" value="DB ZONE" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-232d62b349a7" vertex="1">
+          <mxGeometry x="22" y="440" width="346" height="142" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-9c106a5376cc" value="PostgreSQL G/H" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-5834f3fdd909" vertex="1">
+          <mxGeometry x="113" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-46ea2ed78567" value="AWS US East (N. Virginia) [US]
+(Business IT)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="510" y="680" width="514" height="478" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-72e03fe725c9" value="HUB" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" parent="reg-46ea2ed78567" vertex="1">
+          <mxGeometry x="22" y="66" width="470" height="138" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-15899120a436" value="AWS Network Firewall" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-72e03fe725c9" vertex="1">
+          <mxGeometry x="98" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-c537e8452a0b" value="Lenovo AWP" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-72e03fe725c9" vertex="1">
+          <mxGeometry x="222" y="52" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-a0b53f137f29" value="SPOKE" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-46ea2ed78567" vertex="1">
+          <mxGeometry x="22" y="222" width="470" height="216" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-8c43e9640e23" value="ALB + AWS WAF" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-a0b53f137f29" vertex="1">
+          <mxGeometry x="16" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-377c217e6e2b" value="WSO2 API Gateway" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-a0b53f137f29" vertex="1">
+          <mxGeometry x="140" y="50" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-bac42471a055" value="Application I
+(Java-17, Spring Boot-3.5)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-a0b53f137f29" vertex="1" tooltip="Lang: Java-17 | Framework: Spring Boot-3.5 | Runtime: Amazon ECS">
+          <mxGeometry x="304" y="52" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-5d49506fd282" value="Application J
+(Node.js-20, Express)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-a0b53f137f29" vertex="1" tooltip="Lang: Node.js-20 | Framework: Express | Runtime: Amazon ECS">
+          <mxGeometry x="93" y="128" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-3d3d66964fab" value="Amazon RDS PostgreSQL" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-a0b53f137f29" vertex="1">
+          <mxGeometry x="257" y="122" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-c3fa7eefc796" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="inet-b73dfc1d6f20" target="comp-19b522d27166" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-773b7c174a5f" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="inet-b73dfc1d6f20" target="comp-8134eefb2bdc" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-20fd908c1e42" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="inet-b73dfc1d6f20" target="comp-1e9740f6a45a" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-14bc46cb97f3" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="inet-b73dfc1d6f20" target="comp-8c43e9640e23" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1a07bcdbdcdb" value="HTTPS/TLS 1.3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-19b522d27166" target="comp-b6913088a903" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-c617dea2ccd8" value="HTTPS/TLS 1.3
+(OAuth2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-b6913088a903" target="comp-fd56105d0ab7" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-55cb6c5b3982" value="HTTPS/TLS 1.3
+(mTLS)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-fd56105d0ab7" target="comp-7367d7cee97e" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-45f05c7475a3" value="HTTPS/TLS 1.3
+(OAuth2.0 Client Cred)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-7367d7cee97e" target="comp-3753a3d9cbdc" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ab54f8dc67e4" value="Kafka/TLS
+(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-1c18b6b48335" target="comp-bbe31a4e79c2" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-4374a07adb18" value="HTTPS/TLS 1.3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-8c43e9640e23" target="comp-377c217e6e2b" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-426a5122039d" value="HTTPS/TLS 1.3
+(OAuth2.0 Client Cred)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-377c217e6e2b" target="comp-bac42471a055" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-a35028b78a5e" value="JDBC
+(PWD)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-fd56105d0ab7" target="comp-3be2bee61e49" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="vpn-f513aaeed19a" value="MPLS" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#5A30B5;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.vpn_gateway;direction=east;" parent="1" vertex="1">
+          <mxGeometry x="470" y="100" width="28" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="vpn-53e1bccc6bd7" value="MPLS" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#5A30B5;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.vpn_gateway;direction=east;" parent="1" vertex="1">
+          <mxGeometry x="470" y="140" width="28" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="lgnd-d4bef986f345" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="40" y="1310" width="640" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="ltitle-600087f5877a" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=14;fontStyle=1;" parent="lgnd-d4bef986f345" vertex="1">
+          <mxGeometry x="0" y="-30" width="100" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-73374a9e2a9d" value="Internal App (Lenovo IT)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="lgnd-d4bef986f345" vertex="1">
+          <mxGeometry x="0" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-6e2b1467c6ba" value="API Gateway / Integration" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="lgnd-d4bef986f345" vertex="1">
+          <mxGeometry x="155" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-4e445797ab03" value="Database" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="lgnd-d4bef986f345" vertex="1">
+          <mxGeometry x="310" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-c70b908948fa" value="Firewall / LB" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="lgnd-d4bef986f345" vertex="1">
+          <mxGeometry x="465" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-4832f5511d56" value="Identity / Auth" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;" parent="lgnd-d4bef986f345" vertex="1">
+          <mxGeometry x="0" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-b5e5691d8179" value="Biz Owned" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#8E24AA;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-d4bef986f345" vertex="1">
+          <mxGeometry x="155" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-00e28852be74" value="Third Party" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-d4bef986f345" vertex="1">
+          <mxGeometry x="310" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

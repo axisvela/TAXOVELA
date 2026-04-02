@@ -1,0 +1,39 @@
+# arch-gate-policy.yaml — A层：enforcement bounds + meta-control scope
+version: "1.0"
+effective_date: "2026-04-02"
+
+enforcement_bounds:
+  block_threshold: 6.0           # Grade C 以下 block
+  warn_threshold: 8.0            # 8.0 以下 warn
+  must_fix_zero_required: true   # 任何 must_fix 存在则 block
+  override_conditions:
+    approvers: ["architecture-committee"]
+    requires_ticket: true
+    ticket_system: "Jira"
+    max_override_validity_days: 5
+    override_scope: "single-PR-only"  # 不可继承到下一个PR
+
+meta_control_scope:
+  # 谁可以修改上面的 enforcement_bounds
+  threshold_change_requires:
+    approvers: ["architecture-committee", "cto-office"]
+    min_approvals: 2
+    change_via: "PR to main with required reviewers"
+  audit_log: true
+  change_notifies: ["security-team", "cto-office"]
+  # arch-optimize skill 的自动应用范围
+  auto_apply_optimize_suggestions:
+    enabled: false                # 需要人工确认
+    future_condition: "score >= 7.5 AND issue_type == suggestion only"
+```
+
+---
+
+## 全局关系图
+```
+K层 (现有)                C层 (新增)              A层 (新建)
+─────────────────         ────────────────        ──────────────────
+arch-validate ──→ JSON ──→ arch-enforce ──→ CI   arch-gate-policy.yaml
+arch-review   ──→ MD       (读 policy)    gate    (谁能改 policy)
+arch-optimize ──→ 建议      ↑                      ↑
+                           reads                  governs

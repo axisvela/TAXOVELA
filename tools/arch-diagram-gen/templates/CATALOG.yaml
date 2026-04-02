@@ -1,0 +1,222 @@
+# ============================================================
+# templates/CATALOG.yaml
+# Template selection guide for arch-design and arch-diagram skills.
+# Reference this before generating any Architecture YAML.
+# ============================================================
+
+catalog_version: "2.0"
+schema_reference: "arch-schema-reference.yaml"   # always the field reference
+
+# ══════════════════════════════════════════════════════════════
+# AVAILABLE TEMPLATES
+# ══════════════════════════════════════════════════════════════
+
+templates:
+
+  - id: "private-cloud"
+    file: "templates/private-cloud.yaml"
+    name: "Private Cloud — Standard DC"
+    platform: "private_cloud"
+    source_drawio: "Technology_Solution_Template_for_Private_Cloud-v2_0.drawio"
+    primary_dc: ["Hohhot DC", "Shenyang DC"]
+    select_when:
+      - "Application deployed entirely on Company private DCs"
+      - "PRC-only or NA-only private cloud"
+      - "No public cloud dependency"
+      - "Standard 3-tier: F5 → Web (DMZ) → App Zone → DB Zone"
+    key_components: ["F5", "Internal K8s", "PostgreSQL", "WSO2", "ADFS"]
+    prefilled:
+      regions: ["Hohhot DC [CN]"]
+      security: ["ADFS", "Privileged Access Workstation (PAW)", "Kubernetes Secrets"]
+
+  - id: "aws-hybrid"
+    file: "templates/aws-hybrid.yaml"
+    name: "AWS Hybrid — Reston DC + AWS US East"
+    platform: "hybrid_cloud"
+    source_drawio: "Technology_Solution_Template_for_AWS-v2_0.drawio"
+    primary_dc: ["Reston DC", "AWS US East"]
+    select_when:
+      - "NA/ROW business on AWS"
+      - "Amazon ECS workloads"
+      - "External partner/customer APIs via WSO2"
+      - "AWS managed services (RDS, S3, ElastiCache)"
+      - "Migrating from Reston DC to AWS"
+    key_components: ["ALB+WAF", "WSO2 (external+internal)", "Amazon ECS", "RDS", "Confluent/Kafka", "Enterprise ID"]
+    prefilled:
+      regions: ["Reston DC [US]", "AWS US East [US]"]
+      security: ["AWS Secrets Manager", "AWS KMS", "Privileged Access Workstation (PAW)", "Systems Manager"]
+
+  - id: "azure-hub-spoke"
+    file: "templates/azure-hub-spoke.yaml"
+    name: "Azure Hub-Spoke — VNET + DC Integration"
+    platform: "azure"
+    source_drawio: "Technology_Solution_Template_for_Azure-v1_0.drawio"
+    primary_dc: ["Azure Hub VNET", "Private DC (optional)"]
+    select_when:
+      - "Azure PaaS workloads (AKS, App Service)"
+      - "Hub-Spoke VNET architecture required"
+      - "External partner APIs via APIM (Spoke Internal mode)"
+      - "Integration with private DC via ExpressRoute"
+      - "EMEA or NA Azure deployment"
+    key_components: ["App Gateway WAF v2", "APIM (Spoke)", "AKS/Internal K8s", "Azure Key Vault", "ExpressRoute"]
+    prefilled:
+      regions: ["Azure Hub VNET", "Azure Spoke VNET"]
+      security: ["Azure Key Vault", "Azure Bastion", "Managed Identity", "ADFS"]
+
+  - id: "microsoft-365"
+    file: "templates/microsoft-365.yaml"
+    name: "Microsoft 365 — Power Platform & Graph Integration"
+    platform: "saas_integration"
+    sources_drawio:
+      - "Technology_Solution_Template_for_Copilot_Studio-v1_0.drawio"
+      - "Technology_Solution_Template_for_PowerPlatform-v1_0.drawio"
+      - "Technology_Solution_Template_for_Microsoft_Graph-v1_0.drawio"
+    sub_patterns:
+      - id: "power-platform"
+        description: "Canvas App + Power Automate + Dataverse"
+      - id: "copilot-studio"
+        description: "Teams Bot + Azure Bot Service + OpenAI"
+      - id: "graph-api"
+        description: "Graph API integration (SharePoint/Teams/OneDrive)"
+    select_when:
+      - "Power Apps, Power Automate, or Copilot Studio"
+      - "Microsoft Graph API integration"
+      - "Teams Bot or ChatOps"
+      - "Azure OpenAI with M365 data"
+    key_components: ["Power Platform", "Copilot Studio", "Azure Bot Service", "Graph API", "Entra ID"]
+    prefilled:
+      regions: ["Microsoft Cloud (SaaS)", "Azure Backend"]
+      security: ["Entra ID", "Internal K8s Secret (K8s)", "Azure Key Vault"]
+    high_risk_items:
+      - "Azure App Registration secrets → must use Internal K8s Secret"
+      - "Azure OpenAI → prompt injection risk"
+      - "Graph API → specify minimal permissions"
+
+  - id: "data-analytics"
+    file: "templates/data-analytics.yaml"
+    name: "Data Analytics — LUDP + Power BI"
+    platform: "hybrid_cloud"
+    sources_drawio:
+      - "Technology_Solution_Template_for_PowerBI-v0_1.drawio"
+      - "Technology_Solution_Template_for_PowerBI-v0_2.drawio"
+    select_when:
+      - "Power BI reporting on Company data"
+      - "LUDP PRC big data platform integration"
+      - "Data pipeline from operational DBs → BI"
+      - "Magellan EDW reporting"
+      - "ETL/batch analytics"
+    key_components: ["LUDP PRC", "PBI Gateway (on-prem)", "Power BI Service", "Azure Relay", "Magellan EDW"]
+    prefilled:
+      regions: ["Neimeng DC [CN]", "Azure China North2 [CN]"]
+      security: ["Entra ID", "ODBC+TLS", "Azure Key Vault"]
+
+# ══════════════════════════════════════════════════════════════
+# TEMPLATE MIXING RULES
+# ══════════════════════════════════════════════════════════════
+
+mixing_rules:
+
+  - name: "PRC Private Cloud + AWS NA"
+    description: "Most common hybrid: PRC apps on Hohhot/Shenyang, NA apps on AWS"
+    base: "private-cloud"
+    add_regions_from: "aws-hybrid"
+    connectivity: "VPN/MPLS or Direct Connect between Reston DC and AWS"
+    example_use: "Global ERP or Order Management with PRC + NA deployment"
+
+  - name: "Azure + Private DC"
+    description: "Azure PaaS application with legacy DC integration"
+    base: "azure-hub-spoke"
+    add_regions_from: "private-cloud"
+    connectivity: "ExpressRoute from Hub VNET to DC"
+    example_use: "Modernization: move web tier to Azure, keep DB on-prem"
+
+  - name: "Private Cloud + Power Platform"
+    description: "IT Org backend service consumed by Power Platform"
+    base: "private-cloud"
+    add_regions_from: "microsoft-365"
+    sub_pattern: "power-platform"
+    connectivity: "Premium Connector: Power Automate → Company API Gateway"
+    example_use: "Business approval workflow calling Company ERP API"
+
+  - name: "Azure + Copilot Studio"
+    description: "Azure-hosted backend with Copilot Studio chatbot"
+    base: "azure-hub-spoke"
+    add_regions_from: "microsoft-365"
+    sub_pattern: "copilot-studio"
+    connectivity: "Azure Bot Service in same Azure subscription"
+    example_use: "Teams chatbot backed by Azure OpenAI + Company knowledge base"
+
+  - name: "Private Cloud + Data Analytics"
+    description: "Operational app writing to LUDP; Power BI consuming LUDP"
+    base: "private-cloud"
+    add_regions_from: "data-analytics"
+    connectivity: "Kafka/ETL from app to LUDP; PBI Gateway reads LUDP"
+    example_use: "Supply chain app → LUDP → Power BI dashboard"
+
+  - name: "Full Hybrid (CN + NA + Azure)"
+    description: "Three-region enterprise app"
+    bases: ["private-cloud", "aws-hybrid", "azure-hub-spoke"]
+    connectivity:
+      cn_to_na: "MPLS/VPN or Direct Connect"
+      cn_to_azure: "ExpressRoute"
+      na_to_azure: "VPN or ExpressRoute"
+    example_use: "Global CRM or supply chain touching all regions"
+
+# ══════════════════════════════════════════════════════════════
+# QUICK DECISION TREE
+# ══════════════════════════════════════════════════════════════
+
+decision_tree: |
+  Q1: Where is the compute?
+    → All on Company private DCs           → private-cloud
+    → AWS                                  → aws-hybrid
+    → Azure                                → azure-hub-spoke
+    → Power Platform / M365 SaaS          → microsoft-365
+    → Data/reporting focus                 → data-analytics
+    → Multiple regions                     → MIXING (see mixing_rules)
+
+  Q2 (if AWS): Is there a Reston DC component?
+    → Yes                                  → aws-hybrid (Reston + AWS sections)
+    → No, AWS-only                         → aws-hybrid (remove reston-dc region)
+
+  Q3 (if Azure): External partner/customer API?
+    → Yes                                  → azure-hub-spoke (enable APIM Spoke section)
+    → No, internal only                    → azure-hub-spoke (simplify, remove APIM)
+
+  Q4: Is there a Power BI / analytics requirement?
+    → Yes                                  → Mix data-analytics into base template
+
+  Q5: Is there a Teams Bot / Copilot Studio?
+    → Yes                                  → Mix microsoft-365 (sub: copilot-studio)
+
+  Q6: Is there a Power Apps / Power Automate workflow?
+    → Yes                                  → Mix microsoft-365 (sub: power-platform)
+
+# ══════════════════════════════════════════════════════════════
+# HOW TO USE TEMPLATES
+# ══════════════════════════════════════════════════════════════
+
+usage_guide: |
+  1. READ the CATALOG.yaml decision tree to select the right template(s).
+
+  2. COPY the selected template file(s) to your project:
+       cp templates/private-cloud.yaml my-project-arch.yaml
+
+  3. REPLACE all placeholder values (XXX, REGION, ENV, etc.) with real names.
+     Follow arch-schema-reference.yaml for field semantics.
+
+  4. ADD or REMOVE components from the deployment[] and interactions[] sections.
+     Delete comment-blocks for unused optional sections.
+
+  5. For MIXED templates:
+     - Start with the base template as your arch.yaml
+     - Copy the additional regions from the secondary template into deployment[]
+     - Add the cross-region interactions
+     - Merge the security[] sections (keep all Key Vault declarations)
+
+  6. VALIDATE with /arch-validate (or @arch-validate in OpenCode):
+       /arch-validate my-project-arch.yaml
+
+  7. GENERATE diagram:
+       python tools/arch-diagram-gen/arch_diagram_gen.py \
+         -i my-project-arch.yaml -o diagram.drawio --png diagram.png

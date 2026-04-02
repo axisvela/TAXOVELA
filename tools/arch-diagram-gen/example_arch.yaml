@@ -1,0 +1,94 @@
+
+arch:
+  id: MultiRegion-AppSuite-Technical-V1.0
+  name: Multi-Region Application Suite
+  platform: hybrid_cloud
+  deployment:
+    - id: hohhot-dc
+      type: private_dc
+      location: Hohhot DC, Inner Mongolia [CN]
+      owner: InfraSec
+      network_zones:
+        - id: hohhot-dmz
+          type: dmz
+          components:
+            - {id: f5-hohhot, name: F5 Load Balancer, type: LB, shape: hexagon}
+            - {id: web-gateway-hohhot, name: "Web Gateway (Nginx)", type: IP, shape: parallelogram}
+        - id: hohhot-app-zone
+          type: app_zone
+          components:
+            - {id: app-a, name: Application A, type: BE, language: Java-17, framework: Spring Boot-3.5, runtime: Internal K8s, sensitivity: Company Confidential}
+            - {id: app-b, name: Application B, type: BE, language: Java-17, framework: Spring Boot-3.5, runtime: Internal K8s}
+            - {id: app-c, name: Application C, type: BE, language: Node.js-20, framework: Express, runtime: Internal K8s}
+        - id: hohhot-db-zone
+          type: db_zone
+          components:
+            - {id: db-a, name: PostgreSQL A, type: DB, shape: cylinder, sensitivity: Company Confidential}
+            - {id: db-bc, name: PostgreSQL B/C, type: DB, shape: cylinder}
+    - id: shenyang-dc
+      type: private_dc
+      location: Shenyang DC, Liaoning [CN]
+      owner: InfraSec
+      network_zones:
+        - id: shenyang-dmz
+          type: dmz
+          components:
+            - {id: f5-shenyang, name: F5 Load Balancer, type: LB, shape: hexagon}
+        - id: shenyang-intranet
+          type: intranet
+          components:
+            - {id: app-d, name: Application D, type: BE, language: Java-17, framework: Spring Boot-3.5, runtime: Internal K8s, sensitivity: Company Confidential}
+            - {id: app-e, name: Application E, type: BE, language: Python-3.11, framework: FastAPI, runtime: Internal K8s}
+            - {id: app-f, name: Application F, type: BE, language: Go-1.22, framework: Gin, runtime: Internal K8s}
+            - {id: db-def, name: PostgreSQL D/E/F, type: DB, shape: cylinder}
+    - id: reston-dc
+      type: private_dc
+      location: Reston DC, Virginia [US]
+      owner: InfraSec
+      network_zones:
+        - id: reston-dmz
+          type: dmz
+          components:
+            - {id: f5-reston, name: F5 Load Balancer, type: LB, shape: hexagon}
+            - {id: wso2-gateway, name: WSO2 API Gateway, type: IP, shape: parallelogram}
+        - id: reston-app-zone
+          type: app_zone
+          components:
+            - {id: app-g, name: Application G, type: BE, language: Java-17, framework: Spring Boot-3.5, runtime: Internal K8s, sensitivity: Company Confidential}
+            - {id: app-h, name: Application H, type: BE, language: .NET-8, framework: ASP.NET Core, runtime: Internal K8s}
+            - {id: kafka-cluster, name: Kafka Platform, type: MQ, shape: message_queue}
+        - id: reston-db-zone
+          type: db_zone
+          components:
+            - {id: db-gh, name: PostgreSQL G/H, type: DB, shape: cylinder}
+    - id: aws-useast
+      type: aws_vpc
+      location: AWS US East (N. Virginia) [US]
+      owner: Business IT
+      subnets:
+        - id: aws-hub-vpc
+          type: hub
+          components:
+            - {id: aws-firewall, name: AWS Network Firewall, type: LB, shape: hexagon}
+            - {id: aws-bastion, name: Privileged Access Workstation (PAW), type: BE}
+        - id: aws-spoke-vpc
+          type: spoke
+          components:
+            - {id: alb-waf, name: "ALB + AWS WAF", type: LB, shape: hexagon}
+            - {id: wso2-aws, name: WSO2 API Gateway, type: IP, shape: parallelogram}
+            - {id: app-i, name: Application I, type: BE, language: Java-17, framework: Spring Boot-3.5, runtime: Amazon ECS}
+            - {id: app-j, name: Application J, type: BE, language: Node.js-20, framework: Express, runtime: Amazon ECS}
+            - {id: rds-ij, name: Amazon RDS PostgreSQL, type: DB, shape: cylinder}
+  interactions:
+    - {from: internet, to: f5-hohhot, protocol: HTTPS, auth: "—"}
+    - {from: internet, to: f5-shenyang, protocol: HTTPS, auth: "—"}
+    - {from: internet, to: f5-reston, protocol: HTTPS, auth: "—"}
+    - {from: internet, to: alb-waf, protocol: HTTPS, auth: "—"}
+    - {from: f5-hohhot, to: web-gateway-hohhot, protocol: HTTPS/TLS 1.3, auth: "—"}
+    - {from: web-gateway-hohhot, to: app-a, protocol: HTTPS/TLS 1.3, auth: OAuth2.0}
+    - {from: app-a, to: wso2-gateway, protocol: HTTPS/TLS 1.3, auth: mTLS}
+    - {from: wso2-gateway, to: app-g, protocol: HTTPS/TLS 1.3, auth: OAuth2.0 Client Cred}
+    - {from: app-b, to: kafka-cluster, protocol: Kafka/TLS, auth: SASL/SCRAM}
+    - {from: alb-waf, to: wso2-aws, protocol: HTTPS/TLS 1.3, auth: "—"}
+    - {from: wso2-aws, to: app-i, protocol: HTTPS/TLS 1.3, auth: OAuth2.0 Client Cred}
+    - {from: app-a, to: db-a, protocol: JDBC, auth: PWD}

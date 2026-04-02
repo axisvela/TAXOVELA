@@ -1,0 +1,321 @@
+# ============================================================
+# Config: diagram-style.yaml  v2.0
+# 来源: Private Cloud Architecture Diagram Shape Specification v1.0
+#        Technical Architecture Diagram Specification v1.0
+# 用途: arch-validate、arch-diagram-gen 共用的完整图形规范
+# ============================================================
+
+version: "2.0"
+tool: "draw.io"
+source_standards:
+  - "Private_Cloud_Architecture_Diagram_Shape_Specification_v1_0"
+  - "Technical_Architecture_Diagram_Specification_v1_0"
+
+# ═══════════════════════════════════════════════════════════
+# 1. 颜色规范（状态色 + 所有权色）
+#    来源: Technical Architecture Diagram Specification §4.b
+# ═══════════════════════════════════════════════════════════
+colors:
+  status:
+    newly_created:    { hex: "#D32F2F", icon: "■", label: "Newly created",  description: "新创建的应用或组件" }
+    changed:          { hex: "#FBC02D", icon: "■", label: "Changed",        description: "结构/代码/配置有变更" }
+    unchanged:        { hex: "#FFFFFF", icon: "■", label: "Unchanged",       description: "已有且未修改" }
+    in_plan:          { hex: "#66BB6A", icon: "■", label: "In the plan",    description: "规划中，不在本项目范围内" }
+    retired:          { hex: "#757575", icon: "■", label: "Retired",        description: "即将废弃或停用" }
+    biz_owned:        { hex: "#8E24AA", icon: "■", label: "Biz Owned",      description: "由业务团队维护（紫色）" }
+    third_party:      { hex: "#FB8C00", icon: "■", label: "Third party",    description: "外部供应商/客户组件（橙色）" }
+
+  network_zones:
+    dmz:            { fill: "#FFF9C4", stroke: "#D6B656", label: "DMZ" }
+    app_zone:       { fill: "#E8F5E9", stroke: "#82B366", label: "App Zone / Intranet" }
+    db_zone:        { fill: "#E3F2FD", stroke: "#6C8EBF", label: "DB Zone" }
+    public_subnet:  { fill: "#FFEBEE", stroke: "#E53935", label: "Public Subnet" }
+    private_subnet: { fill: "#E8F5E9", stroke: "#82B366", label: "Private Subnet" }
+
+# ═══════════════════════════════════════════════════════════
+# 2. 线条 & 箭头规范
+#    来源: Technical Architecture Diagram Specification §4.c/d
+# ═══════════════════════════════════════════════════════════
+lines:
+  solid:   { meaning: "物理实体（Physical Component）", usage: "数据中心、VPC/VNET、Subnet、Zone、技术组件" }
+  dashed:  { meaning: "虚拟或逻辑实体（Logical Component）", usage: "应用、Resource Group、订阅、逻辑分组" }
+
+arrows:
+  solid_arrow:
+    symbol: "→"
+    meaning: "通信流，指向服务提供方"
+    required_labels: ["通信协议（HTTPS/Kafka/SFTP/JDBC/ODBC/RFC）", "认证方式（OAuth2/SAML/SASL/mTLS）"]
+    optional_labels: ["端口号（如 443、9092）"]
+    example: "HTTPS / OAuth2"
+  dashed_arrow:
+    symbol: "- ->"
+    meaning: "逻辑依赖、嵌入、回调"
+    example: "HTTPS redirection / embedding"
+  prohibited: ["双向箭头（← →）：禁止，须拆为两条单向箭头"]
+
+# ═══════════════════════════════════════════════════════════
+# 3. 形状规范（完整版）
+#    来源: Private Cloud Architecture Diagram Shape Specification v1.0
+# ═══════════════════════════════════════════════════════════
+shapes:
+  application_service:
+    org_it_application:
+      shape: "dashed_rounded_rectangle"
+      physical_or_logical: "Logical"
+      description: "IT Org 内部自研应用"
+    org_it_saas:
+      shape: "cloud_rectangle"
+      physical_or_logical: "Logical"
+      description: "IT Org 拥有的 SaaS 服务"
+    company_biz_application:
+      shape: "dashed_rounded_rectangle"
+      physical_or_logical: "Logical"
+      color: "#8E24AA"
+      description: "业务部门自建应用（紫色）"
+    third_party:
+      shape: "dashed_rounded_rectangle"
+      physical_or_logical: "Logical"
+      color: "#FB8C00"
+      description: "第三方系统和服务（橙色）"
+
+  technical_platform:
+    technology_platform:
+      shape: "frame"
+      drawio_shape: "mxgraph.basic.frame"
+      physical_or_logical: "Physical"
+      description: "技术平台（Internal K8s/K8s 集群），作为容器包含子形状"
+    logical_grouping:
+      shape: "dashed_rectangle"
+      physical_or_logical: "Logical"
+      description: "技术组件逻辑分组"
+
+  application_layer:
+    mobile:
+      shape: "mobile"
+      physical_or_logical: "Physical"
+      example: "iOS, Android"
+    web_frontend:
+      shape: "rounded_rectangle"
+      physical_or_logical: "Physical"
+      example: "Web/App UI"
+      drawio_style: "rounded=1;"
+    backend_service_api:
+      shape: "rectangle"
+      physical_or_logical: "Physical"
+      example: "API, MicroService"
+      drawio_style: "rounded=0;"
+    ai_agent:
+      shape: "pentagon"
+      physical_or_logical: "Physical"
+      example: "AI Agent"
+      description: "AI Agent / 自治服务，自主逻辑闭环"
+
+  data_storage:
+    database:
+      shape: "cylinder"
+      physical_or_logical: "Physical"
+      example: "PostgreSQL, MilvusDB"
+      drawio_style: "shape=mxgraph.flowchart.database;"
+    file_storage:
+      shape: "card"
+      physical_or_logical: "Physical"
+      example: "NAS, Shared file directory"
+    document_storage:
+      shape: "stored_data"
+      physical_or_logical: "Physical"
+      example: "Company S3, Ceph"
+    metadata_config:
+      shape: "double_ellipse"
+      physical_or_logical: "Physical"
+      description: "元数据/配置库（配置中心、注册中心）"
+    cache:
+      shape: "ellipse"
+      physical_or_logical: "Physical"
+      example: "Valkey"
+
+  data_analytics:
+    data_lake:       { shape: "wave",              physical_or_logical: "Physical", example: "LUDP" }
+    data_warehouse:  { shape: "layered_rectangle",  physical_or_logical: "Physical", example: "Magellan" }
+    bi_report:       { shape: "plaque",             physical_or_logical: "Physical", example: "Power BI" }
+    batch_process:   { shape: "tape",               physical_or_logical: "Physical", example: "Talend, WSO2 ESB, Airflow" }
+    predictive_analysis: { shape: "donut",          physical_or_logical: "Physical", example: "Machine Learning" }
+    large_scale_computing: { shape: "cone",         physical_or_logical: "Physical", example: "Spark" }
+    streaming_process: { shape: "drop",             physical_or_logical: "Physical", example: "Spark Streaming" }
+    data_service:    { shape: "pointed_oval",       physical_or_logical: "Physical" }
+
+  integration_layer:
+    api_gateway:
+      shape: "parallelogram"
+      physical_or_logical: "Physical"
+      example: "WSO2, APIH"
+      description: "API 网关，表示请求进入/转发"
+      rule: "必须作为独立节点，不得标注在连接线上"
+    event_hub_message_bus:
+      shape: "rounded_parallelogram"
+      physical_or_logical: "Physical"
+      example: "Kafka"
+      rule: "所有生产者/消费者箭头均指向 Kafka"
+    data_integration:
+      shape: "stacked_cylinder"   # cylinder3
+      physical_or_logical: "Physical"
+      example: "Talend"
+
+  network_layer:
+    data_center:
+      shape: "double_rectangle"
+      physical_or_logical: "Physical"
+      example: "Shenyang DC, Hohhot DC, Reston DC"
+      drawio_style: "double=1;"
+    network_zone:
+      shape: "double_dashed_rectangle"
+      physical_or_logical: "Physical"
+      example: "DMZ, App Zone, DB Zone"
+      drawio_style: "dashed=1;double=1;"
+    office_network:       { shape: "dashed_rect_office_icon",    physical_or_logical: "Logical" }
+    factory_network:      { shape: "dashed_rect_gear",           physical_or_logical: "Logical" }
+    lab_network:          { shape: "dashed_rect_wrench",         physical_or_logical: "Logical" }
+    third_party_network:  { shape: "dashed_rect_diameter_sign",  physical_or_logical: "Logical" }
+    saas_network:         { shape: "dashed_rect_cloud",          physical_or_logical: "Logical", example: "Workday, M365" }
+    internet_network:     { shape: "dashed_rect_tilde",          physical_or_logical: "Logical" }
+    switch_router:
+      shape: "diamond"
+      physical_or_logical: "Physical"
+      description: "网络交换/路由（路径决策/流量分发）"
+    firewall_security_gateway:
+      shape: "hexagon"
+      physical_or_logical: "Physical"
+      example: "F5 AWAF"
+      description: "防火墙/安全网关"
+    load_balancer:
+      shape: "trapezoid"
+      physical_or_logical: "Physical"
+      example: "Nginx, F5, ALB, NLB, App Gateway"
+    mpls_connection:
+      shape: "electric_arrow"
+      physical_or_logical: "Physical"
+      description: "MPLS/专线"
+    internet_connection:
+      shape: "tilde_symbol"
+      physical_or_logical: "Physical"
+    bastion_host:
+      shape: "bastion"
+      physical_or_logical: "Physical"
+
+  security_ops_layer:
+    identity_authentication:
+      shape: "circle"
+      physical_or_logical: "Physical"
+      example: "ADFS, EnterpriseID"
+    firewall:              { shape: "hexagon",          physical_or_logical: "Physical", example: "F5 AWAF" }
+    vpn_remote_access:     { shape: "half_circle",      physical_or_logical: "Physical" }
+    alarm:                 { shape: "6_point_star",     physical_or_logical: "Physical", drawio_shape: "mxgraph.basic.6_point_star" }
+    soc_monitoring:        { shape: "cloud",            physical_or_logical: "Physical" }
+    logging:               { shape: "document",         physical_or_logical: "Physical", example: "appLog" }
+    policy:                { shape: "dashed_document",  physical_or_logical: "Logical" }
+    encryption_storage:    { shape: "shield_cross",     physical_or_logical: "Logical", symbol: "⊕" }
+    sensitive_data:        { shape: "exclamation_mark", physical_or_logical: "Logical", symbol: "❗" }
+    key_management:        { shape: "lock_ink_pen",     physical_or_logical: "Logical", symbol: "🔏", example: "OpenBao, Internal CA" }
+    authentication_logic:  { shape: "star_center",      physical_or_logical: "Logical", symbol: "✪",  example: "IAM, Federation, OIDC, MFA" }
+    authorization:         { shape: "check_mark",       physical_or_logical: "Logical", symbol: "✔",  example: "RBAC/ABAC" }
+    high_risk_warning:     { shape: "warning_sign",     physical_or_logical: "Logical", symbol: "⚠" }
+
+  other:
+    ci_cd:         { shape: "step",  physical_or_logical: "Physical", drawio_style: "shape=mxgraph.flowchart.step;" }
+    notes:         { shape: "note",  physical_or_logical: "Logical",  drawio_style: "shape=note;" }
+    user_and_role: { shape: "actor", physical_or_logical: "Logical" }
+
+  resources:
+    vm:
+      shape: "vm"
+      drawio_shape: "mxgraph.basic.diag_snip_rect"
+      physical_or_logical: "Physical"
+      note: "可作为图标嵌入其他形状，也可作为容器"
+    k8s_pod_container:
+      shape: "pyramid"
+      drawio_shape: "mxgraph.basic.pyramid"
+      physical_or_logical: "Logical"
+    k8s_cluster:
+      shape: "cube"
+      physical_or_logical: "Logical"
+      note: "可作为容器包含子形状，也可作为图标嵌入"
+    k8s_service:
+      shape: "k8s_service"
+      physical_or_logical: "Logical"
+
+# ═══════════════════════════════════════════════════════════
+# 4. 高风险组件标注场景
+#    来源: Technical Architecture Diagram Specification §6
+# ═══════════════════════════════════════════════════════════
+high_risk_scenarios:
+  - { id: "HR-01", symbol: "⚠", scenario: "存储敏感/机密信息（个人/客户/材料信息）" }
+  - { id: "HR-02", symbol: "⚠", scenario: "存储大量密钥、证书" }
+  - { id: "HR-03", symbol: "⚠", scenario: "存储 Azure App ID 和 Secret" }
+  - { id: "HR-04", symbol: "⚠", scenario: "与第三方系统集成" }
+  - { id: "HR-05", symbol: "⚠", scenario: "使用大模型推理或调用工具（幻觉/Prompt注入风险）" }
+  - { id: "HR-06", symbol: "⚠", scenario: "大模型部署和服务（知识产权/贸易合规/伦理）" }
+  - { id: "HR-07", symbol: "⚠", scenario: "跨境接收/传输敏感或受限数据" }
+
+# ═══════════════════════════════════════════════════════════
+# 5. 布局规范
+#    来源: Technical Architecture Diagram Specification §4.e、§7
+# ═══════════════════════════════════════════════════════════
+layout:
+  direction: "从上到下（用户 → 数据）或 从外到内"
+  layer_order: ["用户层", "网络与安全边界层", "Web层", "应用服务层", "数据与存储层"]
+  rules:
+    - "不同环境（Prod/Test/Dev）必须分区，Zone 相互独立"
+    - "每个 Zone 标注名称和安全级别（DMZ / App Zone / Public Subnet 等）"
+    - "组件/服务名称置于顶部"
+    - "自研组件语言/框架置于名称下方括号内"
+    - "非 IT Org 提供的组件用方括号 [] 标注 Owner"
+    - "自研组件运行环境（PM/VM/Docker/K8s/Internal K8s）标注在右下角（可用图标）"
+    - "每张架构图右下角必须包含图例（Legend）"
+  tooling:
+    primary: "Draw.io（桌面版）或 Confluence 集成"
+    prohibited: "禁止使用未授权第三方在线工具"
+
+# ═══════════════════════════════════════════════════════════
+# 6. 图表头部元数据规范
+#    来源: Technical Architecture Diagram Specification §3
+# ═══════════════════════════════════════════════════════════
+header_metadata:
+  title:       { example: "Order Application – Technical Diagram" }
+  id:          { format: "<AppId>-Technical diagram-<Version>", example: "LIxxxx023-Technical diagram-V1.0" }
+  author:      { format: "Itcode-FirstName-LastName", example: "hahxxx1-AAA-Han" }
+  owner_team:  {}
+  version:     { example: "V1.0" }
+  last_modified: {}
+
+# ═══════════════════════════════════════════════════════════
+# 7. 自研组件白盒元数据（嵌入 draw.io 属性，JSON/YAML 格式）
+#    来源: Technical Architecture Diagram Specification §4.a
+# ═══════════════════════════════════════════════════════════
+component_metadata:
+  id:
+    format: "<appId>-<appName>-<componentType>-<ComponentName>"
+    example: "osp-be-orderservice"
+  name:    { example: "Order Service" }
+  type:
+    enum:
+      FE: "Front-end"
+      BE: "Back-end"
+      API: "API"
+      BFF: "BFF"
+      DS: "Data Storage"
+      LB: "Load Balancer"
+      IP: "Integration Platform"
+      SEC: "Security"
+      Log: "Logging"
+      MO: "Monitor"
+      NW: "Network"
+  sensitivity:
+    description: "数据敏感级别，主要针对数据存储组件"
+    enum: ["Company Restricted", "Company Confidential", "Company Internal"]
+  language:
+    enum: ["Java", "Python", "TypeScript", "JavaScript", "Go"]
+    example: "Java-17"
+  framework:
+    enum: ["Spring Boot", "FastAPI", "Vue", "React"]
+    example: "Spring Boot-3.5.2"
+  runtime_env:
+    enum: ["Internal K8s", "AKS", "EC2", "Container", "K8s", "PM", "VM", "Serverless"]

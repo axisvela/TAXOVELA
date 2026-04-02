@@ -1,0 +1,269 @@
+# ============================================================
+# Template: data-analytics.yaml
+# Sources: Technology_Solution_Template_for_PowerBI-v0_1.drawio
+#          Technology_Solution_Template_for_PowerBI-v0_2.drawio
+#          (Data analytics section from AWS template)
+# Pattern: LUDP (Big Data) + Power BI + Data pipeline
+# Use when: Reporting, BI/analytics, data lake, ETL pipelines
+# ============================================================
+
+_template:
+  id: "data-analytics"
+  name: "Data Analytics — LUDP + Power BI"
+  version: "2.0"
+  sources_drawio:
+    - "Technology_Solution_Template_for_PowerBI-v0_1.drawio"
+    - "Technology_Solution_Template_for_PowerBI-v0_2.drawio"
+  use_when:
+    - "Building data analytics/BI platform"
+    - "Power BI reports on Company data (LUDP, EDW, operational DBs)"
+    - "Data pipeline: LUDP → Power BI → Business consumers"
+    - "ETL/batch processing from multiple data sources"
+  typical_stack: ["LUDP PRC (Spark/Kafka/ETL)", "Power BI", "PostgreSQL", "Azure PBI Premium", "Magellan EDW"]
+  mixable_with: ["private-cloud", "aws-hybrid"]
+  placeholder_guide:
+    ENV: "prod | nonprod | dev"
+    PM1-PM4: "Physical machines hosting PBI Gateway"
+    VM1-VM4: "Azure VMs hosting PBI Gateway"
+
+arch:
+  id: "XXX-DataAnalytics-TechDiagram-V1.0"
+  name: "XXX — Data Analytics & Power BI Architecture"
+  platform: "hybrid_cloud"
+  author: "Itcode-Firstname-Lastname"
+  owner_team: "Your Team"
+  version: "V1.0"
+
+  deployment:
+
+    # ── Neimeng DC (PRC data source + PBI Gateway) ───────────
+    - id: "hohhot-dc"
+      type: "private_dc"
+      role: "production"
+      location: "Neimeng DC (Company) [China]"
+      owner: "InfraSec"
+      network_zones:
+
+        - id: "hohhot-dmz"
+          type: "dmz"
+          components:
+            - id: "fw-hohhot"
+              name: "FW"
+              type: "LB"
+              shape: "hexagon"
+
+        - id: "hohhot-app"
+          type: "app_zone"
+          name: "APP Zone"
+          components:
+            - id: "pbi-gw-cluster"
+              name: "ICS PM PRC\nPBI Gateway Cluster"
+              type: "BE"
+              notes: "On-prem Power BI Gateway — PM1/PM2/PM3/PM4"
+              runtime: "Physical"
+
+            - id: "pm1"
+              name: "PM1"
+              type: "BE"
+              runtime: "Physical"
+            - id: "pm2"
+              name: "PM2"
+              type: "BE"
+              runtime: "Physical"
+            - id: "pm3"
+              name: "PM3"
+              type: "BE"
+              runtime: "Physical"
+            - id: "pm4"
+              name: "PM4"
+              type: "BE"
+              runtime: "Physical"
+
+            - id: "xxx-app"
+              name: "XXX-1\n(Java, Spring)"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "Internal K8s"
+              status: "newly_created"
+
+        - id: "hohhot-data"
+          type: "db_zone"
+          name: "Data Sources (PRC)"
+          components:
+            - id: "ludp-prc"
+              name: "LUDP PRC\n(Spark/Kafka/ETL)"
+              type: "MQ"
+              shape: "message_queue"
+              sensitivity: "Company Confidential"
+              notes: "Primary big data platform; batch + streaming"
+
+            - id: "flex-reporting"
+              name: "Flex Reporting"
+              type: "DB"
+              shape: "cylinder"
+
+            - id: "other-dbs"
+              name: "Other DBs\n(SQL/MySQL/PG)"
+              type: "DB"
+              shape: "cylinder"
+
+            - id: "pg-hohhot"
+              name: "PostgreSQL HA"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Confidential"
+              notes: "⚠ AES-256 encryption"
+
+    # ── Shenyang DC (secondary data source) ──────────────────
+    # Uncomment if Shenyang data sources are needed
+    # - id: "shenyang-dc"
+    #   type: "private_dc"
+    #   location: "Company ICS Shenyang DC [China]"
+    #   owner: "InfraSec"
+    #   network_zones:
+    #     - id: "sy-intranet"
+    #       type: "intranet"
+    #       components:
+    #         - id: "sy-db"
+    #           name: "Shenyang DB"
+    #           type: "DB"
+    #           shape: "cylinder"
+
+    # ── Azure China North2 (Power BI Service) ─────────────────
+    - id: "azure-cn-north2"
+      type: "azure_vnet"
+      role: "production"
+      location: "PRC Azure China North2 (Company) [CN]"
+      owner: "InfraSec"
+      subnets:
+
+        - id: "pbi-rg"
+          type: "hub"
+          name: "RG: CORPORATE-POWER-BI-PROD"
+          components:
+            - id: "pbi-service"
+              name: "PRC Power BI Service"
+              type: "BE"
+              notes: "SaaS — Power BI Premium node; Azure China North2"
+
+            - id: "azure-traffic-mgr"
+              name: "Azure Traffic Manager"
+              type: "LB"
+              shape: "hexagon"
+              notes: "DNS-based global load balancer"
+
+            - id: "azure-relay"
+              name: "Azure Relay Service"
+              type: "NW"
+              notes: "Relay for on-prem PBI Gateway ↔ Cloud"
+
+            - id: "pbi-workspace"
+              name: "PBI Workspace\n(Name: XXXXXX)"
+              type: "BE"
+              notes: "Contains datasets, reports, dashboards"
+
+            - id: "azure-vm-gw"
+              name: "Azure VM PBI\nGateway Cluster"
+              type: "BE"
+              runtime: "VM"
+              notes: "VM1/VM2/VM3/VM4 — Gateway VMs for corporate"
+
+        - id: "magellan-rg"
+          type: "spoke"
+          name: "RG: Magellan EDW ENV"
+          components:
+            - id: "magellan-edw"
+              name: "Magellan PRC EDW"
+              type: "DS"
+              sensitivity: "Company Confidential"
+              notes: "Enterprise Data Warehouse"
+
+            - id: "magellan-vnet"
+              name: "Magellan-EDW-VNET\n(Private Subnet)"
+              type: "NW"
+
+            - id: "magellan-china-ws"
+              name: "Magellan China WS"
+              type: "BE"
+
+            - id: "magellan-isg-ws"
+              name: "Magellan ISG WS"
+              type: "BE"
+
+            - id: "magellan-log-db"
+              name: "Magellan Log DB"
+              type: "DB"
+              shape: "cylinder"
+
+  interactions:
+    # ── Data source → PBI Gateway (on-prem) ───────────────────
+    - from: "ludp-prc"
+      to: "pbi-gw-cluster"
+      protocol: "ODBC/TLS 1.2"
+      auth: "PWD"
+      notes: "On-prem Gateway reads LUDP directly"
+
+    - from: "flex-reporting"
+      to: "pbi-gw-cluster"
+      protocol: "ODBC"
+      auth: "PWD"
+
+    - from: "other-dbs"
+      to: "pbi-gw-cluster"
+      protocol: "ODBC"
+      auth: "PWD"
+
+    # ── PBI Gateway → Power BI Service (via Azure Relay) ──────
+    - from: "pbi-gw-cluster"
+      to: "azure-relay"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0"
+      notes: "Gateway initiates outbound HTTPS; no inbound firewall rules needed"
+
+    - from: "azure-relay"
+      to: "pbi-service"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0"
+
+    # ── Magellan EDW → Power BI ───────────────────────────────
+    - from: "magellan-edw"
+      to: "pbi-service"
+      protocol: "ODBC/TLS 1.2"
+      auth: "PWD"
+      notes: "Direct query or import mode"
+
+    # ── Application → Data sources ────────────────────────────
+    - from: "xxx-app"
+      to: "ludp-prc"
+      protocol: "Kafka/TLS"
+      auth: "SASL/SCRAM"
+      notes: "Write events to LUDP for analytics"
+
+    - from: "xxx-app"
+      to: "pg-hohhot"
+      protocol: "JDBC/SSL"
+      auth: "PWD"
+
+    # ── Internet → Power BI ───────────────────────────────────
+    - from: "internet"
+      to: "pbi-service"
+      protocol: "HTTPS"
+      auth: "Entra ID (OAuth2.0)"
+      notes: "Business users access Power BI reports via browser"
+
+  security:
+    key_management:
+      azure: "Azure Key Vault"
+      private_dc: "Kubernetes Secrets (encrypted at rest)"
+    user_auth_internal:
+      server: "ADFS / Entra ID"
+      protocol: "SAML 2.0 / OAuth2.0"
+    data_protection:
+      in_transit: "TLS 1.3 / ODBC+TLS 1.2"
+      at_rest: "AES-256 for Confidential/Restricted datasets"
+      cross_border: "PRC data stays in PRC DCs / Azure China North2"
+    high_risk_notes:
+      - "⚠ LUDP PRC contains Confidential business data — access control enforced"
+      - "⚠ Power BI Workspace permissions must follow least-privilege"
+      - "ODBC connections to on-prem require Gateway — no direct cloud→DC ports"

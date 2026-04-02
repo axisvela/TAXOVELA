@@ -1,0 +1,294 @@
+# ============================================================
+# Template: aws-hybrid.yaml
+# Source: Technology_Solution_Template_for_AWS-v2_0.drawio
+# Pattern: Private DC (Reston) + AWS US East Hub-Spoke
+# Use when: NA business with AWS, or migrating from Reston DC to AWS
+# ============================================================
+
+_template:
+  id: "aws-hybrid"
+  name: "AWS Hybrid — Reston DC + AWS US East"
+  version: "2.0"
+  source_drawio: "Technology_Solution_Template_for_AWS-v2_0.drawio"
+  use_when:
+    - "NA/ROW business on AWS US East"
+    - "Private DC (Reston) + AWS co-deployment"
+    - "ECS-based microservices on AWS"
+    - "External WSO2 API Gateway for partners/customers"
+  typical_stack: ["Java/Spring Boot", "Amazon ECS", "RDS PostgreSQL", "WSO2", "Kafka/Confluent", "S3"]
+  mixable_with: ["private-cloud", "azure"]
+  hybrid_connectivity: "VPN/MPLS between Reston DC and AWS (Direct Connect preferred)"
+  placeholder_guide:
+    XXX: "Application name"
+    REGION: "US East (N. Virginia)"
+    ENV: "prod | nonprod"
+
+arch:
+  id: "XXX-AWS-TechDiagram-V1.0"
+  name: "XXX Application — AWS Hybrid Architecture"
+  platform: "hybrid_cloud"
+  author: "Itcode-Firstname-Lastname"
+  owner_team: "Your Team"
+  version: "V1.0"
+
+  deployment:
+
+    # ── Reston DC (private cloud anchor) ─────────────────────
+    - id: "reston-dc"
+      type: "private_dc"
+      role: "production"
+      location: "Reston Data Center (Company) [US]"
+      owner: "InfraSec"
+      network_zones:
+
+        - id: "reston-dmz"
+          type: "dmz"
+          components:
+            - id: "f5-reston"
+              name: "F5"
+              type: "LB"
+              shape: "hexagon"
+
+        - id: "reston-db"
+          type: "db_zone"
+          name: "Database & Storage"
+          components:
+            - id: "db-reston"
+              name: "PostgreSQL\n(Legacy)"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Confidential"
+
+    # ── AWS US East — Hub VPC ─────────────────────────────────
+    - id: "aws-useast"
+      type: "aws_vpc"
+      role: "production"
+      location: "AWS Cloud US East (Company) [US]"
+      owner: "Business IT"
+      subnets:
+
+        - id: "aws-vpc-integration"
+          type: "hub"
+          name: "VPC (Integration)"
+          components:
+            - id: "aws-network-fw"
+              name: "AWS Network Firewall"
+              type: "LB"
+              shape: "hexagon"
+
+            - id: "aws-transit-gw"
+              name: "Transit Gateway"
+              type: "NW"
+
+            - id: "aws-bastion"
+              name: "Privileged Access Workstation (PAW)"
+              type: "BE"
+              shape: "bastion"
+
+            - id: "external-wso2"
+              name: "External WSO2 API Gateway"
+              type: "IP"
+              shape: "parallelogram"
+              notes: "External partner/customer API gateway in public subnet"
+
+            - id: "internal-wso2-aws"
+              name: "Internal WSO2 API Gateway"
+              type: "IP"
+              shape: "parallelogram"
+              notes: "Internal service integration in private subnet"
+
+            - id: "kafka-aws"
+              name: "Confluent/Kafka"
+              type: "MQ"
+              shape: "message_queue"
+              notes: "Async event streaming"
+
+        - id: "aws-vpc-application"
+          type: "spoke"
+          name: "VPC (Application)"
+          components:
+            - id: "alb-waf"
+              name: "ALB + AWS WAF"
+              type: "LB"
+              shape: "hexagon"
+              notes: "Public-facing ALB with OWASP WAF rules"
+
+            - id: "xxx-web"
+              name: "XXX Web\n(Nginx/Vue)"
+              type: "FE"
+              language: "JavaScript"
+              framework: "Nginx/Vue"
+              runtime: "Amazon ECS"
+              status: "newly_created"
+
+            - id: "xxx-bff"
+              name: "XXX BFF\n(Spring Boot)"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "Amazon ECS"
+              status: "newly_created"
+
+            - id: "xxx-api"
+              name: "XXX API\n(Spring Boot)"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "Amazon ECS"
+              status: "newly_created"
+
+            - id: "svc-contract"
+              name: "Contract Price Service"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "Amazon ECS"
+
+            - id: "svc-product"
+              name: "Product Service"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "Amazon ECS"
+
+            - id: "svc-warranty"
+              name: "Warranty Service"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "Amazon ECS"
+
+            - id: "spring-cloud-gw"
+              name: "Spring Cloud Gateway"
+              type: "IP"
+              shape: "parallelogram"
+              notes: "Internal routing gateway"
+
+            - id: "redis-aws"
+              name: "ElastiCache Redis"
+              type: "DB"
+              shape: "cylinder"
+              notes: "Session/cache"
+
+            - id: "rds-aws"
+              name: "Amazon RDS PostgreSQL"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Confidential"
+              notes: "AWS KMS encryption; VPC Endpoint only"
+
+            - id: "s3-aws"
+              name: "Amazon S3"
+              type: "DS"
+              notes: "Object storage; VPC Endpoint only; KMS encrypted"
+
+            - id: "company-id-aws"
+              name: "Enterprise ID"
+              type: "SEC"
+              shape: "circle"
+              notes: "External user authentication"
+
+  interactions:
+    # ── Public ingress ────────────────────────────────────────
+    - from: "internet"
+      to: "alb-waf"
+      protocol: "HTTPS"
+      auth: "—"
+      notes: "Customer / external user public ingress"
+
+    - from: "internet"
+      to: "external-wso2"
+      protocol: "HTTPS"
+      auth: "—"
+      notes: "External partner API access (through ALB+WAF in practice)"
+
+    # ── Web → BFF ─────────────────────────────────────────────
+    - from: "alb-waf"
+      to: "xxx-web"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "—"
+
+    - from: "xxx-web"
+      to: "xxx-bff"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "HTTPS/User Token/Session"
+
+    - from: "xxx-bff"
+      to: "company-id-aws"
+      protocol: "HTTPS/OAuth2"
+      auth: "OAuth2.0 Auth Code"
+      notes: "External user authentication"
+
+    # ── Integration via WSO2 ──────────────────────────────────
+    - from: "xxx-bff"
+      to: "internal-wso2-aws"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "internal-wso2-aws"
+      to: "xxx-api"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "internal-wso2-aws"
+      to: "svc-contract"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "internal-wso2-aws"
+      to: "svc-product"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    # ── Async via Kafka ───────────────────────────────────────
+    - from: "xxx-api"
+      to: "kafka-aws"
+      protocol: "Kafka/TLS"
+      auth: "SASL/SCRAM"
+
+    - from: "svc-warranty"
+      to: "kafka-aws"
+      protocol: "Kafka/TLS"
+      auth: "SASL/SCRAM"
+
+    # ── Cache & DB ────────────────────────────────────────────
+    - from: "xxx-bff"
+      to: "redis-aws"
+      protocol: "TCP:Redis/TLS"
+      auth: "AUTH Token"
+
+    - from: "xxx-api"
+      to: "rds-aws"
+      protocol: "TCP:JDBC/TLS"
+      auth: "PWD"
+
+    # ── DC ↔ AWS via VPN/MPLS ─────────────────────────────────
+    - from: "reston-dc"
+      to: "aws-useast"
+      protocol: "VPN/MPLS"
+      auth: "IPSec"
+      notes: "AWS Direct Connect preferred for production"
+
+  security:
+    key_management:
+      aws: "AWS Secrets Manager + KMS (key rotation enabled)"
+      private_dc: "Kubernetes Secrets (encrypted at rest)"
+    user_auth_internal:
+      server: "ADFS"
+      protocol: "SAML 2.0"
+    user_auth_external:
+      server: "Enterprise ID"
+      protocol: "OAuth2.0 Authorization Code"
+    authorization:
+      platform: "AuthZ Platform"
+    bastion:
+      unified: "Privileged Access Workstation (PAW) (primary) / AWS Systems Manager Session Manager (backup)"
+      access_path: "Office Network → PAW → AWS Private Subnet"
+    operational_access:
+      - "No public SSH/RDP"
+      - "MFA required"
+      - "JIT access via PAW"
+    data_protection:
+      in_transit: "TLS 1.3"
+      at_rest: "AES-256 / AWS KMS"
+      cross_border: "US data stays in Reston DC / AWS US East"

@@ -1,0 +1,107 @@
+# ============================================================
+# Config: eval-weights.yaml
+# 用途: 架构图六维度评估权重，支持按项目类型覆盖
+# ============================================================
+
+# 默认权重配置（总分 10.0）
+default:
+  dimensions:
+    Cloud_Network_Completeness:
+      weight: 2.0
+      subcategory_weight: 0.25    # 4个类别：位置/所有权/网络分段/去重
+      description: "云与网络实体完整性"
+
+    Connectivity:
+      weight: 1.0
+      subcategory_weight: 1.0     # 单类别
+      description: "网络连接方式（跨区连接标注）"
+
+    Technical_Component_Completeness:
+      weight: 2.0
+      subcategory_weight: 0.333   # 3个类别：名称/技术栈/运行环境
+      description: "技术组件完整性"
+
+    Interaction_Integration:
+      weight: 2.0
+      subcategory_weight: 0.25    # 4个子项：箭头方向/双向箭头/协议/集成平台
+      description: "交互、集成与通信规范"
+
+    Security_Compliance:
+      weight: 2.0
+      subcategory_weight: 0.333   # 3个类别：系统认证/用户认证/凭证保护
+      description: "安全性与认证合规"
+
+    Terminology_Expression:
+      weight: 1.0
+      subcategory_weight: 1.0
+      description: "术语与表达规范"
+
+  total: 10.0
+
+# 评分等级定义
+grading:
+  - grade: "A"
+    min_score: 9.0
+    label: "优秀"
+    description: "架构图高度完整，可直接提交架构委员会审批"
+  - grade: "B"
+    min_score: 7.5
+    label: "良好"
+    description: "主要信息完整，存在少量改进项，建议修复后提交"
+  - grade: "C"
+    min_score: 6.0
+    label: "合格"
+    description: "基本可用，但存在多处 must_fix 项，须修复后再次评审"
+  - grade: "D"
+    min_score: 4.0
+    label: "不合格"
+    description: "缺失大量关键信息，须大幅补充后重新评审"
+  - grade: "F"
+    min_score: 0.0
+    label: "严重不合格"
+    description: "架构图信息严重缺失或非技术架构图"
+
+# 项目类型权重覆盖（继承 default，仅覆盖指定字段）
+profiles:
+
+  financial:
+    description: "金融行业项目（强化安全和合规权重）"
+    overrides:
+      Security_Compliance:
+        weight: 3.0
+      Terminology_Expression:
+        weight: 0.5
+    total: 10.5   # 注意：覆盖后须重新归一化
+
+  internet_facing:
+    description: "对外服务系统（强化网络和安全）"
+    overrides:
+      Cloud_Network_Completeness:
+        weight: 2.5
+      Security_Compliance:
+        weight: 2.5
+      Connectivity:
+        weight: 1.0
+      Technical_Component_Completeness:
+        weight: 1.5
+      Interaction_Integration:
+        weight: 1.5
+      Terminology_Expression:
+        weight: 0.5
+    total: 10.0
+
+  internal_system:
+    description: "纯内部系统（降低外部连接权重）"
+    overrides:
+      Connectivity:
+        weight: 0.5
+      Security_Compliance:
+        weight: 1.5
+      Technical_Component_Completeness:
+        weight: 2.5
+    total: 10.0
+
+# 必扣分项影响系数（severity 映射）
+severity_impact:
+  error:   1.0    # 全比例扣分
+  warning: 0.5    # 半比例扣分（部分规则适用）

@@ -1,0 +1,132 @@
+# ============================================================
+# ci-gate-spec.yaml — CI/CD Enforcement Gate Specification
+#
+# 理论基础: DIKCA 框架 (Knowledge → Control 跃迁)
+#   rules/*.yaml = K 层（知识：描述合规期望）
+#   本文件       = C 层（控制：强制执行合规要求）
+#
+# 使用方式:
+#   在 CI/CD 管道中调用 arch-validate，并用本文件的阈值
+#   判断是否阻断 merge / deploy。
+#
+#   示例 GitHub Actions step:
+#     - name: Architecture Gate
+#       run: |
+#         python tools/arch-diagram-gen/arch_diagram_gen.py \
+#           -i input/arch.yaml --validate-gate ci-gate-spec.yaml
+#       # exits 1 (blocks merge) if score < threshold
+# ============================================================
+
+# ──────────────────────────────────────────────────────────
+# 1. K→C 区别说明 (DIKCA evidence)
+# ──────────────────────────────────────────────────────────
+dikca_note:
+  k_layer_files:
+    - ".claude/skills/arch-validate/rules/accuracy-rules.yaml"
+    - ".claude/skills/arch-validate/rules/security-rules.yaml"
+    - ".claude/skills/arch-validate/rules/interaction-rules.yaml"
+    - ".claude/skills/arch-validate/rules/platform-rules.yaml"
+    - ".claude/skills/arch-validate/rules/diagram-rules.yaml"
+  k_layer_role: "Describe what SHOULD be — knowledge without normative force"
+
+  c_layer_file: "standards/ci-gate-spec.yaml (this file)"
+  c_layer_role: >
+    Enforce what MUST be — implementation-level constraint that blocks
+    non-compliant architectures from progressing through the pipeline.
+    This is the K→C transition DIKCA identifies as the critical gap
+    in knowledge-centric AI governance systems.
+
+# ──────────────────────────────────────────────────────────
+# 2. Default gate thresholds
+# ──────────────────────────────────────────────────────────
+default:
+  overall_score_minimum: 6.0
+  grade_minimum: "C"           # A/B/C/D/F from eval-weights.yaml
+
+  dimension_minimums:
+    Cloud_Network_Completeness: 5.0
+    Connectivity: 5.0
+    Technical_Component_Completeness: 6.0
+    Interaction_Integration: 6.0
+    Security_Compliance: 6.0      # never allow Security < 6.0
+    Terminology_Expression: 4.0   # cosmetic — softer threshold
+
+  must_fix_tolerance:
+    max_critical: 0              # zero tolerance for Critical issues
+    max_high: 3                  # up to 3 High issues allowed (must have remediation plan)
+    max_medium: null             # no limit on Medium
+
+  # Issues that block merge regardless of overall score
+  blocking_rule_ids:
+    - "S-001"    # system has no auth on any connection
+    - "S-004"    # no user auth declared
+    - "E-PC-001" # no F5 on private cloud ingress
+    - "E-AWS-005" # no WAF+API Gateway on external API
+
+# ──────────────────────────────────────────────────────────
+# 3. Profile overrides (matches eval-weights.yaml profiles)
+# ──────────────────────────────────────────────────────────
+profiles:
+
+  financial:
+    inherits: default
+    overall_score_minimum: 7.0
+    dimension_minimums:
+      Security_Compliance: 8.0   # financial: security non-negotiable
+      Cloud_Network_Completeness: 7.0
+    must_fix_tolerance:
+      max_critical: 0
+      max_high: 0              # zero high issues in financial
+
+  internet_facing:
+    inherits: default
+    overall_score_minimum: 7.0
+    dimension_minimums:
+      Security_Compliance: 7.5
+      Interaction_Integration: 7.0
+    blocking_rule_ids:
+      - "S-001"
+      - "S-004"
+      - "E-PC-001"
+      - "E-AWS-005"
+      - "W-006"    # direct cross-app call — must have integration platform
+
+  internal_system:
+    inherits: default
+    overall_score_minimum: 5.5   # softer for purely internal
+    dimension_minimums:
+      Security_Compliance: 5.0   # internal: lower threshold
+      Connectivity: 3.0          # fewer cross-DC connections expected
+
+# ──────────────────────────────────────────────────────────
+# 4. Override protocol (C layer does not eliminate human judgment)
+# ──────────────────────────────────────────────────────────
+override_protocol:
+  description: >
+    Any architecture that fails the gate can be force-approved by
+    a designated architecture authority. This preserves human autonomy
+    (DIKCA: C layer does not eliminate A layer) while making the
+    override explicit and auditable.
+
+  required_fields_for_override:
+    - "override_approved_by: name + role"
+    - "override_rationale: specific justification"
+    - "override_expiry: date by which issue must be resolved"
+    - "remediation_ticket: link to tracking issue"
+
+  override_logging:
+    location: "output/override-log.yaml"
+    retention: "12 months"
+
+# ──────────────────────────────────────────────────────────
+# 5. PPES confidence integration
+# ──────────────────────────────────────────────────────────
+ppes_confidence_mode:
+  description: >
+    When ensemble mode is enabled (arch-validate --ensemble N),
+    gate decisions use the ensemble mean score rather than a
+    single-run score, and blocking rules are only triggered when
+    detection_frequency > threshold.
+  default_ensemble_runs: 3
+  blocking_rule_frequency_threshold: 0.6   # must appear in 60%+ of runs to block
+  score_metric: "mean"   # mean | conservative_lower_bound (mean - 1 stddev)

@@ -1,0 +1,285 @@
+# ============================================================
+# Template: microsoft-365.yaml
+# Sources: Technology_Solution_Template_for_Copilot_Studio-v1_0.drawio
+#          Technology_Solution_Template_for_PowerPlatform-v1_0.drawio
+#          Technology_Solution_Template_for_Microsoft_Graph-v1_0.drawio
+# Pattern: M365 / Power Platform / Copilot Studio integration with Company DC
+# Use when: Power Apps, Power Automate, Copilot Studio, or Graph API integration
+# ============================================================
+
+_template:
+  id: "microsoft-365"
+  name: "Microsoft 365 — Power Platform & Graph Integration"
+  version: "1.0"
+  sources_drawio:
+    - "Technology_Solution_Template_for_Copilot_Studio-v1_0.drawio"
+    - "Technology_Solution_Template_for_PowerPlatform-v1_0.drawio"
+    - "Technology_Solution_Template_for_Microsoft_Graph-v1_0.drawio"
+  use_when:
+    - "Building apps on Power Platform (Canvas App, Power Automate)"
+    - "Copilot Studio / Teams Bot integration"
+    - "Microsoft Graph API integration (SharePoint, Teams, OneDrive)"
+    - "Company backend services accessed from M365 ecosystem"
+  typical_stack: ["Power Platform", "Copilot Studio", "Azure Bot Service", "Azure OpenAI", "Graph API", "Entra ID"]
+  mixable_with: ["azure-hub-spoke", "private-cloud"]
+  important_notes:
+    - "Power Platform and M365 are SaaS — not deployed by Company"
+    - "Key risk: Azure App Registration stores App ID & Secret — use Internal K8s Secret (K8s)"
+    - "Graph API permissions must be minimal — specify Permission Type and Scope"
+    - "Copilot Studio uses OAuth2 OBO (On-Behalf-Of) for delegated access"
+  placeholder_guide:
+    XXX: "Application/bot name"
+    WORKSPACE: "SharePoint/Dataverse workspace name"
+    SITE: "SharePoint site collection name"
+    RESOURCE: "Specific resource (file/calendar/etc)"
+
+# ── Sub-patterns (choose the relevant section) ────────────────
+# A. Power Platform (Canvas App + Power Automate)
+# B. Copilot Studio (Teams Bot + Azure OpenAI)
+# C. Microsoft Graph API integration
+
+arch:
+  id: "XXX-M365-TechDiagram-V1.0"
+  name: "XXX — Microsoft 365 Integration Architecture"
+  platform: "hybrid_cloud"
+  author: "Itcode-Firstname-Lastname"
+  owner_team: "Your Team"
+  version: "V1.0"
+
+  deployment:
+
+    # ── Microsoft Cloud (SaaS — not Company managed) ──────────
+    - id: "m365-cloud"
+      type: "saas"
+      location: "Microsoft Cloud (Company) [SG/HK]"
+      owner: "Microsoft"
+      components:
+        # ── Pattern A: Power Platform ─────────────────────────
+        - id: "power-platform"
+          name: "Power Platform\n(HK/SG)"
+          type: "BE"
+          owner_type: "third_party"
+          notes: "SaaS — not Company-managed; data residency: SG/HK"
+
+        - id: "canvas-app"
+          name: "Canvas App"
+          type: "FE"
+          owner_type: "biz_owned"
+          notes: "Built by business team on Power Platform"
+
+        - id: "power-automate"
+          name: "Power Automate\n(Flow)"
+          type: "BE"
+          owner_type: "biz_owned"
+          notes: "Automated workflow; Standard/Premium Connector"
+
+        - id: "dataverse"
+          name: "Dataverse\n(Table: XXXX)"
+          type: "DB"
+          shape: "cylinder"
+          sensitivity: "Company Internal"
+          notes: "Power Platform default datastore"
+
+        - id: "sharepoint"
+          name: "SharePoint\n[Site: XXXXX]\n[Resource: XXXXXX]"
+          type: "DS"
+          sensitivity: "Company Internal"
+          notes: "Graph API access — specify exact Permission Type and Scope"
+
+        - id: "outlook-m365"
+          name: "Outlook\n(Email Alert)"
+          type: "BE"
+          notes: "Power Automate email action"
+
+        # ── Pattern B: Copilot Studio / Teams Bot ─────────────
+        - id: "teams-server"
+          name: "Teams Server"
+          type: "BE"
+          owner_type: "third_party"
+
+        - id: "copilot-studio"
+          name: "Copilot Studio"
+          type: "BE"
+          owner_type: "biz_owned"
+          notes: "Low-code bot builder on Power Platform"
+
+        - id: "entra-id"
+          name: "Entra ID"
+          type: "SEC"
+          shape: "circle"
+          notes: "Identity provider; Token verification; App Registration"
+
+        - id: "m365-teams"
+          name: "Teams"
+          type: "BE"
+
+    # ── Azure (Company-managed Azure resources) ────────────────
+    - id: "azure-backend"
+      type: "azure_vnet"
+      location: "Azure XXX [Region] (Company)"
+      owner: "InfraSec"
+      subnets:
+        - id: "azure-private"
+          type: "private"
+          name: "Private Subnet"
+          components:
+            - id: "azure-bot-service"
+              name: "Azure Bot Service"
+              type: "BE"
+              notes: "Intermediary between Teams and Copilot Studio"
+
+            - id: "azure-openai"
+              name: "Azure OpenAI"
+              type: "BE"
+              sensitivity: "Company Restricted"
+              notes: "⚠ High Risk: LLM inference — prompt injection risk"
+              status: "newly_created"
+
+            - id: "k8s-secret"
+              name: "Internal K8s Secret\n(K8s)"
+              type: "SEC"
+              notes: "⚠ Stores Azure App ID & Secret — automatically encrypted"
+
+            - id: "xxx-service"
+              name: "XXX Service\n(Spring, Java)"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot"
+              runtime: "AKS"
+              status: "newly_created"
+
+            - id: "graph-api"
+              name: "Graph API\n(Access Policy)"
+              type: "IP"
+              shape: "parallelogram"
+              notes: "Permission Type: Delegated/Application; specify exact Permissions + Resource + Scope"
+
+            - id: "key-vault-azure"
+              name: "Azure Key Vault"
+              type: "SEC"
+              notes: "Mandatory: App secrets, certificates"
+
+    # ── Company Private DC (existing backend) ──────────────────
+    - id: "xxx-dc"
+      type: "private_dc"
+      location: "XXX DC (Company) [China]"
+      owner: "InfraSec"
+      network_zones:
+        - id: "dc-dmz"
+          type: "dmz"
+          components:
+            - id: "f5-dc"
+              name: "F5"
+              type: "LB"
+              shape: "hexagon"
+
+        - id: "dc-app"
+          type: "app_zone"
+          components:
+            - id: "dc-service"
+              name: "XXX Service\n(existing)"
+              type: "BE"
+              status: "unchanged"
+
+  interactions:
+    # ── Pattern A: Power Platform ─────────────────────────────
+    - from: "user"
+      to: "canvas-app"
+      protocol: "HTTPS"
+      auth: "Entra ID (OAuth2.0)"
+      notes: "Internal user via M365 SSO"
+
+    - from: "canvas-app"
+      to: "power-automate"
+      protocol: "HTTPS/OAuth2"
+      auth: "OAuth2.0 User Token"
+      notes: "Standard/Premium Connector"
+
+    - from: "power-automate"
+      to: "dataverse"
+      protocol: "HTTPS/OAuth2"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "power-automate"
+      to: "sharepoint"
+      protocol: "HTTPS/OAuth2"
+      auth: "OAuth2.0 (Graph API delegated)"
+      notes: "Graph API — specify Permission Type, Scope, Resource"
+
+    - from: "power-automate"
+      to: "xxx-service"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+      notes: "Premium Connector — calls Company backend"
+
+    # ── Pattern B: Copilot Studio / Teams Bot ─────────────────
+    - from: "teams-server"
+      to: "azure-bot-service"
+      protocol: "HTTPS/Bot Framework Protocol"
+      auth: "JWT in activity"
+
+    - from: "azure-bot-service"
+      to: "copilot-studio"
+      protocol: "HTTPS/OAuth2"
+      auth: "OAuth2.0"
+
+    - from: "copilot-studio"
+      to: "azure-openai"
+      protocol: "HTTPS"
+      auth: "Managed Identity"
+      notes: "⚠ LLM inference — hallucination and prompt injection risk"
+
+    - from: "copilot-studio"
+      to: "xxx-service"
+      protocol: "HTTPS/REST"
+      auth: "OAuth2.0 OBO"
+      notes: "On-Behalf-Of flow for delegated user access"
+
+    - from: "entra-id"
+      to: "copilot-studio"
+      protocol: "HTTPS"
+      auth: "Token Exchange"
+      notes: "Token verification"
+
+    # ── Pattern C: Graph API ───────────────────────────────────
+    - from: "xxx-service"
+      to: "graph-api"
+      protocol: "HTTPS/OAuth2"
+      auth: "OAuth2.0 Client Credentials"
+      notes: "App-only access; specify exact Graph permissions"
+
+    - from: "graph-api"
+      to: "sharepoint"
+      protocol: "HTTPS"
+      auth: "OAuth2.0"
+      notes: "Permission: Files.Read.All / Sites.Read.All (example)"
+
+    - from: "xxx-service"
+      to: "k8s-secret"
+      protocol: "HTTPS"
+      auth: "Managed Identity"
+      notes: "Retrieve App ID & Secret at runtime"
+
+    # ── DC connectivity ───────────────────────────────────────
+    - from: "xxx-dc"
+      to: "azure-backend"
+      protocol: "ExpressRoute"
+      auth: "IPSec"
+
+  security:
+    key_management:
+      azure: "Azure Key Vault + Internal K8s Secret (K8s) for App Registration secrets"
+      private_dc: "Kubernetes Secrets (encrypted at rest)"
+    user_auth_internal:
+      server: "Entra ID (M365) / ADFS (private DC)"
+      protocol: "OAuth2.0 / SAML 2.0"
+    user_auth_external:
+      server: "Enterprise ID"
+      protocol: "OAuth2.0 Authorization Code"
+    authorization:
+      platform: "AuthZ Platform"
+    high_risk_notes:
+      - "⚠ Azure App ID/Secret stored in Internal K8s Secret — encrypted at rest"
+      - "⚠ Azure OpenAI: hallucination and prompt injection risks"
+      - "⚠ Graph API: use minimal permissions — specify exact Scope + Resource"
+      - "⚠ Power Platform: data sovereignty — verify SG/HK region compliance"

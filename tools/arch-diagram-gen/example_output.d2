@@ -1,0 +1,315 @@
+# Multi-Region Application Suite
+# ID: MultiRegion-AppSuite-Technical-V1.0  |  Platform: hybrid_cloud
+
+direction: right
+
+internet: Internet {
+  shape: cloud
+  style {
+    fill: "#E8E8E8"
+  }
+}
+
+hohhot_dc: "Hohhot DC, Inner Mongolia [CN] [CHCS]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  hohhot_dmz: "Dmz" {
+    style {
+      fill: "#FFFDE7"
+      stroke: "#F9A825"
+      stroke-dash: 6
+    }
+
+    f5_hohhot: "F5 Load Balancer" {
+      shape: hexagon
+      style {
+            fill: "#FFCDD2"
+            stroke: "#B71C1C"
+          }
+    }
+    web_gateway_hohhot: "Web Gateway (Nginx)" {
+      shape: parallelogram
+      style {
+            fill: "#E1BEE7"
+            stroke: "#6A1B9A"
+          }
+    }
+  }
+
+  hohhot_app_zone: "App Zone" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    app_a: "⚠ Application A\n(Java-17, Spring Boot)\n[Earth (K8s)]" {
+      style {
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    app_b: "Application B\n(Java-17, Spring Boot)\n[Earth (K8s)]" {
+      style {
+            stroke-dash: 5
+          }
+    }
+    app_c: "Application C\n(Node.js-20, Express)\n[Earth (K8s)]" {
+      style {
+            stroke-dash: 5
+          }
+    }
+  }
+
+  hohhot_db_zone: "Db Zone" {
+    style {
+      fill: "#E3F2FD"
+      stroke: "#1565C0"
+      stroke-dash: 6
+    }
+
+    db_a: "⚠ PostgreSQL A" {
+      shape: cylinder
+      style {
+            fill: "#FFF9C4"
+            stroke: "#F9A825"
+            bold: true
+          }
+    }
+    db_bc: "PostgreSQL B/C" {
+      shape: cylinder
+      style {
+            fill: "#FFF9C4"
+            stroke: "#F9A825"
+          }
+    }
+  }
+
+}
+
+shenyang_dc: "Shenyang DC, Liaoning [CN] [CHCS]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  shenyang_dmz: "Dmz" {
+    style {
+      fill: "#FFFDE7"
+      stroke: "#F9A825"
+      stroke-dash: 6
+    }
+
+    f5_shenyang: "F5 Load Balancer" {
+      shape: hexagon
+      style {
+            fill: "#FFCDD2"
+            stroke: "#B71C1C"
+          }
+    }
+  }
+
+  shenyang_intranet: "Intranet" {
+    style {
+      fill: "#F3E5F5"
+      stroke: "#7B1FA2"
+      stroke-dash: 6
+    }
+
+    app_d: "⚠ Application D\n(Java-17, Spring Boot)\n[Earth (K8s)]" {
+      style {
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    app_e: "Application E\n(Python-3.11, FastAPI)\n[Earth (K8s)]" {
+      style {
+            stroke-dash: 5
+          }
+    }
+    app_f: "Application F\n(Go-1.22, Gin)\n[Earth (K8s)]" {
+      style {
+            stroke-dash: 5
+          }
+    }
+    db_def: "PostgreSQL D/E/F" {
+      shape: cylinder
+      style {
+            fill: "#FFF9C4"
+            stroke: "#F9A825"
+          }
+    }
+  }
+
+}
+
+reston_dc: "Reston DC, Virginia [US] [CHCS]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  reston_dmz: "Dmz" {
+    style {
+      fill: "#FFFDE7"
+      stroke: "#F9A825"
+      stroke-dash: 6
+    }
+
+    f5_reston: "F5 Load Balancer" {
+      shape: hexagon
+      style {
+            fill: "#FFCDD2"
+            stroke: "#B71C1C"
+          }
+    }
+    wso2_gateway: "WSO2 API Gateway" {
+      shape: parallelogram
+      style {
+            fill: "#E1BEE7"
+            stroke: "#6A1B9A"
+          }
+    }
+  }
+
+  reston_app_zone: "App Zone" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    app_g: "⚠ Application G\n(Java-17, Spring Boot)\n[Earth (K8s)]" {
+      style {
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    app_h: "Application H\n(.NET-8, ASP.NET Core)\n[Earth (K8s)]" {
+      style {
+            stroke-dash: 5
+          }
+    }
+    kafka_cluster: "Kafka Platform" {
+      shape: queue
+      style {
+            fill: "#D1C4E9"
+            stroke: "#4527A0"
+          }
+    }
+  }
+
+  reston_db_zone: "Db Zone" {
+    style {
+      fill: "#E3F2FD"
+      stroke: "#1565C0"
+      stroke-dash: 6
+    }
+
+    db_gh: "PostgreSQL G/H" {
+      shape: cylinder
+      style {
+            fill: "#FFF9C4"
+            stroke: "#F9A825"
+          }
+    }
+  }
+
+}
+
+aws_useast: "AWS US East (N. Virginia) [US] [Business IT]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#232F3E"
+    stroke-width: 2
+  }
+
+  aws_hub_vpc: "Hub" {
+    style {
+      fill: "#FFF8E1"
+      stroke: "#E65100"
+      stroke-dash: 6
+    }
+
+    aws_firewall: "AWS Network Firewall" {
+      shape: hexagon
+      style {
+            fill: "#FFCDD2"
+            stroke: "#B71C1C"
+          }
+    }
+    aws_bastion: "Lenovo AWP" {
+      style {
+            stroke-dash: 5
+          }
+    }
+  }
+
+  aws_spoke_vpc: "Spoke" {
+    style {
+      fill: "#E8F5E9"
+      stroke: "#2E7D32"
+      stroke-dash: 6
+    }
+
+    alb_waf: "ALB + AWS WAF" {
+      shape: hexagon
+      style {
+            fill: "#FFCDD2"
+            stroke: "#B71C1C"
+          }
+    }
+    wso2_aws: "WSO2 API Gateway" {
+      shape: parallelogram
+      style {
+            fill: "#E1BEE7"
+            stroke: "#6A1B9A"
+          }
+    }
+    app_i: "Application I\n(Java-17, Spring Boot)\n[Amazon ECS]" {
+      style {
+            stroke-dash: 5
+          }
+    }
+    app_j: "Application J\n(Node.js-20, Express)\n[Amazon ECS]" {
+      style {
+            stroke-dash: 5
+          }
+    }
+    rds_ij: "Amazon RDS PostgreSQL" {
+      shape: cylinder
+      style {
+            fill: "#FFF9C4"
+            stroke: "#F9A825"
+          }
+    }
+  }
+
+}
+
+# ── Interactions ──────────────────────────────────────
+
+internet -> hohhot_dc.hohhot_dmz.f5_hohhot: "HTTPS"
+internet -> shenyang_dc.shenyang_dmz.f5_shenyang: "HTTPS"
+internet -> reston_dc.reston_dmz.f5_reston: "HTTPS"
+internet -> aws_useast.aws_spoke_vpc.alb_waf: "HTTPS"
+hohhot_dc.hohhot_dmz.f5_hohhot -> hohhot_dc.hohhot_dmz.web_gateway_hohhot: "HTTPS/TLS 1.3"
+hohhot_dc.hohhot_dmz.web_gateway_hohhot -> hohhot_dc.hohhot_app_zone.app_a: "HTTPS/TLS 1.3\n(OAuth2.0)"
+hohhot_dc.hohhot_app_zone.app_a -> reston_dc.reston_dmz.wso2_gateway: "HTTPS/TLS 1.3\n(mTLS)"
+reston_dc.reston_dmz.wso2_gateway -> reston_dc.reston_app_zone.app_g: "HTTPS/TLS 1.3\n(OAuth2.0 Client Cred)"
+hohhot_dc.hohhot_app_zone.app_b -> reston_dc.reston_app_zone.kafka_cluster: "Kafka/TLS\n(SASL/SCRAM)" { style { stroke-dash: 4 } }
+aws_useast.aws_spoke_vpc.alb_waf -> aws_useast.aws_spoke_vpc.wso2_aws: "HTTPS/TLS 1.3"
+aws_useast.aws_spoke_vpc.wso2_aws -> aws_useast.aws_spoke_vpc.app_i: "HTTPS/TLS 1.3\n(OAuth2.0 Client Cred)"
+hohhot_dc.hohhot_app_zone.app_a -> hohhot_dc.hohhot_db_zone.db_a: "JDBC\n(PWD)"

@@ -1,0 +1,191 @@
+# ============================================================
+# arch-schema-reference.yaml
+# Complete field reference for Architecture YAML files.
+# Used by arch-diagram-gen, arch-validate, and arch-design.
+# ============================================================
+
+# ── Top-level wrapper ────────────────────────────────────────
+arch:
+  id: "ProjectId-TechDiagram-V1.0"          # required: unique identifier
+  name: "My System - Technical Architecture" # required: human-readable name
+  platform: "hybrid_cloud"                   # required: aws | azure | private_cloud | hybrid_cloud
+  version: "V1.0"                            # optional
+  author: "itcode-Firstname-Lastname"        # optional
+  owner_team: "Team Name"                    # optional
+  last_modified: "2026-03-23"               # optional
+
+  # ── Deployment regions ─────────────────────────────────────
+  deployment:
+
+    # ── Private DC (on-premises) ────────────────────────────
+    - id: "hohhot-dc"                        # required: unique, used in interactions
+      type: "private_dc"                     # required: private_dc | aws_vpc | azure_vnet
+      role: "production"                     # optional: production | dr | dev | test
+      location: "Hohhot DC, Inner Mongolia [CN]"  # required: city/state/country
+      owner: "InfraSec"                          # required: InfraSec | BizIT | DeptName
+      network_zones:                         # required for private_dc
+        - id: "hohhot-dmz"                   # required: unique
+          type: "dmz"                        # required: dmz | app_zone | db_zone | intranet
+          name: "DMZ"                        # optional: overrides default label
+          components:                        # list of technical components
+            - id: "f5-hohhot"               # required: unique, referenced in interactions
+              name: "F5 Load Balancer"       # required: display name
+              type: "LB"                     # required: see Component Types below
+              shape: "hexagon"               # optional: overrides default shape
+              language: "N/A"               # optional (self-developed only)
+              framework: "N/A"              # optional (self-developed only)
+              runtime: "Physical"           # optional: Internal K8s|VM|Physical|ECS|Lambda|...
+              sensitivity: "Company Internal" # optional: Company Restricted|Confidential|Internal
+              owner_type: "org_it"       # optional: org_it | biz_owned | third_party
+              notes: "Primary ingress"      # optional: tooltip text
+              status: "unchanged"           # optional: see Status Colors below
+
+    # ── AWS VPC ────────────────────────────────────────────
+    - id: "aws-useast"
+      type: "aws_vpc"                        # AWS cloud region
+      location: "AWS US East (N. Virginia) [US]"
+      owner: "Business IT"
+      subnets:                               # required for aws_vpc
+        - id: "aws-hub-vpc"
+          type: "hub"                        # hub | spoke | private | public
+          name: "Hub VPC"                   # optional
+          components:
+            - id: "aws-firewall"
+              name: "AWS Network Firewall"
+              type: "LB"
+              shape: "hexagon"
+
+        - id: "aws-spoke-vpc"
+          type: "spoke"
+          components:
+            - id: "app-i"
+              name: "Application I"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot-3.5"
+              runtime: "Amazon ECS"
+              sensitivity: "Company Internal"
+
+    # ── Azure VNET ─────────────────────────────────────────
+    - id: "azure-eastasia"
+      type: "azure_vnet"                     # Azure cloud region
+      location: "Azure East Asia (Company AICS) [CN]"
+      owner: "InfraSec"
+      subnets:
+        - id: "azure-hub-vnet"
+          type: "hub"
+          components:
+            - id: "azure-firewall"
+              name: "Azure Firewall"
+              type: "LB"
+              shape: "hexagon"
+        - id: "azure-spoke-vnet"
+          type: "spoke"
+          components:
+            - id: "apim"
+              name: "APIM"
+              type: "IP"
+              shape: "parallelogram"
+              notes: "Internal VNET mode"
+
+  # ── Interactions (communication flows) ──────────────────────
+  # Rule: from = caller (arrow tail), to = service provider (arrow head)
+  # No bidirectional arrows — use two separate entries if needed
+  interactions:
+    - from: "internet"          # special: internet | user | office-network
+      to: "f5-hohhot"
+      protocol: "HTTPS"         # required: HTTPS|Kafka|SFTP|JDBC|ODBC|gRPC|RFC|TCP
+      auth: "—"                 # required: OAuth2.0|mTLS|SASL/SCRAM|PWD|Basic Auth|—
+      encryption: "TLS 1.3"    # optional: TLS version or IPSec etc.
+      notes: "Public ingress"   # optional: tooltip
+
+    - from: "app-a"
+      to: "kafka-cluster"
+      protocol: "Kafka/TLS"
+      auth: "SASL/SCRAM"
+
+    - from: "app-a"
+      to: "db-a"
+      protocol: "JDBC"
+      auth: "PWD"
+
+  # ── Security declarations ────────────────────────────────────
+  security:
+    key_management:
+      aws: "AWS KMS + Secrets Manager"
+      azure: "Azure Key Vault"
+      private_dc: "Kubernetes Secrets (encrypted at rest)"
+    user_auth_internal:
+      server: "ADFS"
+      protocol: "SAML 2.0"
+    user_auth_external:
+      server: "Enterprise ID"
+      protocol: "OAuth2.0 Authorization Code"
+    authorization:
+      platform: "AuthZ Platform"
+      enforcement: "API Gateway + Application level"
+    bastion:
+      unified: "Privileged Access Workstation (PAW)"
+      access_path: "Office Network → PAW → Private Network"
+    data_protection:
+      in_transit: "TLS 1.3"
+      at_rest: "AES-256 for Confidential/Restricted data"
+      cross_border: "PRC data stays in PRC DCs; US data in Reston/AWS US East"
+
+# ============================================================
+# COMPONENT TYPES (type field)
+# ============================================================
+# FE  — Front-end / Web UI (rounded rectangle)
+# BE  — Backend Service / API / Microservice (dashed rectangle)
+# BFF — Backend for Frontend (dashed rectangle)
+# API — API-only service (dashed rectangle)
+# LB  — Load Balancer / Firewall / Security Gateway (hexagon)
+# IP  — Integration Platform / API Gateway (parallelogram)
+#       Examples: WSO2, APIH, Nginx
+# MQ  — Message Queue / Event Bus (rounded parallelogram)
+#       Examples: Kafka, RabbitMQ
+# DB  — Database / Data Store (cylinder)
+# DS  — Document/Object Storage (stored_data shape)
+# SEC — Security Component / Identity Provider (circle)
+# MO  — Monitoring / Logging (document shape)
+# NW  — Network Component (varies)
+
+# ============================================================
+# SHAPE OVERRIDES (shape field) — only needed to override defaults
+# ============================================================
+# hexagon         — Firewall, Load Balancer, F5
+# parallelogram   — API Gateway, Integration Platform
+# cylinder        — Database, Data Store
+# circle          — Identity Provider, SSO, ADFS
+# bastion         — Bastion Host / PAW
+# message_queue   — Kafka, Message Bus (rounded parallelogram)
+# cloud_rect      — SaaS services (cloud-shaped rectangle)
+
+# ============================================================
+# STATUS COLORS (status field on components)
+# ============================================================
+# newly_created — Red  #D32F2F  (new in this change)
+# changed       — Yellow #FBC02D (modified)
+# unchanged     — White #FFFFFF  (existing, no change)
+# in_plan       — Green #66BB6A  (planned, not in scope)
+# retired       — Gray  #757575  (being decommissioned)
+# biz_owned     — Purple #8E24AA (maintained by business team)
+# third_party   — Orange #FB8C00 (external vendor/partner)
+
+# ============================================================
+# NETWORK ZONE TYPES (type field on zones)
+# ============================================================
+# dmz       — DMZ / Internet-facing zone (yellow background)
+# app_zone  — Application tier (green background)
+# db_zone   — Database tier (blue background)
+# intranet  — Combined app+db zone, e.g. Shenyang (purple background)
+# hub       — AWS/Azure Hub VPC/VNET (amber background)
+# spoke     — AWS/Azure Spoke VPC/VNET (green background)
+
+# ============================================================
+# SENSITIVITY LEVELS (sensitivity field)
+# ============================================================
+# Company Restricted  — Highest sensitivity, triggers ⚠ label + encryption required
+# Company Confidential — High sensitivity, triggers ⚠ label
+# Company Internal     — Standard internal
+# (blank)             — Public or unclassified

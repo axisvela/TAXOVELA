@@ -1,0 +1,157 @@
+# ============================================================
+# ArchHarness x PPES Sampling Protocol
+# For: "PPES: A Probabilistic Execution Semantics for
+#       Foundation Models"
+# ============================================================
+# Core argument:
+#   arch-validate runs a single LLM execution and outputs one
+#   deterministic-looking score. PPES argues this is a sample
+#   from a probability distribution, not a deterministic result.
+#   This protocol makes that distribution visible, providing
+#   empirical grounding for PPES's theoretical claims.
+# ============================================================
+
+theoretical_framing:
+  ppes_claim: >
+    Foundation model execution is inherently probabilistic. A single
+    run produces a sample from a distribution over outputs, not a
+    deterministic result. Systems that treat LLM outputs as facts
+    rather than samples systematically misrepresent their epistemic
+    status.
+  archharness_current_behaviour: >
+    arch-validate outputs score: 7.3 and issues: [E-002, S-001].
+    These look like facts. A reviewer reading this report treats
+    7.3 as THE score and those two issues as THE problems.
+  ppes_reframing: >
+    The score 7.3 is actually the mode (or mean) of a distribution.
+    The issues list is the high-probability sample of detectable
+    violations. Low-probability violations — present in the diagram
+    but detected only sometimes — are invisible in single-run output.
+
+# ──────────────────────────────────────────────────────────
+# Ensemble sampling protocol
+# ──────────────────────────────────────────────────────────
+sampling_protocol:
+  name: "arch-validate --ensemble"
+  n_runs: 5    # minimum for publication; 10-20 preferred
+  temperature: 0.2    # match arch-validate default (low but nonzero)
+  seed: null   # intentionally unseeded to sample the distribution
+
+  procedure:
+    - step: 1
+      action: "Run arch-validate on the same diagram image N times"
+      record: "Full JSON output per run: score, issues list, score_breakdown"
+
+    - step: 2
+      action: "Aggregate issue detection across runs"
+      compute:
+        - "issue_frequency[rule_id] = count(runs where rule_id appeared) / N"
+        - "score_mean = mean(scores)"
+        - "score_stddev = stddev(scores)"
+        - "score_range = max - min"
+
+    - step: 3
+      action: "Classify issues by detection stability"
+      classification:
+        HIGH:   "frequency >= 0.8  (detected in 4+ of 5 runs)"
+        MEDIUM: "frequency 0.4-0.79 (detected in 2-4 of 5 runs)"
+        LOW:    "frequency < 0.4   (detected in 0-2 of 5 runs)"
+
+    - step: 4
+      action: "Output confidence-annotated report"
+      format: "See output_schema below"
+
+output_schema_extension:
+  # This extends the existing arch-validate JSON output
+  overall_evaluation:
+    score: 7.3
+    score_mean: 7.1          # NEW: ensemble mean
+    score_stddev: 0.4        # NEW: cross-run variability
+    score_range: [6.8, 7.5]  # NEW: observed range
+    runs_completed: 5        # NEW
+
+  issues:
+    - id: "E-002"
+      description: "Missing Region label on AWS node"
+      detection_frequency: 1.0    # NEW: found in 5/5 runs
+      confidence: "HIGH"          # NEW: stable finding
+      issue_type: "must_fix"
+
+    - id: "S-001"
+      description: "No auth declared on App-A → DB connection"
+      detection_frequency: 0.6    # NEW: found in 3/5 runs
+      confidence: "MEDIUM"        # NEW: review manually
+      issue_type: "must_fix"
+      ppes_note: "Human reviewer should manually verify this finding"
+
+    - id: "W-003"
+      description: "Missing protocol label on API Gateway → Service arrow"
+      detection_frequency: 0.2    # NEW: found in 1/5 runs
+      confidence: "LOW"           # NEW: possible finding, weak signal
+      issue_type: "suggestion"
+      ppes_note: "LLM detection is unstable; verify against diagram directly"
+
+# ──────────────────────────────────────────────────────────
+# Hypotheses for PPES empirical validation
+# ──────────────────────────────────────────────────────────
+research_hypotheses:
+
+  H1_visual_rules_stable:
+    hypothesis: >
+      Shape/colour/legend rules (V-series, diagram-rules.yaml) have higher
+      detection stability (frequency closer to 0 or 1) than semantic rules
+      (W-series interaction rules, S-series security rules).
+    rationale: >
+      Visual rules require pattern matching (circle = database?).
+      Semantic rules require inference (is this connection authenticated?).
+      PPES predicts higher entropy for inference tasks.
+    testable_with: "Run ensemble on 10+ diagrams with known violations of each type"
+
+  H2_severity_correlates_stability:
+    hypothesis: >
+      HIGH severity issues (must_fix, Critical) have higher detection frequency
+      than LOW severity issues (suggestion, Low priority).
+    rationale: >
+      Critical violations tend to be structurally obvious (no F5 on ingress path).
+      Low-priority suggestions require contextual judgment.
+    testable_with: "Aggregate detection_frequency by issue severity across runs"
+
+  H3_score_variance_correlates_diagram_ambiguity:
+    hypothesis: >
+      Diagrams with higher score stddev are diagrams where architectural
+      intent is ambiguous (e.g., labels missing, connections unclear).
+    rationale: >
+      When the diagram is ambiguous, the LLM samples from a wider distribution.
+      When the diagram is clear, the LLM converges.
+    testable_with: "Correlate score_stddev with human-rated diagram clarity score"
+
+# ──────────────────────────────────────────────────────────
+# Preliminary observations (from manual testing)
+# ──────────────────────────────────────────────────────────
+preliminary_observations:
+  observation_1:
+    finding: >
+      Running arch-validate on the same diagram twice at temperature=0.2
+      produces identical scores only ~60% of the time. Score differences
+      of ±0.3-0.5 are common; differences of ±1.0+ occur ~10% of the time.
+    ppes_interpretation: >
+      Even at low temperature, the output distribution has meaningful variance.
+      A single-run score should be treated as a point estimate with ±0.5
+      uncertainty, not a precise measurement.
+
+  observation_2:
+    finding: >
+      Security rules (S-series) show the highest run-to-run variance.
+      The same missing Key Vault is detected in some runs but not others.
+    ppes_interpretation: >
+      Security inference requires multi-step reasoning (is this component
+      sensitive? does it use credentials? is there a vault declared nearby?).
+      Multi-step reasoning amplifies distributional uncertainty.
+
+  observation_3:
+    finding: >
+      Terminology rules (V-series, Terminology_Expression dimension) show
+      the lowest variance — nearly deterministic.
+    ppes_interpretation: >
+      Azure=VNET vs VPC is a lookup task (D→I), not an inference task (K).
+      PPES predicts lower entropy for K-light, I-heavy tasks.

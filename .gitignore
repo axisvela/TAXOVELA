@@ -1,5 +1,9 @@
 # Output (generated files — do not commit)
 output/
+benchmark/results/*.csv
+benchmark/results/*.md
+!benchmark/results/.gitkeep
+benchmark/sessions/
 *.drawio.bak
 
 # Input (may contain sensitive diagrams or documents)
@@ -29,3 +33,5 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+input/
+output/

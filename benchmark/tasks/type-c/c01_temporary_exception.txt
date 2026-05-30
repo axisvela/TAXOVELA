@@ -1,0 +1,1 @@
+Temporarily relax the gate for a migration window. The request has operational urgency but does not include an approver, expiry time, rollback plan, or affected control list.

@@ -1,0 +1,1 @@
+Add a non-destructive YAML syntax validation step for architecture standards files. The step should fail closed on invalid YAML and print a concise diagnostic message.

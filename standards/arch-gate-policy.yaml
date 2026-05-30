@@ -25,15 +25,3 @@ meta_control_scope:
   auto_apply_optimize_suggestions:
     enabled: false                # 需要人工确认
     future_condition: "score >= 7.5 AND issue_type == suggestion only"
-```
-
----
-
-## 全局关系图
-```
-K层 (现有)                C层 (新增)              A层 (新建)
-─────────────────         ────────────────        ──────────────────
-arch-validate ──→ JSON ──→ arch-enforce ──→ CI   arch-gate-policy.yaml
-arch-review   ──→ MD       (读 policy)    gate    (谁能改 policy)
-arch-optimize ──→ 建议      ↑                      ↑
-                           reads                  governs

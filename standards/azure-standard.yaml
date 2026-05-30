@@ -43,13 +43,13 @@ deployment_rules:
   - "所有 PaaS 服务必须仅使用 Private Endpoint"
   - "公共访问必须禁用，除非服务本身固有需要公网连接"
 
-  azure_policy:
-    - "禁止工作负载使用公网 IP"
-    - "强制 Private Endpoint"
-    - "所有 Subnet 必须配置 NSG"
-    - "命名和标签标准"
-    - "允许的 SKU 和 Region 限制"
-    - "强制诊断设置"
+azure_policy:
+  - "禁止工作负载使用公网 IP"
+  - "强制 Private Endpoint"
+  - "所有 Subnet 必须配置 NSG"
+  - "命名和标签标准"
+  - "允许的 SKU 和 Region 限制"
+  - "强制诊断设置"
 
 # ═══════════════════════════════════════════════════════════
 # 3. 应用平台策略

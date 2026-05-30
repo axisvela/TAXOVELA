@@ -107,10 +107,11 @@ Six dimensions, 10 points total:
 
 1. **Design** → `/arch-design` to generate architecture YAML from requirements
 2. **Validate** → `/arch-validate` with diagram image to get scored JSON report
-3. **Deep-dive security** → `/arch-security` for auth/credential/network boundary audit
-4. **Standards check** → `/arch-review` for committee-style compliance scoring
-5. **Fix it** → `/arch-optimize` for prioritized improvement suggestions
-6. **Document it** → `/arch-report` for executive summary or Confluence page
+3. **Enforce** → `/arch-enforce` to apply the CI gate policy (or skip for human review)
+4. **Deep-dive security** → `/arch-security` for auth/credential/network boundary audit
+5. **Standards check** → `/arch-review` for committee-style compliance scoring
+6. **Fix it** → `/arch-optimize` for prioritized improvement suggestions
+7. **Document it** → `/arch-report` for executive summary or Confluence page
 
 ## If skills aren't loading
 
@@ -125,6 +126,7 @@ This project also supports OpenCode. Use `@agent-name` instead of `/skill-name`:
 ```
 @arch-validate   →  validate a diagram image
 @arch-design     →  design from requirements
+@arch-enforce    →  CI gate decision (PASS/WARN/BLOCK)
 @arch-security   →  security deep-dive
 @arch-review     →  committee gate decision
 @arch-optimize   →  prioritized fix backlog

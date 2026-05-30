@@ -41,6 +41,7 @@ arch-harness/
 │   └── agents/                       ← OpenCode @agent-name entry points
 │       ├── arch-validate.md          ← mode: subagent, write: deny, temp: 0.1
 │       ├── arch-design.md            ← mode: subagent, write: ask,  temp: 0.3
+│       ├── arch-enforce.md           ← mode: subagent, write: deny, temp: 0.0
 │       ├── arch-security.md          ← mode: subagent, write: deny, temp: 0.1
 │       ├── arch-review.md            ← mode: subagent, write: deny, temp: 0.1
 │       ├── arch-report.md            ← mode: subagent, write: ask,  temp: 0.2
@@ -59,6 +60,7 @@ arch-harness/
 │       │       └── compliance/
 │       │           └── terminology.yaml     (cloud terms + ISO27001/TOGAF mapping)
 │       ├── arch-design/SKILL.md
+│       ├── arch-enforce/SKILL.md       ← Enforcement gate logic + output schema
 │       ├── arch-security/SKILL.md
 │       ├── arch-review/SKILL.md
 │       ├── arch-report/SKILL.md
@@ -69,7 +71,9 @@ arch-harness/
     ├── aws-standard.yaml             ← Hub-Spoke, ALB/WAF, API Gateway in Spoke VPC, IAM+Secrets Mgr
     ├── azure-standard.yaml           ← Hub-Spoke, App GW, APIM, Key Vault
     ├── diagram-style.yaml            ← Full shape/color/arrow spec (from PDFs)
-    └── eval-weights.yaml             ← Scoring weights + industry profiles
+    ├── eval-weights.yaml             ← Scoring weights + industry profiles
+    ├── arch-gate-policy.yaml         ← A-layer: enforcement bounds + meta-control scope
+    └── ci-gate-spec.yaml             ← C-layer: CI gate thresholds + dimension minimums + profiles
 ```
 
 ## Two layers, one content source
@@ -127,22 +131,127 @@ Requirements → @arch-design (or /arch-design)
              Draw in draw.io, export PNG
                     │
                     ▼
-     @arch-validate ──────────────────────── JSON report (score + issues)
-            │                                             │
-            ▼                                             ▼
-     @arch-security                               @arch-review
-     (attack paths,                               (APPROVED /
-      finding list)                                CONDITIONS /
-            │                                      REJECTED)
-            └──────────────────┬───────────────────┘
-                               ▼
-                        @arch-optimize
-                        (P0/P1/P2/P3 backlog)
-                               │
-                               ▼
-                        @arch-report
-                        (Confluence / exec summary / risk brief)
+             @arch-validate
+                    │  JSON report (score + issues)
+                    ▼
+     ╔═════════════════════════════════════════╗
+     ║         arch-enforce gate              ║
+     ║                                         ║
+     ║  Reads: validate_result.json +          ║
+     ║         arch-gate-policy.yaml           ║
+     ║                                         ║
+      ║  score ≥ 8.0 AND must_fix == 0          → PASS ║
+      ║  score ≥ 6.0 AND < 8.0 AND must_fix == 0 → WARN ║
+      ║  score < 6.0  OR  must_fix > 0           → BLOCK║
+     ║                                         ║
+     ║  Output: enforce_result.json +          ║
+     ║          exit_code (0 = PASS, 1 = BLOCK)║
+     ╚═════════════════════════════════════════╝
+                    │  if PASS or WARN
+                    ▼
+     @arch-security               @arch-review
+     (attack paths,               (APPROVED /
+      finding list)                CONDITIONS /
+            │                      REJECTED)
+            └──────────┬───────────┘
+                       ▼
+                @arch-optimize
+                (P0/P1/P2/P3 backlog)
+                       │
+                       ▼
+                @arch-report
+                (Confluence / exec summary / risk brief)
 ```
+
+The validation gate is a CI-native step — it runs automatically after
+`arch-validate` in a pipeline and produces a machine-readable binary
+decision. For human review, bypass the gate and use `arch-review`
+directly.
+
+## Validation gate
+
+### Control objective
+
+The gate exists to enforce a minimum quality and compliance bar before
+architecture artifacts can progress through a delivery pipeline. It
+implements the DIKCA framework transition from **Knowledge** (advisory
+rule files in `arch-validate/rules/` and `standards/*.yaml`) to
+**Control** (mandatory binary decision that blocks non-compliant
+architectures from moving forward).
+
+The gate is an automated compliance officer, not a reviewer. It
+mechanically applies pre-configured thresholds to a structured
+validation report and emits one of three decisions — no interpretation,
+no judgement, no override without formal process.
+
+### Decision criteria
+
+The gate reads two inputs:
+1. **`validate_result.json`** — the output of `arch-validate`, containing
+   overall score, dimension scores, gate decision recommendation, and
+   a list of `must_fix`, `should_fix`, and `consider` issues.
+2. **`arch-gate-policy.yaml`** — the A-layer policy file that defines
+   enforcement bounds and who may change them.
+
+The decision matrix is applied in order:
+
+| Condition | Result | Exit code |
+|-----------|--------|-----------|
+| Total score < 6.0 (`block_threshold`) | **BLOCK** | 1 |
+| Any `must_fix` issue present (`must_fix_zero_required: true`) | **BLOCK** | 1 |
+| Total score >= 6.0 AND score < 8.0 (`warn_threshold`) | **WARN** | 0 |
+| Total score >= 8.0 AND no `must_fix` issues | **PASS** | 0 |
+
+**Profile-specific overrides** (from `ci-gate-spec.yaml`):
+
+| Profile | Overall minimum | Notable dimension minimums |
+|---------|----------------|---------------------------|
+| Default | 6.0 (grade C) | Security_Compliance: 6.0, Interaction_Integration: 6.0 |
+| Financial | 7.0 | Security_Compliance: 8.0, zero critical must_fix tolerance |
+| Internet-facing | 7.0 | Security_Compliance: 7.5, Interaction_Integration: 7.0 |
+| Internal system | 5.5 | Security_Compliance: 5.0, Connectivity: 3.0 |
+
+**Blocking rule IDs** — regardless of score, the following rule
+violations cause an automatic BLOCK:
+- `S-001` — system has no authentication on any connection
+- `S-004` — no user authentication declared
+- `E-PC-001` — no F5 on private cloud ingress
+- `E-AWS-005` — no WAF + API Gateway on external API
+- `W-006` — (internet-facing profile only)
+
+### Audit trail
+
+Every gate invocation writes a structured record to
+**`enforce_result.json`** with the following fields:
+
+| Field | Description |
+|-------|-------------|
+| `decision` | PASS, WARN, or BLOCK |
+| `exit_code` | 0 (pass) or 1 (block / fail CI step) |
+| `policy_version` | Version string from `arch-gate-policy.yaml` |
+| `applied_rules` | List of rule IDs that were evaluated |
+| `override_available` | Whether an override route exists |
+| `override_requires` | Conditions for override (committee approval + Jira ticket) |
+| `audit_entry.timestamp` | ISO 8601 timestamp of enforcement event |
+| `audit_entry.diagram_hash` | Content hash of the validated diagram |
+| `audit_entry.score` | Total score from `validate_result.json` |
+| `audit_entry.decision` | Decision emitted (duplicated for queryability) |
+
+Override requests are logged separately to **`output/override-log.yaml`**
+with a retention period of 12 months. Each override must include the
+approver name and role, a written rationale, an expiry date, and a
+remediation ticket link.
+
+### Meta-control (who guards the gate?)
+
+Changes to the enforcement policy itself require:
+- Approval from `architecture-committee` AND `cto-office`
+- Minimum 2 approvals
+- Submission via pull request to main with required reviewers
+- Automatic notification to `security-team` and `cto-office`
+
+This ensures the gate cannot be weakened without visibility and
+consensus from both the architecture and security functions.
 
 ## Standards provenance
 

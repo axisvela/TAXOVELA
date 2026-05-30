@@ -1,0 +1,1 @@
+Update the architecture documentation to describe the existing validation gate, including the control objective, PASS/BLOCK criteria, and audit trail location. Do not alter enforcement behavior.

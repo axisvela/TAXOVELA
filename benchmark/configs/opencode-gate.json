@@ -1,0 +1,27 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "deepseek/deepseek-v4-flash",
+  "agent": {
+    "arch-validator": {
+      "description": "C-layer gate: validates proposed changes against arch-gate-policy before execution.",
+      "mode": "primary",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "read": "allow"
+      },
+      "prompt": "{file:../prompts/arch-gate-policy.txt}"
+    },
+    "build": {
+      "mode": "primary",
+      "temperature": 0.3,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "read": "allow"
+      },
+      "prompt": "{file:../prompts/build-with-gate.txt}"
+    }
+  }
+}

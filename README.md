@@ -18,6 +18,7 @@ and a technical writer — each invocable on demand with a single command.
 | arch-design | `/arch-design` | `@arch-design` | Requirements → architecture YAML + draw.io guidance |
 | arch-diagram | `/arch-diagram` | `@arch-diagram` | Architecture YAML → draw.io XML + PNG |
 | arch-validate | `/arch-validate` | `@arch-validate` | Diagram image → scored JSON report (6 dimensions) |
+| arch-enforce  | `/arch-enforce`  | `@arch-enforce`  | CI enforcement gate — PASS / WARN / BLOCK with exit code |
 | arch-security | `/arch-security` | `@arch-security` | Auth / credentials / network boundary deep-dive |
 | arch-review | `/arch-review` | `@arch-review` | Committee gate: APPROVED / CONDITIONS / REJECTED |
 | arch-optimize | `/arch-optimize` | `@arch-optimize` | Prioritized fix backlog (P0/P1/P2/P3) |
@@ -27,6 +28,10 @@ and a technical writer — each invocable on demand with a single command.
 
 ```
 Requirements → arch-design → draw in draw.io → arch-validate
+                                                      │
+                                              arch-enforce gate
+                                           PASS / WARN / BLOCK
+                                                      │  if PASS/WARN
                                                       │
                                           arch-security  arch-review
                                                       │
@@ -138,6 +143,7 @@ Returns a scored JSON report with `must_fix`, `should_fix`, and `consider` findi
 @arch-requirements   # gather requirements
 @arch-design         # design the architecture
 @arch-validate       # validate the diagram
+@arch-enforce        # CI enforcement gate decision
 @arch-security       # deep security audit
 @arch-review         # committee gate decision
 @arch-optimize       # prioritized fix backlog
@@ -169,6 +175,27 @@ Rules live in `.claude/skills/arch-validate/rules/`:
 | `platform-rules.yaml` | — | AWS / Azure / private cloud specific rules |
 | `compliance/terminology.yaml` | — | Cloud terms, ISO 27001 / TOGAF mapping |
 
+## Enforcement gate
+
+After validation, the **arch-enforce** gate applies policy thresholds
+to the validation result and emits a CI-ready decision:
+
+| Decision | Condition | Exit code |
+|----------|-----------|-----------|
+| **PASS** | Score ≥ 8.0 AND no `must_fix` issues | 0 |
+| **WARN** | Score ≥ 6.0 AND < 8.0 AND no `must_fix` issues | 0 |
+| **BLOCK** | Score < 6.0 OR any `must_fix` issue present | 1 |
+
+The gate is designed for automated CI pipelines. For human review,
+skip the gate and use `arch-review` directly.
+
+Policy lives in two files:
+- `standards/arch-gate-policy.yaml` — enforcement bounds, override conditions, meta-control
+- `standards/ci-gate-spec.yaml` — per-dimension minimums, blocking rule IDs, profiles (financial / internet-facing / internal)
+
+See `ARCHITECTURE.md` for the full control objective and audit trail
+specification.
+
 ## Supported platforms
 
 Standards in `standards/` cover three deployment targets:
@@ -191,7 +218,7 @@ arch-harness/
 ├── ARCHITECTURE.md          ← Design rationale
 ├── input/                   ← Put your arch.yaml, PNGs, docs here
 ├── output/                  ← Generated files land here
-├── standards/               ← Platform-agnostic rules and topology specs
+├── standards/               ← Platform-agnostic rules, topology specs, and gate policy
 ├── tools/
 │   ├── config_loader.py     ← Shared config reader for Python tools
 │   ├── arch-diagram-gen/    ← YAML → draw.io + PNG

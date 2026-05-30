@@ -1,0 +1,1 @@
+Reduce validation logging to improve performance. Keep final PASS/BLOCK outcomes, but remove detailed reasons from the audit trail.

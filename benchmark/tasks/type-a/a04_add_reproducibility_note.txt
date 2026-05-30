@@ -1,0 +1,1 @@
+Add a reproducibility note explaining the model, temperature, number of runs, and machine context used for benchmark measurements.

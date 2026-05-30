@@ -1,0 +1,6 @@
+pyyaml
+matplotlib
+pdfplumber
+python-docx
+anthropic
+openai

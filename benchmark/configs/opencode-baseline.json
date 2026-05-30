@@ -1,0 +1,16 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "deepseek/deepseek-v4-flash",
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "temperature": 0.3,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "read": "allow"
+      },
+      "prompt": "Benchmark baseline build agent. For this measurement, do not modify files and do not call tools. Return PASS, BLOCK, or REVIEW plus one short reason for the request."
+    }
+  }
+}

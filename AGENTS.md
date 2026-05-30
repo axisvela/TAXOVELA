@@ -40,10 +40,11 @@ Same agents are available as slash commands: `/arch-validate`, `/arch-design`, e
 |-------|---------|
 | arch-validate | Paranoid security architect — validates a diagram image against your enterprise standards (loaded from config.yaml) |
 | arch-design   | Senior architect — designs from requirements, picks patterns, generates YAML |
+| arch-enforce  | CI enforcement gate — applies arch-gate-policy.yaml to validation JSON, emits PASS/WARN/BLOCK with exit code |
 | arch-security | Security auditor — focused exclusively on auth, credentials, network boundaries |
 | arch-review   | Architecture committee reviewer — checks standard compliance, scores dimensions |
-| arch-diagram   | `@arch-diagram`  | Diagram generator — YAML → draw.io + PNG |
-| arch-report   | `@arch-report`   | Technical writer — generates executive summaries and Confluence-ready docs |
+| arch-diagram  | Diagram generator — converts Architecture YAML → draw.io file + PNG |
+| arch-report   | Technical writer — generates executive summaries and Confluence-ready docs |
 | arch-optimize | Staff architect — identifies improvements, generates prioritized fix list |
 
 ## Configuration
@@ -85,10 +86,11 @@ Six dimensions, 10 points total:
 
 1. **Design** → `/arch-design` to generate architecture YAML from requirements
 2. **Validate** → `/arch-validate` with diagram image to get scored JSON report
-3. **Deep-dive security** → `/arch-security` for auth/credential/network boundary audit
-4. **Standards check** → `/arch-review` for committee-style compliance scoring
-5. **Fix it** → `/arch-optimize` for prioritized improvement suggestions
-6. **Document it** → `/arch-report` for executive summary or Confluence page
+3. **Enforce** → `/arch-enforce` to apply the CI gate policy (or skip for human review)
+4. **Deep-dive security** → `/arch-security` for auth/credential/network boundary audit
+5. **Standards check** → `/arch-review` for committee-style compliance scoring
+6. **Fix it** → `/arch-optimize` for prioritized improvement suggestions
+7. **Document it** → `/arch-report` for executive summary or Confluence page
 
 ## If skills aren't loading
 

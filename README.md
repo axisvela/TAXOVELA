@@ -6,6 +6,35 @@ ArchHarness turns your AI coding assistant into a team of architecture specialis
 a requirements analyst, a senior architect, a paranoid security auditor, a committee reviewer,
 and a technical writer — each invocable on demand with a single command.
 
+## Current benchmark status
+
+This repository is the canonical working copy for the AI and Ethics minor-revision experiments:
+
+```text
+D:\project\ea-harness
+```
+
+The older `D:\project\arch-harness` working copy is deprecated and should only be treated as a temporary backup until final artifacts are archived.
+
+Completed candidate benchmark results are tracked in [`benchmark/EXPERIMENT_STATUS.md`](./benchmark/EXPERIMENT_STATUS.md) and summarized locally in `benchmark/results/summary.md` when generated result files are present.
+
+Current completed candidate artifacts:
+
+```text
+benchmark/results/exp1_gate_overhead_20260530_191248.csv
+benchmark/results/exp2_temperature_20260530_201852.csv
+benchmark/results/summary.md
+```
+
+Key results:
+
+| Experiment | Run | Main result |
+|---|---|---|
+| Exp1 gate overhead | `Repeats = 5` | Baseline 9875.5 ms vs gate-enabled 16220.3 ms; overhead 64.2%; Type-B block rate 100.0%; Type-A false-positive rate 0.0% |
+| Exp2 temperature consistency | DeepSeek `Runs = 10` | Violating prompts stable at both temperatures: 100.0% accuracy and 100.0% agreement; boundary prompts remain policy-sensitive |
+
+Generated CSV and summary files under `benchmark/results/` are intentionally git-ignored. Preserve the final artifacts outside git or attach them separately to the manuscript revision package.
+
 ## What it does
 
 | Agent / Skill | Claude Code | OpenCode | Role |
@@ -45,8 +74,8 @@ Requirements → arch-design → draw in draw.io → arch-validate
 ### 1. Clone
 
 ```bash
-git clone https://github.com/your-org/arch-harness.git
-cd arch-harness
+git clone https://github.com/your-org/ea-harness.git
+cd ea-harness
 ```
 
 ### 2. Configure
@@ -196,6 +225,15 @@ Policy lives in two files:
 See `ARCHITECTURE.md` for the full control objective and audit trail
 specification.
 
+## Benchmark suite
+
+The `benchmark/` directory contains the AI and Ethics revision measurement suite for:
+
+- Exp1: strict C-layer gate-to-A-layer build overhead.
+- Exp2: temperature consistency at `temperature=0.1` and `temperature=0.3`.
+
+Current completed candidate results are documented in `benchmark/EXPERIMENT_STATUS.md` and summarized in `benchmark/results/summary.md` when local generated result files are present. Generated CSV/summary files are git-ignored; preserve final artifacts separately when preparing a manuscript revision package.
+
 ## Supported platforms
 
 Standards in `standards/` cover three deployment targets:
@@ -210,12 +248,13 @@ from `config.yaml` — no hardcoding in rules or skill files.
 ## Project structure
 
 ```
-arch-harness/
+ea-harness/
 ├── config.yaml              ← Edit this first
 ├── README.md
 ├── CLAUDE.md                ← Claude Code project rules
 ├── AGENTS.md                ← OpenCode project rules
 ├── ARCHITECTURE.md          ← Design rationale
+├── benchmark/               ← Experiment scripts, prompts, status, and generated results
 ├── input/                   ← Put your arch.yaml, PNGs, docs here
 ├── output/                  ← Generated files land here
 ├── standards/               ← Platform-agnostic rules, topology specs, and gate policy

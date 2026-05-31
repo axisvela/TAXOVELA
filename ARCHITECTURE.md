@@ -31,11 +31,12 @@ relevant and more consistent.
 ## File structure
 
 ```
-arch-harness/
+ea-harness/
 ├── CLAUDE.md           ← Claude Code project rules
 ├── AGENTS.md           ← OpenCode native project rules (CLAUDE.md as fallback)
 ├── opencode.json       ← OpenCode project config (default model)
 ├── ARCHITECTURE.md     ← This file
+├── benchmark/          ← DIKCA/EA-Harness experiment scripts and status docs
 │
 ├── .opencode/
 │   └── agents/                       ← OpenCode @agent-name entry points

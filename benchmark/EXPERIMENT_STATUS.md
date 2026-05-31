@@ -231,7 +231,7 @@ $env:BENCHMARK_MODEL = "qwen-plus"
 cd D:\project\ea-harness\benchmark\scripts
 $env:OPENAI_API_KEY = "your-deepseek-key"
 $env:OPENAI_BASE_URL = "https://api.deepseek.com"
-$env:BENCHMARK_MODEL = "deepseek-chat"
+$env:BENCHMARK_MODEL = "deepseek-v4-flash"
 .\run_benchmark.ps1 -SkipExp1 -Runs 10
 ```
 
@@ -263,7 +263,7 @@ Authentication Fails ... api key ... is invalid
 
 No valid Exp2 result CSV was produced by this failed attempt. The `summary.md` file was regenerated from the existing Exp1 data only.
 
-Required fix before rerunning Exp2:
+Fix used before the successful rerun:
 
 1. Rotate/delete the exposed invalid key in the provider console.
 2. Create a new valid DeepSeek API key.

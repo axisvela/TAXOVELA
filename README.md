@@ -142,10 +142,25 @@ Agents under `.opencode/agents/` register as `@arch-*` agents.
 
 **Codex / GitHub Copilot / Cursor**
 Point the tool at this repository root. `AGENTS.md` is read by all three;
-Codex and newer Cursor/Copilot builds discover skills under `.claude/skills/`.
+Codex discovers skills under `.agents/skills/`, and Cursor/Copilot builds
+also read `.claude/skills/`.
 
 > **Tip:** working directory should be the repository root (or a project
 > directory) so skills, tools, and `config.yaml` are found automatically.
+
+### Where each tool discovers ArchHarness
+
+| Tool | Project rules | Skills / agents | Invocation |
+|------|---------------|-----------------|------------|
+| Claude Code | `CLAUDE.md` | `.claude/skills/` | `/arch-validate`, `/arch-design`, … |
+| OpenCode | `AGENTS.md` | `.opencode/agents/` | `@arch-validate`, `@arch-design`, … |
+| Codex | `AGENTS.md` | `.agents/skills/` | skill selector on `.agents/skills/` |
+| GitHub Copilot | `AGENTS.md` | `.claude/skills/` (supported builds) | `/skills` |
+| Cursor | `AGENTS.md` | `.claude/skills/` (supported builds) | `/skills` |
+
+`.agents/skills/` is a generated mirror of `.claude/skills/`. Update it with
+`python scripts/sync_agents_skills.py` after editing any skill; CI enforces
+the mirror stays in sync (`scripts/check_repo.py` validates the whole pack).
 
 ## Usage examples
 
@@ -283,6 +298,9 @@ ea-harness/
 │   ├── arch-diagram-gen/    ← YAML → draw.io + PNG
 │   └── arch-req-readers/    ← diagram / doc / API → req.yaml
 ├── tests/                   ← pytest suite
+├── scripts/                 ← check_repo.py, sync_agents_skills.py (also run in CI)
+├── .github/workflows/       ← CI pipeline
+├── .agents/skills/          ← Codex discovery mirror (generated)
 ├── .claude/skills/          ← Skill definitions (Claude Code slash commands)
 └── .opencode/agents/        ← Agent definitions (OpenCode @agent-name)
 ```

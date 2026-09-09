@@ -1,0 +1,344 @@
+# ============================================================
+# Rules: platform-rules.yaml
+# 维度: Cloud_Network_Completeness + Security_Compliance
+# 来源: AWS Cloud Architecture Standard v1.0
+#        Azure Cloud Architecture Standard v1.0
+# 说明: 特定于 AWS / Azure 平台的必检规则，
+#       对 accuracy-rules 和 security-rules 的扩展和细化
+# ============================================================
+
+ruleset:
+  name: "platform-rules"
+  version: "2.0"
+
+# ══════════════════════════════════════════════════
+# AWS 专属规则
+# ══════════════════════════════════════════════════
+aws_rules:
+
+  - id: "E-AWS-001"
+    dimension: "Cloud_Network_Completeness"
+    name: "AWS 必须采用 Hub-Spoke 拓扑"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      AWS 云架构必须采用 Hub–Spoke 模型（强制）。
+      Hub VPC 须包含：AWS Network Firewall/Security Appliance、
+      Transit Gateway、Route 53 Resolver & Private Hosted Zones、
+      Centralized SIEM（CloudWatch/CloudTrail/Security Hub/GuardDuty）。
+      Bastion 首选 Privileged Access Workstation (PAW)，备选 AWS Systems Manager Session Manager 或 EC2 Bastion。
+      Spoke VPC 只允许承载：应用工作负载、平台工作负载、API Gateway（WSO2）、
+      Ingress 组件（ALB/NLB/WAF）。
+    check_target: "aws_vpc_nodes"
+    validation_logic: "aws_hub_spoke_topology_present"
+    impact: "缺少 Hub VPC 导致安全检查点分散，防火墙和网关资源重复，治理困难"
+    suggestion: "架构图中明确绘制 Hub VPC 和 Spoke VPC，Hub 包含上述共享服务"
+
+  - id: "E-AWS-002"
+    dimension: "Cloud_Network_Completeness"
+    name: "AWS 每个 Region 必须有独立 Hub VPC"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      每个物理 AWS Region 需要一个独立的 Hub VPC。
+      生产和非生产工作负载必须分别使用独立的 Hub VPC 和独立的 AWS 账户。
+    check_target: "aws_region_hub_vpcs"
+    validation_logic: "each_region_has_dedicated_hub"
+    impact: "共用 Hub VPC 导致爆炸半径扩大，违反数据驻留合规要求"
+    suggestion: "为每个 Region 分别绘制 Hub VPC，Prod 和 Non-Prod 分开标注账户"
+
+  - id: "E-AWS-003"
+    dimension: "Cloud_Network_Completeness"
+    name: "AWS 工作负载不得部署在 Public Subnet"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      应用工作负载（ECS Task、Lambda、RDS 等）不得部署在 Public Subnet。
+      所有托管 AWS 服务（RDS/S3/DynamoDB/EventBridge 等）必须仅通过 VPC Endpoints 访问。
+    check_target: "aws_workload_subnet_placement"
+    validation_logic: "no_workload_in_public_subnet"
+    impact: "工作负载在 Public Subnet 直接暴露于互联网，属于高危架构缺陷"
+    suggestion: "将应用/数据组件移至 Private Subnet；PaaS 服务通过 VPC Endpoint 访问"
+
+  - id: "E-AWS-004"
+    dimension: "Interaction_Integration"
+    name: "AWS 外部 Web 流量必须经过 ALB + WAF"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      所有对外的 HTTP/S Web 应用流量必须经过 ALB + AWS WAF（必选）。
+      流量路径：Internet → ALB(WAF) → Backend(PrivateLink) → Database/Internal Services。
+      WAF 策略必须遵循 OWASP 核心规则集。
+    check_target: "aws_ingress_web_path"
+    validation_logic: "web_traffic_has_alb_waf"
+    impact: "缺少 WAF 使 Web 应用直接暴露于 OWASP Top 10 攻击"
+    suggestion: "在 Internet 与后端之间插入 ALB + WAF 节点，标注 OWASP 规则集"
+
+  - id: "E-AWS-005"
+    dimension: "Interaction_Integration"
+    name: "AWS 外部 API 必须经过 WAF + WSO2 API Gateway"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      外部合作伙伴/客户 API 流量路径：
+      Internet → ALB(WAF) → WSO2 API Gateway（Spoke VPC，Private 模式）→ Backend via PrivateLink。
+      WSO2 API Gateway 必须部署在 Spoke VPC（不在 Hub VPC）。
+      WSO2 负责：认证/授权、限流/配额、协议转换。
+    check_target: "aws_api_ingress_path"
+    validation_logic: "api_traffic_has_waf_and_api_gw"
+    impact: "API 直接暴露缺少认证/限流/协议验证，存在滥用和注入风险"
+    suggestion: "添加 WSO2 API Gateway 节点（标注在 Spoke VPC Private Subnet），前置 ALB+WAF"
+
+  - id: "E-AWS-006"
+    dimension: "Security_Compliance"
+    name: "AWS 凭证必须使用 IAM Role + Secrets Manager/KMS"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      应用必须使用 IAM Roles 或 Service-linked Roles，禁止硬编码凭证。
+      Secrets/Keys/Certificates 必须存储在 AWS Secrets Manager 或 KMS。
+      KMS 密钥必须启用自动轮换（key rotation enabled）。
+    check_target: "aws_credential_management"
+    validation_logic: "aws_uses_iam_role_and_secrets_manager"
+    impact: "硬编码凭证或明文存储密钥导致凭证泄露风险"
+    suggestion: "在架构图中标注 AWS Secrets Manager 或 KMS 节点，并连接使用方"
+
+  - id: "E-AWS-007"
+    dimension: "Interaction_Integration"
+    name: "AWS 所有托管服务必须通过 VPC Endpoint 访问"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      RDS、S3、DynamoDB、EventBridge 等所有托管 AWS 服务必须仅通过
+      VPC Endpoints/PrivateLink 访问，禁止公网端点访问。
+    check_target: "aws_managed_service_endpoints"
+    validation_logic: "managed_services_use_vpc_endpoint"
+    impact: "公网访问托管服务产生数据出口费用并增加攻击面"
+    suggestion: "为每个托管服务标注 VPC Endpoint 连接，并标注 Private DNS Zone"
+
+  - id: "E-AWS-008"
+    dimension: "Security_Compliance"
+    name: "AWS 运维访问必须通过 Privileged Access Workstation (PAW) 或 Systems Manager"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      运维访问路径：Privileged Access Workstation (PAW)（首选）或 AWS Systems Manager Session Manager（备选）。
+      EC2 Bastion 仅作最后备选方案。禁止公网 SSH/RDP。
+    check_target: "aws_operational_access"
+    validation_logic: "no_direct_ssh_rdp_from_internet"
+    impact: "公网 SSH/RDP 是常见入侵入口"
+    suggestion: "标注 PAW 或 Systems Manager 作为运维入口，Security Group 仅允许 Bastion IP"
+
+# ══════════════════════════════════════════════════
+# Azure 专属规则
+# ══════════════════════════════════════════════════
+azure_rules:
+
+  - id: "E-AZ-001"
+    dimension: "Cloud_Network_Completeness"
+    name: "Azure 必须采用 Hub-Spoke 拓扑"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      Azure 云架构必须采用 Hub–Spoke 模型（强制）。
+      Hub VNET 须包含：Central Firewall（出口）、Bastion、
+      Virtual Network Gateway、DNS & DNS Forwarding、Monitoring/SIEM Collector。
+      APIM 位于 Spoke VNET（Internal VNET Mode），不在 Hub。
+    check_target: "azure_vnet_nodes"
+    validation_logic: "azure_hub_spoke_topology_present"
+    impact: "缺少 Hub VNET 导致防火墙/网关资源重复，治理困难"
+    suggestion: "明确绘制 Hub VNET（含 Firewall/Bastion/Gateway）和 Spoke VNET"
+
+  - id: "E-AZ-002"
+    dimension: "Cloud_Network_Completeness"
+    name: "Azure 工作负载不得部署在 Public Subnet"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      应用工作负载不得部署在 Public Subnet。
+      所有 PaaS 服务必须仅使用 Private Endpoint，公网访问必须禁用。
+    check_target: "azure_workload_subnet_placement"
+    validation_logic: "no_azure_workload_in_public_subnet"
+    impact: "同 E-AWS-003"
+    suggestion: "将应用/数据移至 Private Subnet；PaaS 服务通过 Private Endpoint 访问，禁用公网访问"
+
+  - id: "E-AZ-003"
+    dimension: "Interaction_Integration"
+    name: "Azure 外部 Web 流量必须经过 Application Gateway（WAF v2）"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      所有 HTTP/S Web 应用流量必须经过 Azure Application Gateway（WAF v2）。
+      流量路径：Internet → App Gateway(WAF) → Backend(Private IP/PrivateLink) → DB & Internal。
+      WAF 策略必须遵循 OWASP 核心规则集。
+      Azure Firewall 不是强制要求，须基于风险/成本/运营权衡决定是否部署。
+    check_target: "azure_ingress_web_path"
+    validation_logic: "web_traffic_has_app_gateway_waf"
+    impact: "缺少 WAF 使 Web 应用直接面临 OWASP Top 10 攻击"
+    suggestion: "在 Internet 与后端之间插入 Application Gateway WAF v2"
+
+  - id: "E-AZ-004"
+    dimension: "Interaction_Integration"
+    name: "Azure 外部 API 必须经过 WAF + APIM（Spoke Internal 模式）"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      外部 API 流量路径：
+      Internet → App Gateway(WAF) → APIM（Spoke VNET Internal 模式）→ Backend via Private Endpoint。
+      APIM 必须部署在 Spoke VNET（Internal VNET Mode），不在 Hub。
+      APIM 负责：认证/授权、限流/配额、协议/转换策略。
+    check_target: "azure_api_ingress_path"
+    validation_logic: "api_traffic_has_waf_and_apim"
+    impact: "同 E-AWS-005"
+    suggestion: "添加 APIM 节点（标注 Spoke VNET Internal 模式），前置 App Gateway WAF"
+
+  - id: "E-AZ-005"
+    dimension: "Security_Compliance"
+    name: "Azure 必须使用 Managed Identity + Key Vault"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      应用必须使用 Managed Identity（禁止硬编码凭证）。
+      Secrets/CMK keys/Certificates 必须存储在 Azure Key Vault（必选）。
+      Key Vault 必须启用 soft-delete 和 purge-protection。
+    check_target: "azure_credential_management"
+    validation_logic: "azure_uses_managed_identity_and_key_vault"
+    impact: "硬编码凭证或明文存储密钥导致凭证泄露风险"
+    suggestion: "在架构图中标注 Key Vault 节点，并连接使用方；标注 Managed Identity 使用"
+
+  - id: "E-AZ-006"
+    dimension: "Security_Compliance"
+    name: "Azure 运维访问必须通过 Azure Bastion（Standard）"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      Azure Bastion（Standard）是唯一跳板机，禁止公网 SSH/RDP。
+      JIT（Just-In-Time）访问通过 Microsoft Defender for Cloud 启用。
+      托管 VM 的 Subnet NSG 仅允许来自 Bastion IP 范围的 SSH/RDP。
+    check_target: "azure_operational_access"
+    validation_logic: "azure_uses_bastion_not_direct_rdp"
+    impact: "公网 SSH/RDP 是常见入侵入口"
+    suggestion: "标注 Azure Bastion 节点在 Hub VNET，NSG 规则仅允许 Bastion IP"
+
+  - id: "E-AZ-007"
+    dimension: "Cloud_Network_Completeness"
+    name: "Azure 混合连接必须使用 ExpressRoute，Gateway 在 Hub VNET"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      ExpressRoute 是首选混合连接方式（Virtual Network Gateway 必须在 Hub VNET）。
+      Spoke 通过 VNET Peering 可达，但 UDR 须确保混合流量经过防火墙（除非正式豁免）。
+    check_target: "azure_hybrid_connectivity"
+    validation_logic: "azure_gateway_in_hub_vnet"
+    impact: "Gateway 部署在 Spoke 导致每个 Spoke 重复部署网关，成本高且治理分散"
+    suggestion: "将 Virtual Network Gateway 移至 Hub VNET，Spoke 通过 VNET Peering 访问"
+
+  - id: "E-AZ-008"
+    dimension: "Cloud_Network_Completeness"
+    name: "Azure 所有 PaaS 服务必须通过 Private Endpoint 访问"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      所有 Azure PaaS 组件必须使用 Private Endpoint（禁用公网访问）。
+      Private DNS Zone 必须集中管理；DNS 解析通过 DNS Forwarder + Firewall DNS Proxy。
+    check_target: "azure_paas_endpoints"
+    validation_logic: "azure_paas_uses_private_endpoint"
+    impact: "PaaS 公网访问产生攻击面和数据出口风险"
+    suggestion: "为每个 PaaS 服务标注 Private Endpoint，并连接到 Private DNS Zone"
+
+# ══════════════════════════════════════════════════
+# 私有云专属规则（补充 accuracy-rules）
+# ══════════════════════════════════════════════════
+private_cloud_rules:
+
+  - id: "E-PC-001"
+    dimension: "Security_Compliance"
+    name: "私有云所有入站必须经过 F5 网关"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      来自 Internet 或合作伙伴网络的所有入站流量必须经过 Company F5 入口网关栈。
+      F5 负责：TLS 终止/透传、Layer-7 访问控制、流量路由和负载均衡、威胁检测和协议验证。
+      任何系统不得绕过 F5 直接暴露到公共网络。
+    check_target: "private_dc_ingress_path"
+    validation_logic: "f5_gateway_on_ingress_path"
+    impact: "绕过 F5 意味着缺少 TLS 终止、L7 访问控制和威胁检测"
+    suggestion: "在 Internet 与 DMZ 之间插入 F5 节点，标注其功能（WAF/TLS/LB）"
+
+  - id: "E-PC-002"
+    dimension: "Security_Compliance"
+    name: "私有云应用间通信必须经过集成平台"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      所有应用间通信必须经过集成平台（WSO2/APIH/Kafka/SFTP-MFT/Talend），
+      无论数据中心网络布局如何。
+      禁止：应用A直接访问应用B的数据库；应用A绕过集成平台调用应用B的服务层；
+      未经正式批准的跨Zone资源访问。
+    check_target: "private_dc_app_to_app_connections"
+    validation_logic: "cross_app_uses_integration_platform"
+    impact: "直接跨应用连接导致服务治理缺失、数据耦合和审计盲区"
+    suggestion: "在跨应用连接之间插入 WSO2/Kafka/APIH 集成平台节点"
+
+  - id: "E-PC-003"
+    dimension: "Security_Compliance"
+    name: "私有云用户认证必须使用 ADFS（内部）或 EnterpriseID（外部）"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      内部员工访问：必须通过 ADFS 认证。
+      外部用户访问：必须通过 EnterpriseID 认证。
+      授权必须通过 AuthZ Platform（Unified Permission Management Platform）执行。
+    check_target: "private_dc_user_auth"
+    validation_logic: "user_auth_uses_adfs_or_companyid"
+    impact: "缺少统一认证导致身份管理分散，无法实现 SSO 和账号生命周期管理"
+    suggestion: "在用户访问入口处添加 ADFS（内部）或 EnterpriseID（外部）节点，连接 AuthZ Platform"
+
+  - id: "E-PC-004"
+    dimension: "Security_Compliance"
+    name: "私有云运维访问必须通过 PAW 堡垒机"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      运维访问路径：内部办公网络 → PAW（堡垒机）→ 私有云内网 → 目标系统。
+      禁止：从公网直接进行运维访问；禁止从工作站直接访问数据中心。
+      MFA 对所有管理操作为必须；JIT 审批适用于特权操作；所有会话须记录和可审计。
+    check_target: "private_dc_operational_access"
+    validation_logic: "ops_access_through_paw"
+    impact: "直接运维访问绕过审计和身份验证"
+    suggestion: "标注 PAW 节点，从办公网络通过 PAW 连接目标系统的路径"
+
+  - id: "E-PC-005"
+    dimension: "Cloud_Network_Completeness"
+    name: "私有云 DC 间连接必须使用 MPLS 专线"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      私有云 DC 间连接必须使用 MPLS 或等效专线（不得使用公网互联网）。
+      私有云到 Azure 使用 ExpressRoute；到 AWS 使用 Direct Connect。
+      所有混合流量必须经过已批准的网关，遵循网络分段和安全检查。
+    check_target: "private_dc_interconnect"
+    validation_logic: "dc_interconnect_uses_mpls_or_expressroute"
+    impact: "使用公网互连私有 DC 数据面临泄露风险且不满足合规要求"
+    suggestion: "在 DC 间连接标注 MPLS 图标和加密方式（IPSec）"

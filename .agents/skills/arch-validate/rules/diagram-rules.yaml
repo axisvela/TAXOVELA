@@ -1,0 +1,154 @@
+# ============================================================
+# Rules: diagram-rules.yaml
+# 维度: Terminology_Expression (V-) + 部分 Interaction (W-)
+# 说明: 可由规则引擎(Rust)进行静态检查的图形规范规则
+#       无法静态检查的（如箭头语义）由 arch-validate-skill 负责
+# ============================================================
+
+ruleset:
+  name: "diagram-rules"
+  version: "2.0"
+  dimension: "Terminology_Expression"
+  weight_contribution: 1.0      # 本规则集对 Terminology_Expression 的贡献权重
+
+rules:
+
+  # ── 实线/虚线规范 ──────────────────────────────────────────
+  - id: "V-001"
+    name: "物理实体必须使用实线边框"
+    severity: "error"           # error=must_fix / warning=suggestion
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      数据中心、VPC/VNET、Subnet、网络 Zone、技术组件等物理实体必须使用实线（solid）边框表示。
+      逻辑概念（云订阅、Resource Group、用户组、用户角色）必须使用虚线（dashed）边框表示。
+    check_target: "all_entities"
+    validation_logic: "border_style_matches_entity_class"
+    impact: "实线/虚线混用导致物理与逻辑边界模糊，评审者无法判断实际部署范围"
+    suggestion: "物理实体改为实线；云订阅/Resource Group/用户角色改为虚线"
+
+  # ── 箭头规范 ───────────────────────────────────────────────
+  - id: "V-002"
+    name: "禁止使用双向箭头"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      架构图中所有通信流箭头必须为单向箭头。
+      若两组件互相调用，须用两条独立的单向箭头分别表示，并各自标注协议和认证方式。
+      例外：Kafka 的生产者和消费者可各自画单向箭头指向 Kafka，不视为双向箭头。
+    check_target: "all_arrows"
+    validation_logic: "arrow_is_bidirectional"
+    impact: "双向箭头无法区分调用方与服务方，造成认证方向、协议标注歧义"
+    suggestion: "将双向箭头拆分为两条单向箭头，分别标注协议（如 HTTPS）和认证方式"
+
+  - id: "V-003"
+    name: "Kafka 连接箭头必须指向 Kafka"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      所有与 Kafka 交互的组件（生产者和消费者）的通信箭头必须以 Kafka 为箭头指向目标。
+      即：Producer → Kafka，Consumer → Kafka（消费关系也用指向 Kafka 的箭头）。
+    check_target: "kafka_connections"
+    validation_logic: "arrow_target_is_kafka"
+    impact: "箭头方向错误导致无法判断数据流向，混淆生产者/消费者角色"
+    suggestion: "统一将所有 Kafka 相关箭头方向改为指向 Kafka 节点"
+
+  # ── 节点形状规范 ───────────────────────────────────────────
+  - id: "V-004"
+    name: "技术组件/服务使用圆角矩形"
+    severity: "warning"
+    issue_type: "suggestion"
+    priority: "Low"
+    description: "技术组件或服务节点应使用圆角矩形（rounded rectangle）表示，与数据中心/Zone 的直角矩形区分。"
+    check_target: "tech_component_nodes"
+    validation_logic: "shape_is_rounded_rectangle"
+    impact: "形状不统一降低图表可读性"
+    suggestion: "将技术组件节点形状统一改为圆角矩形"
+
+  - id: "V-005"
+    name: "数据中心/网络Zone使用直角矩形"
+    severity: "warning"
+    issue_type: "suggestion"
+    priority: "Low"
+    description: "数据中心和网络 Zone（DMZ、App Zone、DB Zone）使用直角矩形（rectangle）表示。"
+    check_target: "dc_zone_nodes"
+    validation_logic: "shape_is_rectangle"
+    impact: "形状混用影响层次识别"
+    suggestion: "数据中心和 Zone 节点统一使用直角矩形"
+
+  - id: "V-006"
+    name: "技术平台使用 Frame 表示"
+    severity: "warning"
+    issue_type: "suggestion"
+    priority: "Low"
+    description: "Kubernetes、容器平台等技术平台使用 Frame（带标题栏的容器框）表示，技术组件放置于其内部。"
+    check_target: "platform_nodes"
+    validation_logic: "shape_is_frame"
+    impact: "技术平台形状不规范，无法直观表示组件的宿主关系"
+    suggestion: "将技术平台改为 Frame 形状，并将其承载的技术组件放置在 Frame 内部"
+
+  # ── 命名规范 ───────────────────────────────────────────────
+  - id: "V-007"
+    name: "节点命名规范"
+    severity: "warning"
+    issue_type: "suggestion"
+    priority: "Low"
+    description: >
+      节点名称须满足：
+      1. 使用 PascalCase 或 kebab-case
+      2. 不允许未定义缩写
+      3. 名称长度 ≤ 40 字符
+    check_target: "all_nodes"
+    validation_logic: "name_matches_naming_convention"
+    impact: "命名不规范影响图表可读性和自动化解析"
+    suggestion: "统一节点命名风格，使用完整词汇或组织预定义缩写表中的缩写"
+
+  # ── 图例规范 ───────────────────────────────────────────────
+  - id: "V-008"
+    name: "架构图必须包含图例"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "Medium"
+    description: "每张技术架构图必须包含图例区域，说明图中使用的所有自定义形状、颜色和线型含义。"
+    check_target: "diagram_legend"
+    validation_logic: "legend_exists"
+    impact: "无图例导致读者无法解读图形语义，特别是自定义颜色和线型"
+    suggestion: "在架构图右下角或底部添加图例区域，列出形状/颜色/线型说明"
+
+  # ── 颜色规范 ───────────────────────────────────────────────
+  - id: "V-009"
+    name: "同类实体颜色一致"
+    severity: "warning"
+    issue_type: "suggestion"
+    priority: "Low"
+    description: "同一类实体（如所有内部应用、所有数据库）在全图中应使用一致的颜色，避免随机配色。"
+    check_target: "all_entities_by_type"
+    validation_logic: "same_type_same_color"
+    impact: "颜色不一致使得类型识别困难，降低图表信息密度"
+    suggestion: "参考 diagram-style.yaml 中定义的颜色规范，统一各类实体颜色"
+
+  # ── 集成平台位置规范 ────────────────────────────────────────
+  - id: "V-010"
+    name: "集成平台不得标注在连接线上"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      WSO2、Kafka、APIH、SFTP/MFT、Talend 等集成平台必须作为独立节点绘制在架构图中，
+      不得以文字标注形式写在两个组件之间的连接线上。
+    check_target: "integration_platform_nodes"
+    validation_logic: "integration_platform_is_node_not_label"
+    impact: "集成平台标注在线上无法表达其物理部署位置、所在网络 Zone 及认证关系"
+    suggestion: "将集成平台提取为独立节点，标注其所在网络 Zone，并连接相关应用"
+
+# ── 颜色语义参考（与 diagram-style.yaml 保持一致）─────────────
+color_reference:
+  internal_app:      "#4A90E2"    # 蓝色：内部应用/服务
+  external_app:      "#888888"    # 灰色：外部系统/SaaS/第三方
+  data_store:        "#F5A623"    # 橙色：数据库/对象存储/消息队列
+  network_private:   "#D4EDDA"    # 浅绿底：私有网络Zone（App Zone/DB Zone/Intranet）
+  network_dmz:       "#FFF3CD"    # 浅黄底：DMZ区
+  network_public:    "#F8D7DA"    # 浅红底：公网区/Public Subnet
+  integration_platform: "#E8D5F5" # 浅紫底：集成平台

@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependencies
+        run: pip install --quiet pyyaml pytest
+
+      - name: Unit tests (workspace)
+        run: python -m pytest tests -q
+
+      - name: Distribution health check
+        run: python scripts/check_repo.py
+
+      - name: Verify Codex skill mirror is current
+        run: python scripts/sync_agents_skills.py --check
+
+      - name: Validate standards and config YAML
+        run: python tools/yaml_validate.py config.yaml standards/*.yaml

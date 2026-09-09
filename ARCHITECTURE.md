@@ -109,8 +109,9 @@ The `archharness` package owns the rules:
 CLI tools (`arch_diagram_gen.py`, `tools/arch-req-readers/req_reader.py`)
 detect the active project automatically and write into the project's
 `output/`. Explicit `--project <id>` selects from anywhere in the workspace.
-A legacy single-project mode (no workspace initialized) keeps the historical
-`input/`/`output/` behavior untouched.
+When no project is active (no workspace initialized, or cwd outside
+`projects/<id>/`), tools fall back to writing relative to the current
+directory — so the repo needs no committed `input/`/`output/` folders.
 
 The same tools are fronted by the `archharness` CLI as passthrough subcommands
 (`archharness diagram`, `archharness req`, `archharness validate-yaml`). The

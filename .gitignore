@@ -1,6 +1,4 @@
 # Output (generated files — do not commit)
-output/*
-!output/.gitkeep
 benchmark/results/*.csv
 benchmark/results/*.md
 !benchmark/results/.gitkeep
@@ -9,10 +7,6 @@ benchmark/sessions/
 
 # Per-project workspace data (scaffold on demand via `archharness init-project`)
 projects/
-
-# Legacy single-project input (may contain sensitive diagrams or documents)
-input/*
-!input/.gitkeep
 
 # Python
 __pycache__/

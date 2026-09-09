@@ -91,13 +91,8 @@ platforms:
   authz_platform: "AuthZ Platform"         # 统一权限管理平台
 
 # ──────────────────────────────────────────────────────────
-# 旧版单项目输入 / 输出目录。
-# 新 Workspace 应使用 projects/<id>/project.yaml 中的 paths；以下字段保留兼容性。
+# 注意：输入与输出不再放在仓库根目录。
+# 请用 projects/<id>/project.yaml 中的 paths 管理各项目数据：
+#   archharness init-workspace .
+#   archharness init-project <id> --default
 # ──────────────────────────────────────────────────────────
-paths:
-  # 放置待处理文件：arch.yaml, 架构图 PNG, 需求文档等
-  input_dir: "./input"
-  # 生成文件的输出目录：drawio, PNG, REQ.md, report.md 等
-  output_dir: "./output"
-  # 标准规范文件目录（一般不需要修改）
-  standards_dir: "./standards"

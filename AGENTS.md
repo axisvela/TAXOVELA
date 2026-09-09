@@ -66,8 +66,8 @@ Working session rules:
 - Inputs resolve against the active project `input/`; generated files land in the
   active project `output/` (subfolders `requirements/`, `designs/`, `diagrams/`,
   `validation/`, `reports/`).
-- Project data dirs are git-ignored. Do not scatter output in the repo root or
-  `input/`/`output/` legacy dirs when a workspace project is active.
+- Project data dirs are git-ignored. Do not scatter generated files in the
+  repo root when a workspace project is active — target the project `output/`.
 
 ## Standards in scope
 

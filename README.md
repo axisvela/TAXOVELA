@@ -329,8 +329,6 @@ ea-harness/
 ├── archharness/             ← `python -m archharness` CLI (workspace + tools)
 ├── install.ps1 / install.sh ← cross-platform installers
 ├── benchmark/               ← Experiment scripts, prompts, status, and generated results
-├── input/                   ← Legacy single-project input (optional)
-├── output/                  ← Legacy single-project output (optional)
 ├── projects/<id>/           ← Workspace projects (init with `archharness init-project`)
 ├── standards/               ← Platform-agnostic rules, topology specs, and gate policy
 ├── tools/

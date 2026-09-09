@@ -32,7 +32,6 @@ Key fields:
 - `company.name` — used in report headers and classification labels
 - `datacenters` — your DC names, locations, and network zones
 - `platforms` — API gateway, message bus, K8s platform names
-- `paths.input_dir` / `paths.output_dir` — default input/output directories for Python tools
 
 ```yaml
 # config.yaml (excerpt)
@@ -46,10 +45,10 @@ datacenters:
 platforms:
   api_gateway: "Kong API Gateway"
   message_bus: "RabbitMQ"
-paths:
-  input_dir: "./input"
-  output_dir: "./output"
 ```
+
+Inputs and outputs are managed per project under `projects/<id>/` — not via
+top-level `input/`/`output/` folders.
 
 ## Diagram generation tool
 
@@ -59,7 +58,7 @@ paths:
 # Install
 pip install -e ".[all]"
 
-# Generate (output goes to the active project output/diagrams, or legacy output/)
+# Generate (output goes to the active project output/diagrams, or ./ relative to cwd)
 python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml
 
 # Equivalent, and directory-independent once `archharness` is on PATH:

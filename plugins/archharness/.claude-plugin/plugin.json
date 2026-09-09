@@ -1,0 +1,11 @@
+{
+  "name": "archharness",
+  "description": "ArchHarness — enterprise architecture skills (requirements, design, validate, enforce gate, review, optimize, report) with a mandatory artifact-gated pipeline.",
+  "version": "0.3.2",
+  "author": {
+    "name": "axisrobo",
+    "url": "https://github.com/axisrobo/ea-harness"
+  },
+  "repository": "https://github.com/axisrobo/ea-harness",
+  "license": "MIT"
+}

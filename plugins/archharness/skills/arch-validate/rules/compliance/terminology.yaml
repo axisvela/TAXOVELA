@@ -1,0 +1,188 @@
+# ============================================================
+# Rules: compliance/terminology.yaml
+# 维度: Terminology_Expression (V-)
+# 说明: 术语规范、云平台术语合规性、行业标准映射
+# ============================================================
+
+ruleset:
+  name: "terminology-rules"
+  version: "2.0"
+  dimension: "Terminology_Expression"
+  weight_contribution: 1.0
+
+# ── 云平台术语标准表 ────────────────────────────────────────────
+cloud_terminology:
+  Azure:
+    network_isolation_unit: "VNET"          # 不得写 VPC
+    network_segment: "Subnet"
+    subnet_types: ["Private Subnet", "Public Subnet"]
+    paas_without_subnet_note: "标注为 Public Endpoint 或 Private Endpoint"
+    icon_set: "Azure (draw.io built-in)"
+    prohibited_terms: ["VPC", "vpc"]
+
+  AWS:
+    network_isolation_unit: "VPC"           # 不得写 VNET
+    network_segment: "Subnet"
+    subnet_types: ["Private Subnet", "Public Subnet"]
+    paas_without_subnet_note: "标注为 Public Access 或 VPC Endpoint"
+    icon_set: "AWS 18 or AWS 2005 (draw.io built-in)"
+    prohibited_terms: ["VNET", "vnet"]
+
+  GCP:
+    network_isolation_unit: "VPC"
+    network_segment: "Subnet"
+    paas_without_subnet_note: "标注为 Public Access 或 Private Service Connect"
+    icon_set: "Google Cloud Platform (draw.io built-in)"
+    prohibited_terms: ["VNET", "vnet"]
+
+  Alibaba:
+    network_isolation_unit: "VPC"
+    network_segment: "Subnet"
+    paas_without_subnet_note: "标注为公网访问或 VPC 内网访问"
+    icon_set: "Alibaba Cloud (draw.io built-in)"
+    prohibited_terms: ["VNET", "vnet"]
+
+  Tencent:
+    network_isolation_unit: "VPC"
+    network_segment: "Subnet"
+    paas_without_subnet_note: "标注为公网访问或 VPC 内网访问"
+    prohibited_terms: ["VNET", "vnet"]
+
+# ── 私有云/数据中心术语 ─────────────────────────────────────────
+private_cloud_terminology:
+  network_containers:
+    - "数据中心 (DC)"
+    - "网络Zone"
+  zone_names:
+    standard: ["DMZ", "App Zone", "DB Zone", "Intranet"]
+    reston_dc: ["DMZ", "APP SEN", "DB SEN"]
+  prohibited_terms:
+    - "VNET"      # 私有云不使用公有云术语
+    - "VPC"       # 私有云不使用公有云术语
+    - "Region"    # 私有云用城市/DC名，不用Region
+
+rules:
+
+  # ── 术语合规性 ─────────────────────────────────────────────
+  - id: "V-101"
+    name: "Azure 环境必须使用 VNET（禁止 VPC）"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      在 Azure 云环境中，网络隔离单元必须使用术语 "VNET"（Virtual Network）。
+      使用 "VPC" 属于 AWS/GCP/阿里云术语，在 Azure 环境中为错误用法，
+      会导致架构图与实际 Azure 资源不一致，影响基础设施即代码（IaC）验证。
+    check_target: "azure_network_nodes"
+    validation_logic: "azure_uses_vnet_not_vpc"
+    impact: "术语混用导致 IaC 对照验证失败，评审者误解实际网络拓扑"
+    suggestion: "将 Azure 环境中所有 'VPC' 改为 'VNET'"
+
+  - id: "V-102"
+    name: "AWS/GCP/阿里云环境必须使用 VPC（禁止 VNET）"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      在 AWS、GCP、阿里云环境中，网络隔离单元必须使用术语 "VPC"（Virtual Private Cloud）。
+      使用 "VNET" 属于 Azure 术语，在这些云平台中为错误用法。
+    check_target: "aws_gcp_ali_network_nodes"
+    validation_logic: "non_azure_uses_vpc_not_vnet"
+    impact: "同 V-101"
+    suggestion: "将 AWS/GCP/阿里云环境中所有 'VNET' 改为 'VPC'"
+
+  - id: "V-103"
+    name: "私有云/DC 不得使用公有云术语"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      私有数据中心环境中不得使用公有云专属术语：
+      - 禁止使用 VPC、VNET（私有云使用 Zone 表示网络分段）
+      - 禁止使用 Region（私有云使用数据中心名称+城市）
+      - 禁止使用 Subnet（私有云用 Zone 或 VLAN/Segment）
+    check_target: "private_dc_nodes"
+    validation_logic: "private_dc_no_cloud_terms"
+    impact: "术语混用导致物理数据中心与云环境的网络边界模糊"
+    suggestion: "私有 DC 中使用 Zone（DMZ/App Zone/DB Zone/Intranet）而非 VPC/Subnet"
+
+  - id: "V-104"
+    name: "图标集须与云平台匹配"
+    severity: "warning"
+    issue_type: "suggestion"
+    priority: "Medium"
+    description: >
+      技术组件图标应使用对应云平台的官方图标集（draw.io 内置）：
+      - Azure 组件：使用 Azure 图标集
+      - AWS 组件：使用 AWS 18 或 AWS 2005 图标集
+      - GCP 组件：使用 Google Cloud Platform 图标集
+      - 阿里云组件：使用 Alibaba Cloud 图标集
+      - Kubernetes 组件：使用 Kubernetes 图标集
+      - 私有云/通用组件：可使用 draw.io 通用图标
+    check_target: "all_tech_component_icons"
+    validation_logic: "icon_matches_cloud_platform"
+    impact: "图标不匹配降低可读性，可能引起对云平台判断的误解"
+    suggestion: "在 draw.io 中切换到对应云平台的 Shape Library 重新选择图标"
+
+  - id: "V-105"
+    name: "同类实体须使用一致的图标/形状"
+    severity: "warning"
+    issue_type: "suggestion"
+    priority: "Low"
+    description: >
+      全图中同类型的技术组件须使用相同的图标或形状表示。
+      例如：所有 API Gateway 使用同一图标，所有数据库使用同一图标。
+      不允许同类实体出现多种不同图标混用的情况。
+    check_target: "all_entities_by_type"
+    validation_logic: "same_type_consistent_icon"
+    impact: "图标不一致增加读者认知负担"
+    suggestion: "统一同类实体的图标，可在 draw.io 中使用 Edit Style 批量修改"
+
+# ── 行业标准合规映射 ─────────────────────────────────────────────
+compliance_standards:
+
+  togaf:
+    name: "TOGAF Architecture Framework"
+    required_views:
+      - name: "Business Architecture View"
+        description: "业务架构视图（一般在应用架构图中体现）"
+        check: "has_business_domain_labels"
+      - name: "Application Architecture View"
+        description: "应用架构视图"
+        check: "has_application_layer"
+      - name: "Technology Architecture View"
+        description: "技术架构视图（当前检查对象）"
+        check: "is_tech_architecture_diagram"
+    scoring_note: "技术架构图检查主要对应 Technology Architecture View"
+
+  iso27001:
+    name: "ISO/IEC 27001:2022"
+    relevant_controls:
+      - control: "A.8.20"
+        description: "网络安全控制"
+        mapped_rules: ["E-005", "E-006", "E-007", "S-002", "S-003"]
+      - control: "A.8.24"
+        description: "密码学使用"
+        mapped_rules: ["S-007", "S-009", "E-010"]
+      - control: "A.9.1"
+        description: "访问控制策略"
+        mapped_rules: ["S-001", "S-004", "S-005", "S-006"]
+      - control: "A.8.15"
+        description: "日志记录"
+        mapped_rules: []    # 日志架构在运维视图中检查，当前不覆盖
+
+  change_management:
+    name: "变更管理规范"
+    rules:
+      - id: "V-201"
+        name: "架构变更须记录版本信息"
+        severity: "warning"
+        issue_type: "suggestion"
+        priority: "Low"
+        description: >
+          每次架构变更须更新以下信息（记录在 arch-history.yaml 或架构图注释中）：
+          - 版本号（SemVer：Major.Minor.Patch）
+          - 变更日期
+          - 变更人
+          - 变更原因摘要
+        suggestion: "在架构图右下角添加版本信息框，或维护独立的 arch-history.yaml"

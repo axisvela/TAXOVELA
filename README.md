@@ -189,19 +189,27 @@ the mirror stays in sync (`scripts/check_repo.py` validates the whole pack).
 
 ### Can users install from the chat window?
 
-There is no single cross-tool "chat install" command. What works today:
+**Claude Code — yes, via the plugin marketplace.** In the Claude Code chat window:
 
-- **Claude Code plugin marketplace** (`/plugin marketplace add`) is the closest
-  native chat-install, but this repository does not publish a plugin yet —
-  skills installed through a plugin would be cached *away* from `tools/` and
-  `standards/`, breaking their file references. Publishing a marketplace is
-  planned once skills resolve resources through `ARCHHARNESS_HOME`.
-- **Every other tool**: open this repository as the working directory
-  (`claude .`, `opencode .`, `codex`, or point Copilot/Cursor at it). Skills,
-  agents, and `AGENTS.md` are then discovered automatically and stay able to
-  reach `tools/`, `standards/`, and `config.yaml`.
-- **Installers** (`install.ps1` / `install.sh`) prepare a fresh clone: they
-  install the Python package, initialise the workspace, and run `doctor`.
+```
+/plugin marketplace add axisrobo/ea-harness
+/plugin install archharness@archharness-marketplace
+/reload-plugins
+```
+
+Plugin skills are namespaced as `/archharness:arch-validate`,
+`/archharness:arch-design`, `/archharness:arch-workflow`, etc. (the plugin
+caches a copy of the skills). For shared resources (`standards/`, `tools/`,
+`config.yaml`) the skills resolve through the installed package or a checkout —
+so run `pip install archharness[all]` (or set `ARCHHARNESS_HOME`) once.
+
+**Every other tool**: open this repository as the working directory
+(`claude .`, `opencode .`, `codex`, or point Copilot/Cursor at it). Skills,
+agents, and `AGENTS.md` are then discovered automatically and stay able to
+reach `tools/`, `standards/`, and `config.yaml`.
+
+**Installers** (`install.ps1` / `install.sh`) prepare a fresh clone: they
+install the Python package, initialise the workspace, and run `doctor`.
 
 ### Command-line reference
 
@@ -233,7 +241,8 @@ ships `tools/`, `standards/`, and the skill tree inside the package, so
 work from any working directory:
 
 ```bash
-pip install "archharness[all]"
+pip install "archharness[all]"              # PyPI (once published), or:
+pip install https://github.com/axisrobo/ea-harness/releases/download/v0.3.2/archharness-0.3.2-py3-none-any.whl
 python -m archharness root        # → …/site-packages/archharness/data
 python -m archharness doctor
 ```
@@ -379,6 +388,8 @@ ea-harness/
 ├── scripts/                 ← check_repo.py, sync_agents_skills.py (also run in CI)
 ├── .github/workflows/       ← CI pipeline
 ├── .github/agents/          ← GitHub Copilot custom agents (@arch-*)
+├── .claude-plugin/          ← Claude Code plugin marketplace manifest
+├── plugins/archharness/     ← Claude Code plugin bundle (skills mirror, generated)
 ├── .agents/skills/          ← Codex discovery mirror (generated)
 ├── .claude/skills/          ← Skill definitions (Claude Code slash commands)
 └── .opencode/agents/        ← Agent definitions (OpenCode @agent-name)

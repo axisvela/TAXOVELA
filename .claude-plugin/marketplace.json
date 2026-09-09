@@ -1,0 +1,19 @@
+{
+  "name": "archharness-marketplace",
+  "description": "ArchHarness enterprise architecture skills: requirements, design, diagram, validate, enforce, security, review, optimize, report",
+  "owner": {
+    "name": "axisrobo",
+    "url": "https://github.com/axisrobo/ea-harness"
+  },
+  "plugins": [
+    {
+      "name": "archharness",
+      "source": "./plugins/archharness",
+      "description": "Enterprise architecture skill pack (requirements -> design -> validate -> enforce gate -> review/optimize/report)",
+      "version": "0.3.2",
+      "author": { "name": "axisrobo" },
+      "repository": "https://github.com/axisrobo/ea-harness",
+      "license": "MIT"
+    }
+  ]
+}

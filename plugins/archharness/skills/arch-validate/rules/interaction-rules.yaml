@@ -1,0 +1,178 @@
+# ============================================================
+# Rules: interaction-rules.yaml
+# 维度: Interaction_Integration (W-)
+# 权重: 2.0 / 子项各 25%
+# ============================================================
+
+ruleset:
+  name: "interaction-rules"
+  version: "2.0"
+  dimension: "Interaction_Integration"
+  weight_contribution: 2.0
+  subcategory_weight: 0.25      # 4个子项均分
+
+subcategories:
+  - id: "arrow_direction"       # W-A 箭头方向
+  - id: "bidirectional_arrow"   # W-B 双向箭头（与 V-002 共享检测）
+  - id: "protocol_label"        # W-C 协议标注
+  - id: "integration_platform"  # W-D 集成平台规范
+
+rules:
+
+  # ── W-A: 箭头方向 ─────────────────────────────────────────
+  - id: "W-001"
+    subcategory: "arrow_direction"
+    name: "箭头方向：箭尾=调用方，箭头=服务方"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      通信流箭头必须满足：
+      - 箭尾端（无箭头一侧）是通信的发起方/调用方
+      - 箭头端（有箭头一侧）是通信的服务提供方/被调用方
+      特殊规则：
+      - Kafka：所有生产者和消费者的箭头均指向 Kafka 节点（Producer → Kafka，Consumer → Kafka）
+      - API网关（WSO2/APIH）：箭头方向取决于具体调用语义，允许双方互为调用方
+    check_target: "all_communication_arrows"
+    validation_logic: "arrow_direction_semantic_correct"
+    scoring:
+      deduction_unit: "per_wrong_arrow"
+      formula: "wrong_arrow_count / total_arrow_count * subcategory_weight * dimension_weight"
+    impact: "箭头方向错误导致调用链路无法追溯，认证机制标注位置混乱"
+    suggestion: "逐条检查每条箭头，确认调用发起方在箭尾，被调用方在箭头端"
+
+  # ── W-B: 双向箭头 ─────────────────────────────────────────
+  - id: "W-002"
+    subcategory: "bidirectional_arrow"
+    name: "禁止使用双向箭头表示单一交互"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      双向箭头（<→ 或同线上两端均有箭头）表示单一交互关系时为违规。
+      若 A 和 B 相互调用，须绘制两条独立单向箭头：
+        A → B（标注 A 调用 B 的协议和认证）
+        B → A（标注 B 调用 A 的协议和认证）
+    check_target: "all_arrows"
+    validation_logic: "is_bidirectional_arrow"
+    scoring:
+      deduction_unit: "per_bidirectional_arrow"
+      formula: "bidirectional_count / total_arrow_count * subcategory_weight * dimension_weight"
+    impact: "双向箭头无法区分调用语义，导致认证方向、协议标注歧义"
+    suggestion: "将双向箭头拆分为两条带协议和认证标注的单向箭头"
+
+  # ── W-C: 协议标注 ─────────────────────────────────────────
+  - id: "W-003"
+    subcategory: "protocol_label"
+    name: "通信箭头必须标注通信协议"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      每条通信流箭头必须标注通信协议。支持的协议枚举：
+      - HTTPS（Web/API 调用，需标注是否 TLS 加密）
+      - Kafka（事件流，需同时标注 SASL/SCRAM 认证）
+      - SFTP（文件传输，含 MFT 平台）
+      - JDBC（数据库连接，Java）
+      - ODBC（数据库连接，通用）
+      - gRPC（高性能 RPC）
+      - RFC（SAP 远程调用）
+      - TCP（裸 TCP，需补充端口和用途说明）
+      - 其他协议：需完整说明
+    check_target: "all_communication_arrows"
+    validation_logic: "arrow_has_protocol_label"
+    scoring:
+      deduction_unit: "per_missing_protocol"
+      formula: "missing_protocol_count / total_arrow_count * subcategory_weight * dimension_weight"
+    impact: "缺少协议标注无法评估通信安全性，也无法验证防火墙规则是否正确"
+    suggestion: "在每条箭头旁标注协议名称，格式示例：HTTPS/TLS、Kafka/SASL-SCRAM"
+
+  - id: "W-004"
+    subcategory: "protocol_label"
+    name: "通信箭头必须标注认证方式"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      每条通信流箭头（或其对应的通信关系说明）必须标注认证机制：
+      | 认证方式              | 适用场景                        |
+      |----------------------|-------------------------------|
+      | OAuth2.0 Client Cred | 服务间 API 调用                 |
+      | Basic Auth           | 简单 HTTP 场景                  |
+      | mTLS（客户端证书）    | 高安全要求服务间通信              |
+      | Azure SAS            | Azure 存储/服务                 |
+      | SASL/SCRAM           | Kafka 生产者/消费者              |
+      | 用户名/密码（PWD）    | 数据库连接                      |
+      | Kerberos             | 内部企业系统                    |
+      | API Key              | 第三方 API（需说明传输方式）     |
+    check_target: "all_communication_arrows"
+    validation_logic: "arrow_has_auth_label"
+    scoring:
+      deduction_unit: "per_missing_auth"
+      formula: "missing_auth_count / total_arrow_count * subcategory_weight * dimension_weight"
+    impact: "缺少认证标注无法判断系统是否有未受保护的通信路径"
+    suggestion: "在协议标注旁补充认证方式，格式示例：HTTPS/TLS + OAuth2.0"
+
+  - id: "W-005"
+    subcategory: "protocol_label"
+    name: "跨网络边界通信须标注加密方式"
+    severity: "warning"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      跨越不同网络边界（DC 之间、DC 与公有云之间、公网暴露的服务）的通信箭头须标注加密方式：
+      - TLS 1.2+ / TLS 1.3（HTTPS、gRPC 等）
+      - SSL（遗留系统）
+      - IPSec（VPN 隧道）
+      内网内部同 Zone 组件间通信的加密标注为建议项，不强制。
+    check_target: "cross_boundary_arrows"
+    validation_logic: "cross_boundary_arrow_has_encryption"
+    scoring:
+      deduction_unit: "per_missing_encryption"
+      formula: "missing_encryption_count / cross_boundary_total * subcategory_weight * dimension_weight"
+    impact: "跨界通信未加密存在数据泄露风险，也可能违反 GDPR/等保等合规要求"
+    suggestion: "标注跨界通信的加密方式，格式：HTTPS/TLS 1.3"
+
+  # ── W-D: 集成平台规范 ──────────────────────────────────────
+  - id: "W-006"
+    subcategory: "integration_platform"
+    name: "跨应用通信必须经过集成平台"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      不同应用/系统之间的通信必须经过集成平台，禁止直连：
+      - WSO2 API Gateway：API 类集成
+      - APIH（内部 API 网关）：内部 API 类集成
+      - Kafka：事件/消息类集成
+      - SFTP/MFT 平台：文件类集成
+      - Talend：ETL/数据类集成
+      
+      例外（允许直连）：
+      - 同一应用内部的模块间通信
+      - 技术组件与其直属数据库之间的连接
+      - 技术组件与 Key Vault 等基础设施服务之间的连接
+    check_target: "cross_application_connections"
+    validation_logic: "cross_app_has_integration_platform"
+    scoring:
+      deduction_unit: "per_direct_connection"
+      formula: "direct_connection_count / cross_app_total * subcategory_weight * dimension_weight"
+    impact: "跨应用直连绕过集成层，导致治理缺失、版本耦合、认证不一致"
+    suggestion: "在直连的应用间插入适当的集成平台节点（WSO2/Kafka/APIH）"
+
+  - id: "W-007"
+    subcategory: "integration_platform"
+    name: "集成平台必须标注所在网络位置"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "Medium"
+    description: >
+      集成平台（WSO2、Kafka、APIH、SFTP/MFT、Talend）作为独立节点存在时，
+      必须位于特定的网络 Zone 或 Subnet 内，不能悬空在图中。
+    check_target: "integration_platform_nodes"
+    validation_logic: "node_has_network_location"
+    scoring:
+      deduction_unit: "per_floating_platform"
+      formula: "floating_count / platform_total * subcategory_weight * dimension_weight"
+    impact: "集成平台网络位置不明确，无法判断其访问控制策略和安全域"
+    suggestion: "将集成平台节点放置在对应的网络 Zone 或 Subnet 容器内"

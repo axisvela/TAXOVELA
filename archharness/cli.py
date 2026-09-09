@@ -65,17 +65,22 @@ def _print_doctor() -> int:
         return 1
 
     problems: list[str] = []
+    is_repo = (root / ".claude" / "skills").is_dir() or (root / "config.yaml").is_file()
     print(f"ArchHarness {__version__}")
-    print(f"resource root: {root}")
+    print(f"resource root: {root} ({'repository' if is_repo else 'installed package data'})")
 
+    skills_dir = (root / ".claude" / "skills") if is_repo else (root / "skills")
     checks = [
         ("standards/", (root / "standards").is_dir()),
-        (".claude/skills/", (root / ".claude" / "skills").is_dir()),
-        (".opencode/agents/", (root / ".opencode" / "agents").is_dir()),
-        (".agents/skills/ (Codex mirror)", (root / ".agents" / "skills").is_dir()),
+        ("skills/", skills_dir.is_dir()),
         ("tools/arch-diagram-gen/", (root / "tools" / "arch-diagram-gen").is_dir()),
         ("tools/arch-req-readers/", (root / "tools" / "arch-req-readers").is_dir()),
     ]
+    if is_repo:
+        checks += [
+            (".opencode/agents/", (root / ".opencode" / "agents").is_dir()),
+            (".agents/skills/ (Codex mirror)", (root / ".agents" / "skills").is_dir()),
+        ]
     for label, ok in checks:
         if ok:
             print(f"  [ok]  {label}")
@@ -83,21 +88,24 @@ def _print_doctor() -> int:
             print(f"  [!!]  {label} — missing")
             problems.append(label)
 
-    workspace = find_workspace()
-    if workspace is None:
-        print("  note  no workspace initialized — run `archharness init-workspace .`")
+    if not is_repo:
+        print("  note  workspace/project features require a repository checkout")
     else:
-        print(f"  [ok]  workspace: {workspace}")
-        try:
-            context = get_project()
-        except (FileNotFoundError, ValueError):
-            context = None
-        if context is None:
-            print("  note  no default project — run `archharness init-project <id> --default`")
+        workspace = find_workspace()
+        if workspace is None:
+            print("  note  no workspace initialized — run `archharness init-workspace .`")
         else:
-            print(f"  [ok]  active project: {context.project_id}")
-            print(f"        input={context.input_path}")
-            print(f"        output={context.output_path}")
+            print(f"  [ok]  workspace: {workspace}")
+            try:
+                context = get_project()
+            except (FileNotFoundError, ValueError):
+                context = None
+            if context is None:
+                print("  note  no default project — run `archharness init-project <id> --default`")
+            else:
+                print(f"  [ok]  active project: {context.project_id}")
+                print(f"        input={context.input_path}")
+                print(f"        output={context.output_path}")
 
     if os.environ.get("ARCHHARNESS_HOME"):
         print(f"  env   ARCHHARNESS_HOME={os.environ['ARCHHARNESS_HOME']}")

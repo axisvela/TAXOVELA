@@ -16,7 +16,14 @@ from pathlib import Path
 
 
 def find_archharness_root(start: Path | None = None) -> Path | None:
-    """Return the ArchHarness resource root (config.yaml + tools/), or None."""
+    """Return the ArchHarness resource root, or None.
+
+    Resolution order:
+      1. ``ARCHHARNESS_HOME`` env var (a checkout of this repository).
+      2. Walking up from ``start`` (or this package) for ``config.yaml`` + ``tools/``
+         (running from a repository checkout).
+      3. The packaged data root ``archharness/data`` shipped in the wheel.
+    """
     override = os.environ.get("ARCHHARNESS_HOME")
     if override:
         candidate = Path(override).resolve()
@@ -27,6 +34,10 @@ def find_archharness_root(start: Path | None = None) -> Path | None:
     for directory in (probe, *probe.parents):
         if (directory / "config.yaml").is_file() and (directory / "tools").is_dir():
             return directory
+
+    package_data = Path(__file__).resolve().parent / "data"
+    if (package_data / "tools").is_dir() and (package_data / "standards").is_dir():
+        return package_data
     return None
 
 

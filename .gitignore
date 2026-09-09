@@ -21,6 +21,9 @@ build/
 .ruff_cache/
 .mypy_cache/
 
+# Generated self-contained runtime data (created before wheel builds)
+archharness/data/
+
 # Environment
 .env
 .env.*

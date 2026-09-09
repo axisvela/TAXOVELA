@@ -218,6 +218,20 @@ python -m archharness diagram -i arch.yaml
 Run a tool from inside `projects/<id>/` to target that project automatically;
 pass `--project <id>` to target one from anywhere.
 
+**Self-contained install (no checkout needed).** `pip install archharness[all]`
+ships `tools/`, `standards/`, and the skill tree inside the package, so
+`python -m archharness root` returns a bundled resource root and the CLI tools
+work from any working directory:
+
+```bash
+pip install "archharness[all]"
+python -m archharness root        # → …/site-packages/archharness/data
+python -m archharness doctor
+```
+
+Regenerate the bundled data before building a wheel with
+`python scripts/assemble_data.py`.
+
 ## Usage examples
 
 ### Design a new system

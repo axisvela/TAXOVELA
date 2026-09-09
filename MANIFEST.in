@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+include pyproject.toml
+recursive-include archharness/data *
+global-exclude *.py[cod]
+global-exclude __pycache__

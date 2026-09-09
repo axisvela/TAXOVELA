@@ -209,11 +209,29 @@ def get_project(workspace: str | Path | None = None, project_id: str | None = No
 
 
 def discover_project() -> ProjectContext | None:
-    """Return the active project when cwd or workspace defaults identify one."""
-    if find_workspace() is None:
+    """Return the active project only when cwd is inside a project directory.
+
+    Tools use this so that running inside `projects/<id>/` targets that
+    project, while running at the workspace root keeps the legacy repo-root
+    input/output behaviour. Explicit `--project` always wins.
+    """
+    root = find_workspace()
+    if root is None:
         return None
     try:
-        return get_project()
+        _, metadata = load_workspace(root)
+    except (FileNotFoundError, ValueError):
+        return None
+    projects_dir = (root / metadata.get("projects_dir", "./projects")).resolve()
+    try:
+        relative = Path.cwd().resolve().relative_to(projects_dir)
+    except ValueError:
+        return None
+    if not relative.parts:
+        return None
+    candidate = relative.parts[0]
+    try:
+        return get_project(root, candidate)
     except (FileNotFoundError, ValueError):
         return None
 

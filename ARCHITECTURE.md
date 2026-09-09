@@ -112,6 +112,14 @@ detect the active project automatically and write into the project's
 A legacy single-project mode (no workspace initialized) keeps the historical
 `input/`/`output/` behavior untouched.
 
+The same tools are fronted by the `archharness` CLI as passthrough subcommands
+(`archharness diagram`, `archharness req`, `archharness validate-yaml`). The
+runner (`archharness/tool_runners.py`) locates the scripts under the resource
+root discovered by `archharness/paths.py` (via `ARCHHARNESS_HOME` or by walking
+up from the package), so the tools stay usable regardless of the working
+directory once the package is installed. The standalone `tools/*` scripts remain
+the canonical implementation and keep working unchanged.
+
 Project data directories are git-ignored; `project.yaml` and a one-line
 `README.md` are the only tracked scaffold. If you want project metadata shared
 with the team, force-add those two files; inputs/outputs stay local.

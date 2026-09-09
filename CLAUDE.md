@@ -57,15 +57,18 @@ paths:
 
 ```bash
 # Install
-pip install pyyaml matplotlib
+pip install -e ".[all]"
 
-# Generate (output goes to config.yaml > paths.output_dir by default)
-python tools/arch-diagram-gen/arch_diagram_gen.py -i input/arch.yaml
+# Generate (output goes to the active project output/diagrams, or legacy output/)
+python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml
+
+# Equivalent, and directory-independent once `archharness` is on PATH:
+python -m archharness diagram -i arch.yaml
 
 # Override output explicitly
 python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml -o out.drawio --png out.png
 
-# Use a specific workspace project
+# Target a specific workspace project
 python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml --project payments
 ```
 

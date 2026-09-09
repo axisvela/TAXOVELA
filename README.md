@@ -122,9 +122,24 @@ project (`--project` also works from anywhere in the workspace).
 ### 4. Install Python dependencies
 
 ```bash
-pip install -e ".[all]"
-# or minimal: pip install pyyaml matplotlib
+# POSIX / macOS / Linux
+./install.sh
+
+# Windows PowerShell
+.\install.ps1
 ```
+
+Or manually:
+
+```bash
+pip install -e ".[all]"
+python -m archharness init-workspace .   # only if not created above
+python -m archharness doctor             # verify the install
+```
+
+The installer registers skills with your AI tool, creates a workspace when one
+is missing, and runs `doctor`. Add `ARCHHARNESS_HOME=/path/to/ea-harness` to
+your environment if you ever run tools from a different working directory.
 
 ### 5. Open in your AI coding tool
 
@@ -161,6 +176,30 @@ also read `.claude/skills/`.
 `.agents/skills/` is a generated mirror of `.claude/skills/`. Update it with
 `python scripts/sync_agents_skills.py` after editing any skill; CI enforces
 the mirror stays in sync (`scripts/check_repo.py` validates the whole pack).
+
+### Command-line reference
+
+| Command | Purpose |
+|---|---|
+| `python -m archharness --version` | Show the installed version |
+| `python -m archharness root` | Print the resource root (config.yaml + tools/) |
+| `python -m archharness doctor` | Self-check installation, workspace, and project |
+| `python -m archharness init-workspace .` | Create the workspace metadata |
+| `python -m archharness init-project <id>` | Scaffold an isolated project |
+| `python -m archharness diagram -i arch.yaml` | Run the diagram generator (draw.io/PNG/D2/PlantUML) |
+| `python -m archharness req --doc brief.md` | Run the requirements readers + merger |
+| `python -m archharness validate-yaml config.yaml` | YAML syntax gate (CI fail-closed check) |
+
+`diagram`, `req`, and `validate-yaml` forward their flags to the same Python
+tools under `tools/`, so both invocation styles are equivalent:
+
+```bash
+python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml
+python -m archharness diagram -i arch.yaml
+```
+
+Run a tool from inside `projects/<id>/` to target that project automatically;
+pass `--project <id>` to target one from anywhere.
 
 ## Usage examples
 
@@ -287,7 +326,8 @@ ea-harness/
 ├── CLAUDE.md                ← Claude Code project rules
 ├── AGENTS.md                ← OpenCode / Codex / Copilot / Cursor project rules
 ├── ARCHITECTURE.md          ← Design rationale
-├── archharness/             ← `python -m archharness` workspace & project CLI
+├── archharness/             ← `python -m archharness` CLI (workspace + tools)
+├── install.ps1 / install.sh ← cross-platform installers
 ├── benchmark/               ← Experiment scripts, prompts, status, and generated results
 ├── input/                   ← Legacy single-project input (optional)
 ├── output/                  ← Legacy single-project output (optional)

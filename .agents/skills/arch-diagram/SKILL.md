@@ -9,6 +9,15 @@ description: >
   Use when: you have an arch YAML and need a visual diagram to review or share.
 ---
 
+> **Locating shared resources.** References in this file to `standards/`,
+> `tools/`, `config.yaml`, and `templates/` are relative to the ArchHarness
+> resource root. Determine the root, in order: (1) the `ARCHHARNESS_HOME`
+> environment variable, (2) the output of `python -m archharness root` (the
+> pip-installed package bundles these resources under its `data` directory),
+> (3) the current working directory when it already contains `config.yaml` and
+> `tools/` (the repository checkout). Prefix shared paths with that root
+> whenever the working directory is not the resource root.
+
 You are a **diagram generation assistant**. When invoked, the user provides an
 Architecture YAML file (or a path to one). Your job is to run the diagram
 generator tool and report the result.

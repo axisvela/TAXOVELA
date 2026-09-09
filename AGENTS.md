@@ -17,6 +17,7 @@ Agents are invoked with `@agent-name`. Skills are loaded on-demand by the agent.
 
 | Agent | Invoke | Role |
 |-------|--------|------|
+| arch-workflow | `@arch-workflow` | Pipeline gatekeeper — enforces stage order and PASS/WARN/BLOCK gate; blocks skipping |
 | arch-requirements     | `@arch-requirements`      | Orchestrator — interview + multi-source intake, outputs REQ.md + req.yaml |
 | arch-req-from-diagram | `@arch-req-from-diagram` | Reader — draw.io / D2 / arch YAML / PNG (vision) → partial req.yaml |
 | arch-req-from-doc     | `@arch-req-from-doc`     | Reader — PDF / DOCX / MD / TXT via LLM → partial req.yaml |
@@ -108,6 +109,26 @@ Six dimensions, 10 points total:
 5. **Standards check** → `/arch-review` for committee-style compliance scoring
 6. **Fix it** → `/arch-optimize` for prioritized improvement suggestions
 7. **Document it** → `/arch-report` for executive summary or Confluence page
+
+## Pipeline discipline (mandatory order)
+
+Architecture stages run in the order defined by `standards/workflow.yaml`:
+
+```
+Requirements → design → draw (export PNG) → validate → enforce gate
+                                                    │ PASS / WARN → security + review
+                                                    │ BLOCK       → pipeline stops
+security + review → optimize → report
+```
+
+Gate rules (fail-closed, enforced by the `arch-workflow` gatekeeper):
+- A stage starts only when every artifact in its `requires` list exists in the
+  active project `output/`/`working/`.
+- Never fabricate predecessor outputs and never skip a stage.
+- After the enforce gate, continue only on PASS or WARN. BLOCK requires fixing
+  the findings and re-running validate → enforce.
+- Invoke `@arch-workflow status` / `@arch-workflow can <stage>` before starting
+  a stage when in doubt.
 
 ## If skills aren't loading
 

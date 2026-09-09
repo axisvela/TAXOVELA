@@ -1,0 +1,70 @@
+# ============================================================
+# workflow.yaml — ArchHarness mandatory pipeline specification
+#
+# ArchHarness stages MUST run in this order. A stage may start only
+# when its `requires` artifacts exist (and, for the enforce gate,
+# only on PASS/WARN). A BLOCK decision stops the pipeline.
+# ============================================================
+
+schema_version: "1.0"
+
+pipeline:
+  - id: requirements
+    summary: Gather requirements into REQ.md + req.yaml (interview + readers)
+    produces: ["REQ.md", "req.yaml"]
+    next: [design]
+  - id: design
+    summary: Produce Architecture YAML blueprint + draw.io guidance
+    requires: ["req.yaml"]
+    produces: ["blueprint.yaml"]
+    next: [draw]
+  - id: draw
+    summary: Draw the architecture in draw.io and export a PNG
+    requires: ["blueprint.yaml"]
+    produces: ["diagram.png", "diagram.drawio"]
+    next: [validate]
+  - id: validate
+    summary: Validate the diagram against enterprise standards -> scored JSON
+    requires: ["diagram.png"]
+    produces: ["validate_result.json"]
+    next: [enforce]
+  - id: enforce
+    summary: Apply arch-gate-policy to the validation result
+    requires: ["validate_result.json", "arch-gate-policy.yaml"]
+    produces: ["enforce_result.json"]
+    gate:
+      PASS:  "score >= 8.0 AND must_fix == 0"
+      WARN:  "score >= 6.0 AND < 8.0 AND must_fix == 0"
+      BLOCK: "score < 6.0 OR must_fix > 0"
+    on_pass: [security, review]
+    on_warn: [security, review]
+    on_block: []                  # BLOCK halts the pipeline - do not continue
+  - id: security
+    summary: Deep-dive security audit (attack paths, finding list)
+    requires: ["validate_result.json"]
+    produces: ["security_findings.md"]
+  - id: review
+    summary: Committee gate decision APPROVED / APPROVED_WITH_CONDITIONS / REJECTED
+    requires: ["validate_result.json"]
+    produces: ["review_decision.md"]
+  - id: optimize
+    summary: Prioritized improvement backlog (P0/P1/P2/P3)
+    requires: ["validate_result.json"]
+    produces: ["optimize_backlog.md"]
+    next: [report]
+  - id: report
+    summary: Confluence page / executive summary / risk brief
+    requires:
+      - "validate_result.json"
+      - "security_findings.md"
+      - "review_decision.md"
+      - "optimize_backlog.md"
+    produces: ["report.md"]
+
+gate_rule: |
+  Stages are gated by artifacts, not by time. Before starting stage X, confirm
+  every file in X.requires exists under the active project output/ (or working/).
+  If a required artifact is missing, STOP and report which artifact is missing;
+  do not fabricate predecessor outputs and do not skip ahead.
+  After the enforce gate, continue ONLY when the recorded decision is
+  PASS or WARN. A BLOCK decision requires fixing and re-validating first.

@@ -15,6 +15,7 @@ and a technical writer — each invocable on demand with a single command.
 
 | Agent / Skill | Claude Code | OpenCode | Role |
 |---|---|---|---|
+| arch-workflow | `/arch-workflow` | `@arch-workflow` | Pipeline gatekeeper — enforces stage order; BLOCK stops pipeline |
 | arch-requirements | `/arch-requirements` | `@arch-requirements` | Structured interview → REQ.md + req.yaml |
 | arch-req-from-diagram | `/arch-req-from-diagram` | `@arch-req-from-diagram` | draw.io / PNG → partial req.yaml |
 | arch-req-from-doc | `/arch-req-from-doc` | `@arch-req-from-doc` | PDF / DOCX / MD → partial req.yaml |
@@ -44,6 +45,14 @@ Requirements → arch-design → draw in draw.io → arch-validate
                                                       │
                                                arch-report
 ```
+
+**The pipeline is mandatory and gated by artifacts.** The order and required
+input/output files are defined in [`standards/workflow.yaml`](./standards/workflow.yaml).
+The `arch-workflow` gatekeeper checks that every required artifact of the next
+stage exists (and that the enforce gate recorded PASS or WARN) before the stage
+starts. A BLOCK decision stops the pipeline until findings are fixed and
+validation is re-run. Never skip a stage or fabricate predecessor outputs;
+invoke `@arch-workflow status` / `@arch-workflow can <stage>` when in doubt.
 
 ## Setup
 

@@ -9,6 +9,7 @@ It turns Claude into a team of architecture specialists you summon on demand.
 
 | Skill | Command | Role |
 |-------|---------|------|
+| arch-workflow   | `/arch-workflow`     | Pipeline gatekeeper — enforces stage order and PASS/WARN/BLOCK gate; blocks skipping |
 | arch-requirements   | `/arch-requirements`    | Orchestrator — interview + multi-source intake, outputs REQ.md + req.yaml |
 | arch-req-from-diagram | `/arch-req-from-diagram` | Reader — draw.io / D2 / arch YAML / PNG (vision) → partial req.yaml |
 | arch-req-from-doc  | `/arch-req-from-doc`   | Reader — PDF / DOCX / MD / TXT via LLM → partial req.yaml |
@@ -141,11 +142,31 @@ into that project's `output/`. `--project <id>` selects explicitly from anywhere
 in the workspace. Project data dirs are git-ignored; only `project.yaml` and the
 project `README.md` are tracked.
 
+## Pipeline discipline (mandatory order)
+
+Stages must run in the order defined by `standards/workflow.yaml`:
+
+```
+Requirements → design → draw (export PNG) → validate → enforce gate
+                                                    │ PASS / WARN → security + review
+                                                    │ BLOCK       → pipeline stops
+security + review → optimize → report
+```
+
+Gate rules (fail-closed, enforced by the `arch-workflow` gatekeeper):
+- A stage starts only when every artifact in its `requires` list exists in the
+  active project `output/`/`working/`.
+- Never fabricate predecessor outputs and never skip a stage.
+- After the enforce gate, continue only on PASS or WARN. BLOCK requires fixing
+  findings and re-running validate → enforce.
+- Ask `/arch-workflow status` or `/arch-workflow can <stage>` when in doubt.
+
 ## OpenCode usage
 
 This project also supports OpenCode. Use `@agent-name` instead of `/skill-name`:
 
 ```
+@arch-workflow    →  check stage gate / pipeline status (gatekeeper)
 @arch-validate   →  validate a diagram image
 @arch-design     →  design from requirements
 @arch-enforce    →  CI gate decision (PASS/WARN/BLOCK)

@@ -8,6 +8,15 @@ description: >
   Use after arch-validate when you want a security specialist's deep cut.
 ---
 
+> **Locating shared resources.** References in this file to `standards/`,
+> `tools/`, `config.yaml`, and `templates/` are relative to the ArchHarness
+> resource root. Determine the root, in order: (1) the `ARCHHARNESS_HOME`
+> environment variable, (2) the output of `python -m archharness root` (the
+> pip-installed package bundles these resources under its `data` directory),
+> (3) the current working directory when it already contains `config.yaml` and
+> `tools/` (the repository checkout). Prefix shared paths with that root
+> whenever the working directory is not the resource root.
+
 You are a **staff security engineer** conducting a pre-production security architecture review.
 You have a background in penetration testing and you think in attack paths, not just compliance checkboxes.
 Your job is to find the paths an attacker would take, not to validate visual style.

@@ -7,6 +7,15 @@ description: >
   section of a project document, or generate a risk summary for stakeholders.
 ---
 
+> **Locating shared resources.** References in this file to `standards/`,
+> `tools/`, `config.yaml`, and `templates/` are relative to the ArchHarness
+> resource root. Determine the root, in order: (1) the `ARCHHARNESS_HOME`
+> environment variable, (2) the output of `python -m archharness root` (the
+> pip-installed package bundles these resources under its `data` directory),
+> (3) the current working directory when it already contains `config.yaml` and
+> `tools/` (the repository checkout). Prefix shared paths with that root
+> whenever the working directory is not the resource root.
+
 You are a **senior technical writer** who specializes in enterprise architecture documentation.
 You translate complex architecture diagrams and validation reports into clear,
 actionable documents that non-architects can read and architects can approve.

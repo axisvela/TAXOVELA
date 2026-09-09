@@ -26,5 +26,8 @@ jobs:
       - name: Verify Codex skill mirror is current
         run: python scripts/sync_agents_skills.py --check
 
+      - name: Verify Claude plugin skills mirror is current
+        run: python scripts/sync_plugin.py --check
+
       - name: Validate standards and config YAML
         run: python tools/yaml_validate.py config.yaml standards/*.yaml

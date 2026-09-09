@@ -157,8 +157,9 @@ Agents under `.opencode/agents/` register as `@arch-*` agents.
 
 **Codex / GitHub Copilot / Cursor**
 Point the tool at this repository root. `AGENTS.md` is read by all three;
-Codex discovers skills under `.agents/skills/`, and Cursor/Copilot builds
-also read `.claude/skills/`.
+Codex discovers skills under `.agents/skills/`; GitHub Copilot discovers the
+`@arch-*` custom agents under `.github/agents/`; Cursor builds also read
+`.claude/skills/`.
 
 > **Tip:** working directory should be the repository root (or a project
 > directory) so skills, tools, and `config.yaml` are found automatically.
@@ -170,12 +171,28 @@ also read `.claude/skills/`.
 | Claude Code | `CLAUDE.md` | `.claude/skills/` | `/arch-validate`, `/arch-design`, … |
 | OpenCode | `AGENTS.md` | `.opencode/agents/` | `@arch-validate`, `@arch-design`, … |
 | Codex | `AGENTS.md` | `.agents/skills/` | skill selector on `.agents/skills/` |
-| GitHub Copilot | `AGENTS.md` | `.claude/skills/` (supported builds) | `/skills` |
+| GitHub Copilot | `AGENTS.md` | `.github/agents/` | `@arch-validate`, `@arch-design`, … |
 | Cursor | `AGENTS.md` | `.claude/skills/` (supported builds) | `/skills` |
 
 `.agents/skills/` is a generated mirror of `.claude/skills/`. Update it with
 `python scripts/sync_agents_skills.py` after editing any skill; CI enforces
 the mirror stays in sync (`scripts/check_repo.py` validates the whole pack).
+
+### Can users install from the chat window?
+
+There is no single cross-tool "chat install" command. What works today:
+
+- **Claude Code plugin marketplace** (`/plugin marketplace add`) is the closest
+  native chat-install, but this repository does not publish a plugin yet —
+  skills installed through a plugin would be cached *away* from `tools/` and
+  `standards/`, breaking their file references. Publishing a marketplace is
+  planned once skills resolve resources through `ARCHHARNESS_HOME`.
+- **Every other tool**: open this repository as the working directory
+  (`claude .`, `opencode .`, `codex`, or point Copilot/Cursor at it). Skills,
+  agents, and `AGENTS.md` are then discovered automatically and stay able to
+  reach `tools/`, `standards/`, and `config.yaml`.
+- **Installers** (`install.ps1` / `install.sh`) prepare a fresh clone: they
+  install the Python package, initialise the workspace, and run `doctor`.
 
 ### Command-line reference
 
@@ -338,6 +355,7 @@ ea-harness/
 ├── tests/                   ← pytest suite
 ├── scripts/                 ← check_repo.py, sync_agents_skills.py (also run in CI)
 ├── .github/workflows/       ← CI pipeline
+├── .github/agents/          ← GitHub Copilot custom agents (@arch-*)
 ├── .agents/skills/          ← Codex discovery mirror (generated)
 ├── .claude/skills/          ← Skill definitions (Claude Code slash commands)
 └── .opencode/agents/        ← Agent definitions (OpenCode @agent-name)

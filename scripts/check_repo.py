@@ -19,6 +19,7 @@ import yaml
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SKILLS_DIR = ROOT / ".claude" / "skills"
 AGENTS_DIR = ROOT / ".opencode" / "agents"
+GITHUB_AGENTS_DIR = ROOT / ".github" / "agents"
 ERRORS: list[str] = []
 
 
@@ -75,6 +76,21 @@ def check_agents() -> None:
             err(f"{agent_file}: missing `permission:` block")
 
 
+def check_github_agents() -> None:
+    if not GITHUB_AGENTS_DIR.is_dir():
+        err(f"missing github agents directory: {GITHUB_AGENTS_DIR}")
+        return
+    for agent_file in sorted(GITHUB_AGENTS_DIR.glob("*.md")):
+        frontmatter = parse_frontmatter(agent_file.read_text(encoding="utf-8"))
+        if frontmatter is None:
+            err(f"{agent_file}: missing or invalid YAML frontmatter")
+            continue
+        if not frontmatter.get("description"):
+            err(f"{agent_file}: missing description")
+        if not frontmatter.get("tools"):
+            err(f"{agent_file}: missing tools")
+
+
 def check_yaml_parses() -> None:
     roots = [
         ROOT / "config.yaml",
@@ -116,6 +132,7 @@ def check_no_placeholder_or_local_paths() -> None:
 def main() -> int:
     check_skills()
     check_agents()
+    check_github_agents()
     check_yaml_parses()
     check_no_placeholder_or_local_paths()
 

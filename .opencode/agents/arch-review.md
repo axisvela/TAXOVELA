@@ -8,7 +8,7 @@ description: >
 mode: subagent
 model: anthropic/claude-opus-4-6
 temperature: 0.1
-permissions:
+permission:
   read: allow
   write: deny
   edit: deny

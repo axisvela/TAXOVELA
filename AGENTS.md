@@ -49,8 +49,25 @@ Same agents are available as slash commands: `/arch-validate`, `/arch-design`, e
 
 ## Configuration
 
-All company-specific values (DC names, platform names, input/output paths) live in **`config.yaml`**
+All company-specific values (DC names, platform names) live in **`config.yaml`**
 at the project root. Edit it before first use — see `CLAUDE.md` for full reference.
+
+## Multi-project workspace
+
+One checkout supports many isolated projects. Create projects with the CLI
+(`python -m archharness`): `init-workspace`, `init-project`, `list-projects`,
+`doctor`. Each project lives under `projects/<id>/` with its own `input/`,
+`working/`, `output/`, and a `project.yaml` describing `id`, `name`, `platform`,
+and `data_classification`.
+
+Working session rules:
+- If the cwd is inside `projects/<id>/`, that project is the **active project**.
+- Use `--project <id>` to select a project from anywhere in the workspace.
+- Inputs resolve against the active project `input/`; generated files land in the
+  active project `output/` (subfolders `requirements/`, `designs/`, `diagrams/`,
+  `validation/`, `reports/`).
+- Project data dirs are git-ignored. Do not scatter output in the repo root or
+  `input/`/`output/` legacy dirs when a workspace project is active.
 
 ## Standards in scope
 

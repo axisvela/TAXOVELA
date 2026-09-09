@@ -65,8 +65,8 @@ python tools/arch-diagram-gen/arch_diagram_gen.py -i input/arch.yaml
 # Override output explicitly
 python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml -o out.drawio --png out.png
 
-# Use a specific config file
-python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml --config /path/to/config.yaml
+# Use a specific workspace project
+python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml --project payments
 ```
 
 See `tools/arch-diagram-gen/README.md` and `arch-schema-reference.yaml` for full docs.
@@ -118,6 +118,26 @@ Six dimensions, 10 points total:
 Check that `.claude/skills/` is on the project path. Skills follow the
 Claude Code Agent Skills open standard — each directory under `.claude/skills/`
 with a `SKILL.md` is automatically registered as a slash command.
+
+## Multi-project workspace
+
+One ArchHarness checkout supports many isolated architecture projects.
+Initialize once, then create one project per system/integration:
+
+```bash
+python -m archharness init-workspace .
+python -m archharness init-project <id> [--name "..."] [--default]
+python -m archharness list-projects
+python -m archharness doctor [--project <id>]
+```
+
+Each project owns `projects/<id>/{input,working,output}` plus a `project.yaml`
+(`id`, `name`, `platform`, `data_classification`). When you open a session inside
+`projects/<id>/`, skills and CLI tools (`arch_diagram_gen.py`,
+`tools/arch-req-readers/req_reader.py`) auto-detect the active project and write
+into that project's `output/`. `--project <id>` selects explicitly from anywhere
+in the workspace. Project data dirs are git-ignored; only `project.yaml` and the
+project `README.md` are tracked.
 
 ## OpenCode usage
 

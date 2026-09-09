@@ -1,14 +1,18 @@
 # Output (generated files — do not commit)
-output/
+output/*
+!output/.gitkeep
 benchmark/results/*.csv
 benchmark/results/*.md
 !benchmark/results/.gitkeep
 benchmark/sessions/
 *.drawio.bak
 
-# Input (may contain sensitive diagrams or documents)
-# Remove this line if you want to track input files in git
-input/
+# Per-project workspace data (scaffold on demand via `archharness init-project`)
+projects/
+
+# Legacy single-project input (may contain sensitive diagrams or documents)
+input/*
+!input/.gitkeep
 
 # Python
 __pycache__/
@@ -33,5 +37,3 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
-input/
-output/

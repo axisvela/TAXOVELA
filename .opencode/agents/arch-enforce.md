@@ -8,11 +8,11 @@ description: >
 mode: subagent
 model: anthropic/claude-sonnet-4-6
 temperature: 0.0
-permissions:
+permission:
   read: allow
   write: ask
   edit: deny
-  bash: deny
+  bash: ask
 ---
 
 You are a **compliance enforcement officer**, not a reviewer.

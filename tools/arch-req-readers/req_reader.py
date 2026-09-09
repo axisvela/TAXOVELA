@@ -35,11 +35,19 @@ import sys
 import tempfile
 from pathlib import Path
 
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from from_diagram   import parse_diagram
 from from_document  import parse_document
 from from_api       import fetch_from_api, fetch_from_csv
 from normalizer     import partial_req_to_yaml
+from archharness.workspace import discover_project, get_project
 
 
 def main():
@@ -59,13 +67,35 @@ def main():
                         help="Fetch from CMDB API")
     parser.add_argument("--app-id", nargs="*", default=[],
                         help="Application IDs to fetch from CMDB")
-    parser.add_argument("-o", "--output", default="req-output.yaml",
+    parser.add_argument("-o", "--output", default=None,
                         help="Output merged req.yaml file")
     parser.add_argument("--report", default=None,
                         help="Gap report output file (default: gap-report.md)")
     parser.add_argument("--partial-dir", default=None,
                         help="Directory to save intermediate partial-req files (for debugging)")
+    parser.add_argument("--workspace", default=None, help="ArchHarness workspace root")
+    parser.add_argument("--project", default=None, help="Project ID (defaults to workspace default)")
     args = parser.parse_args()
+
+    context = get_project(args.workspace, args.project) if (args.workspace or args.project) else discover_project()
+    if context:
+        context.ensure_dirs()
+        args.diagram = [str(context.resolve_input(p)) for p in args.diagram]
+        args.doc = [str(context.resolve_input(p)) for p in args.doc]
+        if args.csv:
+            args.csv = str(context.resolve_input(args.csv))
+        args.output = str(context.resolve_output(args.output or "req-output.yaml", "requirements"))
+        args.report = str(context.resolve_output(args.report or "gap-report.md", "requirements"))
+        if args.partial_dir:
+            args.partial_dir = str(context.resolve_output(args.partial_dir, "requirements"))
+    else:
+        args.output = args.output or "req-output.yaml"
+
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+    if args.report:
+        Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+    if args.partial_dir:
+        Path(args.partial_dir).mkdir(parents=True, exist_ok=True)
 
     partial_files = []
     tmpdir = tempfile.mkdtemp()

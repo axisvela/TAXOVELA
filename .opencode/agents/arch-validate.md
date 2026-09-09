@@ -7,7 +7,7 @@ description: >
 mode: subagent
 model: anthropic/claude-opus-4-6
 temperature: 0.1
-permissions:
+permission:
   read: allow
   write: deny
   edit: deny
@@ -24,5 +24,4 @@ Read the rule files in `.claude/skills/arch-validate/rules/` and the standards i
 Then follow the eight-step validation procedure defined in
 `.claude/skills/arch-validate/SKILL.md`.
 
-Your output is always a JSON report matching the schema in that SKILL.md,
-followed by a brief plain-text summary.
+Your output is only the JSON report matching the schema in that SKILL.md.

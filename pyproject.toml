@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "archharness"
+dynamic = ["version"]
+description = "Enterprise architecture skill pack and multi-project workspace tools"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = ["PyYAML>=6,<7"]
+
+[project.optional-dependencies]
+diagram = ["matplotlib>=3.7"]
+documents = ["pdfplumber>=0.10", "python-docx>=1.1"]
+llm = ["anthropic>=0.40", "openai>=1.0"]
+all = ["matplotlib>=3.7", "pdfplumber>=0.10", "python-docx>=1.1", "anthropic>=0.40", "openai>=1.0"]
+
+[project.scripts]
+archharness = "archharness.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["archharness*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "archharness.__version__"}

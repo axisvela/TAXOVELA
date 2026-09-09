@@ -32,6 +32,16 @@ import argparse
 import os
 import sys
 import yaml
+from pathlib import Path
+
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from archharness.workspace import discover_project, get_project
 
 
 # ── PNG helpers (draw.io path) ────────────────────────────────────────────────
@@ -74,6 +84,7 @@ def _export_png_via_matplotlib(arch: dict, png_path: str) -> bool:
 
 def _write(path: str, content: str, label: str):
     try:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
         print(f"✓ {label} written: {path}")
@@ -88,12 +99,33 @@ def main():
     parser = argparse.ArgumentParser(
         description="Convert Architecture YAML to diagram formats"
     )
-    parser.add_argument("-i", "--input",  required=True, help="Input YAML file")
+    parser.add_argument("-i", "--input",  required=True, help="Input YAML file or project input-relative path")
     parser.add_argument("-o", "--output", default=None,  help="Output .drawio file")
     parser.add_argument("--png",  default=None, help="Export PNG (draw.io CLI or matplotlib)")
     parser.add_argument("--d2",   default=None, help="Output D2 file (.d2)")
     parser.add_argument("--puml", default=None, help="Output PlantUML file (.puml)")
+    parser.add_argument("--workspace", default=None, help="ArchHarness workspace root")
+    parser.add_argument("--project", default=None, help="Project ID (defaults to workspace default)")
     args = parser.parse_args()
+
+    context = get_project(args.workspace, args.project) if (args.workspace or args.project) else discover_project()
+    if context:
+        context.ensure_dirs()
+        args.input = str(context.resolve_input(args.input))
+
+        def project_output(value, suffix):
+            if value:
+                return str(context.resolve_output(value, "diagrams"))
+            return str(context.resolve_output(Path(args.input).stem + suffix, "diagrams"))
+
+        if args.output is not None:
+            args.output = project_output(args.output, ".drawio")
+        if args.png is not None:
+            args.png = project_output(args.png, ".png")
+        if args.d2 is not None:
+            args.d2 = project_output(args.d2, ".d2")
+        if args.puml is not None:
+            args.puml = project_output(args.puml, ".puml")
 
     # ── Load YAML ────────────────────────────────────────────────────────────
     if not os.path.exists(args.input):
@@ -111,7 +143,10 @@ def main():
     # ── draw.io ───────────────────────────────────────────────────────────────
     if args.output or not (args.d2 or args.puml):
         from generator import generate_drawio
-        out_path = args.output or (os.path.splitext(args.input)[0] + ".drawio")
+        out_path = args.output or (
+            str(context.resolve_output(Path(args.input).stem + ".drawio", "diagrams"))
+            if context else os.path.splitext(args.input)[0] + ".drawio"
+        )
         try:
             xml_str = generate_drawio(arch)
         except Exception as e:

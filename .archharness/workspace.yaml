@@ -1,0 +1,3 @@
+schema_version: 1
+default_project: demo
+projects_dir: ./projects

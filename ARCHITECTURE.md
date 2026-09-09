@@ -33,16 +33,18 @@ relevant and more consistent.
 ```
 ea-harness/
 ├── CLAUDE.md           ← Claude Code project rules
-├── AGENTS.md           ← OpenCode native project rules (CLAUDE.md as fallback)
+├── AGENTS.md           ← OpenCode/Codex/Copilot/Cursor project rules
 ├── opencode.json       ← OpenCode project config (default model)
 ├── ARCHITECTURE.md     ← This file
+├── archharness/        ← `python -m archharness` workspace & project CLI
 ├── benchmark/          ← DIKCA/EA-Harness experiment scripts and status docs
+├── projects/<id>/      ← isolated project data (input/, working/, output/, project.yaml)
 │
 ├── .opencode/
 │   └── agents/                       ← OpenCode @agent-name entry points
-│       ├── arch-validate.md          ← mode: subagent, write: deny, temp: 0.1
+│       ├── arch-validate.md          ← mode: subagent, permission: read-only, temp: 0.1
 │       ├── arch-design.md            ← mode: subagent, write: ask,  temp: 0.3
-│       ├── arch-enforce.md           ← mode: subagent, write: deny, temp: 0.0
+│       ├── arch-enforce.md           ← mode: subagent, write: ask,  temp: 0.0
 │       ├── arch-security.md          ← mode: subagent, write: deny, temp: 0.1
 │       ├── arch-review.md            ← mode: subagent, write: deny, temp: 0.1
 │       ├── arch-report.md            ← mode: subagent, write: ask,  temp: 0.2
@@ -77,12 +79,49 @@ ea-harness/
     └── ci-gate-spec.yaml             ← C-layer: CI gate thresholds + dimension minimums + profiles
 ```
 
+## Multi-project workspace isolation
+
+Enterprise work rarely involves a single architecture diagram. Teams validate
+many systems against the same standards, each with its own inputs, intermediate
+files, and outputs. Mixing them in one flat `input/`/`output/` causes overwrites
+and cross-contamination of sensitive material.
+
+**Design decision:** keep the *tool/skill content* (skills, standards, tools,
+`config.yaml` enterprise profile) fixed at the repository root, and put
+*project data* under `projects/<id>/`. Each project directory contains:
+
+- `project.yaml` — project identity: `id`, `name`, `platform`,
+  `data_classification` (also the machine-readable discovery marker)
+- `input/` — documents, diagrams, API/CSV exports
+- `working/` — intermediate files (e.g. partial requirement YAML)
+- `output/` — generated artifacts split by kind (`requirements/`, `designs/`,
+  `diagrams/`, `validation/`, `reports/`)
+
+The `archharness` package owns the rules:
+
+- `find_workspace()` walks up from cwd for `.archharness/workspace.yaml`.
+- `get_project()` selects a project by `--project`, by workspace
+  `default_project`, or by inferring the active project from cwd being inside
+  `projects/<id>/`.
+- `ProjectContext.resolve_input()` / `resolve_output()` centralize path
+  resolution so individual CLI tools never hand-roll relative paths.
+
+CLI tools (`arch_diagram_gen.py`, `tools/arch-req-readers/req_reader.py`)
+detect the active project automatically and write into the project's
+`output/`. Explicit `--project <id>` selects from anywhere in the workspace.
+A legacy single-project mode (no workspace initialized) keeps the historical
+`input/`/`output/` behavior untouched.
+
+Project data directories are git-ignored; `project.yaml` and a one-line
+`README.md` are the only tracked scaffold. If you want project metadata shared
+with the team, force-add those two files; inputs/outputs stay local.
+
 ## Two layers, one content source
 
 The structure has two complementary layers that avoid duplication:
 
 **`.opencode/agents/`** is the OpenCode-native entry point. Each file sets
-`mode`, `permissions`, `model`, and `temperature` — capabilities Claude Code
+`permission`, `model`, and `temperature` — capabilities Claude Code
 doesn't have. Validation and review agents are fully read-only (`write: deny`).
 Design and optimize agents use `write: ask` so they confirm before touching files.
 Each agent's prompt is intentionally short: it names the role and points to the

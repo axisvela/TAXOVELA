@@ -71,6 +71,7 @@ class DoctorLayoutTests(unittest.TestCase):
         (root / "tools" / "arch-diagram-gen").mkdir(parents=True)
         (root / "tools" / "arch-req-readers").mkdir(parents=True)
         (root / "standards").mkdir(parents=True)
+        (root / "schemas").mkdir(parents=True)
         (root / "config.yaml").write_text("company: {}\n", encoding="utf-8")
         if repo:
             (root / ".claude" / "skills").mkdir(parents=True)

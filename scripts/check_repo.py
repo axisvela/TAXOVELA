@@ -91,6 +91,23 @@ def check_github_agents() -> None:
             err(f"{agent_file}: missing tools")
 
 
+def check_schemas() -> None:
+    schemas_dir = ROOT / "schemas"
+    if not schemas_dir.is_dir():
+        err(f"missing schemas directory: {schemas_dir}")
+        return
+    import json
+    for schema_file in sorted(schemas_dir.glob("*.schema.json")):
+        try:
+            schema = json.loads(schema_file.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            err(f"{schema_file}: invalid JSON ({exc})")
+            continue
+        for key in ("$id", "title", "version", "type"):
+            if key not in schema:
+                err(f"{schema_file}: missing required schema key {key!r}")
+
+
 def check_yaml_parses() -> None:
     roots = [
         ROOT / "config.yaml",
@@ -134,6 +151,7 @@ def main() -> int:
     check_agents()
     check_github_agents()
     check_yaml_parses()
+    check_schemas()
     check_no_placeholder_or_local_paths()
 
     if ERRORS:

@@ -75,6 +75,7 @@ def _print_doctor(workspace: str | None = None, project: str | None = None) -> i
     skills_dir = (root / ".claude" / "skills") if is_repo else (root / "skills")
     checks = [
         ("standards/", (root / "standards").is_dir()),
+        ("schemas/", (root / "schemas").is_dir()),
         ("skills/", skills_dir.is_dir()),
         ("tools/arch-diagram-gen/", (root / "tools" / "arch-diagram-gen").is_dir()),
         ("tools/arch-req-readers/", (root / "tools" / "arch-req-readers").is_dir()),

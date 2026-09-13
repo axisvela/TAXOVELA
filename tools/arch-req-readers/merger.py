@@ -22,11 +22,13 @@ from datetime import datetime
 import yaml
 
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from normalizer import (
     PartialReq, PartialApplication, PartialComponent, PartialInteraction,
     PartialUserAuth, FieldValue, Confidence, CONFIDENCE_RANK, merge_field,
     fv
 )
+from archharness.schemas import validate_final_req
 
 
 # ── Fields that MUST have values (CRITICAL gaps) ──────────────────────────────
@@ -418,6 +420,7 @@ def to_final_req_yaml(merged_apps, merged_comps, merged_interactions,
         }
 
     doc = {
+        "schema_version": "req/v1",
         "requirements": {
             "project": {
                 "name": _fv_to_plain(project_name),
@@ -436,6 +439,7 @@ def to_final_req_yaml(merged_apps, merged_comps, merged_interactions,
             "open_items":         open_items,
         }
     }
+    validate_final_req(doc)
     return yaml.dump(doc, allow_unicode=True, sort_keys=False, default_flow_style=False)
 
 

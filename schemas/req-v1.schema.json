@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/axisrobo/ea-harness/schemas/req-v1.schema.json",
+  "title": "ArchHarness Final Requirements",
+  "version": "req/v1",
+  "description": "Single stable output of `archharness req`, regardless of the number of input sources. Produced only by the normalize -> merge -> validate -> serialize pipeline.",
+  "type": "object",
+  "required": ["schema_version", "requirements"],
+  "properties": {
+    "schema_version": {
+      "const": "req/v1",
+      "description": "Contract version. Readers must reject unknown major versions."
+    },
+    "requirements": {
+      "type": "object",
+      "required": ["project", "applications", "components", "interactions", "user_auth"],
+      "properties": {
+        "project": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": { "type": ["string", "null"] },
+            "id": { "type": ["string", "null"] },
+            "scope": { "type": ["string", "null"] },
+            "department": { "type": ["string", "null"] }
+          }
+        },
+        "applications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": ["string", "null"] },
+              "type": { "type": ["string", "null"], "enum": ["new", "existing", "modified", null] },
+              "owner": { "type": ["string", "null"], "enum": ["org_it", "biz_owned", "third_party", null] },
+              "vendor": { "type": ["string", "null"] },
+              "dc_or_region": { "type": ["string", "null"] },
+              "country": { "type": ["string", "null"] },
+              "platform": { "type": ["string", "null"] },
+              "zone_subnet": { "type": ["string", "null"] },
+              "infra_owner": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": { "type": "string" },
+              "app_id": { "type": ["string", "null"] },
+              "name": { "type": ["string", "null"] },
+              "type": { "type": ["string", "null"] },
+              "language": { "type": ["string", "null"] },
+              "framework": { "type": ["string", "null"] },
+              "runtime": { "type": ["string", "null"] },
+              "sensitivity": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "interactions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": { "type": "string" },
+              "from_component": { "type": ["string", "null"] },
+              "to_component": { "type": ["string", "null"] },
+              "protocol": { "type": ["string", "null"] },
+              "port": { "type": ["string", "null", "number"] },
+              "auth_method": { "type": ["string", "null"] },
+              "notes": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "user_auth": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["entry_point"],
+            "properties": {
+              "entry_point": { "type": "string" },
+              "user_roles": { "type": ["array", "string", "null"] },
+              "auth_server": { "type": ["string", "null"] },
+              "auth_protocol": { "type": ["string", "null"] },
+              "authorization": { "type": ["string", "null"] },
+              "auth_platform": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "credentials": { "type": "array" },
+        "data_encryption": { "type": "array" },
+        "network_connections": { "type": "array" },
+        "constraints": { "type": "array" },
+        "open_items": { "type": "array" }
+      }
+    }
+  }
+}

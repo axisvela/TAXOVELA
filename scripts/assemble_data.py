@@ -27,6 +27,7 @@ SOURCES = {
     "tools": ROOT / "tools",
     "standards": ROOT / "standards",
     "skills": ROOT / ".claude" / "skills",
+    "schemas": ROOT / "schemas",
     "config.example.yaml": ROOT / "config.yaml",
     "config.yaml": ROOT / "config.yaml",
 }

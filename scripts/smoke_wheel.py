@@ -106,7 +106,8 @@ def main() -> int:
         # config.yaml exists and validates
         data_root = Path(root_out)
         for rel in ("config.yaml", "tools/arch-diagram-gen/generator.py",
-                    "standards/arch-gate-policy.yaml", "skills/arch-validate/SKILL.md"):
+                    "standards/arch-gate-policy.yaml", "skills/arch-validate/SKILL.md",
+                    "schemas/req-v1.schema.json", "schemas/artifact-v1.schema.json"):
             if not (data_root / rel).is_file():
                 fail(f"missing packaged file: {rel}")
         if not failures:

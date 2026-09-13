@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/axisrobo/ea-harness/schemas/artifact-v1.schema.json",
+  "title": "ArchHarness Artifact Manifest",
+  "version": "artifact/v1",
+  "description": "Provenance record for one governed artifact. Workflow gates and reviews bind to manifests, never to bare filenames.",
+  "type": "object",
+  "required": ["schema_version", "id", "type", "schema", "path", "sha256"],
+  "properties": {
+    "schema_version": {
+      "const": "artifact/v1",
+      "description": "Contract version of this manifest document."
+    },
+    "id": {
+      "type": "string",
+      "description": "Stable artifact identifier, unique within the project."
+    },
+    "type": {
+      "type": "string",
+      "description": "Artifact kind, e.g. requirements, technical-deployment-view, validation-result, review-decision."
+    },
+    "schema": {
+      "type": "string",
+      "description": "Schema and version of the artifact payload, e.g. req/v1."
+    },
+    "path": {
+      "type": "string",
+      "description": "Project-relative path of the artifact file."
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 of the exact artifact bytes."
+    },
+    "model_version": {
+      "type": ["string", "null"],
+      "description": "Source model version this artifact was derived from, if applicable."
+    },
+    "producer": {
+      "type": ["string", "null"],
+      "description": "Tool and version that produced the artifact, e.g. archharness/0.3.5."
+    },
+    "produced_at": {
+      "type": ["string", "null"],
+      "description": "UTC timestamp of production, ISO-8601."
+    },
+    "input_artifacts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "IDs of source artifacts (lineage)."
+    }
+  }
+}

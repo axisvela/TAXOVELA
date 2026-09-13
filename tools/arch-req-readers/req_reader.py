@@ -156,32 +156,26 @@ def main():
         sys.exit(1)
 
     # ── Merge ─────────────────────────────────────────────────────────────────
-    if len(partial_files) == 1:
-        # Single source: copy directly, still run gap analysis
-        import shutil
-        shutil.copy(partial_files[0], args.output)
-        print(f"✓ Requirements written: {args.output} (single source, no merge needed)")
+    print(f"🔀 Finalizing {len(partial_files)} source(s)...")
+    from merger import merge_partial_reqs
+    merged_yaml, gap_report, gaps = merge_partial_reqs(partial_files)
+
+    with open(args.output, "w", encoding="utf-8") as f:
+        f.write(merged_yaml)
+    print(f"✓ Final requirements: {args.output}")
+
+    report_path = args.report or "gap-report.md"
+    with open(report_path, "w", encoding="utf-8") as f:
+        f.write(gap_report)
+    print(f"✓ Gap report: {report_path}")
+
+    n_critical = len(gaps["critical"])
+    n_conflicts = len(gaps["conflicts"])
+    if n_critical == 0 and n_conflicts == 0:
+        print("  ✓ All critical fields present. Ready for arch-design.")
     else:
-        print(f"🔀 Merging {len(partial_files)} sources...")
-        from merger import merge_partial_reqs
-        merged_yaml, gap_report, gaps = merge_partial_reqs(partial_files)
-
-        with open(args.output, "w", encoding="utf-8") as f:
-            f.write(merged_yaml)
-        print(f"✓ Merged requirements: {args.output}")
-
-        report_path = args.report or "gap-report.md"
-        with open(report_path, "w", encoding="utf-8") as f:
-            f.write(gap_report)
-        print(f"✓ Gap report: {report_path}")
-
-        n_critical = len(gaps["critical"])
-        n_conflicts = len(gaps["conflicts"])
-        if n_critical == 0 and n_conflicts == 0:
-            print("  ✓ All critical fields present. Ready for arch-design.")
-        else:
-            print(f"  ⚠ {n_critical} critical gap(s), {n_conflicts} conflict(s) — see {report_path}")
-            print("  Run /arch-requirements to fill remaining gaps via interview.")
+        print(f"  ⚠ {n_critical} critical gap(s), {n_conflicts} conflict(s) — see {report_path}")
+        print("  Run /arch-requirements to fill remaining gaps via interview.")
 
 
 if __name__ == "__main__":

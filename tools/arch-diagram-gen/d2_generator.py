@@ -164,6 +164,42 @@ def _comp_label(comp: dict) -> str:
 
 # ── Main generator ─────────────────────────────────────────────────────────────
 
+def validate_d2_refs(arch: dict) -> None:
+    """Fail closed on duplicate IDs and dangling interaction endpoints."""
+    reserved = {"internet", "user", "office-network"}
+    seen: set[str] = set()
+    duplicates: list[str] = []
+    declared: set[str] = set(reserved)
+
+    def _add(node_id: str) -> None:
+        if not node_id or node_id in reserved:
+            return
+        if node_id in seen:
+            if node_id not in duplicates:
+                duplicates.append(node_id)
+        else:
+            seen.add(node_id)
+            declared.add(node_id)
+
+    for region in arch.get("deployment", []) or []:
+        _add(region.get("id", ""))
+        zones_key = "network_zones" if region.get("type", "private_dc") == "private_dc" else "subnets"
+        for zone in region.get(zones_key, []) or []:
+            _add(zone.get("id", ""))
+            for comp in zone.get("components", []) or []:
+                _add(comp.get("id", ""))
+    if duplicates:
+        raise ValueError(f"Duplicate component IDs: {', '.join(sorted(duplicates))}")
+
+    unresolved = [
+        f"{iact.get('from', '') or '?'} -> {iact.get('to', '') or '?'}"
+        for iact in arch.get("interactions", []) or []
+        if iact.get("from", "") not in declared or iact.get("to", "") not in declared
+    ]
+    if unresolved:
+        raise ValueError(f"Unresolved interaction references: {'; '.join(unresolved)}")
+
+
 def generate_d2(arch: dict) -> str:
     """
     Convert an architecture dict to a D2 diagram string.
@@ -174,6 +210,7 @@ def generate_d2(arch: dict) -> str:
                 └── component
     Edges drawn at top level, referencing full dot-path IDs.
     """
+    validate_d2_refs(arch)
     lines = []
 
     # ── Header comment ──────────────────────────────────────────────────────
@@ -299,8 +336,7 @@ def generate_d2(arch: dict) -> str:
         tgt_path = comp_path.get(tgt_yaml)
 
         if not src_path or not tgt_path:
-            lines.append(f"# UNRESOLVED: {src_yaml} -> {tgt_yaml}")
-            continue
+            raise ValueError(f"Unresolved interaction reference during D2 render: {src_yaml!r} -> {tgt_yaml!r}")
 
         protocol = iact.get("protocol", "")
         auth     = iact.get("auth", "")

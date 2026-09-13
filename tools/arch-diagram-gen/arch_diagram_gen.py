@@ -141,7 +141,7 @@ def main():
     arch = raw.get("arch", raw) if isinstance(raw, dict) else raw
 
     # ── draw.io ───────────────────────────────────────────────────────────────
-    if args.output or not (args.d2 or args.puml):
+    if args.output or args.png or not (args.d2 or args.puml):
         from generator import generate_drawio
         out_path = args.output or (
             str(context.resolve_output(Path(args.input).stem + ".drawio", "diagrams"))
@@ -166,6 +166,7 @@ def main():
             else:
                 print("  ✗ PNG export failed. Install drawio CLI or: pip install matplotlib",
                       file=sys.stderr)
+                sys.exit(2)
 
     # ── D2 ────────────────────────────────────────────────────────────────────
     if args.d2:

@@ -134,6 +134,59 @@ def _comp_label(comp: dict) -> str:
     return name
 
 
+# ── Reference integrity ─────────────────────────────────────────────────────
+
+RESERVED_NODES = {"internet", "user", "office-network"}
+
+
+def _collect_declared_ids(arch: dict) -> tuple[set[str], list[str]]:
+    """Collect region/zone/component IDs and report duplicates."""
+    seen: set[str] = set()
+    declared: set[str] = set()
+    duplicates: list[str] = []
+    deployment = arch.get("deployment", arch.get("arch", {}).get("deployment", []))
+
+    def _add(node_id: str) -> None:
+        if not node_id:
+            return
+        if node_id in seen:
+            if node_id not in duplicates:
+                duplicates.append(node_id)
+        else:
+            seen.add(node_id)
+            declared.add(node_id)
+
+    for region in deployment or []:
+        _add(region.get("id", ""))
+        zones_key = "network_zones" if region.get("type", "private_dc") == "private_dc" else "subnets"
+        for zone in region.get(zones_key, []) or []:
+            _add(zone.get("id", ""))
+            for comp in zone.get("components", []) or []:
+                _add(comp.get("id", ""))
+    return declared, duplicates
+
+
+def validate_architecture_refs(arch: dict) -> set[str]:
+    """Fail closed on duplicate IDs and dangling interaction endpoints."""
+    if not isinstance(arch, dict):
+        raise ValueError("Architecture input must be a mapping")
+    declared, duplicates = _collect_declared_ids(arch)
+    if duplicates:
+        raise ValueError(f"Duplicate component IDs: {', '.join(sorted(duplicates))}")
+
+    allowed = set(declared) | set(RESERVED_NODES)
+    interactions = arch.get("interactions", arch.get("arch", {}).get("interactions", [])) or []
+    unresolved: list[str] = []
+    for interaction in interactions:
+        src = interaction.get("from", "")
+        tgt = interaction.get("to", "")
+        if src not in allowed or tgt not in allowed:
+            unresolved.append(f"{src or '?'} -> {tgt or '?'}")
+    if unresolved:
+        raise ValueError(f"Unresolved interaction references: {'; '.join(unresolved)}")
+    return allowed
+
+
 # ── Main generation function ──────────────────────────────────────────────────
 
 def generate_drawio(arch: dict) -> str:
@@ -141,6 +194,7 @@ def generate_drawio(arch: dict) -> str:
     Convert an architecture YAML dict to a draw.io XML string.
     Returns the complete XML suitable for saving as a .drawio file.
     """
+    validate_architecture_refs(arch)
     layout = calculate_layout(arch)
     positions = layout["positions"]
     canvas_w  = layout["canvas_w"]
@@ -286,8 +340,7 @@ def generate_drawio(arch: dict) -> str:
         tgt_cell = cell_map.get(tgt_yaml)
 
         if not src_cell or not tgt_cell:
-            # Skip unresolved references silently
-            continue
+            raise ValueError(f"Unresolved interaction reference during render: {src_yaml!r} -> {tgt_yaml!r}")
 
         protocol = interaction.get("protocol", "")
         auth     = interaction.get("auth", "")
@@ -303,16 +356,6 @@ def generate_drawio(arch: dict) -> str:
 
         if interaction.get("notes"):
             edge_cell.set("tooltip", interaction["notes"])
-
-    # ── VPN/MPLS connections between DCs ─────────────────────────────────────
-    # Add VPN icons between private DC pairs
-    dc_ids = [r["id"] for r in deployment if r.get("type") == "private_dc"]
-    for i in range(len(dc_ids) - 1):
-        vpn_id = _id("vpn-")
-        _make_vertex(root, vpn_id, "MPLS",
-            styles.VPN_MPLS,
-            layout["right_x"] - 40, 100 + i * 40, 28, 28
-        )
 
     # ── Legend ────────────────────────────────────────────────────────────────
     legend_y = canvas_h - 240

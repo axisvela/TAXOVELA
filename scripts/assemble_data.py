@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import pathlib
 import shutil
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DATA = ROOT / "archharness" / "data"
@@ -27,6 +28,7 @@ SOURCES = {
     "standards": ROOT / "standards",
     "skills": ROOT / ".claude" / "skills",
     "config.example.yaml": ROOT / "config.yaml",
+    "config.yaml": ROOT / "config.yaml",
 }
 
 

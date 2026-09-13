@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from normalizer import (
     PartialReq, PartialApplication, PartialComponent, PartialInteraction,
     PartialUserAuth, FieldValue, Confidence, CONFIDENCE_RANK, merge_field,
-    partial_req_to_yaml, fv
+    fv
 )
 
 
@@ -129,6 +129,7 @@ def _merge_applications(all_reqs: list[PartialReq]) -> list[PartialApplication]:
                 merged_app.name = _merge_fv_list([v.name for v in versions])
                 merged_app.type = _merge_fv_list([v.type for v in versions])
                 merged_app.owner = _merge_fv_list([v.owner for v in versions])
+                merged_app.vendor = _merge_fv_list([v.vendor for v in versions])
                 merged_app.dc_or_region = _merge_fv_list([v.dc_or_region for v in versions])
                 merged_app.country = _merge_fv_list([v.country for v in versions])
                 merged_app.platform = _merge_fv_list([v.platform for v in versions])
@@ -195,7 +196,43 @@ def _merge_interactions(all_reqs: list[PartialReq]) -> list[PartialInteraction]:
                 mi.protocol       = _merge_fv_list([v.protocol for v in versions])
                 mi.port           = _merge_fv_list([v.port for v in versions])
                 mi.auth_method    = _merge_fv_list([v.auth_method for v in versions])
+                mi.notes          = _merge_fv_list([v.notes for v in versions])
                 merged.append(mi)
+
+    return merged
+
+
+def _merge_user_auth(all_reqs: list[PartialReq]) -> list[PartialUserAuth]:
+    """Merge authentication requirements by entry point without dropping fields."""
+    merged: list[PartialUserAuth] = []
+    seen: set[str] = set()
+
+    for req in all_reqs:
+        for index, user_auth in enumerate(req.user_auth):
+            entry_point = str(user_auth.entry_point or "")
+            normalized = _normalize_name(entry_point)
+            key = normalized or f"__unnamed_{id(req)}_{index}"
+            if key in seen:
+                continue
+            seen.add(key)
+
+            versions = [
+                candidate
+                for source_req in all_reqs
+                for candidate in source_req.user_auth
+                if normalized
+                and _normalize_name(str(candidate.entry_point or "")) == normalized
+            ] or [user_auth]
+
+            merged_auth = PartialUserAuth(entry_point=entry_point)
+            for field in (
+                "user_roles", "auth_server", "auth_protocol",
+                "authorization", "auth_platform",
+            ):
+                setattr(merged_auth, field, _merge_fv_list([
+                    getattr(version, field, None) for version in versions
+                ]))
+            merged.append(merged_auth)
 
     return merged
 
@@ -253,6 +290,16 @@ def analyze_gaps(merged_apps: list, merged_comps: list,
     # User auth
     if not user_auth:
         critical.append("User authentication not defined for any entry point")
+    for auth in user_auth:
+        entry_point = auth.entry_point or "?"
+        for field in CRITICAL_FIELDS["user_auth"]:
+            field_value = getattr(auth, field, None)
+            if field_value is None or (
+                isinstance(field_value, FieldValue) and not field_value.value
+            ):
+                critical.append(
+                    f"User authentication '{entry_point}': {field} is missing"
+                )
 
     return {
         "critical": critical,
@@ -318,7 +365,7 @@ def _fv_to_plain(fv_val) -> object:
 
 
 def to_final_req_yaml(merged_apps, merged_comps, merged_interactions,
-                      user_auth, credentials, data_encryption,
+                      user_auth, credentials, data_encryption, network_connections,
                       constraints, open_items,
                       project_name, project_id, project_scope, department) -> str:
     """Produce the final req.yaml in the standard requirements format."""
@@ -329,6 +376,7 @@ def to_final_req_yaml(merged_apps, merged_comps, merged_interactions,
             "name": _fv_to_plain(app.name),
             "type": _fv_to_plain(app.type) or "existing",
             "owner": _fv_to_plain(app.owner) or "org_it",
+            "vendor": _fv_to_plain(app.vendor),
             "dc_or_region": _fv_to_plain(app.dc_or_region),
             "country": _fv_to_plain(app.country),
             "platform": _fv_to_plain(app.platform),
@@ -356,6 +404,7 @@ def to_final_req_yaml(merged_apps, merged_comps, merged_interactions,
             "protocol": _fv_to_plain(iact.protocol),
             "port": _fv_to_plain(iact.port),
             "auth_method": _fv_to_plain(iact.auth_method) or "⚠MISSING",
+            "notes": _fv_to_plain(iact.notes),
         }
 
     def ua_to_dict(ua: PartialUserAuth) -> dict:
@@ -365,6 +414,7 @@ def to_final_req_yaml(merged_apps, merged_comps, merged_interactions,
             "auth_server": _fv_to_plain(ua.auth_server),
             "auth_protocol": _fv_to_plain(ua.auth_protocol),
             "authorization": _fv_to_plain(ua.authorization),
+            "auth_platform": _fv_to_plain(ua.auth_platform),
         }
 
     doc = {
@@ -381,11 +431,103 @@ def to_final_req_yaml(merged_apps, merged_comps, merged_interactions,
             "user_auth":          [ua_to_dict(u) for u in user_auth],
             "credentials":        credentials,
             "data_encryption":    data_encryption,
+            "network_connections": network_connections,
             "constraints":        constraints,
             "open_items":         open_items,
         }
     }
     return yaml.dump(doc, allow_unicode=True, sort_keys=False, default_flow_style=False)
+
+
+# ── Partial input deserialization ─────────────────────────────────────────────
+
+def _to_field_value(raw_value) -> FieldValue | None:
+    if raw_value is None:
+        return None
+    if isinstance(raw_value, FieldValue):
+        return raw_value
+    if isinstance(raw_value, dict) and "value" in raw_value:
+        confidence_value = raw_value.get("confidence", Confidence.UNKNOWN.value)
+        try:
+            confidence = Confidence(confidence_value)
+        except ValueError:
+            confidence = Confidence.UNKNOWN
+        return FieldValue(
+            value=raw_value["value"],
+            confidence=confidence,
+            source=raw_value.get("source", ""),
+            note=raw_value.get("note", ""),
+        )
+    return fv(raw_value, Confidence.UNKNOWN, "")
+
+
+def _partial_req_from_dict(raw: dict, source_path: str) -> PartialReq:
+    """Fully reconstruct all supported PartialReq fields from serialized YAML."""
+    req = PartialReq(
+        source_tool=raw.get("source_tool", ""),
+        source_file=raw.get("source_file", source_path),
+        project_name=_to_field_value(raw.get("project_name")),
+        project_id=_to_field_value(raw.get("project_id")),
+        project_scope=_to_field_value(raw.get("project_scope")),
+        department=_to_field_value(raw.get("department")),
+        credentials=raw.get("credentials", []) or [],
+        data_encryption=raw.get("data_encryption", []) or [],
+        network_connections=raw.get("network_connections", []) or [],
+        constraints=raw.get("constraints", []) or [],
+        open_items=raw.get("open_items", []) or [],
+        gaps=raw.get("gaps", []) or [],
+        no_coverage=raw.get("no_coverage", []) or [],
+    )
+
+    for raw_app in raw.get("applications", []) or []:
+        app = PartialApplication(id=raw_app.get("id", ""))
+        for field in (
+            "name", "type", "owner", "vendor", "dc_or_region",
+            "country", "platform", "zone_subnet", "infra_owner",
+        ):
+            setattr(app, field, _to_field_value(raw_app.get(field)))
+        req.applications.append(app)
+
+    for raw_component in raw.get("components", []) or []:
+        component = PartialComponent(
+            id=raw_component.get("id", ""),
+            app_id=raw_component.get("app_id", ""),
+        )
+        for field in (
+            "name", "comp_type", "language", "framework", "runtime", "sensitivity",
+        ):
+            setattr(component, field, _to_field_value(raw_component.get(field)))
+        req.components.append(component)
+
+    for raw_interaction in raw.get("interactions", []) or []:
+        interaction = PartialInteraction(id=raw_interaction.get("id", ""))
+        for field in (
+            "from_component", "to_component", "protocol", "port", "auth_method", "notes",
+        ):
+            setattr(interaction, field, _to_field_value(raw_interaction.get(field)))
+        req.interactions.append(interaction)
+
+    for raw_auth in raw.get("user_auth", []) or []:
+        user_auth = PartialUserAuth(entry_point=raw_auth.get("entry_point", ""))
+        for field in (
+            "user_roles", "auth_server", "auth_protocol", "authorization", "auth_platform",
+        ):
+            setattr(user_auth, field, _to_field_value(raw_auth.get(field)))
+        req.user_auth.append(user_auth)
+
+    return req
+
+
+def _deduplicate(items: list) -> list:
+    """Deduplicate YAML-compatible values while retaining first-seen order."""
+    deduplicated = []
+    seen = set()
+    for item in items:
+        key = yaml.safe_dump(item, allow_unicode=True, sort_keys=True)
+        if key not in seen:
+            seen.add(key)
+            deduplicated.append(item)
+    return deduplicated
 
 
 # ── Main merge function ───────────────────────────────────────────────────────
@@ -399,72 +541,21 @@ def merge_partial_reqs(partial_files: list[str]) -> tuple[str, str, dict]:
 
     for f in partial_files:
         with open(f, encoding="utf-8") as fp:
-            raw = yaml.safe_load(fp)
-        # Deserialize back into PartialReq (simplified — just use as dict)
-        # In production this would fully reconstruct the dataclass
-        # Here we store raw dicts and treat them in merge step
-        req = PartialReq.__new__(PartialReq)
-        req.__dict__.update({
-            "source_tool": raw.get("source_tool", ""),
-            "source_file": raw.get("source_file", f),
-            "project_name": raw.get("project_name"),
-            "project_id": raw.get("project_id"),
-            "project_scope": raw.get("project_scope"),
-            "department": raw.get("department"),
-            "applications": [],
-            "components": [],
-            "interactions": [],
-            "user_auth": [],
-            "credentials": raw.get("credentials", []),
-            "data_encryption": raw.get("data_encryption", []),
-            "network_connections": raw.get("network_connections", []),
-            "constraints": raw.get("constraints", []),
-            "open_items": raw.get("open_items", []),
-            "gaps": raw.get("gaps", []),
-            "no_coverage": raw.get("no_coverage", []),
-        })
-
-        def _to_fv(d) -> FieldValue:
-            if d is None: return None
-            if isinstance(d, dict) and "value" in d:
-                return FieldValue(
-                    value=d["value"],
-                    confidence=Confidence(d.get("confidence", "unknown")),
-                    source=d.get("source", ""),
-                    note=d.get("note", "")
-                )
-            return fv(d, Confidence.UNKNOWN, "")
-
-        for a in raw.get("applications", []):
-            app = PartialApplication(id=a.get("id", ""))
-            for field in ("name", "type", "owner", "vendor", "dc_or_region",
-                          "country", "platform", "zone_subnet", "infra_owner"):
-                setattr(app, field, _to_fv(a.get(field)))
-            req.applications.append(app)
-
-        for c in raw.get("components", []):
-            comp = PartialComponent(id=c.get("id", ""), app_id=c.get("app_id", ""))
-            for field in ("name", "comp_type", "language", "framework", "runtime", "sensitivity"):
-                setattr(comp, field, _to_fv(c.get(field)))
-            req.components.append(comp)
-
-        for i in raw.get("interactions", []):
-            iact = PartialInteraction(id=i.get("id", ""))
-            for field in ("from_component", "to_component", "protocol", "port", "auth_method"):
-                setattr(iact, field, _to_fv(i.get(field)))
-            req.interactions.append(iact)
-
-        all_reqs.append(req)
+            raw = yaml.safe_load(fp) or {}
+        if not isinstance(raw, dict):
+            raise ValueError(f"Partial requirements root must be a mapping: {f}")
+        all_reqs.append(_partial_req_from_dict(raw, f))
 
     merged_apps   = _merge_applications(all_reqs)
     merged_comps  = _merge_components(all_reqs)
     merged_ints   = _merge_interactions(all_reqs)
+    merged_auth   = _merge_user_auth(all_reqs)
 
-    all_user_auth = [ua for r in all_reqs for ua in r.user_auth]
-    all_creds     = [c for r in all_reqs for c in r.credentials]
-    all_enc       = [e for r in all_reqs for e in r.data_encryption]
+    all_creds     = _deduplicate([c for r in all_reqs for c in r.credentials])
+    all_enc       = _deduplicate([e for r in all_reqs for e in r.data_encryption])
+    all_network   = _deduplicate([n for r in all_reqs for n in r.network_connections])
     all_constraints = list(dict.fromkeys(c for r in all_reqs for c in r.constraints))
-    all_open      = [o for r in all_reqs for o in r.open_items if isinstance(o, dict) and "id" in o]
+    all_open      = _deduplicate([o for r in all_reqs for o in r.open_items])
 
     def _ensure_fv(v) -> FieldValue:
         if v is None:
@@ -472,7 +563,7 @@ def merge_partial_reqs(partial_files: list[str]) -> tuple[str, str, dict]:
         if isinstance(v, FieldValue):
             return v
         if isinstance(v, dict) and "value" in v:
-            return _to_fv(v)
+            return _to_field_value(v)
         return fv(v, Confidence.UNKNOWN, "")
 
     project_name  = merge_field([_ensure_fv(r.project_name) for r in all_reqs])
@@ -481,11 +572,11 @@ def merge_partial_reqs(partial_files: list[str]) -> tuple[str, str, dict]:
     department    = merge_field([_ensure_fv(r.department) for r in all_reqs])
 
     gaps = analyze_gaps(merged_apps, merged_comps, merged_ints,
-                        all_user_auth, project_name)
+                        merged_auth, project_name)
 
     merged_yaml = to_final_req_yaml(
-        merged_apps, merged_comps, merged_ints, all_user_auth,
-        all_creds, all_enc, all_constraints, all_open,
+        merged_apps, merged_comps, merged_ints, merged_auth,
+        all_creds, all_enc, all_network, all_constraints, all_open,
         project_name, project_id, project_scope, department
     )
 

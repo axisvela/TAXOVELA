@@ -6,14 +6,21 @@ config_loader.py — ArchHarness 共用配置加载器
 使用方式:
     from config_loader import load_config, find_config
 
-    cfg = load_config()                   # 自动向上查找 config.yaml
-    cfg = load_config("/path/to/config.yaml")  # 指定路径
+    cfg = load_config()                   # 自动向上查找 config.yaml（支持项目级覆盖）
+    cfg = load_config("/path/to/config.yaml")  # 指定路径（单文件，不做合并）
 
     # 读取配置项
     dc_list   = cfg.datacenters           # list[dict]
     api_gw    = cfg.platforms.api_gateway # str
     input_dir = cfg.paths.input_dir       # Path
     output_dir= cfg.paths.output_dir      # Path
+
+项目级覆盖（config layering）:
+    从 cwd 向上收集 config.yaml 链，直到 ArchHarness 资源根
+    （config.yaml 旁边存在 tools/ 目录）为止。最外层（资源根）配置作为
+    base，内层（如 projects/<id>/config.yaml、examples/<id>/config.yaml）
+    逐层 deep-merge 覆盖：dict 递归合并，list 与标量整体替换。
+    paths._root 始终指向资源根，保证 standards/ 解析正确。
 """
 
 from __future__ import annotations
@@ -140,7 +147,7 @@ class ArchConfig:
 def find_config(start: Path | str | None = None) -> Path | None:
     """
     Walk up from `start` (default: cwd) looking for config.yaml.
-    Returns the first match or None.
+    Returns the first (innermost) match or None.
     """
     current = Path(start).resolve() if start else Path.cwd().resolve()
     for directory in [current, *current.parents]:
@@ -150,14 +157,55 @@ def find_config(start: Path | str | None = None) -> Path | None:
     return None
 
 
+def find_config_chain(start: Path | str | None = None) -> list[Path]:
+    """
+    Walk up from `start` (default: cwd) collecting every config.yaml.
+
+    Returns paths ordered innermost → outermost, stopping after the
+    ArchHarness resource root (the config.yaml that has a ``tools/``
+    directory next to it). Config files above the resource root are
+    ignored so unrelated parent-directory configs never leak in.
+    """
+    current = Path(start).resolve() if start else Path.cwd().resolve()
+    chain: list[Path] = []
+    for directory in [current, *current.parents]:
+        candidate = directory / "config.yaml"
+        if candidate.exists():
+            chain.append(candidate)
+            if (directory / "tools").is_dir():
+                break  # resource root reached — base of the chain
+    return chain
+
+
+def deep_merge(base: Any, overlay: Any) -> Any:
+    """
+    Merge ``overlay`` onto ``base``: dicts merge recursively, everything
+    else (scalars, lists) is replaced wholesale by the overlay value.
+
+    Note: lists such as ``datacenters`` are replaced, not appended — a
+    project-level config that declares ``datacenters:`` owns the full list.
+    """
+    if isinstance(base, dict) and isinstance(overlay, dict):
+        merged = dict(base)
+        for key, value in overlay.items():
+            merged[key] = deep_merge(merged[key], value) if key in merged else value
+        return merged
+    return overlay
+
+
 def load_config(config_path: Path | str | None = None) -> ArchConfig:
     """
     Load ArchHarness configuration.
 
     Resolution order:
-      1. Explicit `config_path` argument
-      2. ARCH_CONFIG env var
-      3. Auto-discover by walking up from cwd (find_config)
+      1. Explicit `config_path` argument (single file, no layering)
+      2. ARCH_CONFIG env var (single file, no layering)
+      3. Auto-discover by walking up from cwd. When project-level
+         config.yaml files exist below the ArchHarness resource root
+         (e.g. ``projects/<id>/config.yaml`` or ``examples/<id>/config.yaml``),
+         they are deep-merged on top of the root config — innermost wins.
+         ``paths._root`` always points at the resource root so
+         ``standards/`` keeps resolving correctly.
       4. Return default config with a warning
     """
     # 1. Explicit path
@@ -175,10 +223,14 @@ def load_config(config_path: Path | str | None = None) -> ArchConfig:
             raise FileNotFoundError(f"ARCH_CONFIG points to missing file: {path}")
         return _parse(path)
 
-    # 3. Auto-discover
-    discovered = find_config()
-    if discovered:
-        return _parse(discovered)
+    # 3. Auto-discover with project-level layering
+    chain = find_config_chain()
+    if chain:
+        base_path = chain[-1]
+        merged = _read_raw(base_path)
+        for overlay_path in reversed(chain[:-1]):  # outermost → innermost
+            merged = deep_merge(merged, _read_raw(overlay_path))
+        return _build(base_path.parent, merged)
 
     # 4. Defaults (warn but don't crash)
     import warnings
@@ -192,10 +244,16 @@ def load_config(config_path: Path | str | None = None) -> ArchConfig:
     return ArchConfig()
 
 
-def _parse(path: Path) -> ArchConfig:
-    root = path.parent
+def _read_raw(path: Path) -> dict[str, Any]:
     with open(path, encoding="utf-8") as f:
-        raw: dict[str, Any] = yaml.safe_load(f) or {}
+        return yaml.safe_load(f) or {}
+
+
+def _parse(path: Path) -> ArchConfig:
+    return _build(path.parent, _read_raw(path))
+
+
+def _build(root: Path, raw: dict[str, Any]) -> ArchConfig:
 
     # company
     c = raw.get("company", {})

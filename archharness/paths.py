@@ -37,7 +37,8 @@ def find_archharness_root(start: Path | None = None) -> Path | None:
 
     package_data = Path(__file__).resolve().parent / "data"
     if (package_data / "tools").is_dir() and (package_data / "standards").is_dir():
-        return package_data
+        if (package_data / "config.yaml").is_file() or (package_data / "config.example.yaml").is_file():
+            return package_data
     return None
 
 

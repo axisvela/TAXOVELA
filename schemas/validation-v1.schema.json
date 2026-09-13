@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/axisrobo/ea-harness/schemas/validation-v1.schema.json",
+  "title": "ArchHarness Validation Result",
+  "version": "validation/v1",
+  "description": "Machine-readable output of architecture validation. The single input to deterministic policy enforcement: scores, typed findings, and the exact source binding. Policy thresholds compare raw_score (0-10); total_score is the weighted aggregate.",
+  "type": "object",
+  "required": ["schema_version", "source", "dimensions", "issues", "summary"],
+  "properties": {
+    "schema_version": {
+      "const": "validation/v1",
+      "description": "Contract version. Enforcement must reject unknown major versions."
+    },
+    "source": {
+      "type": "object",
+      "description": "Exact artifact that was validated. Binds the result to bytes, producer, and ruleset.",
+      "required": ["path", "sha256", "ruleset_digest"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "media_type": { "type": ["string", "null"] },
+        "validated_at": { "type": ["string", "null"] },
+        "validator_version": { "type": ["string", "null"] },
+        "ruleset_digest": { "type": "string" }
+      }
+    },
+    "dimensions": {
+      "type": "object",
+      "description": "Per-dimension scores keyed by dimension name. Each carries both the comparable raw score and its weighted contribution.",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["raw_score", "weight", "weighted_score"],
+        "properties": {
+          "raw_score": { "type": "number", "minimum": 0, "maximum": 10 },
+          "weight": { "type": "number", "minimum": 0 },
+          "weighted_score": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "disposition", "subject"],
+        "properties": {
+          "id": { "type": "string" },
+          "rule_id": { "type": ["string", "null"] },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"],
+            "description": "Risk severity. Unified vocabulary shared with enforcement."
+          },
+          "disposition": {
+            "type": "string",
+            "enum": ["must_fix", "should_fix", "consider"],
+            "description": "Required response. Only must_fix can block the gate."
+          },
+          "dimension": { "type": ["string", "null"] },
+          "subject": { "type": "string" },
+          "evidence": { "type": ["string", "null"] },
+          "confidence": {
+            "type": ["string", "null"],
+            "enum": ["high", "medium", "low", null]
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_score", "must_fix"],
+      "properties": {
+        "total_score": { "type": "number", "minimum": 0, "maximum": 10 },
+        "must_fix": { "type": "integer", "minimum": 0 },
+        "should_fix": { "type": "integer", "minimum": 0 },
+        "consider": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

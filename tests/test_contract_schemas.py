@@ -18,6 +18,7 @@ from archharness.schemas import (  # noqa: E402
     validate,
     validate_final_req,
     validate_manifest,
+    validate_validation_result,
 )
 
 READERS_DIR = ROOT / "tools" / "arch-req-readers"
@@ -35,7 +36,7 @@ from normalizer import (  # noqa: E402
 
 class SchemaRegistryTests(unittest.TestCase):
     def test_known_schema_ids_load(self):
-        self.assertEqual(set(SCHEMA_IDS), {"req/v1", "artifact/v1"})
+        self.assertEqual(set(SCHEMA_IDS), {"req/v1", "artifact/v1", "validation/v1"})
         for schema_id in SCHEMA_IDS:
             schema = load_schema(schema_id)
             self.assertEqual(schema["version"], schema_id)
@@ -65,6 +66,66 @@ class SchemaRegistryTests(unittest.TestCase):
         }
         with self.assertRaises(SchemaError):
             validate_manifest(manifest)
+
+
+def _valid_validation_result() -> dict:
+    return {
+        "schema_version": "validation/v1",
+        "source": {
+            "path": "output/diagrams/payment.png",
+            "sha256": "a" * 64,
+            "media_type": "image/png",
+            "validated_at": "2026-09-13T14:00:00+00:00",
+            "validator_version": "arch-validate/1.0",
+            "ruleset_digest": "b" * 64,
+        },
+        "dimensions": {
+            "Security_Compliance": {"raw_score": 8.5, "weight": 2.0, "weighted_score": 1.7},
+            "Connectivity": {"raw_score": 9.0, "weight": 1.0, "weighted_score": 0.9},
+        },
+        "issues": [
+            {
+                "id": "ISS-001",
+                "rule_id": "S-001",
+                "severity": "high",
+                "disposition": "must_fix",
+                "dimension": "Security_Compliance",
+                "subject": "edge api->db",
+                "evidence": "no auth label",
+                "confidence": "high",
+            }
+        ],
+        "summary": {"total_score": 7.8, "must_fix": 1, "should_fix": 0, "consider": 2},
+    }
+
+
+class ValidationContractTests(unittest.TestCase):
+    def test_valid_result_passes(self):
+        validate_validation_result(_valid_validation_result())
+
+    def test_missing_source_digest_fails(self):
+        doc = _valid_validation_result()
+        del doc["source"]["ruleset_digest"]
+        with self.assertRaises(SchemaError):
+            validate_validation_result(doc)
+
+    def test_bad_severity_fails(self):
+        doc = _valid_validation_result()
+        doc["issues"][0]["severity"] = "Critical"
+        with self.assertRaises(SchemaError):
+            validate_validation_result(doc)
+
+    def test_raw_score_out_of_range_fails(self):
+        doc = _valid_validation_result()
+        doc["dimensions"]["Connectivity"]["raw_score"] = 11
+        with self.assertRaises(SchemaError):
+            validate_validation_result(doc)
+
+    def test_empty_dimensions_fails(self):
+        doc = _valid_validation_result()
+        doc["dimensions"] = {}
+        with self.assertRaises(SchemaError):
+            validate_validation_result(doc)
 
 
 class MergerContractTests(unittest.TestCase):

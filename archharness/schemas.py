@@ -3,8 +3,9 @@
 Schemas live as JSON Schema documents under ``schemas/`` (shipped in the
 wheel via ``archharness/data/schemas``). This module resolves them and
 validates plain Python data against the subset of JSON Schema we use
-(``type``, ``required``, ``properties``, ``items``, ``enum``, ``const``,
-``pattern``). The subset is deliberately dependency-free; anything richer
+(``type``, ``required``, ``properties``, ``additionalProperties``, ``items``,
+``enum``, ``const``, ``pattern``, ``minimum``, ``maximum``,
+``minProperties``). The subset is deliberately dependency-free; anything richer
 should be validated with an external ``jsonschema`` implementation against
 the same schema files.
 """
@@ -15,11 +16,12 @@ import json
 import re
 from pathlib import Path
 
-SCHEMA_IDS = ("req/v1", "artifact/v1")
+SCHEMA_IDS = ("req/v1", "artifact/v1", "validation/v1")
 
 _SCHEMA_FILES = {
     "req/v1": "req-v1.schema.json",
     "artifact/v1": "artifact-v1.schema.json",
+    "validation/v1": "validation-v1.schema.json",
 }
 
 
@@ -86,15 +88,29 @@ def _validate(node: object, schema: dict, path: str) -> None:
     if "pattern" in schema and isinstance(node, str):
         if not re.fullmatch(schema["pattern"], node):
             raise SchemaError(f"{path}: {node!r} does not match {schema['pattern']!r}")
+    if isinstance(node, (int, float)) and not isinstance(node, bool):
+        if "minimum" in schema and node < schema["minimum"]:
+            raise SchemaError(f"{path}: {node!r} is below minimum {schema['minimum']!r}")
+        if "maximum" in schema and node > schema["maximum"]:
+            raise SchemaError(f"{path}: {node!r} is above maximum {schema['maximum']!r}")
+    if isinstance(node, dict) and "minProperties" in schema:
+        if len(node) < schema["minProperties"]:
+            raise SchemaError(f"{path}: expected at least {schema['minProperties']} properties")
     if "type" in schema:
         _check_type(node, schema["type"], path)
     if isinstance(node, dict):
         for key in schema.get("required", []) or []:
             if key not in node:
                 raise SchemaError(f"{path}: missing required key {key!r}")
-        for key, subschema in (schema.get("properties", {}) or {}).items():
+        properties = schema.get("properties", {}) or {}
+        for key, subschema in properties.items():
             if key in node:
                 _validate(node[key], subschema, f"{path}.{key}")
+        additional = schema.get("additionalProperties")
+        if isinstance(additional, dict):
+            for key, value in node.items():
+                if key not in properties:
+                    _validate(value, additional, f"{path}.{key}")
     if isinstance(node, list):
         items = schema.get("items")
         if isinstance(items, dict):
@@ -115,3 +131,8 @@ def validate_final_req(doc: object) -> None:
 def validate_manifest(manifest: object) -> None:
     """Validate an artifact manifest against ``artifact/v1``."""
     validate(manifest, "artifact/v1")
+
+
+def validate_validation_result(doc: object) -> None:
+    """Validate a validation result against ``validation/v1``."""
+    validate(doc, "validation/v1")

@@ -97,76 +97,130 @@ def main():
     if args.partial_dir:
         Path(args.partial_dir).mkdir(parents=True, exist_ok=True)
 
-    partial_files = []
-    tmpdir = tempfile.mkdtemp()
+    def _write_text(path: str, content: str, label: str) -> None:
+        try:
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(content)
+        except OSError as exc:
+            print(f"ERROR: Could not write {label} {path}: {exc}", file=sys.stderr)
+            sys.exit(2)
 
-    # ── Diagram reader ────────────────────────────────────────────────────────
-    for i, diagram_path in enumerate(args.diagram or []):
-        print(f"📐 Reading diagram: {diagram_path}")
-        req = parse_diagram(diagram_path)
-        out = partial_req_to_yaml(req)
-        pfile = os.path.join(args.partial_dir or tmpdir, f"partial-diagram-{i+1}.yaml")
-        with open(pfile, "w", encoding="utf-8") as f:
-            f.write(out)
-        partial_files.append(pfile)
-        n_comps = len(req.components)
-        n_ints  = len(req.interactions)
-        print(f"  → {n_comps} components, {n_ints} interactions extracted")
+    def _run_readers(partial_dir: str) -> list[str]:
+        collected: list[str] = []
+        # ── Diagram reader ────────────────────────────────────────────────────
+        for i, diagram_path in enumerate(args.diagram or []):
+            print(f"📐 Reading diagram: {diagram_path}")
+            try:
+                req = parse_diagram(diagram_path)
+            except (FileNotFoundError, ValueError) as exc:
+                print(f"ERROR: Cannot read diagram {diagram_path}: {exc}", file=sys.stderr)
+                sys.exit(1)
+            out = partial_req_to_yaml(req)
+            pfile = os.path.join(partial_dir, f"partial-diagram-{i+1}.yaml")
+            _write_text(pfile, out, "partial requirements")
+            collected.append(pfile)
+            print(f"  → {len(req.components)} components, {len(req.interactions)} interactions extracted")
 
-    # ── Document reader ───────────────────────────────────────────────────────
-    for i, doc_path in enumerate(args.doc or []):
-        print(f"📄 Reading document: {doc_path}")
-        req = parse_document(doc_path)
-        out = partial_req_to_yaml(req)
-        pfile = os.path.join(args.partial_dir or tmpdir, f"partial-doc-{i+1}.yaml")
-        with open(pfile, "w", encoding="utf-8") as f:
-            f.write(out)
-        partial_files.append(pfile)
-        n_apps  = len(req.applications)
-        n_comps = len(req.components)
-        print(f"  → {n_apps} applications, {n_comps} components extracted")
+        # ── Document reader ───────────────────────────────────────────────────
+        for i, doc_path in enumerate(args.doc or []):
+            print(f"📄 Reading document: {doc_path}")
+            try:
+                req = parse_document(doc_path)
+            except (FileNotFoundError, ValueError) as exc:
+                print(f"ERROR: Cannot read document {doc_path}: {exc}", file=sys.stderr)
+                sys.exit(1)
+            out = partial_req_to_yaml(req)
+            pfile = os.path.join(partial_dir, f"partial-doc-{i+1}.yaml")
+            _write_text(pfile, out, "partial requirements")
+            collected.append(pfile)
+            print(f"  → {len(req.applications)} applications, {len(req.components)} components extracted")
 
-    # ── CSV import ────────────────────────────────────────────────────────────
-    if args.csv:
-        print(f"📊 Reading CSV: {args.csv}")
-        req = fetch_from_csv(args.csv)
-        out = partial_req_to_yaml(req)
-        pfile = os.path.join(args.partial_dir or tmpdir, "partial-csv.yaml")
-        with open(pfile, "w", encoding="utf-8") as f:
-            f.write(out)
-        partial_files.append(pfile)
-        print(f"  → {len(req.applications)} applications from CSV")
+        # ── CSV import ────────────────────────────────────────────────────────
+        if args.csv:
+            print(f"📊 Reading CSV: {args.csv}")
+            try:
+                req = fetch_from_csv(args.csv)
+            except (FileNotFoundError, ValueError) as exc:
+                print(f"ERROR: Cannot read CSV {args.csv}: {exc}", file=sys.stderr)
+                sys.exit(1)
+            out = partial_req_to_yaml(req)
+            pfile = os.path.join(partial_dir, "partial-csv.yaml")
+            _write_text(pfile, out, "partial requirements")
+            collected.append(pfile)
+            print(f"  → {len(req.applications)} applications from CSV")
 
-    # ── CMDB API ──────────────────────────────────────────────────────────────
-    if args.api:
-        print(f"🔌 Fetching from CMDB API ({args.api})")
-        req = fetch_from_api(args.api, args.app_id)
-        out = partial_req_to_yaml(req)
-        pfile = os.path.join(args.partial_dir or tmpdir, "partial-api.yaml")
-        with open(pfile, "w", encoding="utf-8") as f:
-            f.write(out)
-        partial_files.append(pfile)
-        print(f"  → {len(req.applications)} applications from API")
-        if req.gaps:
-            print(f"  ⚠ {req.gaps[0]}")
+        # ── CMDB API ──────────────────────────────────────────────────────────
+        if args.api:
+            print(f"🔌 Fetching from CMDB API ({args.api})")
+            try:
+                req = fetch_from_api(args.api, args.app_id)
+            except (ValueError, OSError) as exc:
+                print(f"ERROR: CMDB fetch failed: {exc}", file=sys.stderr)
+                sys.exit(1)
+            out = partial_req_to_yaml(req)
+            pfile = os.path.join(partial_dir, "partial-api.yaml")
+            _write_text(pfile, out, "partial requirements")
+            collected.append(pfile)
+            print(f"  → {len(req.applications)} applications from API")
+            if req.gaps:
+                print(f"  ⚠ {req.gaps[0]}")
+        return collected
+
+    if args.partial_dir:
+        partial_files = _run_readers(args.partial_dir)
+    else:
+        with tempfile.TemporaryDirectory(prefix="archharness-req-") as tmpdir:
+            partial_files = _run_readers(tmpdir)
+
+            if not partial_files:
+                print("No input sources specified. Use --diagram, --doc, --csv, or --api.")
+                parser.print_help()
+                sys.exit(1)
+
+            # ── Merge ─────────────────────────────────────────────────────────
+            print(f"🔀 Finalizing {len(partial_files)} source(s)...")
+            from merger import merge_partial_reqs
+            try:
+                merged_yaml, gap_report, gaps = merge_partial_reqs(partial_files)
+            except (ValueError, OSError) as exc:
+                print(f"ERROR: Requirements merge failed: {exc}", file=sys.stderr)
+                sys.exit(1)
+
+            _write_text(args.output, merged_yaml, "final requirements")
+            print(f"✓ Final requirements: {args.output}")
+
+            report_path = args.report or "gap-report.md"
+            _write_text(report_path, gap_report, "gap report")
+            print(f"✓ Gap report: {report_path}")
+
+            n_critical = len(gaps["critical"])
+            n_conflicts = len(gaps["conflicts"])
+            if n_critical == 0 and n_conflicts == 0:
+                print("  ✓ All critical fields present. Ready for arch-design.")
+            else:
+                print(f"  ⚠ {n_critical} critical gap(s), {n_conflicts} conflict(s) — see {report_path}")
+                print("  Run /arch-requirements to fill remaining gaps via interview.")
+            return None
 
     if not partial_files:
         print("No input sources specified. Use --diagram, --doc, --csv, or --api.")
         parser.print_help()
         sys.exit(1)
 
-    # ── Merge ─────────────────────────────────────────────────────────────────
+    # ── Merge (explicit --partial-dir keeps intermediates for debugging) ──────
     print(f"🔀 Finalizing {len(partial_files)} source(s)...")
     from merger import merge_partial_reqs
-    merged_yaml, gap_report, gaps = merge_partial_reqs(partial_files)
+    try:
+        merged_yaml, gap_report, gaps = merge_partial_reqs(partial_files)
+    except (ValueError, OSError) as exc:
+        print(f"ERROR: Requirements merge failed: {exc}", file=sys.stderr)
+        sys.exit(1)
 
-    with open(args.output, "w", encoding="utf-8") as f:
-        f.write(merged_yaml)
+    _write_text(args.output, merged_yaml, "final requirements")
     print(f"✓ Final requirements: {args.output}")
 
     report_path = args.report or "gap-report.md"
-    with open(report_path, "w", encoding="utf-8") as f:
-        f.write(gap_report)
+    _write_text(report_path, gap_report, "gap report")
     print(f"✓ Gap report: {report_path}")
 
     n_critical = len(gaps["critical"])

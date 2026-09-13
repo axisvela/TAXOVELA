@@ -57,7 +57,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _print_doctor() -> int:
+def _print_doctor(workspace: str | None = None, project: str | None = None) -> int:
     try:
         root = require_archharness_root()
     except FileNotFoundError as exc:
@@ -91,17 +91,20 @@ def _print_doctor() -> int:
     if not is_repo:
         print("  note  workspace/project features require a repository checkout")
     else:
-        workspace = find_workspace()
-        if workspace is None:
+        workspace_root = workspace or find_workspace()
+        if workspace_root is None:
             print("  note  no workspace initialized — run `archharness init-workspace .`")
         else:
-            print(f"  [ok]  workspace: {workspace}")
+            print(f"  [ok]  workspace: {workspace_root}")
             try:
-                context = get_project()
-            except (FileNotFoundError, ValueError):
+                context = get_project(workspace_root, project) if (workspace or project) else get_project()
+            except (FileNotFoundError, ValueError) as exc:
+                print(f"  [!!]  project selection failed — {exc}")
+                problems.append(f"project:{project or 'default'}")
                 context = None
             if context is None:
-                print("  note  no default project — run `archharness init-project <id> --default`")
+                if not (workspace or project):
+                    print("  note  no default project — run `archharness init-project <id> --default`")
             else:
                 print(f"  [ok]  active project: {context.project_id}")
                 print(f"        input={context.input_path}")
@@ -142,7 +145,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "root":
             print(require_archharness_root())
         elif args.command == "doctor":
-            return _print_doctor()
+            return _print_doctor(args.workspace, args.project)
         return 0
     except (FileExistsError, FileNotFoundError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

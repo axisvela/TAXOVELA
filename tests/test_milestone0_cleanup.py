@@ -1,0 +1,77 @@
+"""Milestone 0 cleanup: tmp handling, doctor args, strict validation."""
+
+import contextlib
+import io
+import pathlib
+import sys
+import tempfile
+import unittest
+
+TOOLS_DIR = pathlib.Path(__file__).resolve().parents[1] / "tools"
+sys.path.insert(0, str(TOOLS_DIR))
+
+from yaml_validate import validate_file  # noqa: E402
+from archharness.cli import main as cli_main  # noqa: E402
+from archharness.workspace import init_project, init_workspace  # noqa: E402
+
+
+def run_cli(*argv: str) -> tuple[int, str, str]:
+    stdout, stderr = io.StringIO(), io.StringIO()
+    with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+        code = cli_main(list(argv))
+    return code, stdout.getvalue(), stderr.getvalue()
+
+
+class YamlStrictTests(unittest.TestCase):
+    def test_strict_reports_trailing_whitespace(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "sample.yaml"
+            path.write_text("name: demo   \nowner: it\n", encoding="utf-8")
+            result = validate_file(path, strict=True)
+            self.assertTrue(result.valid)
+            self.assertTrue(any("trailing whitespace" in w for w in result.warnings))
+
+    def test_strict_reports_top_level_duplicate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "dup.yaml"
+            path.write_text("name: a\nname: b\n", encoding="utf-8")
+            result = validate_file(path, strict=True)
+            self.assertTrue(any("duplicate key" in w for w in result.warnings))
+
+    def test_non_strict_ignores_whitespace(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "plain.yaml"
+            path.write_text("name: demo   \n", encoding="utf-8")
+            result = validate_file(path, strict=False)
+            self.assertEqual(result.warnings, [])
+
+
+class DoctorArgsTests(unittest.TestCase):
+    def test_doctor_reports_explicit_project(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            init_workspace(root)
+            init_project(root, "alpha", name="Alpha")
+            code, output, _ = run_cli("doctor", "--workspace", str(root), "--project", "alpha")
+            self.assertEqual(code, 0, output)
+            self.assertIn("alpha", output)
+
+    def test_doctor_fails_for_missing_project(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            init_workspace(root)
+            init_project(root, "alpha", name="Alpha")
+            code, output, _ = run_cli("doctor", "--workspace", str(root), "--project", "missing")
+            self.assertNotEqual(code, 0)
+
+
+class ReqReaderHygieneTests(unittest.TestCase):
+    def test_no_unbounded_mkdtemp_leak(self):
+        reader = pathlib.Path(__file__).resolve().parents[1] / "tools" / "arch-req-readers" / "req_reader.py"
+        source = reader.read_text(encoding="utf-8")
+        self.assertNotIn("tempfile.mkdtemp()", source)
+        self.assertIn("TemporaryDirectory", source)
+
+
+if __name__ == "__main__":
+    unittest.main()

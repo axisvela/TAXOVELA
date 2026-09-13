@@ -171,9 +171,10 @@ def validate_file(path: Path | str, strict: bool = False) -> ValidationResult:
         result.add_error(1, None, f"unexpected error: {e}")
         return result
 
-    # ── Optional: duplicate key detection (strict mode) ─────────────
+    # ── Optional: strict checks ───────────────────────────────────────
     if strict:
         _check_duplicate_keys(raw_text, result)
+        _check_trailing_whitespace(raw_text, result)
 
     return result
 
@@ -206,13 +207,20 @@ def _check_duplicate_keys(raw_text: str, result: ValidationResult) -> None:
         if not stripped or stripped.startswith("#") or stripped.startswith("-"):
             continue
         # Match top-level key:  word:
-        if ":" in stripped and not stripped.startswith(" "):
+        if ":" in stripped and not line.startswith((" ", "\t")):
             key = stripped.split(":", 1)[0].strip()
             if key and key[0].isalnum():
                 if key in seen:
                     result.add_warning(lineno, f"duplicate key '{key}' (first seen line {seen[key]})")
                 else:
                     seen[key] = lineno
+
+
+def _check_trailing_whitespace(raw_text: str, result: ValidationResult) -> None:
+    """Warn about trailing whitespace, as advertised by --strict."""
+    for lineno, line in enumerate(raw_text.splitlines(), start=1):
+        if line != line.rstrip(" \t"):
+            result.add_warning(lineno, "trailing whitespace")
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -272,7 +280,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--strict",
         action="store_true",
-        help="Enable additional checks: duplicate key detection, trailing whitespace warnings.",
+        help="Enable additional checks: top-level duplicate key detection and trailing whitespace warnings.",
     )
     ap.add_argument(
         "--quiet",

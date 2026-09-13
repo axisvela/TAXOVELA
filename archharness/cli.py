@@ -102,8 +102,9 @@ def _print_doctor(workspace: str | None = None, project: str | None = None) -> i
             try:
                 context = get_project(workspace_root, project) if (workspace or project) else get_project()
             except (FileNotFoundError, ValueError) as exc:
-                print(f"  [!!]  project selection failed — {exc}")
-                problems.append(f"project:{project or 'default'}")
+                if workspace or project:
+                    print(f"  [!!]  project selection failed — {exc}")
+                    problems.append(f"project:{project or 'default'}")
                 context = None
             if context is None:
                 if not (workspace or project):

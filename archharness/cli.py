@@ -7,6 +7,12 @@ import os
 import sys
 from pathlib import Path
 
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 from . import __version__
 from .paths import find_archharness_root, require_archharness_root
 from .tool_runners import run_tool
@@ -49,6 +55,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     doctor.add_argument("--workspace", default=None)
     doctor.add_argument("--project", default=None)
+
+    enforce = commands.add_parser(
+        "enforce", help="Evaluate a validation result against the gate policy (deterministic)"
+    )
+    enforce.add_argument("--validation", required=True, help="validation/v1 result file (JSON or YAML)")
+    enforce.add_argument("--policy", default=None, help="Gate policy file (default: standards/arch-gate-policy.yaml)")
+    enforce.add_argument("--output", default=None, help="Write enforcement/v1 decision JSON here")
 
     commands.add_parser("root", help="Print the ArchHarness resource root directory")
 
@@ -125,6 +138,40 @@ def _print_doctor(workspace: str | None = None, project: str | None = None) -> i
     return 0
 
 
+def _run_enforce(validation: str, policy: str | None, output: str | None) -> int:
+    """Evaluate the gate policy. Returns 0 (PASS/WARN), 1 (BLOCK), 2 (error)."""
+    import json
+
+    from .enforcement import PolicyError, evaluate_files
+    from .schemas import SchemaError
+
+    if policy is None:
+        try:
+            root = require_archharness_root()
+        except FileNotFoundError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
+        policy = str(root / "standards" / "arch-gate-policy.yaml")
+    try:
+        decision = evaluate_files(validation, policy)
+    except (SchemaError, PolicyError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    print(f"decision: {decision['decision']}")
+    for reason in decision["reasons"]:
+        print(f"  - {reason}")
+    if output:
+        try:
+            Path(output).parent.mkdir(parents=True, exist_ok=True)
+            with open(output, "w", encoding="utf-8") as handle:
+                json.dump(decision, handle, indent=2)
+        except OSError as exc:
+            print(f"ERROR: Could not write {output}: {exc}", file=sys.stderr)
+            return 2
+        print(f"✓ Enforcement decision: {output}")
+    return 0 if decision["decision"] in ("PASS", "WARN") else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     args_list = list(sys.argv[1:] if argv is None else argv)
 
@@ -151,6 +198,8 @@ def main(argv: list[str] | None = None) -> int:
             print(require_archharness_root())
         elif args.command == "doctor":
             return _print_doctor(args.workspace, args.project)
+        elif args.command == "enforce":
+            return _run_enforce(args.validation, args.policy, args.output)
         return 0
     except (FileExistsError, FileNotFoundError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

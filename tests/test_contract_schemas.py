@@ -36,7 +36,7 @@ from normalizer import (  # noqa: E402
 
 class SchemaRegistryTests(unittest.TestCase):
     def test_known_schema_ids_load(self):
-        self.assertEqual(set(SCHEMA_IDS), {"req/v1", "artifact/v1", "validation/v1"})
+        self.assertEqual(set(SCHEMA_IDS), {"req/v1", "artifact/v1", "validation/v1", "enforcement/v1"})
         for schema_id in SCHEMA_IDS:
             schema = load_schema(schema_id)
             self.assertEqual(schema["version"], schema_id)

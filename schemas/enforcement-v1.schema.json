@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/axisrobo/ea-harness/schemas/enforcement-v1.schema.json",
+  "title": "ArchHarness Enforcement Decision",
+  "version": "enforcement/v1",
+  "description": "Deterministic policy gate output. Produced only by evaluating a validation/v1 result against a versioned policy. PASS and WARN exit 0; BLOCK exits 1.",
+  "type": "object",
+  "required": ["schema_version", "decision", "validation", "policy", "evaluation", "reasons"],
+  "properties": {
+    "schema_version": {
+      "const": "enforcement/v1",
+      "description": "Contract version."
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["PASS", "WARN", "BLOCK"]
+    },
+    "validation": {
+      "type": "object",
+      "required": ["sha256", "ruleset_digest"],
+      "properties": {
+        "path": { "type": ["string", "null"] },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "ruleset_digest": { "type": "string" }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": ["digest", "block_threshold", "warn_threshold", "must_fix_zero_required"],
+      "properties": {
+        "path": { "type": ["string", "null"] },
+        "digest": {
+          "type": "string",
+          "pattern": "^([0-9a-f]{64})?$",
+          "description": "SHA-256 of the policy file. Empty only for direct API use without file provenance; evaluate_files always binds the real digest."
+        },
+        "block_threshold": { "type": "number" },
+        "warn_threshold": { "type": "number" },
+        "must_fix_zero_required": { "type": "boolean" }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "required": ["total_score", "must_fix"],
+      "properties": {
+        "total_score": { "type": "number", "minimum": 0, "maximum": 10 },
+        "must_fix": { "type": "integer", "minimum": 0 },
+        "should_fix": { "type": "integer", "minimum": 0 },
+        "consider": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "reasons": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Human-readable rule traces, one per applied gate condition."
+    },
+    "producer": { "type": ["string", "null"] },
+    "produced_at": { "type": ["string", "null"] }
+  }
+}

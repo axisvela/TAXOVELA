@@ -16,12 +16,13 @@ import json
 import re
 from pathlib import Path
 
-SCHEMA_IDS = ("req/v1", "artifact/v1", "validation/v1")
+SCHEMA_IDS = ("req/v1", "artifact/v1", "validation/v1", "enforcement/v1")
 
 _SCHEMA_FILES = {
     "req/v1": "req-v1.schema.json",
     "artifact/v1": "artifact-v1.schema.json",
     "validation/v1": "validation-v1.schema.json",
+    "enforcement/v1": "enforcement-v1.schema.json",
 }
 
 
@@ -136,3 +137,8 @@ def validate_manifest(manifest: object) -> None:
 def validate_validation_result(doc: object) -> None:
     """Validate a validation result against ``validation/v1``."""
     validate(doc, "validation/v1")
+
+
+def validate_enforcement_result(doc: object) -> None:
+    """Validate an enforcement decision against ``enforcement/v1``."""
+    validate(doc, "enforcement/v1")

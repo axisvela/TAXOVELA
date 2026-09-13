@@ -30,6 +30,7 @@ Environment variables:
 """
 
 import argparse
+import json
 import os
 import sys
 import tempfile
@@ -73,6 +74,8 @@ def main():
                         help="Gap report output file (default: gap-report.md)")
     parser.add_argument("--partial-dir", default=None,
                         help="Directory to save intermediate partial-req files (for debugging)")
+    parser.add_argument("--manifest", default=None,
+                        help="Write an artifact/v1 provenance manifest (JSON) for the output")
     parser.add_argument("--workspace", default=None, help="ArchHarness workspace root")
     parser.add_argument("--project", default=None, help="Project ID (defaults to workspace default)")
     args = parser.parse_args()
@@ -166,70 +169,62 @@ def main():
                 print(f"  ⚠ {req.gaps[0]}")
         return collected
 
+    def _finalize(partial_files: list[str]) -> None:
+        if not partial_files:
+            print("No input sources specified. Use --diagram, --doc, --csv, or --api.")
+            parser.print_help()
+            sys.exit(1)
+
+        # ── Merge ─────────────────────────────────────────────────────────
+        print(f"🔀 Finalizing {len(partial_files)} source(s)...")
+        from merger import merge_partial_reqs
+        try:
+            merged_yaml, gap_report, gaps = merge_partial_reqs(partial_files)
+        except (ValueError, OSError) as exc:
+            print(f"ERROR: Requirements merge failed: {exc}", file=sys.stderr)
+            sys.exit(1)
+
+        _write_text(args.output, merged_yaml, "final requirements")
+        print(f"✓ Final requirements: {args.output}")
+
+        if args.manifest:
+            from archharness import __version__ as _cli_version
+            from archharness.artifacts import make_manifest
+            inputs = list(args.diagram or []) + list(args.doc or [])
+            if args.csv:
+                inputs.append(args.csv)
+            if args.api:
+                inputs.append(f"api:{args.api}")
+            manifest = make_manifest(
+                artifact_id=f"req-{Path(args.output).stem}",
+                artifact_type="requirements",
+                schema="req/v1",
+                path=args.output,
+                project_root=context.project_root if context else None,
+                producer=f"archharness/{_cli_version}",
+                input_artifacts=inputs,
+            )
+            _write_text(args.manifest, json.dumps(manifest, indent=2), "artifact manifest")
+            print(f"✓ Artifact manifest: {args.manifest}")
+
+        report_path = args.report or "gap-report.md"
+        _write_text(report_path, gap_report, "gap report")
+        print(f"✓ Gap report: {report_path}")
+
+        n_critical = len(gaps["critical"])
+        n_conflicts = len(gaps["conflicts"])
+        if n_critical == 0 and n_conflicts == 0:
+            print("  ✓ All critical fields present. Ready for arch-design.")
+        else:
+            print(f"  ⚠ {n_critical} critical gap(s), {n_conflicts} conflict(s) — see {report_path}")
+            print("  Run /arch-requirements to fill remaining gaps via interview.")
+
     if args.partial_dir:
-        partial_files = _run_readers(args.partial_dir)
+        # Explicit --partial-dir keeps intermediates for debugging.
+        _finalize(_run_readers(args.partial_dir))
     else:
         with tempfile.TemporaryDirectory(prefix="archharness-req-") as tmpdir:
-            partial_files = _run_readers(tmpdir)
-
-            if not partial_files:
-                print("No input sources specified. Use --diagram, --doc, --csv, or --api.")
-                parser.print_help()
-                sys.exit(1)
-
-            # ── Merge ─────────────────────────────────────────────────────────
-            print(f"🔀 Finalizing {len(partial_files)} source(s)...")
-            from merger import merge_partial_reqs
-            try:
-                merged_yaml, gap_report, gaps = merge_partial_reqs(partial_files)
-            except (ValueError, OSError) as exc:
-                print(f"ERROR: Requirements merge failed: {exc}", file=sys.stderr)
-                sys.exit(1)
-
-            _write_text(args.output, merged_yaml, "final requirements")
-            print(f"✓ Final requirements: {args.output}")
-
-            report_path = args.report or "gap-report.md"
-            _write_text(report_path, gap_report, "gap report")
-            print(f"✓ Gap report: {report_path}")
-
-            n_critical = len(gaps["critical"])
-            n_conflicts = len(gaps["conflicts"])
-            if n_critical == 0 and n_conflicts == 0:
-                print("  ✓ All critical fields present. Ready for arch-design.")
-            else:
-                print(f"  ⚠ {n_critical} critical gap(s), {n_conflicts} conflict(s) — see {report_path}")
-                print("  Run /arch-requirements to fill remaining gaps via interview.")
-            return None
-
-    if not partial_files:
-        print("No input sources specified. Use --diagram, --doc, --csv, or --api.")
-        parser.print_help()
-        sys.exit(1)
-
-    # ── Merge (explicit --partial-dir keeps intermediates for debugging) ──────
-    print(f"🔀 Finalizing {len(partial_files)} source(s)...")
-    from merger import merge_partial_reqs
-    try:
-        merged_yaml, gap_report, gaps = merge_partial_reqs(partial_files)
-    except (ValueError, OSError) as exc:
-        print(f"ERROR: Requirements merge failed: {exc}", file=sys.stderr)
-        sys.exit(1)
-
-    _write_text(args.output, merged_yaml, "final requirements")
-    print(f"✓ Final requirements: {args.output}")
-
-    report_path = args.report or "gap-report.md"
-    _write_text(report_path, gap_report, "gap report")
-    print(f"✓ Gap report: {report_path}")
-
-    n_critical = len(gaps["critical"])
-    n_conflicts = len(gaps["conflicts"])
-    if n_critical == 0 and n_conflicts == 0:
-        print("  ✓ All critical fields present. Ready for arch-design.")
-    else:
-        print(f"  ⚠ {n_critical} critical gap(s), {n_conflicts} conflict(s) — see {report_path}")
-        print("  Run /arch-requirements to fill remaining gaps via interview.")
+            _finalize(_run_readers(tmpdir))
 
 
 if __name__ == "__main__":

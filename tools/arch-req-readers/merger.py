@@ -595,6 +595,7 @@ def main():
     parser.add_argument("files", nargs="+", help="Partial req YAML files to merge")
     parser.add_argument("-o", "--output", default="merged-req.yaml", help="Output merged req YAML")
     parser.add_argument("--report", default="gap-report.md", help="Gap report output file")
+    parser.add_argument("--manifest", default=None, help="Write an artifact/v1 provenance manifest (JSON)")
     args = parser.parse_args()
 
     merged_yaml, gap_report, gaps = merge_partial_reqs(args.files)
@@ -602,6 +603,22 @@ def main():
     with open(args.output, "w", encoding="utf-8") as f:
         f.write(merged_yaml)
     print(f"✓ Merged requirements: {args.output}")
+
+    if args.manifest:
+        import json
+        from archharness import __version__ as _cli_version
+        from archharness.artifacts import make_manifest
+        manifest = make_manifest(
+            artifact_id=f"req-{Path(args.output).stem}",
+            artifact_type="requirements",
+            schema="req/v1",
+            path=args.output,
+            producer=f"archharness/{_cli_version}",
+            input_artifacts=[Path(f).name for f in args.files],
+        )
+        with open(args.manifest, "w", encoding="utf-8") as f:
+            f.write(json.dumps(manifest, indent=2))
+        print(f"✓ Artifact manifest: {args.manifest}")
 
     with open(args.report, "w", encoding="utf-8") as f:
         f.write(gap_report)

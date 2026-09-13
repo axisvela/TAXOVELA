@@ -65,6 +65,45 @@ class DoctorArgsTests(unittest.TestCase):
             self.assertNotEqual(code, 0)
 
 
+class DoctorLayoutTests(unittest.TestCase):
+    def _make_root(self, base: pathlib.Path, *, repo: bool) -> pathlib.Path:
+        root = base / ("repo" if repo else "pkg")
+        (root / "tools" / "arch-diagram-gen").mkdir(parents=True)
+        (root / "tools" / "arch-req-readers").mkdir(parents=True)
+        (root / "standards").mkdir(parents=True)
+        (root / "config.yaml").write_text("company: {}\n", encoding="utf-8")
+        if repo:
+            (root / ".claude" / "skills").mkdir(parents=True)
+            (root / ".opencode" / "agents").mkdir(parents=True)
+            (root / ".agents" / "skills").mkdir(parents=True)
+        else:
+            (root / "skills").mkdir(parents=True)
+        return root
+
+    def test_package_layout_is_not_repo(self):
+        import os
+
+        with tempfile.TemporaryDirectory() as tmp:
+            home = self._make_root(pathlib.Path(tmp), repo=False)
+            previous = os.environ.get("ARCHHARNESS_HOME")
+            os.environ["ARCHHARNESS_HOME"] = str(home)
+            try:
+                with tempfile.TemporaryDirectory() as work:
+                    old_cwd = pathlib.Path.cwd()
+                    os.chdir(work)
+                    try:
+                        code, out, _ = run_cli("doctor")
+                    finally:
+                        os.chdir(old_cwd)
+            finally:
+                if previous is None:
+                    os.environ.pop("ARCHHARNESS_HOME", None)
+                else:
+                    os.environ["ARCHHARNESS_HOME"] = previous
+            self.assertEqual(code, 0, out)
+            self.assertIn("installed package data", out)
+
+
 class ReqReaderHygieneTests(unittest.TestCase):
     def test_no_unbounded_mkdtemp_leak(self):
         reader = pathlib.Path(__file__).resolve().parents[1] / "tools" / "arch-req-readers" / "req_reader.py"

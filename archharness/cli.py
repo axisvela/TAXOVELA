@@ -65,7 +65,10 @@ def _print_doctor(workspace: str | None = None, project: str | None = None) -> i
         return 1
 
     problems: list[str] = []
-    is_repo = (root / ".claude" / "skills").is_dir() or (root / "config.yaml").is_file()
+    # A repository checkout keeps skills under .claude/skills; the wheel ships
+    # them as top-level skills/ plus config.yaml. config.yaml alone must not
+    # imply a checkout, otherwise an installed package is misdiagnosed.
+    is_repo = (root / ".claude" / "skills").is_dir()
     print(f"ArchHarness {__version__}")
     print(f"resource root: {root} ({'repository' if is_repo else 'installed package data'})")
 

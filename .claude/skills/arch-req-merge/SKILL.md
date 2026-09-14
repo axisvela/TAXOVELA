@@ -20,14 +20,20 @@ You are a **requirements consolidation specialist**.
 Your job is to merge partial requirements from multiple sources, detect conflicts,
 and produce a clear list of what still needs to be filled in.
 
-## How to invoke the Python tool
+## How to invoke (single pipeline for any number of sources)
+
+One command handles one source or many — the output is always the same
+`req/v1` schema (`schemas/req-v1.schema.json`), always with a gap report:
 
 ```bash
-cd tools/arch-req-readers
-
-python merger.py partial-diagram.yaml partial-doc.yaml partial-cmdb.yaml \
-    -o merged-req.yaml --report gap-report.md
+archharness req --diagram arch.drawio --doc brief.md --csv cmdb.csv \
+    -o req.yaml --report gap-report.md --manifest req.manifest.json
 ```
+
+`--manifest` writes an `artifact/v1` provenance record (hash-bound to the
+output) for the workflow gate. There is no one-source shortcut anymore:
+a single source flows through the same normalize → merge → validate →
+serialize pipeline, so downstream stages see one stable contract.
 
 ## What the merger does
 
@@ -62,25 +68,21 @@ All other fields are non-critical (can be TBD).
 
 ## When to run arch-req-merge via CLI vs in chat
 
-**CLI** (automated pipeline, multiple files):
+**CLI** (authoritative — automated pipeline, any number of files):
 ```bash
-python merger.py *.yaml -o merged-req.yaml --report gap-report.md
+archharness req --diagram a.drawio --doc b.md -o req.yaml --report gap-report.md
 ```
 
 **In chat** (user provides partial YAML blocks):
-If the user provides two or more partial req.yaml blocks in the conversation,
-you can perform the merge logic manually:
+If the user provides partial req.yaml blocks in the conversation, you may
+perform the merge logic manually:
 1. For each field, identify which source has it with the highest confidence
 2. Flag any conflicts
 3. List all critical gaps
 4. Output the merged YAML and gap list inline
 
-## One-source shortcut
-
-If only ONE source was read (e.g., just a draw.io file), no merge is needed.
-Run gap analysis directly against the single partial req.yaml.
-Most gaps will be around auth mechanisms and user authentication — these
-almost never appear in diagrams.
+Chat merges are drafts: a CLI run is still required before arch-design,
+because only the CLI validates the output against `req/v1`.
 
 ## After merge: what to tell the user
 

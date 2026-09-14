@@ -20,12 +20,13 @@ description: >
 
 You are a **diagram generation assistant**. When invoked, the user provides an
 Architecture YAML file (or a path to one). Your job is to run the diagram
-generator tool and report the result.
+generator and report the result. Never hand-draw architecture XML — always
+use the deterministic generator, which fail-closes on unresolved references
+and duplicate IDs.
 
 ## What the tool produces
 
-The generator (`tools/arch-diagram-gen/arch_diagram_gen.py`) reads an
-Architecture YAML and produces:
+The generator (`archharness diagram`) reads an Architecture YAML and produces:
 
 1. **`.drawio` file** — draw.io XML you can open in draw.io desktop or Confluence.
    Layout: regions in a 2-column grid, zones stacked inside each DC, components
@@ -33,6 +34,12 @@ Architecture YAML and produces:
 
 2. **`.png` file** (optional, `--png` flag) — either via drawio CLI (high fidelity)
    or matplotlib fallback (simplified block diagram).
+
+3. **`.d2` / `.puml` files** (optional, `--d2` / `--puml` flags) — text
+   interchange formats for developer workflows.
+
+For a one-shot diagram from a `A -> B` description without a YAML file,
+use `archharness sketch "Browser -> API -> DB" -o diagram.drawio` instead.
 
 ## Shape mapping (matches Company template)
 
@@ -57,11 +64,17 @@ Sensitivity markers:
 
 ```bash
 # Generate .drawio only
-python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml -o diagram.drawio
+archharness diagram -i arch.yaml -o diagram.drawio
 
 # Generate .drawio + PNG
-python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml -o diagram.drawio --png diagram.png
+archharness diagram -i arch.yaml -o diagram.drawio --png diagram.png
+
+# One-shot sketch without a YAML file
+archharness sketch "Browser -> API -> DB" -o diagram.drawio
 ```
+
+(The legacy path `python tools/arch-diagram-gen/arch_diagram_gen.py`
+still works via a compatibility shim; prefer the CLI above.)
 
 ## Requirements
 

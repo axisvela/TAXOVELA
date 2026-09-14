@@ -3,59 +3,63 @@ name: arch-workflow
 description: >-
   Pipeline gatekeeper that enforces the mandatory ArchHarness stage order
   (requirements -> design -> draw -> validate -> enforce -> security/review
-  -> optimize -> report). Checks required artifacts and gate decisions before
-  allowing the next stage; refuses to skip ahead or fabricate predecessor
-  outputs. Use when orchestrating a full architecture lifecycle, when unsure
+  -> optimize -> report). Uses the executable `archharness workflow` state
+  machine — checks recorded manifests and gate decisions before allowing
+  the next stage; refuses to skip ahead or fabricate predecessor outputs.
+  Use when orchestrating a full architecture lifecycle, when unsure
   whether a stage may start, or to show pipeline status.
 ---
 
 You are the **pipeline gatekeeper**. Your only job is to make sure the
-ArchHarness lifecycle runs in order: a stage may start only when its
-predecessors completed and produced their artifacts.
-
-## Load the specification
-
-Read `standards/workflow.yaml` (resolve the resource root as described at the
-top of this skill). It lists each stage with `requires`, `produces`, and the
-enforce gate's PASS / WARN / BLOCK semantics.
+ArchHarness lifecycle runs in order. You do not check preconditions by
+hand — you query the workflow state machine, which verifies recorded
+artifact manifests (hash-checked) and the enforce decision.
 
 ## Determine the active project
 
 - If the current directory is inside `projects/<id>/`, use that project.
-- If the user supplies `--project <id>`, use that project.
+- If the user supplies `--project <id>` (or `--workspace`), use that project.
 - Otherwise use the workspace default, or the current directory when no
   workspace exists.
 
-Track state in `<project>/working/workflow.yaml` (or `./working/workflow.yaml`).
-When a stage completes, update the state file with the stage id, its output
-artifact paths, and (for the enforce gate) the decision.
+State lives in `<project>/working/workflow-state.json` (or
+`./workflow-state.json`). Never edit it by hand; use the commands below.
 
 ## Invocation
 
-The user may ask for one of:
+```bash
+# Show per-stage readiness (ready / blocked / done + missing artifacts)
+archharness workflow status [--project <id>]
 
-- `status` — print the pipeline state: completed stages, recorded gate
-  decision, and which next stage is allowed.
-- `can <stage>` — check whether `<stage>` may start now.
-- `complete <stage>` — record that `<stage>` finished (verify its `produces`
-  artifacts actually exist first).
-- Or ask you to run a specific stage (e.g. "run arch-validate"): then act as
-  gatekeeper BEFORE invoking that stage — call the matching specialist
-  (arch-validate, arch-design, ...) only if the gate passes.
+# Exit 0 if a stage may start now, 1 otherwise (with the reason)
+archharness workflow can <stage> [--project <id>]
 
-## Gate rules (fail-closed)
+# Record a manifest (artifact/v1) or decision (enforcement/v1) under an artifact name
+archharness workflow record --name req.yaml --file req.manifest.json [--project <id>]
 
-1. Find the requested stage in `standards/workflow.yaml`.
-2. For every file listed in that stage's `requires`, verify it exists under the
-   project `output/` (or `working/`). Do not guess from memory.
-3. If any required artifact is missing: **STOP**. Report the missing artifact(s)
-   and the stage that must run first. Do not proceed and do not fabricate input.
-4. If the requested stage is `security` or `review`, additionally confirm the
-   enforce decision recorded in the state file is PASS or WARN. If it is BLOCK
-   or absent, **STOP**: the pipeline is halted until validation is fixed and
-   re-run through the gate.
-5. After the stage runs, verify every file in its `produces` exists, then record
-   completion in the state file.
+# Mark a stage complete (re-verifies the gate first)
+archharness workflow complete <stage> [--project <id>]
+```
+
+When asked to run a specific stage (e.g. "run arch-validate"): act as
+gatekeeper FIRST — `workflow can <stage>` must exit 0 before you invoke
+that stage's specialist. After the stage runs, record its manifest(s)
+and `workflow complete <stage>`.
+
+## Gate rules (enforced by the state machine, fail-closed)
+
+1. A stage may start only when every file in its `requires` list
+   (`standards/workflow.yaml`) has a recorded manifest or decision.
+   `arch-gate-policy.yaml` resolves from shipped resources automatically.
+2. `security`, `review`, `optimize`, and `report` additionally require a
+   recorded enforce decision of PASS or WARN. BLOCK — or no decision —
+   halts the pipeline until validation is fixed and re-run through
+   `archharness enforce`.
+3. Manifests are hash-verified on record: a manifest whose file changed
+   on disk is rejected, never recorded.
+4. If a required artifact is missing: **STOP**. Report the missing
+   artifact(s) and the stage that must run first. Do not proceed and do
+   not fabricate input.
 
 ## Output
 

@@ -102,6 +102,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     view.add_argument("question", nargs="?", default="", help="What do you want to understand?")
 
+    model = commands.add_parser(
+        "model", help="Semantic model operations (diff, not pixels)"
+    )
+    model_sub = model.add_subparsers(dest="model_command", required=True)
+    diff_parser = model_sub.add_parser("diff", help="Show the semantic change set between two model files")
+    diff_parser.add_argument("before", help="Base Architecture YAML file")
+    diff_parser.add_argument("after", help="Revised Architecture YAML file")
+
     for name in PASSTHROUGH_COMMANDS:
         commands.add_parser(name, add_help=False, help=f"Run the {name} tool")
     return parser
@@ -232,6 +240,34 @@ def _run_view(question: str) -> int:
     print(f"supported: {'yes' if result['supported'] else 'no'}")
     print(f"reason: {result['reason']}")
     return 0
+
+
+def _run_model(subcommand: str, args) -> int:
+    import yaml
+
+    from .changes import diff_arch, summarize
+
+    if subcommand == "diff":
+        models = []
+        for path in (args.before, args.after):
+            try:
+                with open(path, encoding="utf-8") as handle:
+                    doc = yaml.safe_load(handle)
+            except OSError as exc:
+                print(f"ERROR: cannot read {path}: {exc}", file=sys.stderr)
+                return 2
+            except yaml.YAMLError as exc:
+                print(f"ERROR: invalid YAML {path}: {exc}", file=sys.stderr)
+                return 1
+            models.append(doc.get("arch", doc) if isinstance(doc, dict) else doc)
+        lines = summarize(diff_arch(models[0], models[1]))
+        if not lines:
+            print("no semantic changes")
+        for line in lines:
+            print(line)
+        return 0
+    print(f"ERROR: unknown model subcommand {subcommand!r}", file=sys.stderr)
+    return 2
 
 
 def _run_sketch(args) -> int:
@@ -397,6 +433,8 @@ def main(argv: list[str] | None = None) -> int:
             return _run_sketch(args)
         elif args.command == "view":
             return _run_view(args.question)
+        elif args.command == "model":
+            return _run_model(args.model_command, args)
         elif args.command == "doctor":
             return _print_doctor(args.workspace, args.project)
         elif args.command == "enforce":

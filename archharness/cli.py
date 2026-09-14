@@ -109,6 +109,11 @@ def build_parser() -> argparse.ArgumentParser:
     diff_parser = model_sub.add_parser("diff", help="Show the semantic change set between two model files")
     diff_parser.add_argument("before", help="Base Architecture YAML file")
     diff_parser.add_argument("after", help="Revised Architecture YAML file")
+    apply_parser = model_sub.add_parser("apply", help="Apply a change set file to a model (dry-run by default)")
+    apply_parser.add_argument("base", help="Base Architecture YAML file")
+    apply_parser.add_argument("--changeset", required=True, help="Change set file (JSON or YAML with an `ops` list)")
+    apply_parser.add_argument("-o", "--output", default=None, help="Output model file (required unless --dry-run)")
+    apply_parser.add_argument("--dry-run", action="store_true", help="Print the summary without writing")
 
     for name in PASSTHROUGH_COMMANDS:
         commands.add_parser(name, add_help=False, help=f"Run the {name} tool")
@@ -265,6 +270,51 @@ def _run_model(subcommand: str, args) -> int:
             print("no semantic changes")
         for line in lines:
             print(line)
+        return 0
+    if subcommand == "apply":
+        from .changes import ChangeError, apply_changeset
+
+        try:
+            with open(args.base, encoding="utf-8") as handle:
+                base = yaml.safe_load(handle)
+        except OSError as exc:
+            print(f"ERROR: cannot read {args.base}: {exc}", file=sys.stderr)
+            return 2
+        except yaml.YAMLError as exc:
+            print(f"ERROR: invalid YAML {args.base}: {exc}", file=sys.stderr)
+            return 1
+        try:
+            with open(args.changeset, encoding="utf-8") as handle:
+                changeset = yaml.safe_load(handle)
+        except OSError as exc:
+            print(f"ERROR: cannot read {args.changeset}: {exc}", file=sys.stderr)
+            return 2
+        except yaml.YAMLError as exc:
+            print(f"ERROR: invalid change set {args.changeset}: {exc}", file=sys.stderr)
+            return 1
+        base = base.get("arch", base) if isinstance(base, dict) else base
+        try:
+            result = apply_changeset(base, changeset)
+        except ChangeError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 1
+        for line in summarize(changeset):
+            print(line)
+        if args.dry_run:
+            print("dry-run: model unchanged")
+            return 0
+        if not args.output:
+            print("ERROR: --output is required unless --dry-run", file=sys.stderr)
+            return 2
+        from .files import atomic_write_text
+
+        try:
+            atomic_write_text(args.output, yaml.safe_dump(
+                result, allow_unicode=True, sort_keys=False))
+        except OSError as exc:
+            print(f"ERROR: Could not write {args.output}: {exc}", file=sys.stderr)
+            return 2
+        print(f"✓ Model written: {args.output}")
         return 0
     print(f"ERROR: unknown model subcommand {subcommand!r}", file=sys.stderr)
     return 2

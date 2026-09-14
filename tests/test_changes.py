@@ -95,6 +95,44 @@ class ModelCliTests(unittest.TestCase):
         code, _ = run_cli("model", "diff", "nope.yaml", "nope2.yaml")
         self.assertEqual(code, 2)
 
+    def test_model_apply_dry_run_and_write(self):
+        import json
+
+        with tempfile.TemporaryDirectory() as tmp:
+            base = pathlib.Path(tmp) / "base.yaml"
+            base.write_text(yaml.safe_dump(compile_sketch("A -> B")), encoding="utf-8")
+            changeset = {"ops": [{"op": "add_node", "node": {"id": "c", "name": "C"}}]}
+            cs_file = pathlib.Path(tmp) / "cs.json"
+            cs_file.write_text(json.dumps(changeset), encoding="utf-8")
+
+            code, out = run_cli("model", "apply", str(base),
+                                "--changeset", str(cs_file), "--dry-run")
+            self.assertEqual(code, 0, out)
+            self.assertIn("+ node C", out)
+            # dry-run writes nothing new
+            self.assertEqual(sorted(p.name for p in pathlib.Path(tmp).iterdir()),
+                             ["base.yaml", "cs.json"])
+
+            out_model = str(pathlib.Path(tmp) / "out.yaml")
+            code, out = run_cli("model", "apply", str(base),
+                                "--changeset", str(cs_file), "-o", out_model)
+            self.assertEqual(code, 0, out)
+            result = yaml.safe_load(pathlib.Path(out_model).read_text(encoding="utf-8"))
+            names = [c["name"] for z in result["deployment"][0]["network_zones"]
+                     for c in z["components"]]
+            self.assertIn("C", names)
+
+    def test_model_apply_rejects_bad_changeset(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = pathlib.Path(tmp) / "base.yaml"
+            base.write_text(yaml.safe_dump(compile_sketch("A -> B")), encoding="utf-8")
+            cs_file = pathlib.Path(tmp) / "cs.json"
+            cs_file.write_text('{"ops": [{"op": "teleport"}]}', encoding="utf-8")
+            code, _ = run_cli("model", "apply", str(base),
+                              "--changeset", str(cs_file),
+                              "-o", str(pathlib.Path(tmp) / "o.yaml"))
+            self.assertEqual(code, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

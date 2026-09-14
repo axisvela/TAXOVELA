@@ -51,7 +51,8 @@ from normalizer     import partial_req_to_yaml
 from archharness.workspace import discover_project, get_project
 
 
-def main():
+def main(argv: list[str] | None = None) -> int:
+    """Run the readers and merge. Returns a process-style exit code (no sys.exit)."""
     parser = argparse.ArgumentParser(
         description="Extract and merge requirements from multiple sources",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -78,7 +79,7 @@ def main():
                         help="Write an artifact/v1 provenance manifest (JSON) for the output")
     parser.add_argument("--workspace", default=None, help="ArchHarness workspace root")
     parser.add_argument("--project", default=None, help="Project ID (defaults to workspace default)")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     context = get_project(args.workspace, args.project) if (args.workspace or args.project) else discover_project()
     if context:
@@ -100,13 +101,23 @@ def main():
     if args.partial_dir:
         Path(args.partial_dir).mkdir(parents=True, exist_ok=True)
 
+    class _WriteError(OSError):
+        pass
+
+    class _InputError(ValueError):
+        pass
+
+    def _fail_input(message: str) -> None:
+        print(f"ERROR: {message}", file=sys.stderr)
+        raise _InputError(message)
+
     def _write_text(path: str, content: str, label: str) -> None:
         try:
             with open(path, "w", encoding="utf-8") as handle:
                 handle.write(content)
         except OSError as exc:
             print(f"ERROR: Could not write {label} {path}: {exc}", file=sys.stderr)
-            sys.exit(2)
+            raise _WriteError(str(path)) from exc
 
     def _run_readers(partial_dir: str) -> list[str]:
         collected: list[str] = []
@@ -116,8 +127,7 @@ def main():
             try:
                 req = parse_diagram(diagram_path)
             except (FileNotFoundError, ValueError) as exc:
-                print(f"ERROR: Cannot read diagram {diagram_path}: {exc}", file=sys.stderr)
-                sys.exit(1)
+                _fail_input(f"Cannot read diagram {diagram_path}: {exc}")
             out = partial_req_to_yaml(req)
             pfile = os.path.join(partial_dir, f"partial-diagram-{i+1}.yaml")
             _write_text(pfile, out, "partial requirements")
@@ -130,8 +140,7 @@ def main():
             try:
                 req = parse_document(doc_path)
             except (FileNotFoundError, ValueError) as exc:
-                print(f"ERROR: Cannot read document {doc_path}: {exc}", file=sys.stderr)
-                sys.exit(1)
+                _fail_input(f"Cannot read document {doc_path}: {exc}")
             out = partial_req_to_yaml(req)
             pfile = os.path.join(partial_dir, f"partial-doc-{i+1}.yaml")
             _write_text(pfile, out, "partial requirements")
@@ -144,8 +153,7 @@ def main():
             try:
                 req = fetch_from_csv(args.csv)
             except (FileNotFoundError, ValueError) as exc:
-                print(f"ERROR: Cannot read CSV {args.csv}: {exc}", file=sys.stderr)
-                sys.exit(1)
+                _fail_input(f"Cannot read CSV {args.csv}: {exc}")
             out = partial_req_to_yaml(req)
             pfile = os.path.join(partial_dir, "partial-csv.yaml")
             _write_text(pfile, out, "partial requirements")
@@ -158,8 +166,7 @@ def main():
             try:
                 req = fetch_from_api(args.api, args.app_id)
             except (ValueError, OSError) as exc:
-                print(f"ERROR: CMDB fetch failed: {exc}", file=sys.stderr)
-                sys.exit(1)
+                _fail_input(f"CMDB fetch failed: {exc}")
             out = partial_req_to_yaml(req)
             pfile = os.path.join(partial_dir, "partial-api.yaml")
             _write_text(pfile, out, "partial requirements")
@@ -169,11 +176,11 @@ def main():
                 print(f"  ⚠ {req.gaps[0]}")
         return collected
 
-    def _finalize(partial_files: list[str]) -> None:
+    def _finalize(partial_files: list[str]) -> int:
         if not partial_files:
             print("No input sources specified. Use --diagram, --doc, --csv, or --api.")
             parser.print_help()
-            sys.exit(1)
+            return 1
 
         # ── Merge ─────────────────────────────────────────────────────────
         print(f"🔀 Finalizing {len(partial_files)} source(s)...")
@@ -182,7 +189,7 @@ def main():
             merged_yaml, gap_report, gaps = merge_partial_reqs(partial_files)
         except (ValueError, OSError) as exc:
             print(f"ERROR: Requirements merge failed: {exc}", file=sys.stderr)
-            sys.exit(1)
+            return 1
 
         _write_text(args.output, merged_yaml, "final requirements")
         print(f"✓ Final requirements: {args.output}")
@@ -218,14 +225,19 @@ def main():
         else:
             print(f"  ⚠ {n_critical} critical gap(s), {n_conflicts} conflict(s) — see {report_path}")
             print("  Run /arch-requirements to fill remaining gaps via interview.")
+        return 0
 
-    if args.partial_dir:
-        # Explicit --partial-dir keeps intermediates for debugging.
-        _finalize(_run_readers(args.partial_dir))
-    else:
+    try:
+        if args.partial_dir:
+            # Explicit --partial-dir keeps intermediates for debugging.
+            return _finalize(_run_readers(args.partial_dir))
         with tempfile.TemporaryDirectory(prefix="archharness-req-") as tmpdir:
-            _finalize(_run_readers(tmpdir))
+            return _finalize(_run_readers(tmpdir))
+    except _WriteError:
+        return 2
+    except _InputError:
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

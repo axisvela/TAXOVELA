@@ -90,12 +90,13 @@ def _write(path: str, content: str, label: str):
         print(f"✓ {label} written: {path}")
     except IOError as e:
         print(f"ERROR: Could not write {path}: {e}", file=sys.stderr)
-        sys.exit(2)
+        raise
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
-def main():
+def main(argv: list[str] | None = None) -> int:
+    """Convert Architecture YAML to diagram formats. Returns an exit code."""
     parser = argparse.ArgumentParser(
         description="Convert Architecture YAML to diagram formats"
     )
@@ -106,7 +107,7 @@ def main():
     parser.add_argument("--puml", default=None, help="Output PlantUML file (.puml)")
     parser.add_argument("--workspace", default=None, help="ArchHarness workspace root")
     parser.add_argument("--project", default=None, help="Project ID (defaults to workspace default)")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     context = get_project(args.workspace, args.project) if (args.workspace or args.project) else discover_project()
     if context:
@@ -130,13 +131,13 @@ def main():
     # ── Load YAML ────────────────────────────────────────────────────────────
     if not os.path.exists(args.input):
         print(f"ERROR: Input file not found: {args.input}", file=sys.stderr)
-        sys.exit(1)
+        return 1
     try:
         with open(args.input, "r", encoding="utf-8") as f:
             raw = yaml.safe_load(f)
     except yaml.YAMLError as e:
         print(f"ERROR: Failed to parse YAML: {e}", file=sys.stderr)
-        sys.exit(1)
+        return 1
 
     arch = raw.get("arch", raw) if isinstance(raw, dict) else raw
 
@@ -153,8 +154,11 @@ def main():
             import traceback
             print(f"ERROR: draw.io generation failed: {e}", file=sys.stderr)
             traceback.print_exc()
-            sys.exit(1)
-        _write(out_path, xml_str, "draw.io")
+            return 1
+        try:
+            _write(out_path, xml_str, "draw.io")
+        except OSError:
+            return 2
 
         if args.png:
             print(f"  Attempting PNG export → {args.png}")
@@ -166,7 +170,7 @@ def main():
             else:
                 print("  ✗ PNG export failed. Install drawio CLI or: pip install matplotlib",
                       file=sys.stderr)
-                sys.exit(2)
+                return 2
 
     # ── D2 ────────────────────────────────────────────────────────────────────
     if args.d2:
@@ -177,8 +181,11 @@ def main():
             import traceback
             print(f"ERROR: D2 generation failed: {e}", file=sys.stderr)
             traceback.print_exc()
-            sys.exit(1)
-        _write(args.d2, d2_str, "D2")
+            return 1
+        try:
+            _write(args.d2, d2_str, "D2")
+        except OSError:
+            return 2
         print("  Render with: d2 --layout=elk " + args.d2 + " output.svg")
 
     # ── PlantUML ──────────────────────────────────────────────────────────────
@@ -190,12 +197,16 @@ def main():
             import traceback
             print(f"ERROR: PlantUML generation failed: {e}", file=sys.stderr)
             traceback.print_exc()
-            sys.exit(1)
-        _write(args.puml, puml_str, "PlantUML")
+            return 1
+        try:
+            _write(args.puml, puml_str, "PlantUML")
+        except OSError:
+            return 2
         print("  Render with: plantuml -tsvg " + args.puml)
         print("  Or paste at: https://www.plantuml.com/plantuml/")
         print("  Or import in draw.io: Extras → Edit Diagram → paste PlantUML")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

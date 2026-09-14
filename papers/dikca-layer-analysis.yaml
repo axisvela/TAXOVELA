@@ -9,6 +9,15 @@
 #   in C or A. This is not a design flaw — it is the exact
 #   configuration DIKCA diagnoses as "knowledge without control."
 # ============================================================
+# Evidence snapshot note (2026-09-13):
+#   Line counts below (e.g. total_rule_lines: 1223) and the
+#   "C-absent / components_with_enforcement: 0" claim were recorded
+#   against the May-Aug 2026 codebase. Deterministic enforcement
+#   (archharness/enforcement.py, enforcement/v1, `archharness enforce`)
+#   landed in Sep 2026 and supersedes the C-layer gap for the
+#   requirements -> validate -> enforce path. Do not edit the numbers
+#   below in place — record any re-measurement as a new dated snapshot.
+# ============================================================
 
 # ──────────────────────────────────────────────────────────
 # D — Data layer (raw architectural artifacts)

@@ -34,7 +34,7 @@ benchmark/
 ## Quick start
 
 ```powershell
-cd D:\project\ea-harness\benchmark\scripts
+cd <repository-root>\benchmark\scripts
 
 # Local smoke test, no API calls and no OpenCode calls
 .\run_benchmark.ps1 -DryRun -Repeats 1 -Runs 1

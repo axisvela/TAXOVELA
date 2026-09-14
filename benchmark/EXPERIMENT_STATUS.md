@@ -8,14 +8,14 @@ This note records the current benchmark design, migration status, pilot results,
 
 ## Repository status
 
-- Canonical working repository: `D:\project\ea-harness`
+- Canonical working repository: `<repository-root>`
 - Deprecated working copy: `D:\project\arch-harness`
 - Action: continue all paper experiments in `ea-harness`; do not use `arch-harness` except as a temporary backup until the final experiment results are confirmed.
 
 The benchmark suite has been migrated into:
 
 ```text
-D:\project\ea-harness\benchmark
+<repository-root>\benchmark
 ```
 
 ## Editor request being addressed
@@ -113,7 +113,7 @@ deepseek/deepseek-v4-flash
 Command:
 
 ```powershell
-cd D:\project\ea-harness
+cd <repository-root>
 powershell -NoProfile -ExecutionPolicy Bypass -File "benchmark\scripts\run_benchmark.ps1" -SkipExp2 -Repeats 1
 ```
 
@@ -156,7 +156,7 @@ This is a pilot result with `Repeats = 1`. It should not be treated as publicati
 Command:
 
 ```powershell
-cd D:\project\ea-harness
+cd <repository-root>
 powershell -NoProfile -ExecutionPolicy Bypass -File "benchmark\scripts\run_benchmark.ps1" -SkipExp2 -Repeats 5
 ```
 
@@ -190,7 +190,7 @@ Interpretation for revision draft:
 Optional confirmation run, only if a larger sample is needed:
 
 ```powershell
-cd D:\project\ea-harness
+cd <repository-root>
 powershell -NoProfile -ExecutionPolicy Bypass -File "benchmark\scripts\run_benchmark.ps1" -SkipExp2 -Repeats 10
 ```
 
@@ -218,7 +218,7 @@ Supported backends:
 ### Recommended Qwen run
 
 ```powershell
-cd D:\project\ea-harness\benchmark\scripts
+cd <repository-root>\benchmark\scripts
 $env:OPENAI_API_KEY = "your-qwen-or-dashscope-key"
 $env:OPENAI_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 $env:BENCHMARK_MODEL = "qwen-plus"
@@ -228,7 +228,7 @@ $env:BENCHMARK_MODEL = "qwen-plus"
 ### Recommended DeepSeek run
 
 ```powershell
-cd D:\project\ea-harness\benchmark\scripts
+cd <repository-root>\benchmark\scripts
 $env:OPENAI_API_KEY = "your-deepseek-key"
 $env:OPENAI_BASE_URL = "https://api.deepseek.com"
 $env:BENCHMARK_MODEL = "deepseek-v4-flash"
@@ -270,7 +270,7 @@ Fix used before the successful rerun:
 3. In a fresh PowerShell session, set:
 
 ```powershell
-cd D:\project\ea-harness\benchmark\scripts
+cd <repository-root>\benchmark\scripts
 $env:OPENAI_API_KEY = "<new-deepseek-key>"
 $env:OPENAI_BASE_URL = "https://api.deepseek.com"
 $env:BENCHMARK_MODEL = "deepseek-v4-flash"

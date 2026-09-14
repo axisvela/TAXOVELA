@@ -82,6 +82,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     commands.add_parser("root", help="Print the ArchHarness resource root directory")
 
+    commands.add_parser("plugins", help="List discovered plugins and their capabilities")
+
     for name in PASSTHROUGH_COMMANDS:
         commands.add_parser(name, add_help=False, help=f"Run the {name} tool")
     return parser
@@ -187,6 +189,21 @@ def _run_enforce(validation: str, policy: str | None, output: str | None) -> int
             return 2
         print(f"✓ Enforcement decision: {output}")
     return 0 if decision["decision"] in ("PASS", "WARN") else 1
+
+
+def _print_plugins() -> int:
+    from .plugins import PLUGIN_API_VERSION, discover_plugins
+
+    print(f"plugin API: {PLUGIN_API_VERSION}")
+    plugins = discover_plugins()
+    if not plugins:
+        print("  note  no plugins installed — extensions register via entry points")
+        print("        [project.entry-points.\"archharness.plugins\"]")
+        return 0
+    for name in sorted(plugins):
+        caps = ", ".join(plugins[name].capabilities)
+        print(f"  [ok]  {name} (api {plugins[name].api_version}): {caps}")
+    return 0
 
 
 def _workflow_state_path(workspace: str | None, project: str | None) -> Path:
@@ -318,6 +335,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(project_id)
         elif args.command == "root":
             print(require_archharness_root())
+        elif args.command == "plugins":
+            return _print_plugins()
         elif args.command == "doctor":
             return _print_doctor(args.workspace, args.project)
         elif args.command == "enforce":

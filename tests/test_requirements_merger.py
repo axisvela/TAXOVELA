@@ -8,11 +8,11 @@ import unittest
 import yaml
 
 
-READERS_DIR = pathlib.Path(__file__).resolve().parents[1] / "tools" / "arch-req-readers"
-sys.path.insert(0, str(READERS_DIR))
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
-from merger import merge_partial_reqs  # noqa: E402
-from normalizer import (  # noqa: E402
+from archharness.requirements.merger import merge_partial_reqs  # noqa: E402
+from archharness.requirements.normalizer import (  # noqa: E402
     Confidence,
     PartialApplication,
     PartialComponent,

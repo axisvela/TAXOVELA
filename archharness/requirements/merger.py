@@ -21,14 +21,12 @@ from datetime import datetime
 
 import yaml
 
-sys.path.insert(0, str(Path(__file__).parent))
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from normalizer import (
+from .normalizer import (
     PartialReq, PartialApplication, PartialComponent, PartialInteraction,
     PartialUserAuth, FieldValue, Confidence, CONFIDENCE_RANK, merge_field,
     fv
 )
-from archharness.schemas import validate_final_req
+from ..schemas import validate_final_req
 
 
 # ── Fields that MUST have values (CRITICAL gaps) ──────────────────────────────

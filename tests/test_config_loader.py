@@ -6,10 +6,10 @@ import pathlib
 import sys
 import unittest
 
-TOOLS_DIR = pathlib.Path(__file__).resolve().parents[1] / "tools"
-sys.path.insert(0, str(TOOLS_DIR))
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
-import config_loader  # noqa: E402
+from archharness import config as config_loader  # noqa: E402
 import yaml  # noqa: E402
 
 

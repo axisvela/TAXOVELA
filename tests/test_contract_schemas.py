@@ -21,11 +21,8 @@ from archharness.schemas import (  # noqa: E402
     validate_validation_result,
 )
 
-READERS_DIR = ROOT / "tools" / "arch-req-readers"
-sys.path.insert(0, str(READERS_DIR))
-
-from merger import merge_partial_reqs  # noqa: E402
-from normalizer import (  # noqa: E402
+from archharness.requirements.merger import merge_partial_reqs  # noqa: E402
+from archharness.requirements.normalizer import (  # noqa: E402
     Confidence,
     PartialApplication,
     PartialReq,

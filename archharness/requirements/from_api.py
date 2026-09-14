@@ -27,8 +27,7 @@ from pathlib import Path
 
 import yaml
 
-sys.path.insert(0, str(Path(__file__).parent))
-from normalizer import (
+from .normalizer import (
     PartialReq, PartialApplication, PartialComponent, Confidence, fv,
     partial_req_to_yaml
 )

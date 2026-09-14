@@ -12,8 +12,8 @@ import uuid
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
-import styles
-from layout import calculate_layout, REGION_TITLE_H, REGION_PAD, ZONE_GAP
+from . import styles
+from .layout import calculate_layout, REGION_TITLE_H, REGION_PAD, ZONE_GAP
 
 
 # ── ID helpers ────────────────────────────────────────────────────────────────

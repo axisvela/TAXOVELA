@@ -25,10 +25,9 @@ from pathlib import Path
 
 import yaml
 
-sys.path.insert(0, str(Path(__file__).parent))
-from normalizer import (
+from .normalizer import (
     PartialReq, PartialApplication, PartialComponent, PartialInteraction,
-    FieldValue, Confidence, fv, partial_req_to_yaml
+    PartialUserAuth, FieldValue, Confidence, fv, partial_req_to_yaml
 )
 
 
@@ -437,9 +436,7 @@ def parse_arch_yaml(data: dict, source_file: str) -> PartialReq:
         })
     if sec.get("user_auth_internal"):
         ua = sec["user_auth_internal"]
-        pua = __import__("normalizer", fromlist=["PartialUserAuth"]).PartialUserAuth(
-            entry_point="internal"
-        )
+        pua = PartialUserAuth(entry_point="internal")
         pua.auth_server = fv(ua.get("server", ""), Confidence.HIGH, SRC)
         pua.auth_protocol = fv(ua.get("protocol", ""), Confidence.HIGH, SRC)
         req.user_auth.append(pua)

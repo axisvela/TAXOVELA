@@ -4,12 +4,12 @@ import pathlib
 import sys
 import unittest
 
-TOOLS_DIR = pathlib.Path(__file__).resolve().parents[1] / "tools" / "arch-diagram-gen"
-sys.path.insert(0, str(TOOLS_DIR))
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
-from generator import generate_drawio  # noqa: E402
-from d2_generator import generate_d2  # noqa: E402
-from plantuml_generator import generate_plantuml  # noqa: E402
+from archharness.diagrams.generator import generate_drawio  # noqa: E402
+from archharness.diagrams.d2_generator import generate_d2  # noqa: E402
+from archharness.diagrams.plantuml_generator import generate_plantuml  # noqa: E402
 
 
 def _valid_arch():

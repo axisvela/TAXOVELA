@@ -7,18 +7,15 @@ perform file I/O as documented, and return integer exit codes:
 - ``0`` — success (outputs written);
 - ``1`` — input error (missing/unparseable input, failed checks);
 - ``2`` — write error (requested output could not be produced).
-
-Transitional note: implementations currently delegate to the standalone
-tools under ``tools/`` via :mod:`archharness.tool_runners`. Signatures here
-are the stable contract; the delegation underneath will be replaced by
-direct package calls as tool logic moves into the package.
 """
 
 from __future__ import annotations
 
 from collections.abc import Sequence
 
-from .tool_runners import run_tool
+from .diagrams import command as diagram_command
+from .requirements import command as req_command
+from . import yaml_validate as yaml_validate_module
 
 
 def run_requirements(
@@ -37,10 +34,10 @@ def run_requirements(
 ) -> int:
     """Extract and merge requirements into a final ``req/v1`` document."""
     argv: list[str] = []
-    for path in diagram:
-        argv += ["--diagram", path]
-    for path in doc:
-        argv += ["--doc", path]
+    if diagram:
+        argv += ["--diagram", *diagram]
+    if doc:
+        argv += ["--doc", *doc]
     if csv is not None:
         argv += ["--csv", csv]
     if api is not None:
@@ -58,7 +55,7 @@ def run_requirements(
         argv += ["--workspace", workspace]
     if project is not None:
         argv += ["--project", project]
-    return run_tool("req", argv)
+    return req_command.main(argv) or 0
 
 
 def run_diagram(
@@ -85,7 +82,7 @@ def run_diagram(
         argv += ["--workspace", workspace]
     if project is not None:
         argv += ["--project", project]
-    return run_tool("diagram", argv)
+    return diagram_command.main(argv) or 0
 
 
 def validate_yaml_files(
@@ -100,4 +97,4 @@ def validate_yaml_files(
         argv.append("--strict")
     if quiet:
         argv.append("--quiet")
-    return run_tool("validate-yaml", argv)
+    return yaml_validate_module.main(argv) or 0

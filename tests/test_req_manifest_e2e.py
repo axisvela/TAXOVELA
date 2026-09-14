@@ -9,13 +9,11 @@ import unittest
 import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-READERS_DIR = ROOT / "tools" / "arch-req-readers"
-sys.path.insert(0, str(READERS_DIR))
 sys.path.insert(0, str(ROOT))
 
 from archharness.artifacts import verify_manifest  # noqa: E402
 from archharness.schemas import validate_final_req, validate_manifest  # noqa: E402
-from req_reader import main as req_main  # noqa: E402
+from archharness.requirements.command import main as req_main  # noqa: E402
 
 
 class ReqManifestE2ETests(unittest.TestCase):

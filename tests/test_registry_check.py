@@ -8,10 +8,10 @@ import tempfile
 import unittest
 
 
-TOOLS_DIR = pathlib.Path(__file__).resolve().parents[1] / "tools"
-sys.path.insert(0, str(TOOLS_DIR))
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
-import registry_check  # noqa: E402
+from archharness import registry as registry_check  # noqa: E402
 
 
 REGISTRY = """# Registry

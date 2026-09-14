@@ -7,10 +7,10 @@ import sys
 import tempfile
 import unittest
 
-TOOLS_DIR = pathlib.Path(__file__).resolve().parents[1] / "tools"
-sys.path.insert(0, str(TOOLS_DIR))
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
-from yaml_validate import validate_file  # noqa: E402
+from archharness.yaml_validate import validate_file  # noqa: E402
 from archharness.cli import main as cli_main  # noqa: E402
 from archharness.workspace import init_project, init_workspace  # noqa: E402
 
@@ -107,7 +107,7 @@ class DoctorLayoutTests(unittest.TestCase):
 
 class ReqReaderHygieneTests(unittest.TestCase):
     def test_no_unbounded_mkdtemp_leak(self):
-        reader = pathlib.Path(__file__).resolve().parents[1] / "tools" / "arch-req-readers" / "req_reader.py"
+        reader = pathlib.Path(__file__).resolve().parents[1] / "archharness" / "requirements" / "command.py"
         source = reader.read_text(encoding="utf-8")
         self.assertNotIn("tempfile.mkdtemp()", source)
         self.assertIn("TemporaryDirectory", source)

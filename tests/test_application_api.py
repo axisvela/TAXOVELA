@@ -98,11 +98,9 @@ class ApplicationApiTests(unittest.TestCase):
             api.run_diagram(input=arch, output=drawio)
             self.assertEqual(list(sys.path), path_before)
             self.assertEqual(set(sys.modules), modules_before)
-            # Entry modules are registered under namespaced names, never
-            # under their bare filenames (which would risk collisions).
-            for name in ("archharness_tool_diagram", "archharness_tool_req",
-                         "archharness_tool_yaml_validate"):
-                self.assertIn(name, sys.modules)
+            # Plain imports only: no file-location loader modules remain.
+            for name in list(sys.modules):
+                self.assertFalse(name.startswith("archharness_tool_"), name)
 
 
 if __name__ == "__main__":

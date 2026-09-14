@@ -8,13 +8,17 @@ Checks:
   1. Unknown SYS-nn codes cited in docs (ERROR) — a code with no registry row.
   2. Registry rows never cited in any doc (WARN) — possibly dead entries.
   3. Distinctive "doc-name" literals in docs outside the registry (ERROR).
-     `input/prompt.md` is the human-maintained naming source and is excluded
-     from this literal-name check. "Distinctive" = contains a
-     non-alphanumeric character (space, '-', '/',
-     parentheses, ...). Plain single-word names (Kafka, Redis, S3, ECC, ...)
-     are ALSO generic technology words, so they are skipped here and printed
-     separately for manual review.
+     Applies to `input/prompt.md` too: every document is codes-only, the
+     registry is the single place literal names live. "Distinctive" = contains
+     a non-alphanumeric character (space, '-', '/', parentheses, ...). Plain
+     single-word names (Kafka, Redis, S3, ECC, ...) are ALSO generic technology
+     words, so they are skipped here and printed separately for manual review.
   4. IPv4 addresses/CIDRs in textual example files (ERROR).
+  5. Scope guard (WARN): a registry row that is in design scope but is not
+     referenced by `input/prompt.md`. Without this, Path A silently produces
+     a diagram missing systems the registry declares. Mark a row
+     `OUT-OF-SCOPE` in its 备注/Notes column to exempt it — that records a
+     deliberate exclusion instead of an accidental omission.
 
 Usage:
     python tools/registry_check.py examples/03-order-query-aws-hybrid
@@ -47,14 +51,28 @@ ROW_PATTERN = re.compile(
 ALWAYS_SKIP = {"etc.", "etc"}
 
 
-def parse_registry(path: Path) -> dict[str, str]:
-    """Return {code: doc-name} from the registry table."""
-    entries: dict[str, str] = {}
+OUT_OF_SCOPE_PATTERN = re.compile(r"out[- ]?of[- ]?scope", re.IGNORECASE)
+
+
+def parse_registry_rows(path: Path) -> dict[str, dict]:
+    """Return {code: {"name": doc-name, "notes": notes, "in_scope": bool}}."""
+    rows: dict[str, dict] = {}
     for line in path.read_text(encoding="utf-8").splitlines():
         match = ROW_PATTERN.match(line.strip())
-        if match:
-            entries[match.group(1)] = match.group(5).strip()
-    return entries
+        if not match:
+            continue
+        notes = match.group(6).strip()
+        rows[match.group(1)] = {
+            "name": match.group(5).strip(),
+            "notes": notes,
+            "in_scope": not OUT_OF_SCOPE_PATTERN.search(notes),
+        }
+    return rows
+
+
+def parse_registry(path: Path) -> dict[str, str]:
+    """Return {code: doc-name} from the registry table."""
+    return {code: row["name"] for code, row in parse_registry_rows(path).items()}
 
 
 def read_doc_text(doc: Path) -> str:
@@ -108,7 +126,8 @@ def check_example(root: Path) -> int:
     if not registry_path.is_file():
         print(f"{root}: SKIP (no {REGISTRY_NAME})")
         return 0
-    entries = parse_registry(registry_path)
+    rows = parse_registry_rows(registry_path)
+    entries = {code: row["name"] for code, row in rows.items()}
     if not entries:
         print(f"{root}: ERROR: registry has no parseable rows")
         return 1
@@ -137,9 +156,9 @@ def check_example(root: Path) -> int:
         print(f"{root}: ERROR: {code} cited but not in registry: {files}")
         errors += 1
 
-    # 2. Registry rows never cited.
+    # 2. Registry rows never cited (out-of-scope rows are exempt).
     for code in sorted(entries, key=lambda c: int(c.split("-")[1])):
-        if code not in cited:
+        if code not in cited and rows[code]["in_scope"]:
             print(f"{root}: WARN: {code} ({entries[code]}) never cited in docs")
 
     # 3. Distinctive doc-name literals outside the registry and the
@@ -173,9 +192,10 @@ def check_example(root: Path) -> int:
                 lo, hi = hi, lo
             prompt_codes.update(f"SYS-{n:02d}" for n in range(lo, hi + 1))
         for code in sorted(entries, key=lambda c: int(c.split("-")[1])):
-            if code not in prompt_codes:
+            if code not in prompt_codes and rows[code]["in_scope"]:
                 print(f"{root}: WARN: {code} ({entries[code]}) is in the registry "
-                      f"but not referenced by input/prompt.md")
+                      f"but not referenced by input/prompt.md (mark the row "
+                      f"OUT-OF-SCOPE if that is deliberate)")
     else:
         print(f"{root}: WARN: no input/prompt.md — Path A scope cannot be checked")
 

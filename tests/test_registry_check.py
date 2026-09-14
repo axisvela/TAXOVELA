@@ -63,6 +63,17 @@ class RegistryCheckTests(unittest.TestCase):
         self.assertIn("SYS-02", output)
         self.assertIn("not referenced by input/prompt.md", output)
 
+    def test_out_of_scope_row_is_exempt(self):
+        (self.root / "input" / "prompt.md").write_text(
+            "Codes-only prompt: SYS-01 and SYS-03.\n", encoding="utf-8"
+        )
+        (self.root / "input" / "systems-registry.md").write_text(
+            REGISTRY.replace("| test |", "| OUT-OF-SCOPE |"), encoding="utf-8"
+        )
+        code, output = self.run_check()
+        self.assertEqual(code, 0, output)
+        self.assertNotIn("not referenced by input/prompt.md", output)
+
     def test_literal_name_in_prompt_is_error(self):
         (self.root / "input" / "prompt.md").write_text(
             "Codes-only prompt: call Scrubbed-Two via SYS-01.\n", encoding="utf-8"

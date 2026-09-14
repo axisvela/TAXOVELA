@@ -35,7 +35,7 @@ class RegistryCheckTests(unittest.TestCase):
             REGISTRY, encoding="utf-8"
         )
         (self.root / "input" / "prompt.md").write_text(
-            "Human source uses Scrubbed One, Scrubbed-Two, and Redis.\n",
+            "Codes-only prompt: SYS-01 through SYS-03.\n",
             encoding="utf-8",
         )
 
@@ -45,13 +45,31 @@ class RegistryCheckTests(unittest.TestCase):
             code = registry_check.check_example(self.root)
         return code, output.getvalue()
 
-    def test_source_prompt_literals_are_allowed(self):
+    def test_full_prompt_coverage_is_ok(self):
         (self.root / "input" / "prompt-indexed.md").write_text(
             "SYS-01 through SYS-03\n", encoding="utf-8"
         )
         code, output = self.run_check()
         self.assertEqual(code, 0, output)
         self.assertIn("OK (3 registry rows, 3 codes cited)", output)
+        self.assertNotIn("WARN", output)
+
+    def test_prompt_missing_registry_code_warns(self):
+        (self.root / "input" / "prompt.md").write_text(
+            "Codes-only prompt: SYS-01 only.\n", encoding="utf-8"
+        )
+        code, output = self.run_check()
+        self.assertEqual(code, 0, output)
+        self.assertIn("SYS-02", output)
+        self.assertIn("not referenced by input/prompt.md", output)
+
+    def test_literal_name_in_prompt_is_error(self):
+        (self.root / "input" / "prompt.md").write_text(
+            "Codes-only prompt: call Scrubbed-Two via SYS-01.\n", encoding="utf-8"
+        )
+        code, output = self.run_check()
+        self.assertEqual(code, 1, output)
+        self.assertIn("use the code", output)
 
     def test_unknown_code_is_error(self):
         (self.root / "input" / "prompt-indexed.md").write_text(

@@ -149,7 +149,7 @@ def check_example(root: Path) -> int:
         if re.search(r"[^A-Za-z0-9]", name) and name not in ALWAYS_SKIP
     }
     for doc in docs:
-        if doc == registry_path or doc == root / "input" / "prompt.md":
+        if doc == registry_path:
             continue
         text = read_doc_text(doc)
         for code, name in distinctive.items():
@@ -157,6 +157,27 @@ def check_example(root: Path) -> int:
                 print(f"{root}: ERROR: literal doc-name '{name}' ({code}) "
                       f"in {doc.relative_to(root)} — use the code")
                 errors += 1
+
+    # 4. Path A scope guard: every registry code must be referenced by
+    # input/prompt.md, otherwise the one-shot prompt yields a diagram that
+    # silently omits systems the registry declares.
+    prompt_path = root / "input" / "prompt.md"
+    if prompt_path.is_file():
+        prompt_codes: set[str] = set()
+        prompt_text = read_doc_text(prompt_path)
+        for match in CODE_PATTERN.finditer(prompt_text):
+            prompt_codes.add(f"SYS-{match.group(1)}")
+        for match in RANGE_PATTERN.finditer(prompt_text):
+            lo, hi = int(match.group(1)), int(match.group(2))
+            if lo > hi:
+                lo, hi = hi, lo
+            prompt_codes.update(f"SYS-{n:02d}" for n in range(lo, hi + 1))
+        for code in sorted(entries, key=lambda c: int(c.split("-")[1])):
+            if code not in prompt_codes:
+                print(f"{root}: WARN: {code} ({entries[code]}) is in the registry "
+                      f"but not referenced by input/prompt.md")
+    else:
+        print(f"{root}: WARN: no input/prompt.md — Path A scope cannot be checked")
 
     single_word = sorted({n for n in entries.values()
                           if not re.search(r"[^A-Za-z0-9]", n)})

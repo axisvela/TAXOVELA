@@ -117,9 +117,11 @@ def has_capability(capability: str) -> bool:
 
 
 class PluginContractTestCase(unittest.TestCase):
-    """Contract kit for plugin authors. Subclass and set ``plugin``::
+    """Contract kit for plugin authors. Subclass, opt into collection,
+    and set ``plugin``::
 
         class TestEnterprisePlugin(PluginContractTestCase):
+            __test__ = True  # required: the base opts out of collection
             plugin = enterprise_plugin
 
     Guarantees the plugin satisfies the Core loading contract so that a

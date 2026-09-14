@@ -60,6 +60,7 @@ class PluginMechanismTests(unittest.TestCase):
 
 
 class PluginContractKitTests(PluginContractTestCase):
+    __test__ = True
     plugin = _FakePlugin()
 
 

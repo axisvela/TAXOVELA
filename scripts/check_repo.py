@@ -146,12 +146,57 @@ def check_no_placeholder_or_local_paths() -> None:
                 err(f"{path}: contains forbidden token {token!r}")
 
 
+def check_version_consistency() -> None:
+    import json
+    import re
+
+    init = (ROOT / "archharness" / "__init__.py").read_text(encoding="utf-8")
+    match = re.search(r'__version__\s*=\s*"([^"]+)"', init)
+    if not match:
+        err("archharness/__init__.py: cannot determine __version__")
+        return
+    version = match.group(1)
+    tag = f"v{version}"
+    wheel = f"archharness-{version}-py3-none-any.whl"
+
+    manifests = [
+        ROOT / ".claude-plugin" / "marketplace.json",
+        ROOT / "plugins" / "archharness" / ".claude-plugin" / "plugin.json",
+    ]
+    for manifest in manifests:
+        if not manifest.is_file():
+            err(f"{manifest}: missing plugin manifest")
+            continue
+        try:
+            doc = json.loads(manifest.read_text(encoding="utf-8"))
+        except ValueError as exc:
+            err(f"{manifest}: invalid JSON ({exc})")
+            continue
+        found = []
+        if isinstance(doc.get("version"), str):
+            found.append(doc["version"])
+        for plugin in doc.get("plugins", []) or []:
+            if isinstance(plugin.get("version"), str):
+                found.append(plugin["version"])
+        for item in found:
+            if item != version:
+                err(f"{manifest}: version {item!r} != package version {version!r}")
+
+    readme = ROOT / "README.md"
+    if readme.is_file():
+        text = readme.read_text(encoding="utf-8")
+        for token in (tag, wheel):
+            if token not in text:
+                err(f"README.md: missing release reference {token!r}")
+
+
 def main() -> int:
     check_skills()
     check_agents()
     check_github_agents()
     check_yaml_parses()
     check_schemas()
+    check_version_consistency()
     check_no_placeholder_or_local_paths()
 
     if ERRORS:

@@ -3,6 +3,11 @@
 # 来源: Private Cloud Architecture Standard v1.0
 #        Private Cloud Architecture Diagram Shape Specification v1.0
 # 用途: accuracy-rules、security-rules、arch-validate-skill 的参考基线
+# SCOPE: topology principles (F5 ingress, zone models, east-west
+# isolation, identity/credential/PAW controls) are normative.
+# Concrete instances below (DC names, owners, platform products) are
+# EXAMPLE data from one organization — replace via an organization
+# topology pack instead of editing this file in place.
 # ============================================================
 
 standard:

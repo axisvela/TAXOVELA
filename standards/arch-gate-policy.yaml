@@ -1,4 +1,12 @@
-# arch-gate-policy.yaml — A层：enforcement bounds + meta-control scope
+# arch-gate-policy.yaml — default baseline gate policy.
+#
+# SCOPE: the numeric bounds below (block/warn thresholds, must_fix rule)
+# are neutral defaults and the machine-enforced contract. Everything that
+# names a concrete organization — approvers, ticket systems, teams — is an
+# EXAMPLE overlay: organizations must provide their own policy pack
+# (see Enterprise Edition policy-packs/) instead of editing this file.
+# The deterministic evaluator only reads block_threshold, warn_threshold,
+# and must_fix_zero_required; all other keys are descriptive.
 version: "1.0"
 effective_date: "2026-04-02"
 
@@ -6,6 +14,7 @@ enforcement_bounds:
   block_threshold: 6.0           # Grade C 以下 block
   warn_threshold: 8.0            # 8.0 以下 warn
   must_fix_zero_required: true   # 任何 must_fix 存在则 block
+  # EXAMPLE overlay (organization-owned, override via policy pack):
   override_conditions:
     approvers: ["architecture-committee"]
     requires_ticket: true
@@ -14,6 +23,7 @@ enforcement_bounds:
     override_scope: "single-PR-only"  # 不可继承到下一个PR
 
 meta_control_scope:
+  # EXAMPLE overlay (organization-owned, override via policy pack):
   # 谁可以修改上面的 enforcement_bounds
   threshold_change_requires:
     approvers: ["architecture-committee", "cto-office"]

@@ -18,6 +18,30 @@ from .requirements import command as req_command
 from . import yaml_validate as yaml_validate_module
 
 
+def run_sketch(
+    text: str,
+    *,
+    title: str = "Sketch",
+    output: str,
+    png: str | None = None,
+    model_yaml: str | None = None,
+    workspace: str | None = None,
+    project: str | None = None,
+) -> int:
+    """Render a one-shot ``A -> B`` sketch into a diagram."""
+    from .diagrams.sketch import render_sketch
+
+    return render_sketch(
+        text,
+        output,
+        title=title,
+        png=png,
+        model_yaml=model_yaml,
+        workspace=workspace,
+        project=project,
+    )
+
+
 def run_requirements(
     *,
     diagram: Sequence[str] = (),

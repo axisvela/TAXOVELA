@@ -84,6 +84,18 @@ def build_parser() -> argparse.ArgumentParser:
 
     commands.add_parser("plugins", help="List discovered plugins and their capabilities")
 
+    sketch = commands.add_parser(
+        "sketch", help="Render a one-shot 'A -> B' sketch into a diagram"
+    )
+    sketch.add_argument("text", nargs="?", default=None, help="Sketch text, e.g. 'Browser -> API -> DB'")
+    sketch.add_argument("--from-file", default=None, help="Read sketch text from a file (or - for stdin)")
+    sketch.add_argument("--title", default="Sketch", help="Diagram title")
+    sketch.add_argument("-o", "--output", default=None, help="Output .drawio file")
+    sketch.add_argument("--png", default=None, help="Export PNG alongside the draw.io file")
+    sketch.add_argument("--yaml", default=None, dest="model_yaml", help="Save the compiled Architecture model YAML")
+    sketch.add_argument("--workspace", default=None)
+    sketch.add_argument("--project", default=None)
+
     for name in PASSTHROUGH_COMMANDS:
         commands.add_parser(name, add_help=False, help=f"Run the {name} tool")
     return parser
@@ -204,6 +216,33 @@ def _print_plugins() -> int:
         caps = ", ".join(plugins[name].capabilities)
         print(f"  [ok]  {name} (api {plugins[name].api_version}): {caps}")
     return 0
+
+
+def _run_sketch(args) -> int:
+    from .diagrams.sketch import render_sketch
+
+    if args.from_file in (None, "") and not args.text:
+        print("ERROR: provide sketch text or --from-file", file=sys.stderr)
+        return 2
+    if args.from_file == "-":
+        text = sys.stdin.read()
+    elif args.from_file:
+        try:
+            text = Path(args.from_file).read_text(encoding="utf-8")
+        except OSError as exc:
+            print(f"ERROR: cannot read {args.from_file}: {exc}", file=sys.stderr)
+            return 1
+    else:
+        text = args.text or ""
+    return render_sketch(
+        text,
+        args.output or "sketch.drawio",
+        title=args.title,
+        png=args.png,
+        model_yaml=args.model_yaml,
+        workspace=args.workspace,
+        project=args.project,
+    )
 
 
 def _workflow_state_path(workspace: str | None, project: str | None) -> Path:
@@ -337,6 +376,8 @@ def main(argv: list[str] | None = None) -> int:
             print(require_archharness_root())
         elif args.command == "plugins":
             return _print_plugins()
+        elif args.command == "sketch":
+            return _run_sketch(args)
         elif args.command == "doctor":
             return _print_doctor(args.workspace, args.project)
         elif args.command == "enforce":

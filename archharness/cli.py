@@ -93,8 +93,14 @@ def build_parser() -> argparse.ArgumentParser:
     sketch.add_argument("-o", "--output", default=None, help="Output .drawio file")
     sketch.add_argument("--png", default=None, help="Export PNG alongside the draw.io file")
     sketch.add_argument("--yaml", default=None, dest="model_yaml", help="Save the compiled Architecture model YAML")
+    sketch.add_argument("--view", default="technical-deployment", help="Viewpoint id (only supported views render)")
     sketch.add_argument("--workspace", default=None)
     sketch.add_argument("--project", default=None)
+
+    view = commands.add_parser(
+        "view", help="Recommend a viewpoint for a question"
+    )
+    view.add_argument("question", nargs="?", default="", help="What do you want to understand?")
 
     for name in PASSTHROUGH_COMMANDS:
         commands.add_parser(name, add_help=False, help=f"Run the {name} tool")
@@ -192,10 +198,10 @@ def _run_enforce(validation: str, policy: str | None, output: str | None) -> int
     for reason in decision["reasons"]:
         print(f"  - {reason}")
     if output:
+        from .files import atomic_write_text
+
         try:
-            Path(output).parent.mkdir(parents=True, exist_ok=True)
-            with open(output, "w", encoding="utf-8") as handle:
-                json.dump(decision, handle, indent=2)
+            atomic_write_text(output, json.dumps(decision, indent=2))
         except OSError as exc:
             print(f"ERROR: Could not write {output}: {exc}", file=sys.stderr)
             return 2
@@ -215,6 +221,16 @@ def _print_plugins() -> int:
     for name in sorted(plugins):
         caps = ", ".join(plugins[name].capabilities)
         print(f"  [ok]  {name} (api {plugins[name].api_version}): {caps}")
+    return 0
+
+
+def _run_view(question: str) -> int:
+    from .diagrams.viewpoints import recommend
+
+    result = recommend(question)
+    print(f"viewpoint: {result['viewpoint']}")
+    print(f"supported: {'yes' if result['supported'] else 'no'}")
+    print(f"reason: {result['reason']}")
     return 0
 
 
@@ -238,6 +254,7 @@ def _run_sketch(args) -> int:
         text,
         args.output or "sketch.drawio",
         title=args.title,
+        view=args.view,
         png=args.png,
         model_yaml=args.model_yaml,
         workspace=args.workspace,
@@ -378,6 +395,8 @@ def main(argv: list[str] | None = None) -> int:
             return _print_plugins()
         elif args.command == "sketch":
             return _run_sketch(args)
+        elif args.command == "view":
+            return _run_view(args.question)
         elif args.command == "doctor":
             return _print_doctor(args.workspace, args.project)
         elif args.command == "enforce":

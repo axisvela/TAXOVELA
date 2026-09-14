@@ -588,18 +588,24 @@ def merge_partial_reqs(partial_files: list[str]) -> tuple[str, str, dict]:
     return merged_yaml, gap_report, gaps
 
 
-def main():
+def main(argv: list[str] | None = None) -> int:
+    """Merge partial files. Returns an exit code (no sys.exit)."""
     parser = argparse.ArgumentParser(description="Merge partial requirement YAML files")
     parser.add_argument("files", nargs="+", help="Partial req YAML files to merge")
     parser.add_argument("-o", "--output", default="merged-req.yaml", help="Output merged req YAML")
     parser.add_argument("--report", default="gap-report.md", help="Gap report output file")
     parser.add_argument("--manifest", default=None, help="Write an artifact/v1 provenance manifest (JSON)")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     merged_yaml, gap_report, gaps = merge_partial_reqs(args.files)
 
-    with open(args.output, "w", encoding="utf-8") as f:
-        f.write(merged_yaml)
+    from ..files import atomic_write_text
+
+    try:
+        atomic_write_text(args.output, merged_yaml)
+    except OSError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
     print(f"✓ Merged requirements: {args.output}")
 
     if args.manifest:
@@ -614,12 +620,18 @@ def main():
             producer=f"archharness/{_cli_version}",
             input_artifacts=[Path(f).name for f in args.files],
         )
-        with open(args.manifest, "w", encoding="utf-8") as f:
-            f.write(json.dumps(manifest, indent=2))
+        try:
+            atomic_write_text(args.manifest, json.dumps(manifest, indent=2))
+        except OSError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 1
         print(f"✓ Artifact manifest: {args.manifest}")
 
-    with open(args.report, "w", encoding="utf-8") as f:
-        f.write(gap_report)
+    try:
+        atomic_write_text(args.report, gap_report)
+    except OSError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
     print(f"✓ Gap report: {args.report}")
 
     n_critical = len(gaps["critical"])
@@ -629,7 +641,8 @@ def main():
         print("  ✓ Ready for arch-design")
     else:
         print(f"  ✗ Resolve {n_critical} critical gaps before running arch-design")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

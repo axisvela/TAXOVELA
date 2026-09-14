@@ -115,6 +115,7 @@ def render_sketch(
     output: str,
     *,
     title: str = "Sketch",
+    view: str = "technical-deployment",
     png: str | None = None,
     model_yaml: str | None = None,
     workspace: str | None = None,
@@ -125,13 +126,14 @@ def render_sketch(
     Shared core behind the ``sketch`` CLI command and :func:`archharness.api.run_sketch`.
     """
     import sys as _sys
-    from pathlib import Path as _Path
 
     from ..workspace import discover_project, get_project
+    from .viewpoints import require_supported
 
     try:
+        require_supported(view)
         arch = compile_sketch(text, title=title)
-    except SketchError as exc:
+    except (SketchError, ValueError) as exc:
         print(f"ERROR: {exc}", file=_sys.stderr)
         return 1
 
@@ -151,10 +153,10 @@ def render_sketch(
         model_path = model_yaml
 
     def _write(path: str, content: str, label: str) -> bool:
+        from ..files import atomic_write_text
+
         try:
-            _Path(path).parent.mkdir(parents=True, exist_ok=True)
-            with open(path, "w", encoding="utf-8") as handle:
-                handle.write(content)
+            atomic_write_text(path, content)
             print(f"✓ {label} written: {path}")
             return True
         except OSError as exc:

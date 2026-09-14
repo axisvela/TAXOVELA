@@ -111,9 +111,10 @@ def main(argv: list[str] | None = None) -> int:
         raise _InputError(message)
 
     def _write_text(path: str, content: str, label: str) -> None:
+        from ..files import atomic_write_text
+
         try:
-            with open(path, "w", encoding="utf-8") as handle:
-                handle.write(content)
+            atomic_write_text(path, content)
         except OSError as exc:
             print(f"ERROR: Could not write {label} {path}: {exc}", file=sys.stderr)
             raise _WriteError(str(path)) from exc

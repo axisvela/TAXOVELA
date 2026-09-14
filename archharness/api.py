@@ -22,6 +22,7 @@ def run_sketch(
     text: str,
     *,
     title: str = "Sketch",
+    view: str = "technical-deployment",
     output: str,
     png: str | None = None,
     model_yaml: str | None = None,
@@ -35,11 +36,19 @@ def run_sketch(
         text,
         output,
         title=title,
+        view=view,
         png=png,
         model_yaml=model_yaml,
         workspace=workspace,
         project=project,
     )
+
+
+def recommend_view(question: str) -> dict:
+    """Recommend a viewpoint for a free-text question."""
+    from .diagrams.viewpoints import recommend
+
+    return recommend(question)
 
 
 def run_requirements(

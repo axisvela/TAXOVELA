@@ -82,12 +82,12 @@ def _export_png_via_matplotlib(arch: dict, png_path: str) -> bool:
 # ── Write helper ──────────────────────────────────────────────────────────────
 
 def _write(path: str, content: str, label: str):
+    from ..files import atomic_write_text
+
     try:
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(content)
+        atomic_write_text(path, content)
         print(f"✓ {label} written: {path}")
-    except IOError as e:
+    except OSError as e:
         print(f"ERROR: Could not write {path}: {e}", file=sys.stderr)
         raise
 

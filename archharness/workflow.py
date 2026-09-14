@@ -100,10 +100,10 @@ def load_state(path: str | Path) -> dict:
 
 
 def save_state(path: str | Path, state: dict) -> None:
-    """Persist workflow state (creates parent directories)."""
-    state_path = Path(path)
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    state_path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    """Persist workflow state atomically (creates parent directories)."""
+    from .files import atomic_write_text
+
+    atomic_write_text(path, json.dumps(state, indent=2))
 
 
 def enforce_decision(state: dict) -> str | None:

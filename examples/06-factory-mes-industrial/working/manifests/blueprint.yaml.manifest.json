@@ -4,7 +4,7 @@
   "type": "technical-deployment-view",
   "schema": "architecture/v1",
   "path": "output\\designs\\blueprint.yaml",
-  "sha256": "a0105f72e448812b578d91a83467ac241fd9dc7a47e95d2eae6a640bde3fccfe",
+  "sha256": "8a672c0f72c568d5aa04f1a8863c686c26407b5619a6bf7ab88e827712f8f30b",
   "model_version": "openai/gpt-5.6-sol",
   "producer": "arch-design",
   "produced_at": "2026-09-14T13:28:51+00:00",

@@ -314,7 +314,7 @@ arch:
       network_zones:
         - id: "na-integration-zone"
           type: "intranet"
-          name: "NA-PROD-INA-INTEGRATION"
+          name: "IN-INTEGRATION"
           components:
             - id: "INF-19"
               name: "NA Integration Firewall"
@@ -332,7 +332,7 @@ arch:
               notes: "New durable NA integration hub with encrypted storage and topic ACLs."
         - id: "na-lakehouse-zone"
           type: "db_zone"
-          name: "NA-PROD-INA-LAKEHOUSE"
+          name: "IN-LAKEHOUSE"
           components:
             - id: "CMP-29"
               name: "CMP-29 | lakehouse-row | NEW"
@@ -342,7 +342,7 @@ arch:
               notes: "New data consumer; explicitly requires TLS 1.2."
         - id: "na-k8s-zone"
           type: "app_zone"
-          name: "NA-PROD-INA-K8S"
+          name: "IN-K8S"
           components:
             - id: "CMP-30"
               name: "CMP-30 | LGS(logistics dateway service)-NA | NEW"
@@ -358,7 +358,7 @@ arch:
               status: "newly_created"
         - id: "na-sap-zone"
           type: "app_zone"
-          name: "NA-PROD-INA-SAP"
+          name: "IN-SAP"
           components:
             - id: "CMP-32"
               name: "CMP-32 | S4-NA | NEW"

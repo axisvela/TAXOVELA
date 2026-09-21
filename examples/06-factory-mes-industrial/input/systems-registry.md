@@ -25,10 +25,10 @@ Single source of truth for every entity name in this example (req/v2 model).
 | INF-05 | dc-us-na | data_center | private_cloud | prod_network | - | US | na-dc | NA DC, multi-zone |
 | INF-06 | dc-cn-secondary | data_center | private_cloud | prod_network | - | CN | cn-secondary-dc | CN secondary DC |
 | INF-07 | azure-eastus | iaas_vpc_vnet | public_cloud | prod_network | - | US | azure-us | Azure region |
-| INF-08 | NA-PROD-INA-INTEGRATION | network_zone | private_cloud | prod_network | INF-05 | US | na-int-zone | NA integration zone |
-| INF-09 | NA-PROD-INA-K8S | network_zone | private_cloud | prod_network | INF-05 | US | na-k8s-zone | NA Kubernetes zone |
-| INF-10 | NA-PROD-INA-LAKEHOUSE | network_zone | private_cloud | prod_network | INF-05 | US | na-lakehouse-zone | NA lakehouse zone |
-| INF-11 | NA-PROD-INA-SAP | network_zone | private_cloud | prod_network | INF-05 | US | na-sap-zone | NA SAP zone |
+| INF-08 | IN-INTEGRATION | network_zone | private_cloud | prod_network | INF-05 | US | int-zone | NA integration zone |
+| INF-09 | IN-K8S | network_zone | private_cloud | prod_network | INF-05 | US | na-k8s-zone | Kubernetes zone |
+| INF-10 | IN-LAKEHOUSE | network_zone | private_cloud | prod_network | INF-05 | US | lakehouse-zone | NA lakehouse zone |
+| INF-11 | IN-SAP | network_zone | private_cloud | prod_network | INF-05 | US | na-sap-zone | SAP zone |
 | INF-12 | dc-cn-primary App Zone | network_zone | private_cloud | prod_network | INF-04 | CN | cn-app-zone | CN app zone |
 | INF-13 | VIP | load_balancer | private_cloud | prod_network | INF-02 | US | plant-vip | HTTPS ingress VIP |
 | INF-14 | ADFS | identity_provider | private_cloud | prod_network | INF-03 | US | adfs | external authorization IdP |

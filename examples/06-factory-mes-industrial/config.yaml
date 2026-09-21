@@ -34,10 +34,10 @@ datacenters:
     location: { city: "City C", state: "State X", country: "US" }
     model: "multi-zone"
     zones:
-      - "NA-PROD-INA-INTEGRATION"
-      - "NA-PROD-INA-K8S"
-      - "NA-PROD-INA-LAKEHOUSE"
-      - "NA-PROD-INA-SAP"
+      - "IN-INTEGRATION"
+      - "IN-K8S"
+      - "IN-LAKEHOUSE"
+      - "IN-SAP"
     region: "NA"
     notes: "INF-05; CMP-28 in INF-08; CMP-29 in INF-10; CMP-26 / CMP-30–CMP-31 in INF-09; CMP-32–CMP-34 in INF-11. (See input/systems-registry.md.)"
 

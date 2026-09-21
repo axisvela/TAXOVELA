@@ -1,0 +1,19 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "requirements-REQ.md-20260914",
+  "type": "requirements_document",
+  "schema": "requirements/v1",
+  "name": "REQ.md",
+  "path": "output\\requirements\\REQ.md",
+  "sha256": "b43b38d93194422483f28a2498d6aac45f4bf02d8b28ea26fa02c2b152262ce4",
+  "created_at": "2026-09-14T00:00:00Z",
+  "producer": "arch-requirements",
+  "sources": [
+    "input/prompt.md",
+    "input/systems-registry.md",
+    "input/documents/requirements.md",
+    "input/diagrams/MES-20260914.png",
+    "project.yaml",
+    "config.yaml"
+  ]
+}

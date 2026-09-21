@@ -42,7 +42,14 @@ def make_manifest(
         except ValueError:
             stored = str(file_path)
     else:
-        stored = str(file_path)
+        # No project root: keep the manifest portable rather than embedding a
+        # machine-specific absolute path. Prefer a path relative to the working
+        # directory; otherwise just the file name (callers can pass a base_dir to
+        # verify_manifest to resolve it).
+        try:
+            stored = str(file_path.resolve().relative_to(Path.cwd().resolve()))
+        except (ValueError, OSError):
+            stored = file_path.name
     manifest = {
         "schema_version": "artifact/v1",
         "id": artifact_id,

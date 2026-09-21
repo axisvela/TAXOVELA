@@ -1,0 +1,14 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "validation-factory-mes-20260915",
+  "type": "validation-result",
+  "schema": "validation/v1",
+  "path": "output\\validation\\validate_result.json",
+  "sha256": "7312482fbd4bcf21a30af89adbe42e8e9d4dc0d5d3e26d0b719b16e46abb362e",
+  "model_version": "openai/gpt-5.6-sol",
+  "producer": "arch-validate",
+  "produced_at": "2026-09-15T00:55:55Z",
+  "input_artifacts": [
+    "diagram-png"
+  ]
+}

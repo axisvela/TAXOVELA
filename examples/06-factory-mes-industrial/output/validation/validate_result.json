@@ -1,0 +1,201 @@
+{
+  "schema_version": "validation/v1",
+  "source": {
+    "path": "output\\diagrams\\diagram.png",
+    "sha256": "34683c8d655a36eaebe209766811a4241cc2f641e45c7a7b3c50b8c2f01d7514",
+    "media_type": "image/png",
+    "validated_at": "2026-09-15T00:55:55Z",
+    "validator_version": "arch-validate/openai-gpt-5.6-sol",
+    "ruleset_digest": "03ee45548c349444517f61a49ff6e792f5d2b47c9003852bd6b9da24e9fb0d35"
+  },
+  "dimensions": {
+    "Cloud_Network_Completeness": {
+      "raw_score": 7.0,
+      "weight": 2.0,
+      "weighted_score": 1.4
+    },
+    "Connectivity": {
+      "raw_score": 0.0,
+      "weight": 1.0,
+      "weighted_score": 0.0
+    },
+    "Technical_Component_Completeness": {
+      "raw_score": 7.631,
+      "weight": 2.0,
+      "weighted_score": 1.526
+    },
+    "Interaction_Integration": {
+      "raw_score": 9.726,
+      "weight": 2.0,
+      "weighted_score": 1.945
+    },
+    "Security_Compliance": {
+      "raw_score": 5.0,
+      "weight": 2.0,
+      "weighted_score": 1.0
+    },
+    "Terminology_Expression": {
+      "raw_score": 3.0,
+      "weight": 1.0,
+      "weighted_score": 0.3
+    }
+  },
+  "issues": [
+    {
+      "id": "VAL-001",
+      "rule_id": "E-001",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "dc-us-na datacenter label",
+      "evidence": "The PNG says 'North America Data Center dc-us-na [US]' but omits the City C city-level location supplied by project config; 1 of 5 private-DC containers lacks a city label.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-002",
+      "rule_id": "E-AZ-001",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "Azure East US topology",
+      "evidence": "The Azure area contains only an EDW Subnet, firewall, and SYS-38; no Hub VNET, Spoke VNET, gateway, centralized DNS, or monitoring boundary is shown.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-003",
+      "rule_id": "E-009",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Connectivity",
+      "subject": "six unique cross-site boundary pairs",
+      "evidence": "Plant-dc-us, plant-dc-cn-primary, plant-dc-us-na, dc-us-na-dc-cn-primary, dc-cn-secondary-dc-us-na, and dc-us-na-Azure all use generic 'private WAN/connectivity' wording rather than MPLS/equivalent, ExpressRoute, or another approved carrier type; 6 of 6 types are missing while 6 of 6 encryption labels are present.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-004",
+      "rule_id": "E-013",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "runtime metadata for 16 of 44 technical components",
+      "evidence": "Runtime is absent for SYS-22 through SYS-31 except none in that range, SYS-34 through SYS-38, and azure-edw-firewall; exact missing IDs: SYS-22,SYS-23,SYS-24,SYS-25,SYS-26,SYS-27,SYS-28,SYS-29,SYS-30,SYS-31,SYS-34,SYS-35,SYS-36,SYS-37,azure-edw-firewall,SYS-38.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-005",
+      "rule_id": "E-012",
+      "severity": "medium",
+      "disposition": "must_fix",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "technology stack for 8 of 23 custom components",
+      "evidence": "After exempting Nginx and SAP/commercial endpoints, stack metadata is absent for SYS-04,SYS-26,SYS-27,SYS-28,SYS-29,SYS-32,SYS-33,SYS-37.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-006",
+      "rule_id": "V-003",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Interaction_Integration",
+      "subject": "Kafka consumer-side direction",
+      "evidence": "4 of 24 Kafka-labeled interaction segments originate at a Kafka hub (SYS-25 once and SYS-30 three times) and point toward a firewall; the mandated notation requires producer and consumer relationships to point toward Kafka.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-007",
+      "rule_id": "W-003",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Interaction_Integration",
+      "subject": "SYS-26 through SYS-29 integration bindings",
+      "evidence": "4 of 73 interactions are labeled 'HTTPS or Kafka/TLS' with alternative authentication mechanisms instead of one selected protocol and authentication contract per arrow.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-008",
+      "rule_id": "E-PC-001",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "Internet to plant-edge ingress",
+      "evidence": "The sole external ingress is drawn from an Internet node directly to SYS-01 VIP. Neither SYS-01 nor the plant boundary appliance is explicitly identified as the mandatory F5 stack, and the image conflicts with the blueprint note that this is plant-intranet-only access.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-009",
+      "rule_id": "E-PC-004",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "private-cloud operational access",
+      "evidence": "The blueprint declares Office Network -> MFA -> PAW -> management plane, but the PNG contains no Office Network, PAW node, management-plane path, JIT control, or session-audit path across any of the five private-DC containers.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-010",
+      "rule_id": "E-AZ-008",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "SYS-38 Azure endpoint",
+      "evidence": "The blueprint says a private endpoint is required, but the PNG does not show a Private Endpoint, Private DNS, or disabled public access for SYS-38.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-011",
+      "rule_id": "V-001",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Terminology_Expression",
+      "subject": "physical zones and technical components",
+      "evidence": "Static inspection finds 42 of 73 rendered vertices with dashed borders; the visible physical Zone containers and many deployed service components are dashed even though physical entities must use solid borders.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-012",
+      "rule_id": null,
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Terminology_Expression",
+      "subject": "EXISTING/NEW migration labeling",
+      "evidence": "Of 38 SYS components, 4 are EXISTING, 13 are NEW, and all 21 plant systems omit lifecycle status; interactions contain 9 EXISTING, 25 NEW, and 39 TBD labels.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-013",
+      "rule_id": null,
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "plant autonomy evidence",
+      "evidence": "The blueprint documents local K8s, PostgreSQL HA, a durable SYS-17 outbox, replay, cached identity/authorization, and WAN-independent operation, but those autonomy controls are not legible as an explicit bounded plant-edge capability on the PNG.",
+      "confidence": "medium"
+    },
+    {
+      "id": "VAL-014",
+      "rule_id": "V-007",
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Terminology_Expression",
+      "subject": "dense interaction labels",
+      "evidence": "All 73 arrows are labeled, but labels heavily overlap nodes, labels, and edges in the 1254x2206 PNG; several service names and security labels are clipped or visually inseparable in the plant and CN/NA integration zones.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-015",
+      "rule_id": "S-007",
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Security_Compliance",
+      "subject": "credential-management visibility",
+      "evidence": "The blueprint declares encrypted Kubernetes Secrets, vault-backed rotation, and Azure Key Vault with managed identity, and SAP IDOC/RFC paths use mTLS plus least-privilege technical users; however, no secret store, Key Vault, credential flow, or rotation note is visible on the PNG.",
+      "confidence": "high"
+    }
+  ],
+  "summary": {
+    "total_score": 6.171,
+    "must_fix": 11,
+    "should_fix": 4,
+    "consider": 0
+  }
+}

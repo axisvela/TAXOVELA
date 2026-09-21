@@ -1,0 +1,27 @@
+{
+  "schema_version": "enforcement/v1",
+  "decision": "BLOCK",
+  "validation": {
+    "path": "output\\diagrams\\diagram.png",
+    "sha256": "34683c8d655a36eaebe209766811a4241cc2f641e45c7a7b3c50b8c2f01d7514",
+    "ruleset_digest": "03ee45548c349444517f61a49ff6e792f5d2b47c9003852bd6b9da24e9fb0d35"
+  },
+  "policy": {
+    "path": "../../standards/arch-gate-policy.yaml",
+    "digest": "5829fac16d42d2b2c63b728cf9098175b82a23a52045e10dab5cbe13bd7dd97b",
+    "block_threshold": 6.0,
+    "warn_threshold": 8.0,
+    "must_fix_zero_required": true
+  },
+  "evaluation": {
+    "total_score": 6.171,
+    "must_fix": 11,
+    "should_fix": 4,
+    "consider": 0
+  },
+  "reasons": [
+    "must_fix=11 > 0 (must_fix_zero_required)"
+  ],
+  "producer": "archharness/0.7.0",
+  "produced_at": "2026-09-15T01:03:22+00:00"
+}

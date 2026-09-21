@@ -57,10 +57,11 @@ class ReqManifestE2ETests(unittest.TestCase):
             self.assertTrue(
                 any(str(entry).endswith("cmdb.csv") for entry in manifest["input_artifacts"])
             )
-            self.assertTrue(verify_manifest(manifest))
+            # The manifest stores a portable path; resolve it against the dir.
+            self.assertTrue(verify_manifest(manifest, tmpdir))
 
             out.write_text("tampered\n", encoding="utf-8")
-            self.assertFalse(verify_manifest(manifest))
+            self.assertFalse(verify_manifest(manifest, tmpdir))
 
 
 if __name__ == "__main__":

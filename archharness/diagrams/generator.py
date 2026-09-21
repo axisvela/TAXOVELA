@@ -130,10 +130,10 @@ def _comp_label(comp: dict) -> str:
     """
     tech = labels.tech_line(comp)
     if comp.get("is_group"):
-        members = "\n".join(comp.get("member_names", []) or [])
+        # Members are drawn as real nodes inside the frame, so the title is just
+        # the group name plus its shared technology.
         head = comp.get("name", "group")
-        label = f"{head}\n{members}" if members else head
-        return f"{label}\n{tech}" if tech else label
+        return f"{head}\n{tech}" if tech else head
     name = comp.get("name", comp.get("id", ""))
     return f"{name}\n{tech}" if tech else name
 
@@ -200,7 +200,7 @@ def generate_drawio(arch: dict) -> str:
     """
     # Fold interchangeable siblings into logical groups before validating and
     # laying out, so the group box — not each member — carries the edges.
-    arch, _groups = topology.collapse_groups(arch)
+    arch, _groups = topology.prepare(arch)
     validate_architecture_refs(arch)
     layout = calculate_layout(arch)
     positions = layout["positions"]
@@ -342,6 +342,26 @@ def generate_drawio(arch: dict) -> str:
                 comp_cell.set("parent", zone_cell_id)
                 if comp_tooltip:
                     comp_cell.set("tooltip", comp_tooltip)
+
+                # Logical group: its members are real component nodes nested
+                # inside the frame (positions are group-relative).
+                for member in comp.get("member_specs", []) or []:
+                    mid = member.get("id")
+                    if mid not in positions:
+                        continue
+                    mx, my, mw, mh = positions[mid]
+                    member_cell_id = _id("comp-")
+                    cell_map[mid] = member_cell_id
+                    member_label = _comp_label(member)
+                    if "Restricted" in member.get("sensitivity", "") or \
+                            "Confidential" in member.get("sensitivity", ""):
+                        member_label = "⚠ " + member_label
+                    member_cell = _make_vertex(root, member_cell_id, member_label,
+                        _comp_style(member), mx, my, mw, mh)
+                    member_cell.set("parent", comp_cell_id)
+                    member_tooltip = _comp_tooltip(member)
+                    if member_tooltip:
+                        member_cell.set("tooltip", member_tooltip)
 
     # ── Edges (interactions) ──────────────────────────────────────────────────
     interactions = topology.contract(

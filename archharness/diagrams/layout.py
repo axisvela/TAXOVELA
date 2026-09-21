@@ -25,6 +25,8 @@ REGION_PAD      = 22       # padding inside DC/cloud container
 ZONE_GAP        = 18       # gap between zones
 ZONE_HEADER     = 32       # zone label height
 ZONE_PAD        = 16       # padding inside zone
+GROUP_HEADER    = 24       # logical-group title height
+GROUP_PAD       = 12       # padding inside a logical group
 
 # Base component sizes (a label may grow the box beyond these)
 COMP_W          = 150      # backend service
@@ -45,7 +47,7 @@ REGION_TITLE_H  = 44
 # Component sizing
 MAX_ROW_W       = 520      # preferred single-row width inside a zone
 MAX_COMP_W      = 260      # a label never widens a box beyond this
-MAX_GROUP_W     = 340      # logical-group boxes may be a little wider
+MAX_GROUP_W     = 470      # logical-group frames fit several members per row
 CHAR_W          = 7.4      # ≈ px per character at fontSize 14
 LINE_H          = 15       # ≈ px per label line
 
@@ -68,21 +70,55 @@ def _label_text(comp: dict) -> tuple[str, str]:
     return name, tech
 
 
-def _component_size(comp: dict) -> tuple[int, int]:
-    """Adaptive size: the box grows with its label, up to MAX_COMP_W."""
+def _group_layout(group: dict, max_w: int = MAX_GROUP_W) -> tuple[int, int, dict]:
+    """Lay the group's members out inside it.
+
+    Returns ``(width, height, {member_id: (x, y, w, h)})`` with the member
+    positions relative to the group's top-left — a group contains real component
+    nodes, not a text list.
+    """
+    members = group.get("member_specs") or []
+    if not members:
+        title = group.get("name", "group")
+        width = max(COMP_W, min(int(len(title) * CHAR_W) + 26, max_w))
+        return width, GROUP_HEADER + GROUP_PAD * 2, {}
+
+    width = max_w
+    # Size members so (at least) two fit per row — keeps a group frame compact.
+    member_cap = max(COMP_W, (width - 2 * GROUP_PAD - COMP_GAP_H) // 2)
+    rows = _split_into_rows(members, width - 2 * GROUP_PAD, cap=member_cap)
+    widest = max((_row_metrics(r, cap=member_cap)[0] for r in rows), default=0)
+    width = max(min(widest + 2 * GROUP_PAD, max_w), COMP_W)
+
+    # Re-split at the final width so the height matches what will be drawn.
+    member_cap = max(COMP_W, (width - 2 * GROUP_PAD - COMP_GAP_H) // 2)
+    rows = _split_into_rows(members, width - 2 * GROUP_PAD, cap=member_cap)
+    height = GROUP_HEADER + GROUP_PAD
+    positions: dict[str, tuple] = {}
+    for row in rows:
+        row_w, row_h = _row_metrics(row, cap=member_cap)
+        cx = (width - row_w) // 2
+        for member in row:
+            mw, mh = _component_size(member, cap=member_cap)
+            positions[member["id"]] = (cx, height + (row_h - mh) // 2, mw, mh)
+            cx += mw + COMP_GAP_H
+        height += row_h + COMP_GAP_V
+    height += GROUP_PAD - COMP_GAP_V + 4
+    return width, height, positions
+
+
+def _component_size(comp: dict, cap: int | None = None) -> tuple[int, int]:
+    """Adaptive size: the box grows with its label, up to MAX_COMP_W (or *cap*)."""
     if comp.get("is_group"):
-        names = comp.get("member_names") or []
-        longest = max([len(comp.get("name", ""))] + [len(n) for n in names] + [0])
-        width = max(COMP_W, min(int(longest * CHAR_W) + 26, MAX_GROUP_W))
-        lines = 2 + len(names)          # header + one line per member + tech line
-        return width, max(COMP_H, 14 + LINE_H * lines)
+        width, height, _ = _group_layout(comp)
+        return width, height
 
     base_w, base_h = _base_component_size(comp)
     name, tech = _label_text(comp)
 
     longest = max([len(name)] + [len(line) for line in tech.split("\n")] + [0])
     wanted_w = int(longest * CHAR_W) + 26           # text + inner padding
-    w = max(base_w, min(wanted_w, MAX_COMP_W))
+    w = max(base_w, min(wanted_w, cap or MAX_COMP_W))
 
     # How many lines will the label need at this width?
     per_line = max(8, int((w - 22) / CHAR_W))
@@ -92,11 +128,12 @@ def _component_size(comp: dict) -> tuple[int, int]:
     return w, h
 
 
-def _split_into_rows(components: list, max_row_w: int) -> list[list]:
+def _split_into_rows(components: list, max_row_w: int,
+                     cap: int | None = None) -> list[list]:
     """Split components into rows such that each row fits within max_row_w."""
     rows, row, row_w = [], [], 0
     for comp in components:
-        cw, _ = _component_size(comp)
+        cw, _ = _component_size(comp, cap)
         needed = cw + (COMP_GAP_H if row else 0)
         if row and row_w + needed > max_row_w:
             rows.append(row)
@@ -109,9 +146,9 @@ def _split_into_rows(components: list, max_row_w: int) -> list[list]:
     return rows
 
 
-def _row_metrics(row: list) -> tuple[int, int]:
-    width = sum(_component_size(c)[0] for c in row) + COMP_GAP_H * (len(row) - 1)
-    height = max((_component_size(c)[1] for c in row), default=0)
+def _row_metrics(row: list, cap: int | None = None) -> tuple[int, int]:
+    width = sum(_component_size(c, cap)[0] for c in row) + COMP_GAP_H * (len(row) - 1)
+    height = max((_component_size(c, cap)[1] for c in row), default=0)
     return width, height
 
 
@@ -247,6 +284,10 @@ def calculate_layout(arch: dict) -> dict:
                     cid = comp["id"]
                     cy_adj = (row_h - ch) // 2        # centre within the row
                     positions[cid] = (cx, cy + cy_adj, cw, ch)
+                    if comp.get("is_group"):
+                        # Members are nested: their positions are group-relative.
+                        _, _, member_pos = _group_layout(comp)
+                        positions.update(member_pos)
                     cx += cw + COMP_GAP_H
 
                 cy += row_h + COMP_GAP_V
@@ -269,6 +310,14 @@ def calculate_layout(arch: dict) -> dict:
                     continue
                 cx_r, cy_r, cw, ch = positions[cid]
                 abs_positions[cid] = (abs_zx + cx_r, abs_zy + cy_r, cw, ch)
+
+                # Members of a logical group are one level deeper.
+                for member in comp.get("member_specs", []) or []:
+                    mid = member.get("id")
+                    if mid not in positions:
+                        continue
+                    mx, my, mw, mh = positions[mid]
+                    abs_positions[mid] = (abs_zx + cx_r + mx, abs_zy + cy_r + my, mw, mh)
 
     # Fixed virtual nodes
     abs_positions["internet"]       = (left_x + 10, 60, 70, 44)

@@ -57,6 +57,44 @@ def boundary_zones(arch: dict) -> set[str]:
     return zones
 
 
+def _is_message_bus(comp: dict) -> bool:
+    return comp.get("type") == "MQ" or comp.get("shape") == "message_queue" \
+        or comp.get("component_role") == "message_bus"
+
+
+def _all_components(arch: dict) -> list:
+    out = []
+    for region in arch.get("deployment", arch.get("arch", {}).get("deployment", [])) or []:
+        key = "subnets" if region.get("type", "private_dc") != "private_dc" else "network_zones"
+        for zone in region.get(key, []) or []:
+            out.extend(zone.get("components", []) or [])
+    return out
+
+
+def normalize_provider_direction(arch: dict) -> dict:
+    """A message bus is a *service provider*: every edge points into it.
+
+    Producers and consumers both initiate against the bus, so an edge that leaves
+    the bus is reversed (the label stays the same). This keeps the arrow meaning
+    "caller → provider" everywhere, which is what the reader expects of a broker.
+    """
+    bus_ids = {c.get("id") for c in _all_components(arch) if _is_message_bus(c)}
+    if not bus_ids:
+        return arch
+    interactions = arch.get("interactions", arch.get("arch", {}).get("interactions", [])) or []
+    for edge in interactions:
+        src, tgt = edge.get("from", ""), edge.get("to", "")
+        if src in bus_ids and tgt not in bus_ids:
+            edge["from"], edge["to"] = tgt, src
+    return arch
+
+
+def prepare(arch: dict, min_size: int = GROUP_MIN_SIZE):
+    """Normalise provider direction, then fold interchangeable siblings."""
+    arch = normalize_provider_direction(arch)
+    return collapse_groups(arch, min_size=min_size)
+
+
 def _relations(interactions: list, skip: set[str]) -> dict:
     """Signature of every component's edges: {(dir, other, protocol)}."""
     rel: dict[str, set] = {}
@@ -145,6 +183,9 @@ def collapse_groups(arch: dict, min_size: int = GROUP_MIN_SIZE):
                     "is_group": True,
                     "members": [m.get("id") for m in members],
                     "member_names": [m.get("name", m.get("id", "")) for m in members],
+                    # Full specs so the renderers draw the members as real nodes
+                    # nested inside the group frame (not as a text list).
+                    "member_specs": [dict(m) for m in members],
                 })
             zone["components"] = new_components
 

@@ -224,6 +224,35 @@ class TopologyTests(unittest.TestCase):
         self.assertEqual(len([e for e in arch["interactions"]
                               if e["from"] == gid and e["to"] == "CMP-19"]), 1)
 
+    def test_group_keeps_full_member_specs(self):
+        arch, groups = topology.collapse_groups(self._group_arch())
+        (gid, _members), = groups.items()
+        zone = arch["deployment"][0]["network_zones"][0]
+        group = next(c for c in zone["components"] if c["id"] == gid)
+        # Members are drawn as real nodes, so the renderer needs their specs.
+        self.assertTrue(group["is_group"])
+        self.assertEqual(len(group["member_specs"]), 4)
+        self.assertTrue(all("name" in m and "id" in m for m in group["member_specs"]))
+
+    def test_message_bus_is_always_the_provider(self):
+        arch = {
+            "deployment": [{"id": "dc", "type": "private_dc", "location": "DC",
+                            "network_zones": [{"id": "z", "type": "app_zone", "name": "Z",
+                                               "components": [
+                                                   {"id": "CMP-01", "name": "svc", "type": "BE"},
+                                                   {"id": "CMP-23", "name": "Kafka", "type": "MQ"},
+                                               ]}]}],
+            "interactions": [
+                # consumer/producer -> bus is fine
+                {"from": "CMP-01", "to": "CMP-23", "protocol": "Kafka"},
+                # a bus must never be the caller: this one gets flipped
+                {"from": "CMP-23", "to": "CMP-01", "protocol": "Kafka"},
+            ],
+        }
+        topology.normalize_provider_direction(arch)
+        for edge in arch["interactions"]:
+            self.assertEqual(edge["to"], "CMP-23")
+
     def test_group_needs_a_minimum_size(self):
         arch, groups = topology.collapse_groups(self._group_arch(), min_size=5)
         self.assertEqual(groups, {})

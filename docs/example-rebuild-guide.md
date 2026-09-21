@@ -1,0 +1,139 @@
+# Rebuilding an Example on the req/v2 Model
+
+Procedure for migrating one `examples/<id>/` project from the flat `SYS-nn`
+registry to the req/v2 entity model. Worked references: `06-factory-mes-industrial`
+(done, validated) and `05-supply-chain-order-private-cloud`.
+
+The judgement is human; the rewriting and checking are mechanical.
+
+---
+
+## Step 1 — Read the source registry and classify every row
+
+For each `SYS-nn` row decide **what the thing is**, using the three tests:
+
+| Question | If yes |
+|---|---|
+| Is it a location or network/security topology node (DC, region, VNet, zone, firewall, WAF, load balancer appliance, VPN gateway, identity provider, bastion, KMS, SOC)? | `infra` (`INF-nn`) |
+| Is it an application/system, or an external system seen as a black box? | `systems` (`APP-nn`) |
+| Is it an application artefact (service, DB, cache, bus, API gateway, data lake, frontend)? | `components` (`CMP-nn`) |
+| Is it a carrier circuit / WAN path (ExpressRoute, MPLS, VPN, peering)? | a `network_links` (`LNK-nn`) row — **not** a node |
+| Is it an arrow between components? | `flows` (`FLOW-nn`) |
+| Is it a user/entry login? | `auth` (`AUTH-nn`) |
+
+Then apply these structural rules:
+
+- **Appliance test** — firewall/WAF/router/VPN gateway/bastion/IdP/KMS/SOC are
+  `infra` L4 nodes, never components. An application-layer load balancer may be
+  a component with `component_role=load_balancer`.
+- **Black-box systems** — an existing external system gets an `APP-nn` row *and*
+  one boundary `CMP-nn` (`component_role=integration_service`) so flows have a
+  component endpoint. A bare system is not enough.
+- **Symmetric regions** — if CN and NA run the same logical stack active-active,
+  model **one component with two deployments**, not two components. This is the
+  main quality gain over `req/v1` (where `SYS-06` and `SYS-33` were separate
+  "applications").
+- **Derived layers** (`deployments`/`flows`/`network_links`/`auth`) are not
+  inventory and are not required to be cited by `prompt.md`.
+
+Assign typed IDs in table order: `INF-01…`, `APP-01…`, `CMP-01…`, `DEP-01…`,
+`FLOW-01…`, `LNK-01…`, `AUTH-01…`, `STK-01…`.
+
+## Step 2 — Write the seven-table registry
+
+Replace `input/systems-registry.md` with one table per entity kind (headers
+from `standards/requirements-model-v2.yaml > registry.tables`):
+
+| Table | Columns |
+|---|---|
+| R1 Infra nodes | 编号 \| 参考图原名 \| node_kind \| infra_type \| network_type \| 父节点 \| 位置/国家 \| 文档用名 \| 备注 |
+| R2 Systems | 编号 \| 参考图原名 \| type \| owner \| vendor \| 文档用名 \| 备注 |
+| R3 Components | 编号 \| 参考图原名 \| 所属系统 \| 子系统 \| kind \| layer \| component_role \| 静态加密 \| 文档用名 \| 备注 |
+| R4 Deployments | 编号 \| 参考图原名 \| 组件 \| 环境 \| deployment_type \| location_type \| infra 节点 \| runtime_type \| 实例数 \| 文档用名 \| 备注 |
+| R5 Component flows | 编号 \| 参考图原名 \| 发起组件 \| 提供组件 \| protocol \| port \| auth_method \| 加密 \| 跨境 \| via \| 备注 |
+| R6 Infra links | 编号 \| 参考图原名 \| 源 infra \| 目标 infra \| method \| 带宽 \| 加密 \| 管理方 \| 备注 |
+| R7 Auth | 编号 \| 参考图原名 \| subject \| 适用入口 \| auth_server \| protocol \| authorization \| MFA \| 备注 |
+
+**Choose `文档用名` values that do not already occur in the prose** — the literal
+leakage check flags any doc-name found outside the registry. Avoid reusing a
+location literal (e.g. do not use `dc-us-na` as a doc-name when the prose says
+`dc-us-na`).
+
+## Step 3 — Re-code the documents
+
+Every `SYS-nn` in `input/prompt.md`, `input/documents/requirements.md`,
+`README.md` and `config.yaml` becomes its typed code. Ranges are supported
+(`CMP-05 through CMP-18`), which keeps the prompt readable.
+
+`prompt.md` must cite **every in-scope inventory row** (`INF`/`APP`/`CMP`) or the
+scope guard warns — close it with range lines, e.g.:
+
+```
+Systems and infra in scope: APP-01 through APP-07; INF-01 through INF-14;
+CMP-01 through CMP-36.
+```
+
+`config.yaml > datacenters[].notes` is checked too (only the `platforms:` block
+is ignored) — update the codes there as well.
+
+## Step 4 — Author `output/requirements/req.yaml` in req/v2
+
+Derive it from the registry + requirements document. Keep it schema-shaped (see
+`schemas/req-v2.schema.json`). One deployment row per component × environment ×
+site; `via` carries the traversed `INF` L4 nodes; service-to-service auth is the
+inline `auth_method` enum.
+
+## Step 5 — Verify
+
+```bash
+python tools/registry_check.py examples/<id>          # registry ↔ docs consistency
+python -m archharness req-validate examples/<id>/output/requirements/req.yaml
+python -m pytest -q                                    # no regressions
+```
+
+Both must be clean. `req-validate` runs schema + rules V1–V7.
+
+Alternatively regenerate the merged document from the readers:
+
+```bash
+python -m archharness req --diagram <arch>.yaml --doc requirements.md \
+    -o output/requirements/req.yaml --report output/validation/gap-report.md \
+    --manifest working/manifests/req.yaml.manifest.json
+```
+
+## Step 6 — Regenerate the derived artifacts
+
+`output/designs/blueprint.yaml`, `output/diagrams/*`, `working/manifests/*` and
+`output/validation/*` are downstream of `req.yaml`:
+
+```bash
+python -m archharness validate-yaml output/designs/blueprint.yaml
+python -m archharness diagram -i output/designs/blueprint.yaml \
+    -o output/diagrams/diagram.drawio --png output/diagrams/diagram.png
+```
+
+Validation (`validate_result.json` / `enforce_result.json`) needs the
+LLM-driven `arch-validate` skill, or the deterministic gate:
+
+```bash
+python -m archharness enforce --validation output/validation/validate_result.json
+```
+
+## Step 7 — Update `examples/README.md`
+
+Reflect the entity counts per example and the standards exercised. Leave example
+07/08 as scaffolds until their reference input exists.
+
+---
+
+## Ordering recommendation
+
+| Example | Effort | Note |
+|---|---|---|
+| 06 factory-mes | done | validated reference |
+| 05 supply-chain | high | symmetric CN/NA; requires the one-component-two-deployments decision |
+| 03 order-query-aws | medium | AWS standard + EDW |
+| 02 ai-agent-hybrid | medium | private DC + Azure hybrid |
+| 04 service-delivery | medium | private-cloud full coverage |
+| 01 ecommerce-azure | low value | source diagram quality is poor; rebuild last or drop |
+| 07/08 | blocked | awaiting reference input |

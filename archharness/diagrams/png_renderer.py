@@ -242,7 +242,10 @@ def _draw_legend(ax, lx, ly, lw, lh=90):
 # ── Main render ───────────────────────────────────────────────────────────────
 
 def render_png(arch: dict, png_path: str, dpi: int = 130):
-    from layout import calculate_layout
+    # Package execution (`python -m archharness diagram`) requires a relative
+    # import. The previous top-level import only worked when this directory
+    # happened to be injected into sys.path by the legacy script.
+    from .layout import calculate_layout
 
     layout = calculate_layout(arch)
     positions    = layout["positions"]

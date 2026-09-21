@@ -3,9 +3,11 @@ name: arch-req-from-api
 description: >
   Fetch application metadata from CMDB (ServiceNow, etc.) or Enterprise
   Architecture systems via REST API or CSV export.
-  Provides high-confidence physical location and ownership data.
-  Does NOT provide tech stack, protocols, or auth — those must come
-  from other readers or interview. Use before arch-req-merge.
+  Provides high-confidence physical location and ownership data. Emits req/v2
+  `systems` rows plus de-duplicated `infra` nodes, and additionally `components`
+  / `stacks` / `deployments` when the CSV carries a technology stack.
+  Does NOT provide protocols or auth — those must come from other readers or
+  the interview. Use before arch-req-merge.
 ---
 
 > **Locating shared resources.** References in this file to `standards/`,
@@ -103,17 +105,27 @@ If the user cannot connect to their CMDB, guide them to:
 2. Use the CSV import option above
 3. Or manually provide the application registry as a YAML list
 
-Manual application registry format:
+Manual application registry format (req/v2 partial — references are names):
 ```yaml
-applications:
-  - name: Order Management System
-    id: OMS-001
-    dc_or_region: "Neimeng DC (Hohhot) [CN]"
-    country: CN
-    platform: private_dc
-    zone_subnet: App Zone
-    owner: SSG Team
-    infra_owner: InfraSec
+systems:
+  - name: {value: "Order Management System"}
+    type: {value: "existing"}
+    owner: {value: "org_it"}
+infra:
+  - name: {value: "Neimeng DC (Hohhot)"}
+    node_kind: {value: "data_center"}
+    infra_type: {value: "private_cloud"}
+    network_type: {value: "prod_network"}
+    parent: {value: "Neimeng DC (Hohhot)"}
+    country: {value: "CN"}
+    infra_owner: {value: "InfraSec"}
+deployments:
+  - component: {value: "Order Service"}
+    environment: {value: "prod"}
+    deployment_type: {value: "private_cloud"}
+    location_type: {value: "data_center"}
+    infra: {value: "Neimeng DC (Hohhot) / App Zone"}
+    runtime_type: {value: "container"}
 ```
 
 ## Always note after API extraction

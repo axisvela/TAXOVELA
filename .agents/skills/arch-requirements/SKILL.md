@@ -3,8 +3,10 @@ name: arch-requirements
 description: >
   Requirements gathering and analysis for technical architecture design.
   Conducts a structured interview to collect all physical, precise information
-  needed for architecture design. Outputs a Requirements Document (REQ.md +
-  req.yaml) that becomes the direct input to arch-design.
+  needed for architecture design, filling the entity-separated req/v2 model
+  (infra / systems / components / deployments / flows / network_links / auth).
+  Outputs a Requirements Document (REQ.md + req.yaml) that becomes the direct
+  input to arch-design.
   Use BEFORE arch-design. Use when: starting a new project, adding a new
   application, or making significant changes to an existing integration.
 ---
@@ -17,6 +19,14 @@ description: >
 > (3) the current working directory when it already contains `config.yaml` and
 > `tools/` (the repository checkout). Prefix shared paths with that root
 > whenever the working directory is not the resource root.
+>
+> **Model contract.** The authoritative entity model is
+> `standards/requirements-model-v2.yaml`; the output contract is
+> `schemas/req-v2.schema.json` (`req/v2`). Read the model spec before
+> interviewing — it defines the ID prefixes, the allowed enums, and the rules
+> that separate infrastructure from components. The packaged model spec is
+> authoritative; `docs/requirements-model-v2.md` (repository checkout only) holds
+> the rationale and the `req/v1` migration table.
 
 You are a **senior enterprise architect conducting a pre-design requirements interview**.
 Your job is to extract precise, physical information — not logical intentions or vague descriptions.
@@ -27,18 +37,69 @@ blocks the design. You do not move forward until you have specific, physical ans
 
 ---
 
+## The req/v2 model — what you are filling in
+
+Nine entity kinds, each identified by a **typed prefix**. A reference always
+states what it points at.
+
+| Entity | Prefix | What it is |
+|---|---|---|
+| `infra` | `INF-nn` | Hosting location and network topology |
+| `systems` | `APP-nn` | Application / system |
+| `components` | `CMP-nn` | Technical component / service inside a system |
+| `stacks` | `STK-nn` | Component → technology stack binding |
+| `deployments` | `DEP-nn` | Component runtime placement |
+| `flows` | `FLOW-nn` | Component communication flow (directed) |
+| `network_links` | `LNK-nn` | Infrastructure network connection (undirected) |
+| `auth` | `AUTH-nn` | User / entry authentication |
+| *(subsystems)* | `SUB-nn` | Optional subsystem grouping |
+
+**Two invariants** — violate them and the model has failed:
+
+1. **A `flow` connects components.** Its endpoints are `CMP-nn` (the external
+   sentinel `internet` may be a *source*). Never route a flow to a firewall,
+   gateway, zone or data centre — those go in `via` as an ordered `INF-nn` path.
+2. **A `network_link` connects infra nodes.** Endpoints are `INF-nn`. A carrier
+   circuit (ExpressRoute, MPLS, Direct Connect) is a **link**, not a node.
+
+**The three-field rule (infra).** `node_kind` (topology role), `infra_type`
+(hosting category) and `network_type` (network/security domain) are always
+three independent fields:
+
+| `node_kind` | `infra_type` | `network_type` |
+|---|---|---|
+| `region`, `data_center`, `iaas_vpc_vnet`, `paas`, `saas`, `third_party`, `office_network`, `factory_network`, `lab`, `internet_network`, `network_zone`, `subnet` | `private_cloud`, `public_cloud`, `saas`, `third_party`, `office`, `factory`, `lab` | `office_network`, `factory_network`, `lab_network`, `prod_network`, `dmz` |
+
+**Appliance or component? (ask this every time)**
+
+- Firewall, WAF, router, switch, VPN gateway, **load balancer appliance**,
+  bastion, identity provider (ADFS/Entra), SOC/monitoring, key management →
+  **`infra` L4 node**, never a component.
+- API gateway, message bus, database, cache, integration service, business
+  services → **`components`** with the matching `component_role`.
+- Exception (application-layer load balancer): a load balancer that is a
+  *product-level traffic component* may be a component with
+  `component_role=load_balancer`; an infrastructure appliance must be an `infra`
+  L4 `load_balancer` node.
+
+**Encryption is an attribute, not an entity.** At-rest → `components[].encryption_at_rest`
+(+ `key_management` → an `INF-nn` `key_management` node). In-transit →
+`flows[].encryption`. Cross-border → `flows[].cross_border` + `cross_border_basis`.
+
+---
+
 ## Scope rule — E2E solution vs single application
 
 **First question, always**: Is this a new standalone application, a modification to an
 existing application, or an end-to-end (E2E) cross-system solution?
 
-- **Standalone / modification**: Collect full internal stack detail (all components, runtime, language, framework).
-- **E2E solution**: Treat each existing application as a **black box**. Only collect:
-  - Its integration boundary (which endpoint/interface is exposed)
-  - Its network location (DC, zone, subnet)
-  - The protocol and auth it uses at the boundary
-  - Internal components of existing apps can be omitted
-  Focus only on the NEW application's internal stack and all integration points.
+- **Standalone / modification**: Collect full internal stack detail (all `components`,
+  `stacks`, `deployments`).
+- **E2E solution**: Treat each existing system as a **black box** — but still give it a
+  `systems` row and **one boundary component** for the interface it exposes
+  (`components` with `component_role=integration_service`). Flows need a component
+  endpoint; a bare system is not enough. Only collect the existing system's integration
+  boundary, its infra location, and the protocol/auth at that boundary.
 
 State this scope decision explicitly at the top of the requirements document.
 
@@ -54,17 +115,21 @@ Before conducting the interview, **always ask** whether the user has any of thes
 | Architecture image / screenshot | "Do you have a screenshot of the current architecture?" | `arch-req-from-diagram` (vision) |
 | Requirements doc / BRD / design doc | "Is there a written requirements or design document?" | `arch-req-from-doc` |
 | CMDB / ServiceNow export | "Can you export your application list from CMDB or ServiceNow?" | `arch-req-from-api` |
-| Previous req.yaml | "Do you have a previous requirements file from arch-requirements?" | Load directly |
+| Previous req.yaml | "Do you have a previous requirements file?" | Load directly (see migration) |
 
-**Processing order:**
-1. Run all available Reader tools first → get partial YAML files
-2. Run `arch-req-merge` → get merged YAML + gap report
-3. Conduct interview **only for remaining CRITICAL gaps** (not everything)
+Readers now emit **per-entity partials** (`infra`, `systems`, `components`, …)
+rather than a flat application list. Processing order:
 
-This means the interview may cover only 2-3 questions instead of 8 phases if the
-user has good source materials. Adapt accordingly.
+1. Run all available Reader tools first → per-kind partial YAML files
+2. Run `arch-req-merge` → merged YAML + gap report
+3. Conduct the interview **only for remaining CRITICAL gaps**
 
-**If the user has NO source materials**: conduct the full 8-phase interview below.
+**If the user has NO source materials**: conduct the full interview below.
+
+**Migrating a `req/v1` file**: `req/v1` is frozen but valid. Its `applications[]`
+list must be reclassified by hand — one row at a time — using the table in
+`docs/requirements-model-v2.md` §9. Never mechanically map `applications[]` onto
+`systems[]`.
 
 ---
 
@@ -73,119 +138,162 @@ user has good source materials. Adapt accordingly.
 Conduct the interview in phases. Do not dump all questions at once — ask one phase at a time,
 wait for answers, then proceed. Flag missing or vague answers before moving on.
 
-### Phase 0 — Project overview (ask first)
+### Phase 0 — Project overview
 
 1. Project/application name and ID (if known)
 2. What does this system do? (one paragraph, business purpose)
-3. Is this a new application, modification of existing, or E2E solution?
-4. Which Company department owns this? (BU, team)
-5. Who are the users? (internal Company employees / external customers / partners / mixed)
-6. Target go-live timeline?
+3. New standalone, modification, or E2E solution?
+4. Which department owns this? (BU, team)
+5. Who are the users? (internal employees / external customers / partners / mixed)
+6. Data classification of the most sensitive data handled
+7. Target go-live timeline?
 
-### Phase 1 — Physical location & ownership
+### Phase 1 — Infra topology (`infra`, `INF-nn`)
 
-For each application or component in scope:
+Build the containment tree first; every deployment will point into it.
 
-| Question | What "precise" means |
-|----------|---------------------|
-| Which country/region does it serve? | "China", "North America", "EMEA" — not "global" |
-| Where is it deployed? | Exact DC name (Hohhot DC, Shenyang DC, Reston DC, Frankfurt DC) OR exact public cloud region (AWS US East N. Virginia, Azure East Asia, Azure China North 2) |
-| Who owns the infrastructure? | InfraSec / specific BU / third-party vendor name |
-| Is any part hosted by a vendor? | If yes: which vendor, what is Company's vs vendor's boundary? |
-| Data residency constraint? | Must data stay in PRC? US? EU? |
+For each location, capture the **three independent fields**:
 
-### Phase 2 — Network segmentation
+| Question | Field | What "precise" means |
+|---|---|---|
+| What kind of node is this? | `node_kind` | `region` → `data_center`/`iaas_vpc_vnet`/`paas` → `network_zone`/`subnet` → L4 service |
+| What hosts it? | `infra_type` | `private_cloud`, `public_cloud`, `saas`, `third_party`, `office`, `factory`, `lab` |
+| What network/security domain? | `network_type` | `prod_network`, `dmz`, `office_network`, `factory_network`, `lab_network` |
+| What contains it? | `parent_id` | `INF-nn` of the parent node |
+| Which country? | `country` | "China", "US", "JP" — not "global" |
+| Which vendor? | `vendor` | cloud provider or carrier name |
+| Who owns it? | `biz_owner` / `infra_owner` | InfraSec / BU / vendor |
 
-For each deployment location:
-
-- **Private DC**: Which zone? (DMZ / App Zone / DB Zone / Intranet)
-- **AWS**: Which VPC? Which subnet type? (Public / Private)
-- **Azure**: Which VNET (Hub or Spoke)? Which subnet?
-- For existing systems being integrated: what zone/subnet are they in?
+Then capture the **L4 service nodes** present in each zone (firewall, WAF,
+load balancer appliance, identity provider, bastion, key management, SOC…).
+These are real nodes in the topology. **Do not** invent a firewall because
+traffic crosses a DMZ — only record appliances that actually exist.
 
 Flag immediately if:
-- Any application or database is said to be "in the cloud" without a specific region
-- Any zone is described as "internal network" without naming DMZ/App/DB
+- A location is "in the cloud" without a specific region/project
+- A zone is "internal network" without naming DMZ / App / DB
+- `node_kind`, hosting category and network domain are answered with one word
 
-### Phase 3 — Technical components
+### Phase 2 — Systems (`systems`, `APP-nn`)
 
-For each **new or modified** application:
+For each application/system in scope:
 
 | Field | Required answer |
-|-------|----------------|
+|---|---|
+| Name | Exact system name |
+| `type` | `new` / `existing` / `modified` |
+| `owner` | `org_it` / `biz_owned` / `third_party` |
+| `vendor` | if `third_party`: which vendor, and where is the boundary? |
+| `lifecycle_status` | reference value if known |
+| `data_classification` | Company Restricted / Confidential / Internal |
+
+### Phase 3 — Components & services (`components`, `CMP-nn`)
+
+For each **new or modified** system — and one boundary component per existing system:
+
+| Field | Required answer |
+|---|---|
 | Name | Exact service/process name |
-| Type | Web frontend / Backend API / Integration platform / Database / Message queue / etc. |
-| Language | Java 17 / Python 3.11 / Node.js 20 / Go 1.22 / .NET 8 / etc. |
-| Framework | Spring Boot 3.x / FastAPI / Express / Gin / ASP.NET Core |
-| Runtime environment | Internal K8s / AKS / Amazon ECS / VM / Physical machine / Lambda |
-| Data sensitivity | Company Restricted / Confidential / Internal |
+| `system_id` | owning `APP-nn` |
+| `kind` | `service` or `component` |
+| `component_role` | shape selector — see `standards/requirements-model-v2.yaml` (e.g. `backend_service`, `web_frontend`, `bff`, `api_gateway`, `message_bus`, `database`, `integration_service`) |
+| `layer` | coarse filter (`fe`/`be`/`api`/`db`/`mq`/…) |
+| Stack | language, framework, version, runtime |
+| `encryption_at_rest` | AES-256 / TDE / … (for data-holding components) |
+| `key_management` | `INF-nn` of the key-management node, if modelled |
+| `sensitivity` | data sensitivity |
 
-For **existing** applications (E2E scope): only collect name + type + location. Internal stack is not required.
+**Appliance test**: if the answer is a firewall, WAF, router, VPN gateway,
+bastion, identity provider or key manager, stop — it belongs in Phase 1 as an
+`infra` L4 node, not here.
 
-### Phase 4 — Network connections between locations
+### Phase 4 — Deployments (`deployments`, `DEP-nn`)
 
-For each cross-DC or DC-to-cloud connection:
-
-- Connection type: Internet / VPN / MPLS / AWS Direct Connect / Azure ExpressRoute
-- Is the connection encrypted? (IPSec / SSL VPN / plain)
-- Who manages the connection? (InfraSec / vendor / Company BU)
-
-Flag immediately if: two DCs or a DC and a cloud are connected via "the Internet" without VPN/encryption.
-
-### Phase 5 — Component-to-component communication
-
-For each integration point (arrow in the architecture):
+For each component, in each environment:
 
 | Field | Required answer |
-|-------|----------------|
-| Initiator (arrow tail) | Exact component name |
-| Provider (arrow head) | Exact component name |
-| Protocol | HTTPS / Kafka / SFTP / JDBC / ODBC / gRPC / RFC / TCP (with port) |
-| Port | Optional but required for TCP/non-standard |
-| Auth mechanism | See list below — must be specific |
-| Cross-zone? | Yes/No — if yes, goes through integration platform |
+|---|---|
+| `component_id` | `CMP-nn` |
+| `environment` | `dev`/`test`/`staging`/`prod`/`dr` |
+| `deployment_type` | `private_cloud` / `public_cloud` / `public_cloud_paas` / `saas` / `third_party` |
+| `location_type` | `data_center` / `public_cloud_region` / `saas` |
+| `infra_id` | `INF-nn` — required for `prod` |
+| `runtime_type` | `vm` / `container` / `physical` / `serverless` (drives the diagram marker) |
+| `runtime_detail` | e.g. K8s version |
+| `instance_count` | number |
 
-**Authentication mechanisms — must pick one:**
-- OAuth 2.0 Client Credentials (for HTTPS service-to-service)
-- Basic Auth (HTTPS) — flag as weak, ask if acceptable
-- Client Certificate / mTLS
-- Azure Shared Access Signature
-- SASL/SCRAM (Kafka)
-- User/Password (JDBC/ODBC)
-- Kerberos
-- API Key — flag as weak, ask if there's a rotation strategy
-- Other — get full detail
+One component with N environments has N deployments. Do not copy infra
+dictionaries into the deployment — reference `infra_id`.
 
-**Rule**: Every pair of communicating components must have an auth mechanism.
-If the answer is "no auth needed because it's internal", flag this as a security gap.
+### Phase 5 — Component communication flows (`flows`, `FLOW-nn`)
 
-### Phase 6 — Credential & key protection
-
-Where are secrets stored?
-
-- Azure: Azure Key Vault? (soft-delete + purge-protection enabled?)
-- AWS: AWS Secrets Manager? AWS KMS?
-- Private DC: Kubernetes Secrets (encrypted at rest)? Internal K8s Secret? Linux encrypted files? Other?
-- Any hardcoded credentials? → Immediately flag as CRITICAL VIOLATION
-
-### Phase 7 — User authentication & authorization
-
-For each user-facing entry point:
+For each arrow between components:
 
 | Field | Required answer |
-|-------|----------------|
-| User role(s) | e.g. "Company internal employee / BU manager / External partner" |
-| Auth server | ADFS (internal) / EnterpriseID (external) / Entra ID |
-| Auth protocol | SAML 2.0 / CAS / OAuth2 Authorization Code / OIDC |
-| Authorization mechanism | RBAC / ABAC / PBAC / DAC |
-| Authorization platform | AuthZ Platform / Azure AD groups / App-level RBAC / other |
+|---|---|
+| Initiator (arrow tail) | `CMP-nn` — or literal `internet` for external ingress |
+| Provider (arrow head) | `CMP-nn` |
+| `protocol` | HTTPS / Kafka / SFTP / JDBC / ODBC / gRPC / RFC / TCP |
+| `port` | required for non-standard TCP |
+| `auth_method` | **inline enum** — see below; must be specific |
+| `encryption` | `TLS1.3` / `TLS1.2` / `mTLS` / `IPSec` / `none` / `TBD` |
+| `cross_border` | true/false; if true, `cross_border_basis` |
+| `via` | ordered `INF-nn` L4 nodes the path passes through (firewall, gateway…) |
+| Cross-zone? | Yes/No — if yes, it must traverse the integration platform |
 
-### Phase 8 — Data encryption
+**`auth_method` enum (inline on the flow):**
+`OAuth2_ClientCredentials`, `mTLS`, `ClientCertificate`, `SASL_SCRAM`, `Basic`,
+`ApiKey`, `UserPassword`, `Kerberos`, `IAM_Role`, `ManagedIdentity`, `none`
 
-- Is data encrypted at rest in databases? (AES-256? TDE?)
-- Is data encrypted in transit? (TLS 1.3? TLS 1.2?)
-- Are there cross-border data flows involving PII or financial data?
-  If yes: what compliance basis? (GDPR / 中国数据安全法 / PDPA / CCPA)
+**Rule**: every flow has an `auth_method`. "No auth needed because it is
+internal" is a **finding**, not an answer — record `none` and explain in `notes`.
+If the mechanism does not fit the enum, record the closest value, put the exact
+mechanism in `notes`, and raise an open item.
+
+### Phase 6 — Infra network links (`network_links`, `LNK-nn`)
+
+For each connection **between locations** (not between components):
+
+| Field | Required answer |
+|---|---|
+| `source_infra_id` / `target_infra_id` | `INF-nn` (undirected) |
+| `method` | `mpls`, `expressroute`, `direct_connect`, `vpc_peering`, `vnet_peering`, `vpn`, `internet`, `sdwan`, `leased_line` |
+| `bandwidth` | if known |
+| `encrypted` / `encryption_method` | network-layer encryption |
+| `managed_by` | InfraSec / vendor |
+| `redundancy` | `primary` / `secondary` / `backup` |
+
+A carrier circuit is a link. Do **not** also create an `INF-nn` node for it.
+Flag immediately if: two sites are connected "via the Internet" with no
+VPN/encryption.
+
+### Phase 7 — User / entry authentication (`auth`, `AUTH-nn`)
+
+For each user-facing or entry point (this entity is **user/entry only** —
+service-to-service auth is already inline on flows):
+
+| Field | Required answer |
+|---|---|
+| `subject` | `user` or `application` (entry) |
+| `applies_to` | `CMP-nn` / `INF-nn` / `internet` (the entry point) |
+| `auth_server` | `INF-nn` of the `identity_provider` node (ADFS, Entra ID, …) |
+| `protocol` | `OIDC` / `OAuth2_AuthCode` / `SAML2` / `CAS` / `Kerberos` / `Basic` / `ApiKey` |
+| `authorization` | `RBAC` / `ABAC` / `PBAC` / `DAC` |
+| `authorization_platform` | AuthZ Platform / AD groups / app-level RBAC |
+| `user_roles` | e.g. "Company internal employee / BU manager / External partner" |
+| `mfa` | true/false |
+
+Note: an identity-provider redirect (Web → ADFS SAML) is **not** a flow — the
+identity provider is an infra node, so it is captured by this `auth` row.
+
+### Phase 8 — Credentials, keys & constraints
+
+- Where are secrets stored? (Azure Key Vault / AWS Secrets Manager / K8s Secrets /
+  other) — and is encryption-at-rest + rotation + soft-delete/purge-protection on?
+- **Any hardcoded credentials? → immediately flag as CRITICAL VIOLATION.**
+- Data residency / cross-border constraints? (cross-border is recorded per flow)
+- Non-negotiable constraints (e.g. "all inter-app traffic via the integration
+  platform", "runtime must be K8s").
 
 ---
 
@@ -195,21 +303,22 @@ During the interview, maintain a running **GAP LIST**. After each phase, explici
 
 ```
 ⚠ GAPS IN THIS PHASE:
-- [Component X]: runtime environment not specified
-- [Connection Y→Z]: authentication mechanism missing
-- [Data in DB A]: encryption at rest not confirmed
+- [CMP-03]: component_role not assigned
+- [FLOW-07]: auth_method missing
+- [DEP-05]: infra_id missing (required for prod)
 ```
 
 Do not output the requirements document until all CRITICAL gaps are resolved.
 
 **CRITICAL gaps** (block document output):
-- No physical DC/region specified for any component
-- Missing auth on any external-facing connection
+- No `INF-nn` location for any `prod` deployment
+- A flow with no `auth_method`
 - Hardcoded credentials mentioned
 - Data residency constraint violated (PRC data outside PRC)
+- An infrastructure/security appliance modelled as a component
 
 **NON-CRITICAL gaps** (document with TBD, do not block):
-- Framework/library version not yet decided
+- Stack version not yet decided
 - Port numbers for internal services
 - Exact subnet names within a known VPC
 
@@ -217,138 +326,179 @@ Do not output the requirements document until all CRITICAL gaps are resolved.
 
 ## Output format
 
-When all critical gaps are resolved, produce two files:
+When all critical gaps are resolved, produce two files.
 
 ### File 1: `REQ-{ProjectName}.md` (human-readable)
 
 ```markdown
 # Requirements Document — {Project Name}
 **Version**: 1.0 Draft  |  **Date**: {date}  |  **Author**: {author}
-**Scope**: Standalone / E2E (existing apps treated as black boxes)
+**Scope**: Standalone / E2E (existing systems treated as black boxes)
 
 ## 1. Project Overview
-{business purpose, 2-3 sentences}
+{business purpose, 2-3 sentences; data classification}
 
-## 2. Applications in Scope
-| App | Type | New/Existing | Owner | Scope |
-|-----|------|-------------|-------|-------|
+## 2. Infrastructure Topology
+| ID | Name | node_kind | infra_type | network_type | Parent | Country | Owner |
+|----|------|-----------|------------|--------------|--------|---------|-------|
 
-## 3. Physical Deployment
-| App/Component | Country/Region | DC / Cloud Region | Zone/Subnet | Owner |
-|---------------|---------------|-------------------|-------------|-------|
+## 3. Systems in Scope
+| ID | System | Type | Owner | Vendor | Scope |
+|----|--------|------|-------|--------|-------|
 
-## 4. Network Topology
-| Connection | Type | Encryption | Notes |
-|------------|------|------------|-------|
+## 4. Components & Services
+| ID | System | Name | kind | component_role | Stack | At-rest enc | Sensitivity |
+|----|--------|------|------|----------------|-------|-------------|-------------|
 
-## 5. Technical Components (new/modified only)
-| Component | Type | Language | Framework | Runtime | Sensitivity |
-|-----------|------|----------|-----------|---------|-------------|
+## 5. Deployments
+| ID | Component | Env | deployment_type | location_type | Infra | runtime_type | Instances |
+|----|-----------|-----|-----------------|---------------|-------|--------------|-----------|
 
-## 6. Integration Points
-| # | From | To | Protocol | Port | Auth Method | Notes |
-|---|------|----|----------|------|-------------|-------|
+## 6. Component Communication Flows
+| ID | From | To | Protocol | Port | auth_method | Encryption | Cross-border | via |
+|----|------|----|----------|------|-------------|------------|--------------|-----|
 
-## 7. User Authentication
-| Entry Point | User Roles | Auth Server | Protocol | Authorization |
-|-------------|-----------|-------------|----------|---------------|
+## 7. Infra Network Links
+| ID | Source infra | Target infra | method | Bandwidth | Encrypted | Redundancy |
+|----|--------------|--------------|--------|-----------|-----------|------------|
 
-## 8. Credential & Key Protection
+## 8. User / Entry Authentication
+| ID | Subject | Entry Point | auth_server | Protocol | Authorization | Roles | MFA |
+|----|---------|-------------|-------------|----------|---------------|-------|-----|
+
+## 9. Credential & Key Protection
 | Environment | Solution | Notes |
 |-------------|----------|-------|
 
-## 9. Data Encryption
-| Component | At Rest | In Transit | Cross-Border | Compliance |
-|-----------|---------|------------|--------------|------------|
-
 ## 10. Open Items / TBDs
-| ID | Item | Owner | Target Date |
-|----|------|-------|-------------|
+| ID | Item | Owner | Blocking |
+|----|------|-------|----------|
 
 ## 11. Architecture Constraints
-{Any non-negotiable technical or compliance constraints}
+{non-negotiable technical or compliance constraints}
 ```
 
-### File 2: `req-{ProjectName}.yaml` (machine-readable, arch-design input)
+### File 2: `req-{ProjectName}.yaml` (machine-readable, `req/v2`, arch-design input)
+
+Full skeleton — see `req-example.yaml` in this skill directory for a worked
+example. Validate it against `schemas/req-v2.schema.json` before handing it to
+`arch-design`.
 
 ```yaml
+schema_version: req/v2
 requirements:
   project:
     name: ""
     id: ""
-    scope: "standalone | e2e"
+    scope: "standalone | modification | e2e"
     department: ""
     author: ""
     date: ""
+    data_classification: ""
 
-  applications:
-    - id: ""
+  infra:                  # INF-nn — topology nodes
+    - id: "INF-01"
+      name: ""
+      node_kind: "region | data_center | iaas_vpc_vnet | paas | saas | third_party | office_network | factory_network | lab | internet_network | network_zone | subnet | firewall | security_gateway | waf | router | switch | vpn_gateway | identity_provider | soc_monitoring | load_balancer | bastion_host | logging_service | policy_service | key_management"
+      infra_type: "private_cloud | public_cloud | saas | third_party | office | factory | lab"
+      network_type: "office_network | factory_network | lab_network | prod_network | dmz"
+      parent_id: "INF-00"
+      country: ""
+      vendor: ""
+
+  systems:                # APP-nn
+    - id: "APP-01"
       name: ""
       type: "new | existing | modified"
       owner: "org_it | biz_owned | third_party"
-      vendor: ""          # if third_party
+      vendor: ""
+      data_classification: ""
 
-  deployment:
-    - app_id: ""
-      country: ""
-      dc_or_region: ""    # e.g. "Hohhot DC [CN]" or "AWS US East N.Virginia [US]"
-      platform: "private_dc | aws | azure | saas"
-      zone_subnet: ""     # DMZ / App Zone / Private Subnet / etc.
-      infrastructure_owner: "InfraSec | BizIT | ThirdParty"
-
-  components:            # new or modified only
-    - id: ""
-      app_id: ""
+  components:             # CMP-nn — never an appliance
+    - id: "CMP-01"
+      system_id: "APP-01"
       name: ""
-      type: "FE | BE | API | BFF | DB | MQ | IP | LB | SEC"
-      language: ""
-      framework: ""
-      runtime: ""
-      sensitivity: "Company Restricted | Company Confidential | Company Internal"
+      kind: "service | component"
+      layer: "be"
+      component_role: "backend_service"
+      encryption_at_rest: ""
+      key_management: "INF-10"
+      sensitivity: ""
 
-  network_connections:
-    - from_location: ""
-      to_location: ""
-      type: "Internet | VPN | MPLS | DirectConnect | ExpressRoute"
-      encrypted: true
-      encryption_method: ""
+  stacks:                 # STK-nn — component -> technology stack
+    - id: "STK-01"
+      component_id: "CMP-01"
+      component: ""
+      component_package: ""
+      version: ""
+      category: ""
+      eol_date: ""
+      license: ""
+      standard_flag: true
 
-  interactions:
-    - id: ""
-      from_component: ""
-      to_component: ""
-      protocol: ""
-      port: ""
-      auth_method: ""
+  deployments:            # DEP-nn — component -> infra
+    - id: "DEP-01"
+      component_id: "CMP-01"
+      environment: "prod"
+      deployment_type: "private_cloud"
+      location_type: "data_center"
+      infra_id: "INF-03"
+      runtime_type: "container"
+      runtime_detail: ""
+      instance_count: 2
+
+  flows:                  # FLOW-nn — directed, component -> component
+    - id: "FLOW-01"
+      source_component_id: "internet"
+      target_component_id: "CMP-01"
+      protocol: "HTTPS"
+      port: "443"
+      auth_method: "none"
+      encryption: "TLS1.3"
+      cross_border: false
+      cross_border_basis: ""
+      via: ["INF-07"]
       notes: ""
 
-  user_auth:
-    - entry_point: ""
+  network_links:          # LNK-nn — undirected, infra <-> infra
+    - id: "LNK-01"
+      source_infra_id: "INF-01"
+      target_infra_id: "INF-05"
+      method: "mpls"
+      bandwidth: ""
+      encrypted: true
+      encryption_method: "IPSec"
+      managed_by: ""
+      redundancy: "primary"
+
+  auth:                   # AUTH-nn — user / entry only
+    - id: "AUTH-01"
+      subject: "user"
+      applies_to: "CMP-01"
+      auth_server: "INF-08"
+      protocol: "SAML2"
+      authorization: "RBAC"
+      authorization_platform: ""
       user_roles: []
-      auth_server: "ADFS | EnterpriseID | EntraID"
-      auth_protocol: "SAML | CAS | OAuth2_AuthCode | OIDC"
-      authorization: "RBAC | ABAC | PBAC | DAC"
-      auth_platform: ""
+      mfa: true
+
+  ecosystem_relations:    # APP-nn <-> APP-nn
+    - id: "ECO-01"
+      source_system_id: "APP-01"
+      target_system_id: "APP-04"
+      relation_type: "downstream"
 
   credentials:
-    - environment: "azure | aws | private_dc"
+    - environment: "private_dc"
       solution: ""
       notes: ""
 
-  data_encryption:
-    - component: ""
-      at_rest: true
-      at_rest_method: ""
-      in_transit: true
-      in_transit_protocol: "TLS 1.3 | TLS 1.2"
-      cross_border: false
-      cross_border_compliance: ""
-
+  constraints: []
   open_items:
-    - id: ""
+    - id: "TBD-01"
       description: ""
       owner: ""
-      blocking: true
+      blocking: false
 ```
 
 ---
@@ -362,7 +512,10 @@ After the requirements document is complete, the user can invoke `/arch-design` 
 Input: REQ-MyProject.md + req-MyProject.yaml
 ```
 
-`arch-design` will read the requirements YAML, select the appropriate template(s) from
-`tools/arch-diagram-gen/templates/CATALOG.yaml`, and produce the Architecture YAML.
-The requirements doc replaces the "ask forcing questions" phase in arch-design —
-if a req.yaml is provided, arch-design skips Phase 2 and goes directly to template selection.
+`arch-design` reads the `req/v2` YAML, resolves the entity kinds directly onto
+its node/edge model (`infra` → containers and service nodes, `components` +
+`deployments` → component nodes marked by `runtime_type`, `flows` → directed
+edges, `network_links` → undirected edges), and selects templates from
+`tools/arch-diagram-gen/templates/CATALOG.yaml`. The requirements doc replaces
+the "ask forcing questions" phase — if a req.yaml is provided, arch-design skips
+its questioning phase and goes directly to template selection.

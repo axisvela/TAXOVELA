@@ -17,6 +17,7 @@ from archharness.schemas import (  # noqa: E402
     load_schema,
     validate,
     validate_final_req,
+    validate_final_req_v2,
     validate_manifest,
     validate_validation_result,
 )
@@ -24,8 +25,9 @@ from archharness.schemas import (  # noqa: E402
 from archharness.requirements.merger import merge_partial_reqs  # noqa: E402
 from archharness.requirements.normalizer import (  # noqa: E402
     Confidence,
-    PartialApplication,
+    PartialInfra,
     PartialReq,
+    PartialSystem,
     fv,
     partial_req_to_yaml,
 )
@@ -33,7 +35,10 @@ from archharness.requirements.normalizer import (  # noqa: E402
 
 class SchemaRegistryTests(unittest.TestCase):
     def test_known_schema_ids_load(self):
-        self.assertEqual(set(SCHEMA_IDS), {"req/v1", "artifact/v1", "validation/v1", "enforcement/v1"})
+        self.assertEqual(
+            set(SCHEMA_IDS),
+            {"req/v1", "req/v2", "artifact/v1", "validation/v1", "enforcement/v1"},
+        )
         for schema_id in SCHEMA_IDS:
             schema = load_schema(schema_id)
             self.assertEqual(schema["version"], schema_id)
@@ -63,6 +68,115 @@ class SchemaRegistryTests(unittest.TestCase):
         }
         with self.assertRaises(SchemaError):
             validate_manifest(manifest)
+
+
+def _valid_req_v2() -> dict:
+    """Minimal req/v2 document exercising $ref, inline enums and sentinels."""
+    return {
+        "schema_version": "req/v2",
+        "requirements": {
+            "project": {"name": "Demo"},
+            "infra": [
+                {
+                    "id": "INF-01",
+                    "name": "Azure East US",
+                    "node_kind": "region",
+                    "infra_type": "public_cloud",
+                    "network_type": None,
+                }
+            ],
+            "systems": [{"id": "APP-01", "name": "Demo App", "type": "new"}],
+            "components": [
+                {
+                    "id": "CMP-01",
+                    "system_id": "APP-01",
+                    "name": "Order API",
+                    "kind": "service",
+                    "component_role": "backend_service",
+                }
+            ],
+            "deployments": [
+                {
+                    "id": "DEP-01",
+                    "component_id": "CMP-01",
+                    "environment": "prod",
+                    "deployment_type": "public_cloud",
+                    "location_type": "public_cloud_region",
+                    "infra_id": "INF-01",
+                    "runtime_type": "container",
+                }
+            ],
+            "flows": [
+                {
+                    "id": "FLOW-01",
+                    "source_component_id": "internet",
+                    "target_component_id": "CMP-01",
+                    "protocol": "HTTPS",
+                    "auth_method": "none",
+                    "encryption": "TLS1.3",
+                    "via": ["INF-01"],
+                    "notes": "external user ingress; user auth = AUTH-01",
+                }
+            ],
+            "network_links": [
+                {
+                    "id": "LNK-01",
+                    "source_infra_id": "INF-01",
+                    "target_infra_id": "INF-01",
+                    "method": "expressroute",
+                }
+            ],
+            "auth": [
+                {
+                    "id": "AUTH-01",
+                    "subject": "user",
+                    "protocol": "OIDC",
+                    "applies_to": "CMP-01",
+                }
+            ],
+        },
+    }
+
+
+class ReqV2ContractTests(unittest.TestCase):
+    def test_valid_doc_passes(self):
+        validate_final_req_v2(_valid_req_v2())
+
+    def test_missing_collection_fails(self):
+        doc = _valid_req_v2()
+        del doc["requirements"]["flows"]
+        with self.assertRaises(SchemaError):
+            validate_final_req_v2(doc)
+
+    def test_wrong_id_prefix_fails(self):
+        doc = _valid_req_v2()
+        doc["requirements"]["components"][0]["id"] = "INF-01"
+        with self.assertRaises(SchemaError):
+            validate_final_req_v2(doc)
+
+    def test_bad_flow_auth_method_fails(self):
+        doc = _valid_req_v2()
+        doc["requirements"]["flows"][0]["auth_method"] = "LDAP"
+        with self.assertRaises(SchemaError):
+            validate_final_req_v2(doc)
+
+    def test_missing_flow_auth_method_fails(self):
+        doc = _valid_req_v2()
+        del doc["requirements"]["flows"][0]["auth_method"]
+        with self.assertRaises(SchemaError):
+            validate_final_req_v2(doc)
+
+    def test_unexpected_key_fails(self):
+        doc = _valid_req_v2()
+        doc["requirements"]["infra"][0]["bogus"] = "x"
+        with self.assertRaises(SchemaError):
+            validate_final_req_v2(doc)
+
+    def test_bad_via_endpoint_fails(self):
+        doc = _valid_req_v2()
+        doc["requirements"]["flows"][0]["via"] = ["CMP-01"]
+        with self.assertRaises(SchemaError):
+            validate_final_req_v2(doc)
 
 
 def _valid_validation_result() -> dict:
@@ -132,19 +246,25 @@ class MergerContractTests(unittest.TestCase):
                 source_tool="test",
                 project_name=fv("Demo", Confidence.HIGH, "test"),
             )
-            app = PartialApplication(id="app-1")
-            app.name = fv("Demo App", Confidence.HIGH, "test")
-            app.dc_or_region = fv("DC A", Confidence.HIGH, "test")
-            app.country = fv("CN", Confidence.HIGH, "test")
-            app.platform = fv("private_dc", Confidence.HIGH, "test")
-            req.applications.append(app)
+            infra = PartialInfra(id="infra-1")
+            infra.name = fv("DC A", Confidence.HIGH, "test")
+            infra.node_kind = fv("data_center", Confidence.HIGH, "test")
+            infra.infra_type = fv("private_cloud", Confidence.HIGH, "test")
+            infra.country = fv("CN", Confidence.HIGH, "test")
+            req.infra.append(infra)
+
+            system = PartialSystem(id="system-1")
+            system.name = fv("Demo App", Confidence.HIGH, "test")
+            system.type = fv("new", Confidence.HIGH, "test")
+            req.systems.append(system)
+
             partial = pathlib.Path(tmp) / "partial.yaml"
             partial.write_text(partial_req_to_yaml(req), encoding="utf-8")
 
             merged_yaml, _, _ = merge_partial_reqs([str(partial)])
             doc = yaml.safe_load(merged_yaml)
-            self.assertEqual(doc["schema_version"], "req/v1")
-            validate_final_req(doc)
+            self.assertEqual(doc["schema_version"], "req/v2")
+            validate_final_req_v2(doc)
 
 
 class ArtifactManifestTests(unittest.TestCase):

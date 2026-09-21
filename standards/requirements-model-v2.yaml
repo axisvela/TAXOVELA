@@ -1,0 +1,438 @@
+# Requirements Model v2 — machine-readable specification.
+#
+# Authoritative entity model for `req/v2` input requirements. Skills, readers,
+# the registry parser and the validator load this file so the model is defined
+# once. Human-readable rationale: docs/requirements-model-v2.md.
+# Contract schema: schemas/req-v2.schema.json.
+#
+# Source model: eam-rebuild tech-management PRDs 01-07 and
+# docs/architecture-diagram-connection-plan.md.
+
+version: "req/v2"
+status: "draft"
+supersedes: "req/v1"            # v1 remains valid and frozen
+description: >
+  Entity-separated requirements model. Separates infrastructure topology,
+  applications/systems, technical components/services, deployments,
+  component communication flows, infrastructure network links and
+  authentication, instead of the flat req/v1 applications+components lists.
+
+# ── Identity ─────────────────────────────────────────────────────────────────
+
+id_pattern: "^<PREFIX>-\\d{2,}$"   # zero-padded, at least two digits
+id_prefixes:
+  INF: "infra node"
+  APP: "system / application"
+  CMP: "component / service"
+  SUB: "subsystem"
+  STK: "component-to-stack binding"
+  DEP: "deployment"
+  FLOW: "component communication flow"
+  LNK: "infrastructure network link"
+  AUTH: "user / entry authentication"
+
+# ── Entities ─────────────────────────────────────────────────────────────────
+
+entities:
+
+  infra:
+    id_prefix: "INF"
+    mirrors: ["tech_infra_node", "tech_infra_node_attr"]
+    description: >
+      Hosting location and network topology. node_kind / infra_type /
+      network_type are three independent fields; no field may carry the
+      meaning of another.
+    required: ["id", "name", "node_kind"]
+    fields:
+      id: {type: "string"}
+      name: {type: "string"}
+      node_kind: {type: "enum", ref: "node_kind"}
+      infra_type: {type: "enum", ref: "infra_type"}
+      network_type: {type: "enum", ref: "network_type"}
+      parent_id: {type: "ref", prefix: "INF"}
+      country: {type: "string"}
+      vendor: {type: "string"}
+      region_code: {type: "string"}
+      dc_code: {type: "string"}
+      vpc_vnet: {type: "string"}
+      subnet_code: {type: "string"}
+      zone_code: {type: "string"}
+      biz_owner: {type: "string"}
+      infra_owner: {type: "string"}
+      status: {type: "enum", ref: "infra_status"}
+      notes: {type: "string"}
+    enums:
+      node_kind:
+        L1: ["region"]
+        L2: ["data_center", "iaas_vpc_vnet", "paas", "saas", "third_party",
+             "office_network", "factory_network", "lab", "internet_network"]
+        L3: ["network_zone", "subnet"]
+        L4: ["firewall", "security_gateway", "waf", "router", "switch",
+             "vpn_gateway", "identity_provider", "soc_monitoring",
+             "load_balancer", "bastion_host", "logging_service",
+             "policy_service", "key_management"]
+      infra_type: ["private_cloud", "public_cloud", "saas", "third_party",
+                   "office", "factory", "lab"]
+      network_type: ["office_network", "factory_network", "lab_network",
+                     "prod_network", "dmz"]
+      status: ["planned", "active", "restricted", "retired"]
+
+  systems:
+    id_prefix: "APP"
+    mirrors: ["application catalog (reference, not governed here)"]
+    description: >
+      Application / system. Existing systems in an E2E scope are black boxes:
+      only these fields plus their integration boundary are required.
+    required: ["id", "name", "type"]
+    fields:
+      id: {type: "string"}
+      name: {type: "string"}
+      type: {type: "enum", ref: "system_type"}
+      owner: {type: "enum", ref: "system_owner"}
+      vendor: {type: "string", required_when: "owner == third_party"}
+      lifecycle_status: {type: "string"}
+      source_system: {type: "string"}
+      description: {type: "string"}
+      data_classification: {type: "string"}
+    enums:
+      system_type: ["new", "existing", "modified"]
+      system_owner: ["org_it", "biz_owned", "third_party"]
+
+  components:
+    id_prefix: "CMP"
+    mirrors: ["tech_component"]
+    description: >
+      Technical component or service inside a system. Infrastructure and
+      security devices are NEVER components — they are infra L4 nodes.
+    required: ["id", "system_id", "name", "kind"]
+    fields:
+      id: {type: "string"}
+      system_id: {type: "ref", prefix: "APP"}
+      subsystem: {type: "string"}
+      name: {type: "string"}
+      kind: {type: "enum", ref: "component_kind"}
+      layer: {type: "string"}
+      component_role: {type: "enum", ref: "component_role"}
+      function_desc: {type: "string"}
+      sensitivity: {type: "string"}
+      encryption_at_rest: {type: "string"}
+      key_management: {type: "ref", prefix: "INF"}
+      status: {type: "enum", ref: "component_status"}
+    enums:
+      component_kind: ["service", "component"]
+      component_status: ["draft", "active", "deprecated", "retired"]
+      component_role:
+        - "application_service"
+        - "web_frontend"
+        - "backend_service"
+        - "bff"
+        - "ai_agent"
+        - "api_gateway"
+        - "load_balancer"
+        - "message_bus"
+        - "data_integration"
+        - "integration_service"
+        - "database"
+        - "cache"
+        - "file_storage"
+        - "object_storage"
+        - "metadata_store"
+        - "data_processing"
+        - "data_lake"
+        - "data_warehouse"
+        - "bi_report"
+        - "batch_processing"
+        - "streaming_processing"
+        - "large_scale_compute"
+
+  stacks:
+    id_prefix: "STK"
+    mirrors: ["tech_component_stack", "tech_stack_master_data"]
+    description: "Component-to-technology-stack binding (EOL / licence / vulnerability)."
+    required: ["id", "component_id", "component", "version"]
+    fields:
+      id: {type: "string"}
+      component_id: {type: "ref", prefix: "CMP"}
+      component: {type: "string"}
+      component_package: {type: "string"}
+      version: {type: "string"}
+      category: {type: "string"}
+      sub_category: {type: "string"}
+      eol_date: {type: "string"}
+      license: {type: "string"}
+      standard_flag: {type: "boolean"}
+
+  deployments:
+    id_prefix: "DEP"
+    mirrors: ["tech_deployment"]
+    description: >
+      Component runtime placement. The chain is
+      Application -> Component -> Deployment -> Infra; deployments reference
+      infra by id and never copy infra dictionaries.
+    required: ["id", "component_id", "environment", "deployment_type",
+               "location_type", "runtime_type"]
+    fields:
+      id: {type: "string"}
+      component_id: {type: "ref", prefix: "CMP"}
+      environment: {type: "enum", ref: "environment"}
+      deployment_type: {type: "enum", ref: "deployment_type"}
+      location_type: {type: "enum", ref: "location_type"}
+      infra_id: {type: "ref", prefix: "INF", required_when: "environment == prod"}
+      runtime_type: {type: "enum", ref: "runtime_type"}
+      runtime_detail: {type: "string"}
+      instance_count: {type: "integer"}
+      network_vpc: {type: "string"}
+      network_zone: {type: "string"}
+      network_subnet: {type: "string"}
+      owner: {type: "string"}
+      status: {type: "enum", ref: "deployment_status"}
+    enums:
+      environment: ["dev", "test", "staging", "prod", "dr"]
+      deployment_type: ["private_cloud", "public_cloud", "public_cloud_paas",
+                        "saas", "third_party"]
+      location_type: ["data_center", "public_cloud_region", "saas"]
+      runtime_type: ["vm", "container", "physical", "serverless"]
+      deployment_status: ["planned", "active", "migrating", "retired"]
+
+  flows:
+    id_prefix: "FLOW"
+    mirrors: ["tech_component_flow"]
+    description: >
+      Component communication flow. Directed: caller -> provider, one arrowhead
+      on the provider. Endpoints are components; the external sentinel
+      "internet" is allowed as a source. Service-to-service auth and
+      encryption are inline enums on this object.
+    required: ["id", "source_component_id", "target_component_id", "protocol",
+               "auth_method"]
+    fields:
+      id: {type: "string"}
+      source_component_id: {type: "ref_or_sentinel", prefix: "CMP", sentinel: "internet"}
+      target_component_id: {type: "ref", prefix: "CMP"}
+      protocol: {type: "string"}
+      port: {type: "string_or_integer"}
+      auth_method: {type: "enum", ref: "flow_auth_method"}
+      encryption: {type: "enum", ref: "flow_encryption"}
+      cross_border: {type: "boolean"}
+      cross_border_basis: {type: "string", required_when: "cross_border == true"}
+      via: {type: "array[ref]", prefix: "INF", ordered: true}
+      notes: {type: "string"}
+    enums:
+      flow_auth_method: ["OAuth2_ClientCredentials", "mTLS", "ClientCertificate",
+                         "SASL_SCRAM", "Basic", "ApiKey", "UserPassword",
+                         "Kerberos", "IAM_Role", "ManagedIdentity", "none"]
+      flow_encryption: ["TLS1.3", "TLS1.2", "mTLS", "IPSec", "none", "TBD"]
+
+  network_links:
+    id_prefix: "LNK"
+    mirrors: ["tech_infra_network_link"]
+    description: >
+      Infrastructure network connection. Undirected for visual purposes.
+      Endpoints are infra nodes; a carrier circuit is a link, not a node.
+    required: ["id", "source_infra_id", "target_infra_id", "method"]
+    fields:
+      id: {type: "string"}
+      source_infra_id: {type: "ref", prefix: "INF"}
+      target_infra_id: {type: "ref", prefix: "INF"}
+      method: {type: "enum", ref: "link_method"}
+      bandwidth: {type: "string"}
+      encrypted: {type: "boolean"}
+      encryption_method: {type: "string"}
+      managed_by: {type: "string"}
+      redundancy: {type: "enum", ref: "redundancy"}
+      notes: {type: "string"}
+    enums:
+      link_method: ["mpls", "expressroute", "direct_connect", "vpc_peering",
+                    "vnet_peering", "vpn", "internet", "sdwan", "leased_line"]
+      redundancy: ["primary", "secondary", "backup"]
+
+  auth:
+    id_prefix: "AUTH"
+    mirrors: ["identity_provider (infra L4 node)", "v1 user_auth"]
+    description: >
+      User / entry authentication ONLY. Service-to-service authentication is
+      the inline flows[].auth_method enum and is not an entity here.
+    required: ["id", "subject", "protocol"]
+    fields:
+      id: {type: "string"}
+      subject: {type: "enum", ref: "auth_subject"}
+      applies_to: {type: "ref_or_sentinel", prefix: "CMP|INF", sentinel: "internet"}
+      auth_server: {type: "string"}
+      protocol: {type: "enum", ref: "auth_protocol"}
+      authorization: {type: "enum", ref: "authorization"}
+      authorization_platform: {type: "string"}
+      user_roles: {type: "string_or_array", required_when: "subject == user"}
+      mfa: {type: "boolean"}
+      notes: {type: "string"}
+    enums:
+      auth_subject: ["user", "application"]
+      auth_protocol: ["OIDC", "OAuth2_AuthCode", "SAML2", "CAS", "Kerberos",
+                      "Basic", "ApiKey"]
+      authorization: ["RBAC", "ABAC", "PBAC", "DAC"]
+
+  ecosystem_relations:
+    id_prefix: null                # free id; references APP-nn on both sides
+    mirrors: ["tech_app_ecosystem_relation"]
+    required: ["id", "source_system_id", "target_system_id"]
+    fields:
+      id: {type: "string"}
+      source_system_id: {type: "ref", prefix: "APP"}
+      target_system_id: {type: "ref", prefix: "APP"}
+      relation_type: {type: "enum", ref: "ecosystem_relation_type"}
+      notes: {type: "string"}
+    enums:
+      ecosystem_relation_type: ["upstream", "downstream", "partner", "customer"]
+
+# ── Supporting collections ───────────────────────────────────────────────────
+
+supporting_collections:
+  credentials:
+    description: "Secret / key storage per environment."
+    keyed_by: "environment"
+  constraints:
+    description: "Non-negotiable technical or compliance constraints."
+  open_items:
+    description: "Open TBDs with owner and blocking flag."
+    fields: ["id", "description", "owner", "blocking"]
+
+encryption_model:
+  at_rest:
+    location: "components[].encryption_at_rest"
+    key_store: "components[].key_management -> INF-nn (node_kind=key_management)"
+  in_transit:
+    location: "flows[].encryption"
+  cross_border:
+    location: "flows[].cross_border + flows[].cross_border_basis"
+    note: "Data residency stays on project / systems[].data_classification."
+
+# ── Relations ────────────────────────────────────────────────────────────────
+
+relations:
+  - "systems 1 -- * components"
+  - "components 1 -- * stacks"
+  - "components 1 -- * deployments"
+  - "deployments * -- 1 infra (infra_id; required in prod)"
+  - "infra * -- 1 infra (parent_id containment tree)"
+  - "flows * -- 1 components (source, or 'internet' sentinel)"
+  - "flows * -- 1 components (target)"
+  - "flows * -- * infra (via; ordered L4 path, optional)"
+  - "components * -- 0..1 infra (key_management)"
+  - "network_links * -- 1 infra (source)"
+  - "network_links * -- 1 infra (target)"
+  - "ecosystem_relations * -- 1 systems (source)"
+  - "ecosystem_relations * -- 1 systems (target)"
+
+# ── Rules ────────────────────────────────────────────────────────────────────
+
+rules:
+  - id: "R-INF-1"
+    text: "node_kind, infra_type and network_type are three independent fields."
+  - id: "R-INF-2"
+    text: >
+      Firewall / WAF / router / VPN gateway / load balancer / bastion /
+      identity provider / SOC / key management MUST be infra L4 nodes, never
+      components.
+  - id: "R-INF-3"
+    text: "Allowed infra parent/child combinations follow the type policy matrix (node_kind L1->L2->L3)."
+  - id: "R-CMP-1"
+    text: "layer is a coarse filter; component_role drives the diagram shape."
+  - id: "R-CMP-2"
+    text: >
+      An application-layer load balancer may be a component with
+      component_role=load_balancer; an infrastructure appliance must be an
+      infra L4 load_balancer node.
+  - id: "R-DEP-1"
+    text: "One component with N environments has N deployments; the diagram renders one node per deployment."
+  - id: "R-DEP-2"
+    text: "If infra_id is present, deployment_type must be compatible with the infra node's infra_type."
+  - id: "R-FLOW-1"
+    text: >
+      Flow endpoints MUST be components, except that the external sentinel
+      'internet' may be a source. Routing a flow through a network-zone edge,
+      data-centre anchor or infra node as an endpoint is forbidden.
+  - id: "R-FLOW-2"
+    text: "Protocol does not create a new connection category; HTTP, Kafka and JDBC remain labels on the same flow type."
+  - id: "R-FLOW-3"
+    text: >
+      auth_method, encryption and the cross-border fields are inline enums
+      scoped to the flow. An identity product is reached through via (or
+      components[].key_management), never by embedding an AUTH-nn.
+  - id: "R-LNK-1"
+    text: "Network-link endpoints MUST be infra nodes. A carrier circuit (ExpressRoute/MPLS) is a link, not a node."
+  - id: "R-AUTH-1"
+    text: "Every user-facing entry point has one AUTH-nn row; 'no auth because it is internal' is a finding."
+  - id: "R-AUTH-2"
+    text: "service / machine subjects are not valid in auth; they belong to flows[].auth_method."
+
+# ── Registry format ──────────────────────────────────────────────────────────
+#
+# input/systems-registry.md is the ONLY file that contains literal entity
+# names. It is organised as one markdown table per entity kind. Derived rows
+# (flows, links, auth) may leave the '参考图原名' cell blank.
+
+registry:
+  file: "input/systems-registry.md"
+  conventions:
+    - "Every other document references entities by typed code only."
+    - "Mark a row OUT-OF-SCOPE in its Notes column to record a deliberate exclusion."
+    - "Range citation is supported per kind, e.g. INF-06-INF-13."
+    - "IP addresses and CIDR blocks are removed from all textual documents."
+  tables:
+    - id: "R1"
+      entity: "infra"
+      prefix: "INF"
+      columns: ["编号", "参考图原名", "node_kind", "infra_type", "network_type",
+                "父节点", "位置/国家", "文档用名", "备注"]
+    - id: "R2"
+      entity: "systems"
+      prefix: "APP"
+      columns: ["编号", "参考图原名", "type", "owner", "vendor", "文档用名", "备注"]
+    - id: "R3"
+      entity: "components"
+      prefix: "CMP"
+      columns: ["编号", "参考图原名", "所属系统", "子系统", "kind", "layer",
+                "component_role", "静态加密", "文档用名", "备注"]
+    - id: "R4"
+      entity: "deployments"
+      prefix: "DEP"
+      columns: ["编号", "参考图原名", "组件", "环境", "deployment_type",
+                "location_type", "infra 节点", "runtime_type", "实例数",
+                "文档用名", "备注"]
+    - id: "R5"
+      entity: "flows"
+      prefix: "FLOW"
+      columns: ["编号", "参考图原名", "发起组件", "提供组件", "protocol",
+                "port", "auth_method", "加密", "跨境", "via", "备注"]
+    - id: "R6"
+      entity: "network_links"
+      prefix: "LNK"
+      columns: ["编号", "参考图原名", "源 infra", "目标 infra", "method",
+                "带宽", "加密", "管理方", "备注"]
+    - id: "R7"
+      entity: "auth"
+      prefix: "AUTH"
+      columns: ["编号", "参考图原名", "subject", "适用入口", "auth_server",
+                "protocol", "authorization", "MFA", "备注"]
+
+# ── Validation ───────────────────────────────────────────────────────────────
+
+validation:
+  - id: "V1"
+    text: "Every id's prefix matches its collection."
+  - id: "V2"
+    text: "Every reference resolves to an existing id of the right kind."
+  - id: "V3"
+    text: "infra.parent_id respects the node_kind type policy matrix."
+  - id: "V4"
+    text: "An infrastructure/security node_kind never appears in components."
+  - id: "V5"
+    text: "Flow endpoints are components (or the 'internet' source sentinel); network-link endpoints are infra."
+  - id: "V6"
+    text: "A prod deployment has an infra_id."
+  - id: "V7"
+    text: "Every flow has an inline auth_method; every user-facing entry point has an AUTH-nn row."
+  - id: "V8"
+    text: "Registry scope guard: every in-scope row is cited by input/prompt.md."
+  - id: "V9"
+    text: "Literal entity names appear only in the registry."
+  - id: "V10"
+    text: "No IP address or CIDR in textual documents."

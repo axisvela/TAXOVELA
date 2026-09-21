@@ -7,6 +7,11 @@ Supports:
   .yaml / .yml     — arch: YAML (our own format): direct mapping
   .png / .jpg / .webp — Architecture image: Claude Vision API extraction
 
+Output is a req/v2 PartialReq: hosting/network nodes become `infra`, application
+artefacts become `components` under one `systems` row, arrows become `flows`, and
+network appliances (F5, WAF, ADFS, Key Vault) are classified as `infra` L4 nodes —
+never as components.
+
 Usage:
     python from_diagram.py -i diagram.drawio -o partial-req.yaml
     python from_diagram.py -i diagram.d2 -o partial-req.yaml
@@ -18,7 +23,6 @@ import argparse
 import json
 import os
 import re
-import sys
 import base64
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -26,54 +30,148 @@ from pathlib import Path
 import yaml
 
 from .normalizer import (
-    PartialReq, PartialApplication, PartialComponent, PartialInteraction,
-    PartialUserAuth, FieldValue, Confidence, fv, partial_req_to_yaml
+    PartialReq, PartialSystem, PartialInfra, PartialComponent, PartialFlow,
+    Confidence, fv, partial_req_to_yaml, v2_json_to_partial,
 )
 
 
-# ── draw.io XML parser ────────────────────────────────────────────────────────
+# ── Label classification (shared by drawio / d2) ──────────────────────────────
+
+_APPLIANCE_RULES = [
+    (("firewall", "azfw", "pan-os", "fortigate"), "firewall"),
+    (("waf", "web application firewall"), "waf"),
+    (("load balancer", "loadbalancer", " f5", "f5 ", "bigip", "alb", "nlb", "elb"), "load_balancer"),
+    (("adfs", "entra", "active directory", "identity provider", "idp", "ldap"), "identity_provider"),
+    (("key vault", "keyvault", "kms", "secrets manager", "hsm"), "key_management"),
+    (("bastion", "jump host", "jumpbox"), "bastion_host"),
+    (("vpn gateway", "expressroute", "direct connect", "vpn"), "vpn_gateway"),
+    (("soc", "siem", "sentinel"), "soc_monitoring"),
+    (("router", "switch"), "router"),
+]
+
+_COMPONENT_RULES = [
+    (("kafka", "rabbitmq", "queue", "message bus", "pubsub", "service bus"), "message_bus", "mq"),
+    (("api gateway", "wso2", "apim", "apih", "kong", "api management"), "api_gateway", "ip"),
+    (("postgres", "mysql", "oracle", "sql server", "rds", "aurora", "mongodb", "database", " db", "db "), "database", "db"),
+    (("redis", "memcached", "cache"), "cache", "db"),
+    (("s3", "blob storage", "object storage", "oss"), "object_storage", "db"),
+    (("data lake", "lakehouse", "hdfs"), "data_lake", "db"),
+    (("databricks", "data warehouse", "redshift", "snowflake", "synapse"), "data_warehouse", "db"),
+    (("etl", "slt", "debezium", "cdc", "data integration"), "data_integration", "ip"),
+    (("agent", "llm", "ai "), "ai_agent", "be"),
+    (("bff",), "bff", "bff"),
+    (("frontend", "web ui", " front", "portal ui", "nginx"), "web_frontend", "fe"),
+]
+
+
+def _classify_label(label: str) -> tuple[str, str, str | None]:
+    """Classify a node label into (kind, role_or_nodekind, layer_or_none)."""
+    text = f" {label.lower()} "
+    for needles, node_kind in _APPLIANCE_RULES:
+        if any(n in text for n in needles):
+            return "infra", node_kind, None
+    for needles, role, layer in _COMPONENT_RULES:
+        if any(n in text for n in needles):
+            return "component", role, layer
+    return "component", "backend_service", "be"
+
 
 def _clean_html(text: str) -> str:
     """Strip HTML tags and decode entities from draw.io cell values."""
     text = re.sub(r'<[^>]+>', ' ', text)
-    text = text.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>') \
-               .replace('&nbsp;', ' ').replace('&#39;', "'").replace('&quot;', '"')
+    text = (text.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
+                .replace('&nbsp;', ' ').replace('&#39;', "'").replace('&quot;', '"'))
     return ' '.join(text.split()).strip()
 
 
-def _classify_drawio_shape(style: str) -> str:
-    """Map draw.io style string to component type."""
-    s = style.lower()
-    if "hexagon" in s:            return "LB"
-    if "parallelogram" in s:      return "IP"
-    if "ellipse" in s or "oval" in s or "double" in s and "ellipse" in s: return "SEC"
-    if "mxgraph.flowchart.database" in s or "cylinder" in s: return "DB"
-    if "mxgraph.basic.wave" in s: return "DS"   # data lake
-    if "mxgraph.flowchart.stored_data" in s: return "DS"
-    if "cloud_rect" in s:         return "SaaS"
-    if "umlactor" in s:           return "Actor"
-    if "aws4" in s or "azure" in s or "gcp" in s: return "NW"
-    if "ext" in s and "double" in s: return "_DC_CONTAINER"
-    if "shape=ext" in s:          return "_ZONE_CONTAINER"
-    if "group" in s:              return "_GROUP"
-    if "rounded=1" in s:          return "FE"
-    if "rounded=0" in s and "dashed=1" not in s: return "BE"
-    if "dashed=1" in s:           return "BE"
-    return "BE"
+def _clean_label(value: str) -> str:
+    clean = re.sub(r'\s*\([^)]*\)', '', value).strip()
+    clean = re.sub(r'\s*\[[^\]]*\]', '', clean).strip()
+    return clean.lstrip("⚠ ").strip()
 
 
-def _is_container(style: str, value: str) -> bool:
-    s = style.lower()
-    return ("ext" in s and "double" in s) or "container=1" in s or \
-           ("aws4.group" in s) or ("azure" in s and "container=1" in s)
+def _primary_system(req: PartialReq, hint: str, src: str) -> str:
+    """Ensure the partial has one system; return its name for component refs."""
+    name = _clean_label(hint) if hint else ""
+    if not name:
+        name = "Unassigned System"
+    if not any(s.name and s.name.value == name for s in req.systems):
+        system = PartialSystem(id="system_1")
+        system.name = fv(name, Confidence.MEDIUM, src)
+        system.type = fv("existing", Confidence.LOW, src, "Inferred from diagram")
+        req.systems.append(system)
+    return name
 
 
-def _is_zone(style: str) -> bool:
-    s = style.lower()
-    return ("ext" in s and "dashed=1" in s) or \
-           ("shape=ext" in s and "dashed" in s) or \
-           ("fillcolor" in s and "dashed" in s)
+def _zone_infra(label: str, parent: str, src: str, zone_count: int) -> PartialInfra:
+    zone = label.lower()
+    if "dmz" in zone:
+        network_type = "dmz"
+    elif "office" in zone:
+        network_type = "office_network"
+    elif "factory" in zone or "plant" in zone:
+        network_type = "factory_network"
+    elif "lab" in zone:
+        network_type = "lab_network"
+    else:
+        network_type = "prod_network"
+    infra = PartialInfra(id=f"zone_{zone_count}")
+    infra.name = fv(label, Confidence.HIGH, src)
+    infra.node_kind = fv("network_zone", Confidence.MEDIUM, src)
+    infra.network_type = fv(network_type, Confidence.MEDIUM, src)
+    if parent:
+        infra.parent = fv(parent, Confidence.MEDIUM, src)
+    return infra
 
+
+def _location_infra(label: str, src: str, count: int) -> PartialInfra:
+    """Build a top-level infra node (region / data centre / cloud) from a label."""
+    lowered = label.lower()
+    infra = PartialInfra(id=f"loc_{count}")
+    infra.name = fv(label, Confidence.HIGH, src)
+
+    if any(x in lowered for x in ("aws", "amazon", "vpc", "azure", "vnet", "gcp", "google")):
+        infra.node_kind = fv("iaas_vpc_vnet", Confidence.LOW, src)
+        infra.infra_type = fv("public_cloud", Confidence.MEDIUM, src)
+    elif "internet" in lowered:
+        infra.node_kind = fv("internet_network", Confidence.HIGH, src)
+    elif "office" in lowered:
+        infra.node_kind = fv("office_network", Confidence.MEDIUM, src)
+        infra.infra_type = fv("office", Confidence.MEDIUM, src)
+    else:
+        infra.node_kind = fv("data_center", Confidence.MEDIUM, src)
+        infra.infra_type = fv("private_cloud", Confidence.MEDIUM, src)
+
+    loc = re.search(r'\[([A-Z]{2,})\]', label)
+    if loc:
+        infra.country = fv(loc.group(1), Confidence.HIGH, src)
+    owner_match = re.search(r'\(([^)]+)\)', label)
+    if owner_match:
+        infra.infra_owner = fv(owner_match.group(1), Confidence.MEDIUM, src)
+    return infra
+
+
+def _edge_to_flow(src_value: str, tgt_value: str, label: str, src: str,
+                  index: int) -> PartialFlow:
+    """Parse an edge label like ``HTTPS/OAuth2.0`` into a flow."""
+    protocol, auth = "", ""
+    if label:
+        if "/" in label:
+            protocol, _, auth = label.partition("/")
+        else:
+            protocol = label
+    flow = PartialFlow(id=f"flow_{index}")
+    flow.source = fv(_clean_label(src_value) or src_value, Confidence.HIGH, src)
+    flow.target = fv(_clean_label(tgt_value) or tgt_value, Confidence.HIGH, src)
+    if protocol.strip():
+        flow.protocol = fv(protocol.strip(), Confidence.MEDIUM, src)
+    if auth.strip():
+        flow.auth_method = fv(auth.strip(), Confidence.LOW, src,
+                              "Extracted from edge label — verify")
+    return flow
+
+
+# ── draw.io XML parser ────────────────────────────────────────────────────────
 
 def parse_drawio(content: str, source_file: str) -> PartialReq:
     req = PartialReq(source_tool="arch-req-from-diagram", source_file=source_file)
@@ -85,7 +183,6 @@ def parse_drawio(content: str, source_file: str) -> PartialReq:
         req.gaps.append(f"XML parse error: {e}")
         return req
 
-    # Collect all mxCell elements
     cells = {}
     for cell in root.iter("mxCell"):
         cid = cell.get("id", "")
@@ -102,115 +199,69 @@ def parse_drawio(content: str, source_file: str) -> PartialReq:
             "vertex": cell.get("vertex", "0") == "1",
         }
 
-    # Build parent → children map
-    children: dict[str, list[str]] = {}
-    for cid, c in cells.items():
-        p = c["parent"]
-        children.setdefault(p, []).append(cid)
-
-    # Identify DC containers (top-level large double-border rects)
-    dc_count = 0
-    zone_count = 0
+    system_name = _primary_system(req, Path(source_file).stem, SRC)
+    infra_names: set[str] = set()
     comp_count = 0
+    zone_count = 0
     edge_count = 0
 
-    for cid, c in cells.items():
-        if not c["vertex"] or c["edge"]:
+    for cid, c in sorted(cells.items()):
+        if not c["vertex"] or c["edge"] or not c["value"]:
             continue
-        style = c["style"]
+        style = c["style"].lower()
         value = c["value"]
-        ctype = _classify_drawio_shape(style)
 
-        if ctype == "_DC_CONTAINER" and value:
-            dc_count += 1
-            # Try to extract location and owner from label
-            # e.g. "Hohhot DC, Inner Mongolia [CN] (InfraSec)"
-            loc_match = re.search(r'\[([A-Z]{2,})\]', value)
-            country = loc_match.group(1) if loc_match else ""
-            owner_match = re.search(r'\(([^)]+)\)', value)
-            owner = owner_match.group(1) if owner_match else ""
-            dc_name = re.sub(r'\s*\[[^\]]*\]\s*', '', value).strip()
-            dc_name = re.sub(r'\s*\([^)]*\)\s*', '', dc_name).strip()
+        is_container = ("ext" in style and "double" in style) or "container=1" in style
 
-            app = PartialApplication(id=f"dc_{dc_count}")
-            app.name = fv(dc_name, Confidence.HIGH, SRC)
-            if country:
-                app.country = fv(country, Confidence.HIGH, SRC)
-            if owner:
-                app.infra_owner = fv(owner, Confidence.HIGH, SRC)
-            # Infer platform
-            if any(x in value.lower() for x in ("aws", "vpc", "amazon")):
-                app.platform = fv("aws", Confidence.MEDIUM, SRC)
-            elif any(x in value.lower() for x in ("azure", "vnet", "microsoft")):
-                app.platform = fv("azure", Confidence.MEDIUM, SRC)
-            else:
-                app.platform = fv("private_dc", Confidence.MEDIUM, SRC)
-            app.dc_or_region = fv(dc_name, Confidence.HIGH, SRC)
-            req.applications.append(app)
+        if is_container and "dashed" not in style:
+            # Top-level deployment container (DC / cloud / region)
+            name = _clean_label(value)
+            if name and name not in infra_names:
+                infra_names.add(name)
+                req.infra.append(_location_infra(value, SRC, len(req.infra) + 1))
+            continue
 
-        elif ctype == "_ZONE_CONTAINER" and value:
+        if (is_container and "dashed" in style) or ("ext" in style and "dashed" in style):
             zone_count += 1
-            # Zones tell us zone/subnet names
-            zone_name = value.lower()
-            # Store as open item (zones are attributes of their parent DC)
-            req.open_items.append({
-                "type": "zone_found",
-                "value": value,
-                "cell_id": cid,
-                "parent": c["parent"],
-            })
+            req.infra.append(_zone_infra(value, "", SRC, zone_count))
+            continue
 
-        elif value and ctype not in ("_GROUP", "Actor", "_DC_CONTAINER", "_ZONE_CONTAINER", "NW"):
-            comp_count += 1
-            comp = PartialComponent(id=f"comp_{comp_count}", app_id="unknown")
-            comp.name = fv(value, Confidence.HIGH, SRC)
-            comp.comp_type = fv(ctype, Confidence.MEDIUM, SRC)
-            # Try to detect runtime from label
-            for rt in ["K8s", "Internal K8s", "ECS", "Lambda", "VM", "AKS"]:
-                if rt.lower() in value.lower():
-                    comp.runtime = fv(rt, Confidence.LOW, SRC)
-                    break
-            req.components.append(comp)
+        kind, role, layer = _classify_label(value)
+        if kind == "infra":
+            if value not in infra_names:
+                infra_names.add(value)
+                infra = PartialInfra(id=f"appliance_{len(req.infra) + 1}")
+                infra.name = fv(value, Confidence.HIGH, SRC)
+                infra.node_kind = fv(role, Confidence.MEDIUM, SRC)
+                req.infra.append(infra)
+            continue
 
-    # Extract edges (interactions)
-    for cid, c in cells.items():
+        comp_count += 1
+        comp = PartialComponent(id=f"comp_{comp_count}")
+        comp.system = fv(system_name, Confidence.MEDIUM, SRC)
+        comp.name = fv(value, Confidence.HIGH, SRC)
+        comp.kind = fv("component", Confidence.LOW, SRC)
+        comp.component_role = fv(role, Confidence.MEDIUM, SRC)
+        if layer:
+            comp.layer = fv(layer, Confidence.LOW, SRC)
+        req.components.append(comp)
+
+    for cid, c in sorted(cells.items()):
         if not c["edge"]:
             continue
         edge_count += 1
         src_cell = cells.get(c["source"], {})
         tgt_cell = cells.get(c["target"], {})
-        label = c["value"]
+        req.flows.append(_edge_to_flow(
+            src_cell.get("value", c["source"]), tgt_cell.get("value", c["target"]),
+            c["value"], SRC, edge_count,
+        ))
 
-        # Parse protocol/auth from label (e.g. "HTTPS/OAuth2.0")
-        protocol = ""
-        auth = ""
-        if "/" in label:
-            parts = label.split("/", 1)
-            protocol = parts[0].strip()
-            auth = parts[1].strip() if len(parts) > 1 else ""
-        elif label:
-            protocol = label
-
-        interaction = PartialInteraction(id=f"int_{edge_count}")
-        interaction.from_component = fv(
-            src_cell.get("value", c["source"]), Confidence.HIGH, SRC
-        )
-        interaction.to_component = fv(
-            tgt_cell.get("value", c["target"]), Confidence.HIGH, SRC
-        )
-        if protocol:
-            interaction.protocol = fv(protocol, Confidence.MEDIUM, SRC)
-        if auth:
-            interaction.auth_method = fv(auth, Confidence.MEDIUM, SRC)
-        req.interactions.append(interaction)
-
-    req.no_coverage.extend(["user_auth", "credentials", "data_encryption",
-                              "project_name", "department"])
-    req.gaps.append(f"draw.io: found {dc_count} DC containers, {zone_count} zones, "
-                    f"{comp_count} components, {edge_count} edges")
-    if edge_count > 0:
-        req.gaps.append("Auth mechanisms on edges may be incomplete — verify each interaction")
-
+    req.no_coverage.extend(["auth", "credentials", "project_name", "department"])
+    req.gaps.append(f"draw.io: {len([i for i in req.infra])} infra nodes, "
+                    f"{zone_count} zones, {comp_count} components, {edge_count} edges")
+    if edge_count:
+        req.gaps.append("Auth mechanisms on edges may be incomplete — verify each flow")
     return req
 
 
@@ -228,218 +279,154 @@ _D2_KEYWORDS = {
 def parse_d2(content: str, source_file: str) -> PartialReq:
     req = PartialReq(source_tool="arch-req-from-diagram", source_file=source_file)
     SRC = f"diagram:d2:{Path(source_file).name}"
+    system_name = _primary_system(req, Path(source_file).stem, SRC)
 
-    comp_count = 0
-    int_count = 0
-    indent_depth = 0  # track block nesting depth via braces
-
+    depth = 0
+    count = 0
     for raw_line in content.splitlines():
         stripped = raw_line.strip()
         if not stripped or stripped.startswith("#"):
-            # Update depth counter for closing braces in blank/comment lines
-            indent_depth += stripped.count('{') - stripped.count('}')
+            depth += stripped.count('{') - stripped.count('}')
             continue
-
-        # Closing brace only
         if stripped == '}':
-            indent_depth = max(0, indent_depth - 1)
+            depth = max(0, depth - 1)
             continue
 
-        # Edge detection at top level: path.path -> path.path : "label"
         edge_match = re.match(r'^([\w._-]+)\s*->\s*([\w._-]+)\s*(?::\s*"?([^"]*)"?)?', stripped)
         if edge_match:
-            int_count += 1
-            src_path = edge_match.group(1)
-            tgt_path = edge_match.group(2)
+            count += 1
             label = (edge_match.group(3) or "").strip()
-
-            protocol, auth = "", ""
-            if "\\n" in label:
-                parts = label.split("\\n", 1)
-                protocol = parts[0].strip("()")
-                auth = parts[1].strip("()")
-            elif "/" in label:
-                parts = label.split("/", 1)
-                protocol = parts[0]
-                auth = parts[1].strip("()")
-            else:
-                protocol = label
-
-            interaction = PartialInteraction(id=f"int_{int_count}")
-            # Use last segment of dot-path as the component name key
-            interaction.from_component = fv(src_path.split(".")[-1], Confidence.HIGH, SRC)
-            interaction.to_component   = fv(tgt_path.split(".")[-1], Confidence.HIGH, SRC)
-            if protocol:
-                interaction.protocol = fv(protocol, Confidence.MEDIUM, SRC)
-            if auth:
-                interaction.auth_method = fv(auth, Confidence.LOW, SRC,
-                                             "Extracted from D2 edge label — verify")
-            req.interactions.append(interaction)
-            indent_depth += stripped.count('{') - stripped.count('}')
+            req.flows.append(_edge_to_flow(
+                edge_match.group(1).split(".")[-1],
+                edge_match.group(2).split(".")[-1],
+                label.replace("\\n", "/"), SRC, count,
+            ))
+            depth += stripped.count('{') - stripped.count('}')
             continue
 
-        # Node / container: identifier: "label" {
         node_match = re.match(r'^([\w._-]+)\s*:\s*"?([^"{}\\]*)"?\s*\{?', stripped)
         if node_match:
             path = node_match.group(1)
             label = (node_match.group(2) or "").strip().replace("\\n", " ")
             key = path.split(".")[0].lower()
-
-            # Skip D2 built-in keywords and style properties
             if key in _D2_KEYWORDS or not label:
-                indent_depth += stripped.count('{') - stripped.count('}')
+                depth += stripped.count('{') - stripped.count('}')
                 continue
 
-            comp_count += 1
-            depth = indent_depth  # current nesting depth when this line appears
-
             if depth == 0:
-                # Top-level: DC / Cloud / Internet
-                app = PartialApplication(id=f"app_{comp_count}")
-                app.name = fv(label, Confidence.HIGH, SRC)
-                app.dc_or_region = fv(label, Confidence.HIGH, SRC)
-                if any(x in label.lower() for x in ("aws", "amazon")):
-                    app.platform = fv("aws", Confidence.MEDIUM, SRC)
-                elif any(x in label.lower() for x in ("azure", "microsoft")):
-                    app.platform = fv("azure", Confidence.MEDIUM, SRC)
-                else:
-                    app.platform = fv("private_dc", Confidence.MEDIUM, SRC)
-                loc = re.search(r'\[([A-Z]{2,})\]', label)
-                if loc:
-                    app.country = fv(loc.group(1), Confidence.HIGH, SRC)
-                if label.lower() not in ("internet", "user", "office_network"):
-                    req.applications.append(app)
-
+                req.infra.append(_location_infra(label, SRC, len(req.infra) + 1))
             elif depth == 1:
-                # Zone / subnet
-                req.open_items.append({"type": "zone", "label": label, "depth": depth})
-
+                req.infra.append(_zone_infra(label, "", SRC, len(req.infra) + 1))
             else:
-                # Component (depth 2+)
-                # Extract runtime hint from multi-line label
-                runtime = ""
-                for rt in ["K8s", "Internal K8s", "ECS", "Lambda", "VM", "AKS"]:
-                    if rt.lower() in label.lower():
-                        runtime = rt
-                        break
-                # Clean label (remove runtime/tech annotations)
-                clean_label = re.sub(r'\s*\([^)]*\)', '', label).strip()
-                clean_label = re.sub(r'\s*\[[^\]]*\]', '', clean_label).strip()
-                clean_label = clean_label.lstrip("⚠ ").strip()
+                kind, role, layer = _classify_label(label)
+                if kind == "infra":
+                    infra = PartialInfra(id=f"appliance_{len(req.infra) + 1}")
+                    infra.name = fv(label, Confidence.HIGH, SRC)
+                    infra.node_kind = fv(role, Confidence.MEDIUM, SRC)
+                    req.infra.append(infra)
+                else:
+                    comp = PartialComponent(id=f"comp_{len(req.components) + 1}")
+                    comp.system = fv(system_name, Confidence.MEDIUM, SRC)
+                    comp.name = fv(_clean_label(label) or label, Confidence.HIGH, SRC)
+                    comp.kind = fv("component", Confidence.LOW, SRC)
+                    comp.component_role = fv(role, Confidence.MEDIUM, SRC)
+                    if layer:
+                        comp.layer = fv(layer, Confidence.LOW, SRC)
+                    req.components.append(comp)
 
-                comp = PartialComponent(id=f"comp_{comp_count}", app_id="unknown")
-                comp.name = fv(clean_label or label, Confidence.HIGH, SRC)
+        depth += stripped.count('{') - stripped.count('}')
+        depth = max(0, depth)
 
-                # Infer comp_type from original label hints
-                orig = label.lower()
-                if "load balancer" in orig or "f5" in orig or "waf" in orig or "alb" in orig:
-                    comp.comp_type = fv("LB", Confidence.MEDIUM, SRC)
-                elif "gateway" in orig or "wso2" in orig or "apih" in orig or "api gateway" in orig:
-                    comp.comp_type = fv("IP", Confidence.MEDIUM, SRC)
-                elif "kafka" in orig or "queue" in orig or "mq" in orig:
-                    comp.comp_type = fv("MQ", Confidence.MEDIUM, SRC)
-                elif "postgresql" in orig or "mysql" in orig or "redis" in orig or "rds" in orig:
-                    comp.comp_type = fv("DB", Confidence.MEDIUM, SRC)
-                elif "adfs" in orig or "entra" in orig or "key vault" in orig or "secrets" in orig:
-                    comp.comp_type = fv("SEC", Confidence.MEDIUM, SRC)
-
-                if runtime:
-                    comp.runtime = fv(runtime, Confidence.LOW, SRC)
-
-                # Extract language/framework from parenthetical hints
-                lang_match = re.search(r'\(([^)]+)\)', label)
-                if lang_match:
-                    parts = [p.strip() for p in lang_match.group(1).split(",")]
-                    if parts and any(x in parts[0].lower() for x in ("java", "python", "node", "go", ".net", "javascript")):
-                        comp.language = fv(parts[0], Confidence.MEDIUM, SRC)
-                    if len(parts) > 1:
-                        comp.framework = fv(parts[1], Confidence.MEDIUM, SRC)
-
-                if "⚠" in label or "restricted" in label.lower() or "confidential" in label.lower():
-                    comp.sensitivity = fv("Company Confidential", Confidence.LOW, SRC,
-                                          "Inferred from ⚠ marker")
-                req.components.append(comp)
-
-        # Update brace depth
-        indent_depth += stripped.count('{') - stripped.count('}')
-        indent_depth = max(0, indent_depth)
-
-    req.no_coverage.extend(["user_auth", "credentials", "data_encryption"])
+    req.no_coverage.extend(["auth", "credentials", "project_name"])
     return req
 
 
 # ── arch YAML parser ──────────────────────────────────────────────────────────
 
 def parse_arch_yaml(data: dict, source_file: str) -> PartialReq:
-    """Direct mapping from arch: YAML format to PartialReq."""
+    """Direct mapping from our arch: YAML format to the req/v2 model."""
     req = PartialReq(source_tool="arch-req-from-diagram", source_file=source_file)
     SRC = f"diagram:yaml:{Path(source_file).name}"
     arch = data.get("arch", data)
 
-    # Project info
     if arch.get("name"):
         req.project_name = fv(arch["name"], Confidence.HIGH, SRC)
     if arch.get("id"):
         req.project_id = fv(arch["id"], Confidence.HIGH, SRC)
 
-    # Deployment
+    system_name = _primary_system(req, arch.get("name") or Path(source_file).stem, SRC)
+
     for region in arch.get("deployment", []):
         rid = region.get("id", "")
-        app = PartialApplication(id=rid)
-        app.dc_or_region = fv(region.get("location", rid), Confidence.HIGH, SRC)
-        app.platform = fv(region.get("type", "private_dc"), Confidence.HIGH, SRC)
+        location = region.get("location", rid)
+        infra = PartialInfra(id=rid or f"loc_{len(req.infra) + 1}")
+        infra.name = fv(location, Confidence.HIGH, SRC)
+        region_type = region.get("type", "private_dc")
+        if region_type == "private_dc":
+            infra.node_kind = fv("data_center", Confidence.HIGH, SRC)
+            infra.infra_type = fv("private_cloud", Confidence.HIGH, SRC)
+        else:
+            infra.node_kind = fv("iaas_vpc_vnet", Confidence.HIGH, SRC)
+            infra.infra_type = fv("public_cloud", Confidence.HIGH, SRC)
         if region.get("owner"):
-            app.infra_owner = fv(region["owner"], Confidence.HIGH, SRC)
-        # Extract country from location string
-        loc = re.search(r'\[([A-Z]{2,})\]', region.get("location", ""))
+            infra.infra_owner = fv(region["owner"], Confidence.HIGH, SRC)
+        loc = re.search(r'\[([A-Z]{2,})\]', location)
         if loc:
-            app.country = fv(loc.group(1), Confidence.HIGH, SRC)
-        req.applications.append(app)
+            infra.country = fv(loc.group(1), Confidence.HIGH, SRC)
+        req.infra.append(infra)
 
-        # Components within zones
-        zkey = "network_zones" if region.get("type") == "private_dc" else "subnets"
+        zkey = "network_zones" if region_type == "private_dc" else "subnets"
         for zone in region.get(zkey, []):
+            zone_name = _clean_label(zone.get("name", zone.get("id", "")))
+            if zone_name:
+                req.infra.append(_zone_infra(zone_name, _clean_label(location), SRC,
+                                             len(req.infra) + 1))
             for comp in zone.get("components", []):
-                pc = PartialComponent(id=comp.get("id", ""), app_id=rid)
+                pc = PartialComponent(id=comp.get("id", ""))
+                pc.system = fv(system_name, Confidence.HIGH, SRC)
                 pc.name = fv(comp.get("name", ""), Confidence.HIGH, SRC)
-                pc.comp_type = fv(comp.get("type", "BE"), Confidence.HIGH, SRC)
-                if comp.get("language"):
-                    pc.language = fv(comp["language"], Confidence.HIGH, SRC)
-                if comp.get("framework"):
-                    pc.framework = fv(comp["framework"], Confidence.HIGH, SRC)
-                if comp.get("runtime"):
-                    pc.runtime = fv(comp["runtime"], Confidence.HIGH, SRC)
+                pc.kind = fv(comp.get("kind", "component"), Confidence.MEDIUM, SRC)
+                if comp.get("component_role"):
+                    pc.component_role = fv(comp["component_role"], Confidence.MEDIUM, SRC)
+                if comp.get("layer"):
+                    pc.layer = fv(comp["layer"], Confidence.MEDIUM, SRC)
                 if comp.get("sensitivity"):
                     pc.sensitivity = fv(comp["sensitivity"], Confidence.HIGH, SRC)
+                if comp.get("encryption_at_rest"):
+                    pc.encryption_at_rest = fv(comp["encryption_at_rest"], Confidence.HIGH, SRC)
                 req.components.append(pc)
 
-    # Interactions
     for i, iact in enumerate(arch.get("interactions", [])):
-        interaction = PartialInteraction(id=f"int_{i+1}")
-        interaction.from_component = fv(iact.get("from", ""), Confidence.HIGH, SRC)
-        interaction.to_component   = fv(iact.get("to", ""), Confidence.HIGH, SRC)
+        flow = PartialFlow(id=f"flow_{i + 1}")
+        flow.source = fv(iact.get("from", ""), Confidence.HIGH, SRC)
+        flow.target = fv(iact.get("to", ""), Confidence.HIGH, SRC)
         if iact.get("protocol"):
-            interaction.protocol = fv(iact["protocol"], Confidence.HIGH, SRC)
+            flow.protocol = fv(iact["protocol"], Confidence.HIGH, SRC)
         auth = iact.get("auth", "")
         if auth and auth not in ("—", "-", ""):
-            interaction.auth_method = fv(auth, Confidence.HIGH, SRC)
-        req.interactions.append(interaction)
+            flow.auth_method = fv(auth, Confidence.HIGH, SRC)
+        if iact.get("via"):
+            flow.via = fv(iact["via"], Confidence.HIGH, SRC)
+        req.flows.append(flow)
 
-    # Security
     sec = arch.get("security", {})
-    for env, solution in sec.get("key_management", {}).items():
-        req.credentials.append({
-            "environment": env,
-            "solution": solution,
-            "_source": SRC,
-            "_confidence": "high",
-        })
+    for env, solution in (sec.get("key_management") or {}).items():
+        req.credentials.append({"environment": env, "solution": solution,
+                                "_source": SRC, "_confidence": "high"})
     if sec.get("user_auth_internal"):
         ua = sec["user_auth_internal"]
-        pua = PartialUserAuth(entry_point="internal")
-        pua.auth_server = fv(ua.get("server", ""), Confidence.HIGH, SRC)
-        pua.auth_protocol = fv(ua.get("protocol", ""), Confidence.HIGH, SRC)
-        req.user_auth.append(pua)
+        entry = ua.get("entry_point") or system_name
+        from .normalizer import PartialAuth
+        auth = PartialAuth(id="auth_1")
+        auth.subject = fv("user", Confidence.HIGH, SRC)
+        auth.applies_to = fv(entry, Confidence.MEDIUM, SRC)
+        if ua.get("server"):
+            auth.auth_server = fv(ua["server"], Confidence.HIGH, SRC)
+        if ua.get("protocol"):
+            auth.protocol = fv(ua["protocol"], Confidence.HIGH, SRC)
+        if ua.get("authorization"):
+            auth.authorization = fv(ua["authorization"], Confidence.HIGH, SRC)
+        req.auth.append(auth)
 
     req.no_coverage.extend(["department", "project_scope"])
     return req
@@ -447,56 +434,40 @@ def parse_arch_yaml(data: dict, source_file: str) -> PartialReq:
 
 # ── PNG Vision (Claude API) ───────────────────────────────────────────────────
 
-VISION_PROMPT = """You are an enterprise architecture analyst. Analyze this architecture diagram image and extract all information into structured JSON.
+VISION_PROMPT = """You are an enterprise architecture analyst. Analyse this architecture diagram image and extract every architecture fact into the JSON shape below.
 
-Extract:
-1. All regions/data centers/clouds with their labels and apparent location (country/city)
-2. All network zones (DMZ, App Zone, DB Zone, Intranet, VPC, Subnet, etc.)
-3. All technical components with their names and apparent type
-4. All connections/arrows with their labels (protocol, auth method if visible)
-5. Any visible security components (ADFS, Enterprise ID, F5, WAF, etc.)
-6. Any data sensitivity indicators (⚠, Restricted, Confidential labels)
+Modelling rules:
+- `infra` holds hosting/network nodes: regions, data centres, VPC/VNets, zones, subnets, and network/security appliances (firewall, WAF, load balancer, identity provider, bastion, key management). node_kind is the topology role; infra_type is the hosting category; network_type is the network/security domain. Use "parent" to name the containing node.
+- Firewalls, WAFs, load-balancer appliances, identity providers (ADFS/Entra) and key vaults are infra nodes, NOT components.
+- `components` are application artefacts only (web frontend, backend services, BFF, API gateway, message bus, database, cache, storage, integration service). Use "system" to name the owning application, and set component_role accordingly.
+- `flows` are directed arrows between components (caller -> provider); use "internet" as the source for external ingress; put appliances the path traverses in "via".
+- `network_links` are undirected links between infra nodes (MPLS, ExpressRoute, VPN, VNet peering).
+- `auth` is user/entry authentication only.
+- Every reference between entities is a NAME, not an ID. Do not invent IDs.
 
-Output ONLY valid JSON in this exact structure:
+Output ONLY valid JSON in this structure:
 {
-  "regions": [
-    {
-      "label": "exact text from diagram",
-      "location_hint": "country or city if visible",
-      "type": "private_dc|aws|azure|saas",
-      "owner": "InfraSec|BizIT|third_party|unknown",
-      "zones": [
-        {
-          "label": "zone name",
-          "type": "dmz|app_zone|db_zone|intranet|hub|spoke|subnet",
-          "components": [
-            {
-              "name": "component name",
-              "type": "FE|BE|DB|MQ|IP|LB|SEC|NW",
-              "shape_hint": "hexagon|parallelogram|cylinder|rectangle|circle|cloud",
-              "runtime_hint": "K8s|Internal K8s|ECS|VM|Lambda|AKS|unknown",
-              "sensitivity": "Restricted|Confidential|Internal|none"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "interactions": [
-    {
-      "from": "source component name (exact)",
-      "to": "target component name (exact)",
-      "protocol": "HTTPS|Kafka|SFTP|JDBC|RFC|TCP|unknown",
-      "auth": "OAuth2.0|SAML|mTLS|SASL/SCRAM|PWD|unknown",
-      "label_visible": "exact arrow label text if readable"
-    }
-  ],
-  "confidence_notes": ["list of things uncertain or hard to read in the image"]
+  "project": { "name": null, "id": null, "scope": "standalone|modification|e2e",
+               "department": null, "data_classification": null },
+  "infra": [ { "name": null, "node_kind": null, "infra_type": null, "network_type": null,
+               "parent": null, "country": null, "vendor": null } ],
+  "systems": [ { "name": null, "type": "new|existing|modified", "owner": null, "vendor": null } ],
+  "components": [ { "system": null, "name": null, "kind": "service|component", "layer": null,
+                    "component_role": null, "sensitivity": null } ],
+  "deployments": [ { "component": null, "environment": "prod", "deployment_type": null,
+                     "location_type": null, "infra": null, "runtime_type": null } ],
+  "flows": [ { "from": null, "to": null, "protocol": null, "port": null,
+               "auth_method": null, "encryption": null, "via": [], "notes": null } ],
+  "network_links": [ { "from": null, "to": null, "method": null, "encrypted": null } ],
+  "auth": [ { "subject": "user", "applies_to": null, "auth_server": null,
+              "protocol": null, "authorization": null, "user_roles": [], "mfa": null } ],
+  "gaps_noted": ["things uncertain or hard to read in the image"]
 }
 """
 
+
 def parse_png_via_vision(image_path: str, source_file: str) -> PartialReq:
-    """Call Claude Vision API to extract architecture from an image."""
+    """Call the Claude Vision API to extract architecture from an image."""
     req = PartialReq(source_tool="arch-req-from-diagram", source_file=source_file)
     SRC = f"diagram:vision:{Path(source_file).name}"
 
@@ -505,7 +476,6 @@ def parse_png_via_vision(image_path: str, source_file: str) -> PartialReq:
         req.gaps.append("ANTHROPIC_API_KEY not set — cannot use vision extraction")
         return req
 
-    # Read and base64-encode the image
     with open(image_path, "rb") as f:
         img_data = base64.standard_b64encode(f.read()).decode("utf-8")
 
@@ -517,7 +487,7 @@ def parse_png_via_vision(image_path: str, source_file: str) -> PartialReq:
     import urllib.request
     payload = json.dumps({
         "model": "claude-opus-4-6",
-        "max_tokens": 4096,
+        "max_tokens": 8192,
         "messages": [{
             "role": "user",
             "content": [
@@ -541,20 +511,18 @@ def parse_png_via_vision(image_path: str, source_file: str) -> PartialReq:
     )
 
     try:
-        with urllib.request.urlopen(http_req, timeout=60) as resp:
+        with urllib.request.urlopen(http_req, timeout=90) as resp:
             response = json.loads(resp.read().decode("utf-8"))
     except Exception as e:
         req.gaps.append(f"Vision API error: {e}")
         return req
 
-    # Extract JSON from response
     text_content = ""
     for block in response.get("content", []):
         if block.get("type") == "text":
             text_content = block["text"]
             break
 
-    # Parse JSON from response (may be wrapped in code fences)
     json_match = re.search(r'\{[\s\S]+\}', text_content)
     if not json_match:
         req.gaps.append("Vision API returned non-JSON response")
@@ -566,51 +534,10 @@ def parse_png_via_vision(image_path: str, source_file: str) -> PartialReq:
         req.gaps.append(f"Vision API JSON parse error: {e}")
         return req
 
-    # Map extracted data → PartialReq
-    for i, region in enumerate(extracted.get("regions", [])):
-        app = PartialApplication(id=f"vision_region_{i+1}")
-        app.name = fv(region.get("label", ""), Confidence.MEDIUM, SRC)
-        app.dc_or_region = fv(region.get("label", ""), Confidence.MEDIUM, SRC)
-        app.platform = fv(region.get("type", "unknown"), Confidence.LOW, SRC)
-        if region.get("location_hint"):
-            app.country = fv(region["location_hint"], Confidence.LOW, SRC,
-                             "Inferred from image — verify")
-        if region.get("owner"):
-            app.infra_owner = fv(region["owner"], Confidence.LOW, SRC)
-        req.applications.append(app)
-
-        for zone in region.get("zones", []):
-            for j, comp in enumerate(zone.get("components", [])):
-                pc = PartialComponent(
-                    id=f"vision_comp_{i+1}_{j+1}",
-                    app_id=f"vision_region_{i+1}"
-                )
-                pc.name = fv(comp.get("name", ""), Confidence.MEDIUM, SRC)
-                pc.comp_type = fv(comp.get("type", "BE"), Confidence.LOW, SRC)
-                if comp.get("runtime_hint") and comp["runtime_hint"] != "unknown":
-                    pc.runtime = fv(comp["runtime_hint"], Confidence.LOW, SRC,
-                                   "Inferred from image")
-                if comp.get("sensitivity") and comp["sensitivity"] != "none":
-                    pc.sensitivity = fv(comp["sensitivity"], Confidence.LOW, SRC)
-                req.components.append(pc)
-
-    for i, iact in enumerate(extracted.get("interactions", [])):
-        interaction = PartialInteraction(id=f"vision_int_{i+1}")
-        interaction.from_component = fv(iact.get("from", ""), Confidence.MEDIUM, SRC)
-        interaction.to_component   = fv(iact.get("to", ""), Confidence.MEDIUM, SRC)
-        if iact.get("protocol") and iact["protocol"] != "unknown":
-            interaction.protocol = fv(iact["protocol"], Confidence.LOW, SRC)
-        if iact.get("auth") and iact["auth"] != "unknown":
-            interaction.auth_method = fv(iact["auth"], Confidence.LOW, SRC,
-                                        "Extracted from image — verify accuracy")
-        req.interactions.append(interaction)
-
-    # Record confidence notes as gaps
-    for note in extracted.get("confidence_notes", []):
-        req.gaps.append(f"Vision uncertainty: {note}")
-
-    req.no_coverage.extend(["user_auth", "credentials", "data_encryption",
-                              "language", "framework", "department"])
+    req = v2_json_to_partial(extracted, source_tool="arch-req-from-diagram",
+                             source_file=source_file, confidence=Confidence.LOW,
+                             source_label=SRC)
+    req.no_coverage.extend(["credentials", "language", "framework", "department"])
     req.gaps.append("Vision extraction confidence is LOW — all values require human verification")
     return req
 
@@ -648,7 +575,6 @@ def main():
     parser = argparse.ArgumentParser(description="Extract requirements from architecture diagram")
     parser.add_argument("-i", "--input", required=True, help="Input file (.drawio/.d2/.yaml/.png)")
     parser.add_argument("-o", "--output", default=None, help="Output partial-req YAML file")
-    parser.add_argument("--json", action="store_true", help="Output JSON instead of YAML")
     args = parser.parse_args()
 
     req = parse_diagram(args.input)
@@ -658,9 +584,8 @@ def main():
         with open(args.output, "w", encoding="utf-8") as f:
             f.write(out)
         print(f"✓ Partial requirements written: {args.output}")
-        print(f"  Components found: {len(req.components)}")
-        print(f"  Interactions found: {len(req.interactions)}")
-        print(f"  Regions/DCs found: {len(req.applications)}")
+        print(f"  Infra nodes: {len(req.infra)}  |  Components: {len(req.components)}"
+              f"  |  Flows: {len(req.flows)}")
         if req.gaps:
             print("  Gaps/notes:")
             for g in req.gaps:

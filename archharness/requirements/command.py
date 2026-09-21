@@ -132,7 +132,8 @@ def main(argv: list[str] | None = None) -> int:
             pfile = os.path.join(partial_dir, f"partial-diagram-{i+1}.yaml")
             _write_text(pfile, out, "partial requirements")
             collected.append(pfile)
-            print(f"  → {len(req.components)} components, {len(req.interactions)} interactions extracted")
+            print(f"  → {len(req.infra)} infra nodes, {len(req.components)} components, "
+                  f"{len(req.flows)} flows extracted")
 
         # ── Document reader ───────────────────────────────────────────────────
         for i, doc_path in enumerate(args.doc or []):
@@ -145,7 +146,8 @@ def main(argv: list[str] | None = None) -> int:
             pfile = os.path.join(partial_dir, f"partial-doc-{i+1}.yaml")
             _write_text(pfile, out, "partial requirements")
             collected.append(pfile)
-            print(f"  → {len(req.applications)} applications, {len(req.components)} components extracted")
+            print(f"  → {len(req.systems)} systems, {len(req.components)} components, "
+                  f"{len(req.flows)} flows extracted")
 
         # ── CSV import ────────────────────────────────────────────────────────
         if args.csv:
@@ -158,7 +160,7 @@ def main(argv: list[str] | None = None) -> int:
             pfile = os.path.join(partial_dir, "partial-csv.yaml")
             _write_text(pfile, out, "partial requirements")
             collected.append(pfile)
-            print(f"  → {len(req.applications)} applications from CSV")
+            print(f"  → {len(req.systems)} systems, {len(req.infra)} infra nodes from CSV")
 
         # ── CMDB API ──────────────────────────────────────────────────────────
         if args.api:
@@ -171,7 +173,7 @@ def main(argv: list[str] | None = None) -> int:
             pfile = os.path.join(partial_dir, "partial-api.yaml")
             _write_text(pfile, out, "partial requirements")
             collected.append(pfile)
-            print(f"  → {len(req.applications)} applications from API")
+            print(f"  → {len(req.systems)} systems, {len(req.infra)} infra nodes from API")
             if req.gaps:
                 print(f"  ⚠ {req.gaps[0]}")
         return collected
@@ -204,7 +206,7 @@ def main(argv: list[str] | None = None) -> int:
             manifest = make_manifest(
                 artifact_id=f"req-{Path(args.output).stem}",
                 artifact_type="requirements",
-                schema="req/v1",
+                schema="req/v2",
                 path=args.output,
                 project_root=context.project_root if context else None,
                 producer=f"archharness/{_cli_version}",

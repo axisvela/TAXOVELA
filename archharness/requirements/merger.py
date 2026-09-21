@@ -1,20 +1,24 @@
 """
-merger.py — Merge multiple partial req.yaml files into one final req.yaml.
+merger.py — Merge multiple partial req YAML files into one final req/v2 req.yaml.
 
 Strategy:
-  1. Load all partial-req files
-  2. For each logical entity (application, component, interaction):
-     - Match across files by name similarity
-     - Pick the highest-confidence value for each field
-     - Flag conflicts (two HIGH+ sources disagree)
-  3. Run gap analysis against the CRITICAL fields list
-  4. Output: merged-req.yaml + gap-report.md
+  1. Load all partial-req files (per-entity, name-based references)
+  2. Merge each entity kind across sources:
+     - named entities match by normalized name
+     - deployments match by (component, environment)
+     - flows match by (source, target)
+     - network_links match by (undirected endpoint pair, method)
+     - auth matches by (applies_to, subject)
+  3. Resolve name references to typed IDs (INF/APP/CMP/DEP/FLOW/LNK/AUTH/STK)
+  4. Run gap analysis against the CRITICAL fields list
+  5. Output: merged req/v2 + gap-report.md
 
 Usage:
-    python merger.py partial-1.yaml partial-2.yaml partial-3.yaml -o merged-req.yaml --report gap-report.md
+    python -m archharness req --merge partial-1.yaml partial-2.yaml -o req.yaml
 """
 
 import argparse
+import re
 import sys
 from pathlib import Path
 from datetime import datetime
@@ -22,300 +26,634 @@ from datetime import datetime
 import yaml
 
 from .normalizer import (
-    PartialReq, PartialApplication, PartialComponent, PartialInteraction,
-    PartialUserAuth, FieldValue, Confidence, CONFIDENCE_RANK, merge_field,
-    fv
+    PartialReq, PartialInfra, PartialSystem, PartialComponent, PartialStack,
+    PartialDeployment, PartialFlow, PartialNetworkLink, PartialAuth,
+    PartialEcosystemRelation, FieldValue, Confidence, CONFIDENCE_RANK,
+    merge_field, fv, _clean,
 )
-from ..schemas import validate_final_req
+from ..schemas import validate_final_req_v2
 
 
-# ── Fields that MUST have values (CRITICAL gaps) ──────────────────────────────
+# ── Enum coercion ─────────────────────────────────────────────────────────────
 
-CRITICAL_FIELDS = {
-    "application": ["dc_or_region", "country", "platform"],
-    "component":   ["comp_type"],
-    "interaction": ["from_component", "to_component", "protocol", "auth_method"],
-    "user_auth":   ["auth_server", "auth_protocol"],
-    "project":     ["project_name"],
+NODE_KINDS = {
+    "region", "data_center", "iaas_vpc_vnet", "paas", "saas", "third_party",
+    "office_network", "factory_network", "lab", "internet_network", "network_zone",
+    "subnet", "firewall", "security_gateway", "waf", "router", "switch",
+    "vpn_gateway", "identity_provider", "soc_monitoring", "load_balancer",
+    "bastion_host", "logging_service", "policy_service", "key_management",
 }
-
-NON_CRITICAL_FIELDS = {
-    "component":   ["language", "framework", "runtime", "sensitivity"],
-    "interaction": ["port"],
-    "application": ["zone_subnet", "infra_owner"],
+INFRA_TYPES = {"private_cloud", "public_cloud", "saas", "third_party", "office", "factory", "lab"}
+NETWORK_TYPES = {"office_network", "factory_network", "lab_network", "prod_network", "dmz"}
+ENVIRONMENTS = {"dev", "test", "staging", "prod", "dr"}
+DEPLOYMENT_TYPES = {"private_cloud", "public_cloud", "public_cloud_paas", "saas", "third_party"}
+LOCATION_TYPES = {"data_center", "public_cloud_region", "saas"}
+RUNTIME_TYPES = {"vm", "container", "physical", "serverless"}
+LAYERS = {"fe", "be", "api", "bff", "db", "mq", "ip", "lb", "bc", "other"}
+COMPONENT_ROLES = {
+    "application_service", "web_frontend", "backend_service", "bff", "ai_agent",
+    "api_gateway", "load_balancer", "message_bus", "data_integration",
+    "integration_service", "database", "cache", "file_storage", "object_storage",
+    "metadata_store", "data_processing", "data_lake", "data_warehouse", "bi_report",
+    "batch_processing", "streaming_processing", "large_scale_compute",
 }
+FLOW_AUTH_METHODS = {
+    "OAuth2_ClientCredentials", "mTLS", "ClientCertificate", "SASL_SCRAM", "Basic",
+    "ApiKey", "UserPassword", "Kerberos", "IAM_Role", "ManagedIdentity", "none",
+}
+FLOW_ENCRYPTIONS = {"TLS1.3", "TLS1.2", "mTLS", "IPSec", "none", "TBD"}
+LINK_METHODS = {
+    "mpls", "expressroute", "direct_connect", "vpc_peering", "vnet_peering",
+    "vpn", "internet", "sdwan", "leased_line",
+}
+REDUNDANCIES = {"primary", "secondary", "backup"}
+AUTH_SUBJECTS = {"user", "application"}
+AUTH_PROTOCOLS = {"OIDC", "OAuth2_AuthCode", "SAML2", "CAS", "Kerberos", "Basic", "ApiKey"}
+AUTHORIZATIONS = {"RBAC", "ABAC", "PBAC", "DAC"}
+RELATION_TYPES = {"upstream", "downstream", "partner", "customer"}
+
+
+def _norm(value: str) -> str:
+    """Normalize a value for alias lookup: lowercase, separators -> underscore."""
+    return re.sub(r"[\s\-/]+", "_", str(value).strip().lower())
+
+
+def _alias(value, table: dict, allowed: set) -> str | None:
+    """Map a raw value to an allowed enum value via a normalized alias table."""
+    if value is None:
+        return None
+    key = _norm(value)
+    if key in table:
+        return table[key]
+    if key in allowed:
+        return key
+    for candidate in allowed:
+        if candidate.lower() == key:
+            return candidate
+    return None
+
+
+_NODE_KIND_ALIASES = {
+    "dc": "data_center", "datacenter": "data_center", "datacentre": "data_center",
+    "region": "region", "cloud": "public_cloud", "vpc": "iaas_vpc_vnet",
+    "vnet": "iaas_vpc_vnet", "subnet": "subnet", "zone": "network_zone",
+    "security_zone": "network_zone", "internet": "internet_network",
+    "office": "office_network", "office_lan": "office_network",
+    "factory": "factory_network", "plant": "factory_network",
+    "lab": "lab", "firewall": "firewall", "fw": "firewall", "waf": "waf",
+    "router": "router", "switch": "switch", "gateway": "vpn_gateway",
+    "vpn": "vpn_gateway", "vpn_gateway": "vpn_gateway",
+    "adfs": "identity_provider", "entra": "identity_provider", "entra_id": "identity_provider",
+    "idp": "identity_provider", "idp_provider": "identity_provider",
+    "lb": "load_balancer", "f5": "load_balancer", "loadbalancer": "load_balancer",
+    "bastion": "bastion_host", "jump_host": "bastion_host",
+    "keyvault": "key_management", "key_vault": "key_management", "kms": "key_management",
+    "soc": "soc_monitoring", "siem": "soc_monitoring", "logging": "logging_service",
+    "policy": "policy_service", "paas": "paas", "saas": "saas",
+    "thirdparty": "third_party", "third_party": "third_party",
+    "security_gateway": "security_gateway", "api_gateway": "security_gateway",
+}
+_INFRA_TYPE_ALIASES = {
+    "aws": "public_cloud", "azure": "public_cloud", "gcp": "public_cloud",
+    "aliyun": "public_cloud", "cloud": "public_cloud", "onprem": "private_cloud",
+    "on_prem": "private_cloud", "on_premise": "private_cloud", "dc": "private_cloud",
+    "datacenter": "private_cloud", "private": "private_cloud", "self_hosted": "private_cloud",
+    "vendor": "third_party", "partner": "third_party", "office": "office",
+    "plant": "factory", "manufacturing": "factory",
+}
+_NETWORK_TYPE_ALIASES = {
+    "dmz": "dmz", "prod": "prod_network", "production": "prod_network",
+    "internal": "prod_network", "intranet": "prod_network", "app": "prod_network",
+    "office": "office_network", "lan": "office_network", "corp": "office_network",
+    "plant": "factory_network", "ot": "factory_network", "lab": "lab_network",
+}
+_ENV_ALIASES = {
+    "production": "prod", "prd": "prod", "live": "prod", "development": "dev",
+    "development_env": "dev", "uat": "test", "sit": "test", "qa": "test",
+    "staging": "staging", "stage": "staging", "preprod": "staging",
+    "disaster_recovery": "dr", "backup": "dr",
+}
+_DEPLOYMENT_TYPE_ALIASES = {
+    "aws": "public_cloud", "azure": "public_cloud", "gcp": "public_cloud",
+    "cloud": "public_cloud", "iaas": "public_cloud", "paas": "public_cloud_paas",
+    "onprem": "private_cloud", "on_prem": "private_cloud", "private": "private_cloud",
+    "dc": "private_cloud", "datacenter": "private_cloud", "physical": "private_cloud",
+    "vendor": "third_party", "partner": "third_party", "external": "third_party",
+}
+_RUNTIME_ALIASES = {
+    "k8s": "container", "kubernetes": "container", "docker": "container",
+    "pod": "container", "ecs": "container", "aks": "container", "eks": "container",
+    "gke": "container", "openshift": "container",
+    "ec2": "vm", "instance": "vm", "server": "vm", "virtual_machine": "vm",
+    "virtualmachine": "vm", "iaas_vm": "vm",
+    "bare_metal": "physical", "baremetal": "physical", "hardware": "physical",
+    "host": "physical", "appliance": "physical",
+    "lambda": "serverless", "functions": "serverless", "function": "serverless",
+    "faas": "serverless", "managed": "serverless",
+}
+_LAYER_ALIASES = {
+    "frontend": "fe", "front_end": "fe", "ui": "fe", "web": "fe",
+    "backend": "be", "back_end": "be", "business": "be",
+    "api": "api", "bff": "bff", "database": "db", "data": "db",
+    "queue": "mq", "message_queue": "mq", "messaging": "mq", "bus": "mq",
+    "integration": "ip", "integration_platform": "ip", "middleware": "ip",
+    "load_balancer": "lb", "batch": "bc", "compute": "other",
+}
+_ROLE_ALIASES = {
+    "frontend": "web_frontend", "web": "web_frontend", "ui": "web_frontend",
+    "backend": "backend_service", "service": "backend_service", "api": "backend_service",
+    "app": "application_service", "application": "application_service",
+    "gateway": "api_gateway", "apigateway": "api_gateway",
+    "queue": "message_bus", "kafka": "message_bus", "bus": "message_bus",
+    "db": "database", "rdbms": "database", "sql": "database",
+    "storage": "object_storage", "object_store": "object_storage",
+    "integration": "integration_service", "etl": "data_integration",
+    "cache": "cache", "redis": "cache", "agent": "ai_agent",
+    "data_warehouse": "data_warehouse", "warehouse": "data_warehouse",
+    "data_lake": "data_lake", "lakehouse": "data_lake",
+}
+_FLOW_AUTH_ALIASES = {
+    "oauth2": "OAuth2_ClientCredentials", "oauth2_0": "OAuth2_ClientCredentials",
+    "oauth2_client_credentials": "OAuth2_ClientCredentials",
+    "client_credentials": "OAuth2_ClientCredentials",
+    "mtls": "mTLS", "tls": "mTLS", "client_certificate": "ClientCertificate",
+    "certificate": "ClientCertificate", "sasl_scram": "SASL_SCRAM",
+    "sasl": "SASL_SCRAM", "scram": "SASL_SCRAM", "basic": "Basic",
+    "basic_auth": "Basic", "apikey": "ApiKey", "api_key": "ApiKey",
+    "user_password": "UserPassword", "password": "UserPassword", "pwd": "UserPassword",
+    "kerberos": "Kerberos", "sap_logon_ticket": "Kerberos",
+    "iam_role": "IAM_Role", "managed_identity": "ManagedIdentity",
+    "none": "none", "no_auth": "none", "na": "none",
+}
+_FLOW_ENCRYPTION_ALIASES = {
+    "tls1_3": "TLS1.3", "tls_1_3": "TLS1.3", "tls13": "TLS1.3",
+    "tls1_2": "TLS1.2", "tls_1_2": "TLS1.2", "tls12": "TLS1.2",
+    "mtls": "mTLS", "ipsec": "IPSec", "none": "none", "tbd": "TBD",
+}
+_LINK_METHOD_ALIASES = {
+    "express_route": "expressroute", "er": "expressroute", "directconnect": "direct_connect",
+    "direct_connect": "direct_connect", "dx": "direct_connect",
+    "vpc_peering": "vpc_peering", "vnet_peering": "vnet_peering",
+    "peering": "vnet_peering", "vpn": "vpn", "ipsec": "vpn", "site_to_site": "vpn",
+    "internet": "internet", "public_internet": "internet", "mpls": "mpls",
+    "sdwan": "sdwan", "sd_wan": "sdwan", "leased_line": "leased_line",
+    "lease_line": "leased_line", "dedicated_line": "leased_line",
+}
+_AUTH_PROTOCOL_ALIASES = {
+    "saml": "SAML2", "saml2_0": "SAML2", "oidc": "OIDC",
+    "openid_connect": "OIDC", "oauth2": "OAuth2_AuthCode",
+    "oauth2_authorization_code": "OAuth2_AuthCode", "oauth2_authcode": "OAuth2_AuthCode",
+    "authorization_code": "OAuth2_AuthCode", "cas": "CAS", "kerberos": "Kerberos",
+    "basic": "Basic", "apikey": "ApiKey", "api_key": "ApiKey",
+}
+_AUTHORIZATION_ALIASES = {"rbac": "RBAC", "abac": "ABAC", "pbac": "PBAC", "dac": "DAC"}
 
 
 # ── Name matching ─────────────────────────────────────────────────────────────
 
 def _normalize_name(name: str) -> str:
-    """Normalize a component name for fuzzy matching."""
+    """Normalize a name for fuzzy matching."""
     if not name:
         return ""
-    import re
-    s = re.sub(r'[^a-z0-9]', '', name.lower())
-    # Remove common suffixes
+    s = re.sub(r'[^a-z0-9]', '', str(name).lower())
     for suffix in ("service", "svc", "api", "app", "db", "database"):
         if s.endswith(suffix) and len(s) > len(suffix):
             s = s[:-len(suffix)]
     return s
 
 
-def _match_by_name(items: list, name: str, threshold: float = 0.7) -> object:
-    """Find the item in a list whose name most closely matches 'name'."""
-    target = _normalize_name(name)
-    if not target:
+def _key_of(entity, aspect: str) -> str:
+    """Return the merge key for an entity, or '' when it cannot be keyed."""
+    def val(field_name):
+        f = getattr(entity, field_name, None)
+        return str(f.value) if isinstance(f, FieldValue) and f.value is not None else ""
+
+    if aspect == "name":
+        return _normalize_name(val("name"))
+    if aspect == "deployment":
+        return f"{_normalize_name(val('component'))}|{val('environment').lower()}"
+    if aspect == "flow":
+        return f"{_normalize_name(val('source'))}->{_normalize_name(val('target'))}"
+    if aspect == "link":
+        ends = sorted([_normalize_name(val("source_infra")), _normalize_name(val("target_infra"))])
+        return f"{ends[0]}--{ends[1]}|{val('method').lower()}"
+    if aspect == "auth":
+        return f"{_normalize_name(val('applies_to'))}|{val('subject').lower()}"
+    if aspect == "stack":
+        return f"{_normalize_name(val('component'))}|{val('component_name').lower()}|{val('version')}"
+    if aspect == "ecosystem":
+        return f"{_normalize_name(val('source_system'))}->{_normalize_name(val('target_system'))}"
+    return ""
+
+
+_ENTITY_SPECS = [
+    ("infra", "name"), ("systems", "name"), ("components", "name"),
+    ("stacks", "stack"), ("deployments", "deployment"), ("flows", "flow"),
+    ("network_links", "link"), ("auth", "auth"), ("ecosystem_relations", "ecosystem"),
+]
+
+
+def _merge_one(versions: list):
+    """Merge same-key entity versions field-by-field by confidence."""
+    template = versions[0]
+    merged = type(template)(id=template.id)
+    for field_name in template.__dataclass_fields__:
+        if field_name == "id":
+            continue
+        setattr(merged, field_name, merge_field(
+            [getattr(v, field_name, None) for v in versions]))
+    return merged
+
+
+def _merge_entities(all_reqs: list[PartialReq]) -> dict[str, list]:
+    merged: dict[str, list] = {}
+    for attr, aspect in _ENTITY_SPECS:
+        groups: dict[str, list] = {}
+        order: list[str] = []
+        for req in all_reqs:
+            for entity in getattr(req, attr):
+                key = _key_of(entity, aspect)
+                if not key:
+                    continue
+                if key not in groups:
+                    groups[key] = []
+                    order.append(key)
+                groups[key].append(entity)
+        merged[attr] = [_merge_one(groups[k]) for k in order]
+    return merged
+
+
+# ── Reference resolution ──────────────────────────────────────────────────────
+
+def _value_of(field_value) -> object:
+    if isinstance(field_value, FieldValue):
+        return field_value.value
+    return field_value
+
+
+def _ref_id(field_value, mapping: dict, allow_internet: bool = False) -> str | None:
+    value = _value_of(field_value)
+    if value is None:
+        return None
+    if allow_internet and str(value).strip().lower() == "internet":
+        return "internet"
+    return mapping.get(_normalize_name(str(value)))
+
+
+def _ref_list(field_value, mapping: dict) -> list[str]:
+    value = _value_of(field_value)
+    if not isinstance(value, (list, tuple)):
+        return []
+    out = []
+    for item in value:
+        resolved = mapping.get(_normalize_name(str(item)))
+        if resolved:
+            out.append(resolved)
+    return out
+
+
+def _bool_of(value) -> bool | None:
+    value = _value_of(value)
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return value
+    token = _norm(value)
+    if token in {"true", "yes", "y", "1", "encrypted"}:
+        return True
+    if token in {"false", "no", "n", "0", "plain", "unencrypted"}:
+        return False
+    return None
+
+
+def _int_of(value) -> int | None:
+    value = _value_of(value)
+    if value is None:
+        return None
+    try:
+        return int(str(value).strip())
+    except (TypeError, ValueError):
         return None
 
-    best_score = 0.0
-    best_item = None
 
-    for item in items:
-        item_name = ""
-        fv_name = getattr(item, "name", None)
-        if isinstance(fv_name, FieldValue) and fv_name.value:
-            item_name = str(fv_name.value)
-        elif isinstance(fv_name, str):
-            item_name = fv_name
+# ── Final output serialization ────────────────────────────────────────────────
 
-        candidate = _normalize_name(item_name)
-        if not candidate:
+def _plain(field_value):
+    return _value_of(field_value)
+
+
+def _enum(field_value, table: dict, allowed: set) -> str | None:
+    return _alias(_value_of(field_value), table, allowed)
+
+
+def _build_final(merged: dict, project: dict, credentials, constraints,
+                 open_items) -> tuple[dict, list[str]]:
+    """Resolve references, assign typed IDs and build the req/v2 document."""
+    unresolved: list[str] = []
+
+    infra_map: dict[str, str] = {}
+    system_map: dict[str, str] = {}
+    component_map: dict[str, str] = {}
+
+    # Pass 1 — IDs for the named entities (stable, first-seen order).
+    valid_infra = []
+    for entity in merged["infra"]:
+        name = _plain(entity.name)
+        node_kind = _enum(entity.node_kind, _NODE_KIND_ALIASES, NODE_KINDS)
+        if not name or not node_kind:
+            unresolved.append(f"infra '{name or '?'}': node_kind missing or invalid — row dropped")
             continue
+        valid_infra.append((entity, node_kind))
+    for index, (entity, _) in enumerate(valid_infra, start=1):
+        infra_map[_normalize_name(_plain(entity.name))] = f"INF-{index:02d}"
 
-        # Simple overlap score
-        overlap = len(set(target) & set(candidate))
-        score = (2 * overlap) / (len(target) + len(candidate)) if target and candidate else 0
-        # Boost exact match
-        if target == candidate:
-            score = 1.0
-        # Boost if one contains the other
-        elif target in candidate or candidate in target:
-            score = 0.85
+    valid_systems = []
+    for entity in merged["systems"]:
+        name = _plain(entity.name)
+        if not name:
+            unresolved.append("system with no name — row dropped")
+            continue
+        valid_systems.append(entity)
+    for index, entity in enumerate(valid_systems, start=1):
+        system_map[_normalize_name(_plain(entity.name))] = f"APP-{index:02d}"
 
-        if score > best_score:
-            best_score = score
-            best_item = item
+    valid_components = []
+    for entity in merged["components"]:
+        name = _plain(entity.name)
+        if not name:
+            unresolved.append("component with no name — row dropped")
+            continue
+        valid_components.append(entity)
+    for index, entity in enumerate(valid_components, start=1):
+        component_map[_normalize_name(_plain(entity.name))] = f"CMP-{index:02d}"
 
-    return best_item if best_score >= threshold else None
+    # Pass 2 — emit entities with resolved references.
+    infra_out = []
+    for entity, node_kind in valid_infra:
+        infra_out.append(_drop_none({
+            "id": infra_map[_normalize_name(_plain(entity.name))],
+            "name": _plain(entity.name),
+            "node_kind": node_kind,
+            "infra_type": _enum(entity.infra_type, _INFRA_TYPE_ALIASES, INFRA_TYPES),
+            "network_type": _enum(entity.network_type, _NETWORK_TYPE_ALIASES, NETWORK_TYPES),
+            "parent_id": _ref_id(entity.parent, infra_map),
+            "country": _plain(entity.country),
+            "vendor": _plain(entity.vendor),
+            "infra_owner": _plain(entity.infra_owner),
+        }))
+
+    systems_out = []
+    for entity in valid_systems:
+        systems_out.append(_drop_none({
+            "id": system_map[_normalize_name(_plain(entity.name))],
+            "name": _plain(entity.name),
+            "type": (_plain(entity.type) or "existing").lower()
+                    if str(_plain(entity.type) or "existing").lower() in {"new", "existing", "modified"} else "existing",
+            "owner": _enum(entity.owner, {}, {"org_it", "biz_owned", "third_party"}),
+            "vendor": _plain(entity.vendor),
+            "data_classification": _plain(entity.data_classification),
+        }))
+
+    components_out = []
+    for entity in valid_components:
+        system_id = _ref_id(entity.system, system_map)
+        if not system_id:
+            unresolved.append(f"component '{_plain(entity.name)}': owning system "
+                              f"'{_plain(entity.system)}' unresolved — row dropped")
+            continue
+        components_out.append(_drop_none({
+            "id": component_map[_normalize_name(_plain(entity.name))],
+            "system_id": system_id,
+            "name": _plain(entity.name),
+            "kind": (_plain(entity.kind) or "component").lower()
+                    if str(_plain(entity.kind) or "component").lower() in {"service", "component"} else "component",
+            "layer": _enum(entity.layer, _LAYER_ALIASES, LAYERS),
+            "component_role": _enum(entity.component_role, _ROLE_ALIASES, COMPONENT_ROLES),
+            "function_desc": _plain(entity.function_desc),
+            "sensitivity": _plain(entity.sensitivity),
+            "encryption_at_rest": _plain(entity.encryption_at_rest),
+            "key_management": _ref_id(entity.key_management, infra_map),
+        }))
+
+    stacks_out = []
+    for index, entity in enumerate(merged["stacks"], start=1):
+        component_id = _ref_id(entity.component, component_map)
+        tech = _plain(entity.component_name) or _plain(entity.component)
+        if not component_id or not tech:
+            unresolved.append(f"stack '{tech or '?'}': component unresolved — row dropped")
+            continue
+        stacks_out.append(_drop_none({
+            "id": f"STK-{index:02d}",
+            "component_id": component_id,
+            "component": tech,
+            "component_package": _plain(entity.component_package),
+            "version": _plain(entity.version) or "TBD",
+            "category": _plain(entity.category),
+            "eol_date": _plain(entity.eol_date),
+            "license": _plain(entity.license),
+            "standard_flag": _bool_of(entity.standard_flag),
+        }))
+
+    deployments_out = []
+    for index, entity in enumerate(merged["deployments"], start=1):
+        component_id = _ref_id(entity.component, component_map)
+        if not component_id:
+            unresolved.append(f"deployment of '{_plain(entity.component)}': component "
+                              f"unresolved — row dropped")
+            continue
+        environment = _alias(_plain(entity.environment), _ENV_ALIASES, ENVIRONMENTS) or "prod"
+        deployment_type = _alias(_plain(entity.deployment_type),
+                                 _DEPLOYMENT_TYPE_ALIASES, DEPLOYMENT_TYPES) or "private_cloud"
+        location_type = _alias(_plain(entity.location_type), {}, LOCATION_TYPES)
+        if not location_type:
+            location_type = {"public_cloud": "public_cloud_region",
+                             "public_cloud_paas": "public_cloud_region",
+                             "saas": "saas", "third_party": "saas"}.get(deployment_type, "data_center")
+        runtime_type = _alias(_plain(entity.runtime_type), _RUNTIME_ALIASES, RUNTIME_TYPES) or "container"
+        infra_id = None
+        if _plain(entity.infra) is not None:
+            infra_id = _ref_id(entity.infra, infra_map)
+            if not infra_id:
+                unresolved.append(f"deployment of '{_plain(entity.component)}': infra "
+                                  f"'{_plain(entity.infra)}' unresolved")
+        deployments_out.append(_drop_none({
+            "id": f"DEP-{index:02d}",
+            "component_id": component_id,
+            "environment": environment,
+            "deployment_type": deployment_type,
+            "location_type": location_type,
+            "infra_id": infra_id,
+            "runtime_type": runtime_type,
+            "runtime_detail": _plain(entity.runtime_detail),
+            "instance_count": _int_of(entity.instance_count),
+        }))
+
+    flows_out = []
+    for index, entity in enumerate(merged["flows"], start=1):
+        source_id = _ref_id(entity.source, component_map, allow_internet=True)
+        target_id = _ref_id(entity.target, component_map)
+        protocol = _plain(entity.protocol)
+        if not source_id or not target_id or not protocol:
+            unresolved.append(f"flow '{_plain(entity.source)}' -> '{_plain(entity.target)}': "
+                              f"endpoint or protocol unresolved — row dropped")
+            continue
+        flows_out.append(_drop_none({
+            "id": f"FLOW-{index:02d}",
+            "source_component_id": source_id,
+            "target_component_id": target_id,
+            "protocol": protocol,
+            "port": _plain(entity.port),
+            "auth_method": _alias(_plain(entity.auth_method), _FLOW_AUTH_ALIASES,
+                                  FLOW_AUTH_METHODS) or "none",
+            "encryption": _enum(entity.encryption, _FLOW_ENCRYPTION_ALIASES, FLOW_ENCRYPTIONS),
+            "cross_border": _bool_of(entity.cross_border),
+            "cross_border_basis": _plain(entity.cross_border_basis),
+            "via": _ref_list(entity.via, infra_map) or None,
+            "notes": _plain(entity.notes),
+        }))
+
+    links_out = []
+    for index, entity in enumerate(merged["network_links"], start=1):
+        source_id = _ref_id(entity.source_infra, infra_map)
+        target_id = _ref_id(entity.target_infra, infra_map)
+        method = _alias(_plain(entity.method), _LINK_METHOD_ALIASES, LINK_METHODS)
+        if not source_id or not target_id or not method:
+            unresolved.append(f"network_link '{_plain(entity.source_infra)}' <-> "
+                              f"'{_plain(entity.target_infra)}': endpoint or method unresolved — row dropped")
+            continue
+        links_out.append(_drop_none({
+            "id": f"LNK-{index:02d}",
+            "source_infra_id": source_id,
+            "target_infra_id": target_id,
+            "method": method,
+            "bandwidth": _plain(entity.bandwidth),
+            "encrypted": _bool_of(entity.encrypted),
+            "encryption_method": _plain(entity.encryption_method),
+            "managed_by": _plain(entity.managed_by),
+            "redundancy": _enum(entity.redundancy, {}, REDUNDANCIES),
+            "notes": _plain(entity.notes),
+        }))
+
+    auth_out = []
+    for index, entity in enumerate(merged["auth"], start=1):
+        protocol = _alias(_plain(entity.protocol), _AUTH_PROTOCOL_ALIASES, AUTH_PROTOCOLS)
+        applies_to = _ref_id(entity.applies_to, {**component_map, **infra_map},
+                             allow_internet=True)
+        if not protocol or not applies_to:
+            unresolved.append(f"auth '{_plain(entity.applies_to)}': entry point or protocol "
+                              f"unresolved — row dropped")
+            continue
+        auth_out.append(_drop_none({
+            "id": f"AUTH-{index:02d}",
+            "subject": _alias(_plain(entity.subject), {}, AUTH_SUBJECTS) or "user",
+            "applies_to": applies_to,
+            "auth_server": _ref_id(entity.auth_server, infra_map) or _plain(entity.auth_server),
+            "protocol": protocol,
+            "authorization": _enum(entity.authorization, _AUTHORIZATION_ALIASES, AUTHORIZATIONS),
+            "authorization_platform": _plain(entity.authorization_platform),
+            "user_roles": _value_of(entity.user_roles),
+            "mfa": _bool_of(entity.mfa),
+            "notes": _plain(entity.notes),
+        }))
+
+    eco_out = []
+    for index, entity in enumerate(merged["ecosystem_relations"], start=1):
+        source_id = _ref_id(entity.source_system, system_map)
+        target_id = _ref_id(entity.target_system, system_map)
+        if not source_id or not target_id:
+            unresolved.append(f"ecosystem_relation '{_plain(entity.source_system)}' -> "
+                              f"'{_plain(entity.target_system)}': system unresolved — row dropped")
+            continue
+        eco_out.append(_drop_none({
+            "id": f"ECO-{index:02d}",
+            "source_system_id": source_id,
+            "target_system_id": target_id,
+            "relation_type": _enum(entity.relation_type, {}, RELATION_TYPES),
+            "notes": _plain(entity.notes),
+        }))
+
+    doc = {
+        "schema_version": "req/v2",
+        "requirements": {
+            # project.name is required by the contract; keep the key even when null.
+            "project": {k: v for k, v in project.items()},
+            "infra": infra_out,
+            "systems": systems_out,
+            "components": components_out,
+            "deployments": deployments_out,
+            "flows": flows_out,
+            "network_links": links_out,
+            "auth": auth_out,
+            "stacks": stacks_out,
+            "ecosystem_relations": eco_out,
+            "credentials": credentials,
+            "constraints": constraints,
+            "open_items": open_items,
+        },
+    }
+    return doc, unresolved
 
 
-# ── Field-level merge ─────────────────────────────────────────────────────────
-
-def _merge_fv_list(field_values: list) -> FieldValue:
-    """Merge a list of FieldValues (some may be None)."""
-    candidates = [fv for fv in field_values if fv is not None]
-    return merge_field(candidates)
-
-
-def _merge_applications(all_reqs: list[PartialReq]) -> list[PartialApplication]:
-    """Merge applications across all partial reqs by name matching."""
-    merged: list[PartialApplication] = []
-    seen_names = set()
-
-    for req in all_reqs:
-        for app in req.applications:
-            name_val = app.name.value if isinstance(app.name, FieldValue) else (app.name or "")
-            norm = _normalize_name(str(name_val))
-            if norm and norm not in seen_names:
-                seen_names.add(norm)
-                # Find all versions of this app across all reqs
-                versions = []
-                for r in all_reqs:
-                    match = _match_by_name(r.applications, str(name_val))
-                    if match:
-                        versions.append(match)
-
-                merged_app = PartialApplication(id=app.id)
-                merged_app.name = _merge_fv_list([v.name for v in versions])
-                merged_app.type = _merge_fv_list([v.type for v in versions])
-                merged_app.owner = _merge_fv_list([v.owner for v in versions])
-                merged_app.vendor = _merge_fv_list([v.vendor for v in versions])
-                merged_app.dc_or_region = _merge_fv_list([v.dc_or_region for v in versions])
-                merged_app.country = _merge_fv_list([v.country for v in versions])
-                merged_app.platform = _merge_fv_list([v.platform for v in versions])
-                merged_app.zone_subnet = _merge_fv_list([v.zone_subnet for v in versions])
-                merged_app.infra_owner = _merge_fv_list([v.infra_owner for v in versions])
-                merged.append(merged_app)
-
-    return merged
-
-
-def _merge_components(all_reqs: list[PartialReq]) -> list[PartialComponent]:
-    merged: list[PartialComponent] = []
-    seen = set()
-
-    for req in all_reqs:
-        for comp in req.components:
-            name_val = comp.name.value if isinstance(comp.name, FieldValue) else (comp.name or "")
-            norm = _normalize_name(str(name_val))
-            if norm and norm not in seen:
-                seen.add(norm)
-                versions = []
-                for r in all_reqs:
-                    match = _match_by_name(r.components, str(name_val))
-                    if match:
-                        versions.append(match)
-
-                mc = PartialComponent(id=comp.id, app_id=comp.app_id)
-                mc.name = _merge_fv_list([v.name for v in versions])
-                mc.comp_type = _merge_fv_list([v.comp_type for v in versions])
-                mc.language = _merge_fv_list([v.language for v in versions])
-                mc.framework = _merge_fv_list([v.framework for v in versions])
-                mc.runtime = _merge_fv_list([v.runtime for v in versions])
-                mc.sensitivity = _merge_fv_list([v.sensitivity for v in versions])
-                merged.append(mc)
-
-    return merged
-
-
-def _merge_interactions(all_reqs: list[PartialReq]) -> list[PartialInteraction]:
-    """Merge interactions — dedup by (from, to) pair."""
-    merged: list[PartialInteraction] = []
-    seen_pairs = set()
-
-    for req in all_reqs:
-        for iact in req.interactions:
-            from_val = iact.from_component.value if isinstance(iact.from_component, FieldValue) else ""
-            to_val   = iact.to_component.value   if isinstance(iact.to_component, FieldValue) else ""
-            pair_key = (_normalize_name(str(from_val)), _normalize_name(str(to_val)))
-
-            if pair_key not in seen_pairs and pair_key != ("", ""):
-                seen_pairs.add(pair_key)
-                # Collect all versions of this interaction
-                versions = [i for r in all_reqs for i in r.interactions
-                           if _normalize_name(str(
-                               i.from_component.value if isinstance(i.from_component, FieldValue) else ""
-                           )) == pair_key[0] and
-                           _normalize_name(str(
-                               i.to_component.value if isinstance(i.to_component, FieldValue) else ""
-                           )) == pair_key[1]]
-
-                mi = PartialInteraction(id=iact.id)
-                mi.from_component = _merge_fv_list([v.from_component for v in versions])
-                mi.to_component   = _merge_fv_list([v.to_component for v in versions])
-                mi.protocol       = _merge_fv_list([v.protocol for v in versions])
-                mi.port           = _merge_fv_list([v.port for v in versions])
-                mi.auth_method    = _merge_fv_list([v.auth_method for v in versions])
-                mi.notes          = _merge_fv_list([v.notes for v in versions])
-                merged.append(mi)
-
-    return merged
-
-
-def _merge_user_auth(all_reqs: list[PartialReq]) -> list[PartialUserAuth]:
-    """Merge authentication requirements by entry point without dropping fields."""
-    merged: list[PartialUserAuth] = []
-    seen: set[str] = set()
-
-    for req in all_reqs:
-        for index, user_auth in enumerate(req.user_auth):
-            entry_point = str(user_auth.entry_point or "")
-            normalized = _normalize_name(entry_point)
-            key = normalized or f"__unnamed_{id(req)}_{index}"
-            if key in seen:
-                continue
-            seen.add(key)
-
-            versions = [
-                candidate
-                for source_req in all_reqs
-                for candidate in source_req.user_auth
-                if normalized
-                and _normalize_name(str(candidate.entry_point or "")) == normalized
-            ] or [user_auth]
-
-            merged_auth = PartialUserAuth(entry_point=entry_point)
-            for field in (
-                "user_roles", "auth_server", "auth_protocol",
-                "authorization", "auth_platform",
-            ):
-                setattr(merged_auth, field, _merge_fv_list([
-                    getattr(version, field, None) for version in versions
-                ]))
-            merged.append(merged_auth)
-
-    return merged
+def _drop_none(mapping: dict) -> dict:
+    return {k: v for k, v in mapping.items() if v is not None}
 
 
 # ── Gap analysis ──────────────────────────────────────────────────────────────
 
-def analyze_gaps(merged_apps: list, merged_comps: list,
-                 merged_interactions: list, user_auth: list,
-                 project_name: FieldValue) -> dict:
-    """Identify critical and non-critical gaps in the merged requirements."""
-    critical = []
-    non_critical = []
-    conflicts = []
+def analyze_gaps(doc: dict, unresolved: list[str]) -> dict:
+    """Identify critical / non-critical gaps and conflicts in the merged doc."""
+    req = doc["requirements"]
+    critical: list[str] = list(unresolved)
+    non_critical: list[str] = []
+    conflicts: list[str] = []
 
-    # Project-level
-    if not project_name or not project_name.value:
+    if not req["project"].get("name"):
         critical.append("Project name is missing")
 
-    # Applications
-    for app in merged_apps:
-        n = app.name.value if isinstance(app.name, FieldValue) else "?"
-        for f in CRITICAL_FIELDS["application"]:
-            fv_val = getattr(app, f, None)
-            if fv_val is None or (isinstance(fv_val, FieldValue) and not fv_val.value):
-                critical.append(f"Application '{n}': {f} is missing")
-            elif isinstance(fv_val, FieldValue) and "CONFLICT" in (fv_val.note or ""):
-                conflicts.append(f"Application '{n}': {f} has conflict — {fv_val.note}")
+    for infra in req["infra"]:
+        if not infra.get("country"):
+            non_critical.append(f"Infra '{infra.get('name')}': country not specified")
 
-    # Components
-    for comp in merged_comps:
-        n = comp.name.value if isinstance(comp.name, FieldValue) else "?"
-        for f in CRITICAL_FIELDS["component"]:
-            fv_val = getattr(comp, f, None)
-            if fv_val is None or (isinstance(fv_val, FieldValue) and not fv_val.value):
-                critical.append(f"Component '{n}': {f} is missing")
-        for f in NON_CRITICAL_FIELDS["component"]:
-            fv_val = getattr(comp, f, None)
-            if fv_val is None or (isinstance(fv_val, FieldValue) and not fv_val.value):
-                non_critical.append(f"Component '{n}': {f} not specified")
+    for system in req["systems"]:
+        if not system.get("owner"):
+            non_critical.append(f"System '{system.get('name')}': owner not specified")
 
-    # Interactions
-    for iact in merged_interactions:
-        fr = iact.from_component.value if isinstance(iact.from_component, FieldValue) else "?"
-        to = iact.to_component.value   if isinstance(iact.to_component, FieldValue) else "?"
-        label = f"{fr} → {to}"
+    for comp in req["components"]:
+        if not comp.get("component_role"):
+            non_critical.append(f"Component '{comp.get('name')}': component_role not assigned")
+        if not comp.get("sensitivity"):
+            non_critical.append(f"Component '{comp.get('name')}': sensitivity not specified")
 
-        if not iact.auth_method or (isinstance(iact.auth_method, FieldValue) and
-                                     not iact.auth_method.value):
-            critical.append(f"Interaction '{label}': auth_method is missing")
+    for dep in req["deployments"]:
+        if dep.get("environment") == "prod" and not dep.get("infra_id"):
+            critical.append(f"Deployment '{dep.get('id')}' ({dep.get('component_id')}): "
+                            f"infra_id missing for prod")
 
-        if not iact.protocol or (isinstance(iact.protocol, FieldValue) and
-                                   not iact.protocol.value):
-            critical.append(f"Interaction '{label}': protocol is missing")
+    for flow in req["flows"]:
+        if not flow.get("auth_method") or flow.get("auth_method") == "none":
+            non_critical.append(f"Flow '{flow.get('id')}' ({flow.get('source_component_id')} -> "
+                                f"{flow.get('target_component_id')}): auth_method is none/absent")
+        if not flow.get("port"):
+            non_critical.append(f"Flow '{flow.get('id')}': port not specified")
 
-    # User auth
-    if not user_auth:
-        critical.append("User authentication not defined for any entry point")
-    for auth in user_auth:
-        entry_point = auth.entry_point or "?"
-        for field in CRITICAL_FIELDS["user_auth"]:
-            field_value = getattr(auth, field, None)
-            if field_value is None or (
-                isinstance(field_value, FieldValue) and not field_value.value
-            ):
-                critical.append(
-                    f"User authentication '{entry_point}': {field} is missing"
-                )
+    if not req["auth"] and not req["flows"]:
+        critical.append("No authentication defined for any entry point")
 
-    return {
-        "critical": critical,
-        "non_critical": non_critical,
-        "conflicts": conflicts,
-    }
+    for item in req["open_items"]:
+        if isinstance(item, dict) and "CONFLICT" in str(item):
+            conflicts.append(str(item))
+
+    return {"critical": critical, "non_critical": non_critical, "conflicts": conflicts}
 
 
 # ── Gap report ────────────────────────────────────────────────────────────────
 
 def generate_gap_report(gaps: dict, sources: list[str]) -> str:
     lines = [
-        f"# Requirements Gap Report",
+        "# Requirements Gap Report",
         f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}",
-        f"",
-        f"## Sources merged",
+        "",
+        "## Sources merged",
     ]
     for s in sources:
         lines.append(f"  - {s}")
@@ -323,125 +661,61 @@ def generate_gap_report(gaps: dict, sources: list[str]) -> str:
     lines += ["", f"## Critical gaps ({len(gaps['critical'])}) — must resolve before arch-design"]
     if gaps["critical"]:
         for g in gaps["critical"]:
-            lines.append(f"  - ❌ {g}")
+            lines.append(f"  - [CRITICAL] {g}")
     else:
-        lines.append("  ✓ No critical gaps")
+        lines.append("  OK: no critical gaps")
 
     lines += ["", f"## Conflicts ({len(gaps['conflicts'])}) — same field, different values"]
     if gaps["conflicts"]:
         for g in gaps["conflicts"]:
-            lines.append(f"  - ⚠ {g}")
+            lines.append(f"  - [CONFLICT] {g}")
     else:
-        lines.append("  ✓ No conflicts detected")
+        lines.append("  OK: no conflicts detected")
 
     lines += ["", f"## Non-critical gaps ({len(gaps['non_critical'])}) — can be TBD"]
     if gaps["non_critical"]:
-        for g in gaps["non_critical"][:20]:   # cap at 20
-            lines.append(f"  - ○ {g}")
+        for g in gaps["non_critical"][:20]:
+            lines.append(f"  - {g}")
         if len(gaps["non_critical"]) > 20:
             lines.append(f"  ... and {len(gaps['non_critical']) - 20} more")
     else:
-        lines.append("  ✓ All recommended fields present")
+        lines.append("  OK: all recommended fields present")
 
     lines += ["",
               "## Next steps",
-              "1. Resolve all ❌ CRITICAL gaps (required for arch-design)",
-              "2. Confirm or correct ⚠ CONFLICTS with the application owner",
+              "1. Resolve all CRITICAL gaps (required for arch-design)",
+              "2. Confirm or correct CONFLICTs with the application owner",
               "3. Run /arch-requirements interview to fill remaining gaps",
-              "4. Once gap-report shows no ❌, run /arch-design with merged-req.yaml"]
+              "4. Once the gap report shows no CRITICAL items, run /arch-design"]
 
     return "\n".join(lines)
 
 
-# ── Final output serialization ────────────────────────────────────────────────
-
-def _fv_to_plain(fv_val) -> object:
-    """Convert FieldValue to plain value for final req.yaml output."""
-    if isinstance(fv_val, FieldValue):
-        if fv_val.note and "CONFLICT" in fv_val.note:
-            return f"⚠CONFLICT: {fv_val.value}  # {fv_val.note}"
-        return fv_val.value
-    return fv_val
-
-
-def to_final_req_yaml(merged_apps, merged_comps, merged_interactions,
-                      user_auth, credentials, data_encryption, network_connections,
-                      constraints, open_items,
-                      project_name, project_id, project_scope, department) -> str:
-    """Produce the final req.yaml in the standard requirements format."""
-
-    def app_to_dict(app: PartialApplication) -> dict:
-        return {
-            "id": app.id,
-            "name": _fv_to_plain(app.name),
-            "type": _fv_to_plain(app.type) or "existing",
-            "owner": _fv_to_plain(app.owner) or "org_it",
-            "vendor": _fv_to_plain(app.vendor),
-            "dc_or_region": _fv_to_plain(app.dc_or_region),
-            "country": _fv_to_plain(app.country),
-            "platform": _fv_to_plain(app.platform),
-            "zone_subnet": _fv_to_plain(app.zone_subnet),
-            "infra_owner": _fv_to_plain(app.infra_owner),
-        }
-
-    def comp_to_dict(comp: PartialComponent) -> dict:
-        return {
-            "id": comp.id,
-            "app_id": comp.app_id,
-            "name": _fv_to_plain(comp.name),
-            "type": _fv_to_plain(comp.comp_type) or "BE",
-            "language": _fv_to_plain(comp.language),
-            "framework": _fv_to_plain(comp.framework),
-            "runtime": _fv_to_plain(comp.runtime),
-            "sensitivity": _fv_to_plain(comp.sensitivity),
-        }
-
-    def int_to_dict(iact: PartialInteraction) -> dict:
-        return {
-            "id": iact.id,
-            "from_component": _fv_to_plain(iact.from_component),
-            "to_component": _fv_to_plain(iact.to_component),
-            "protocol": _fv_to_plain(iact.protocol),
-            "port": _fv_to_plain(iact.port),
-            "auth_method": _fv_to_plain(iact.auth_method) or "⚠MISSING",
-            "notes": _fv_to_plain(iact.notes),
-        }
-
-    def ua_to_dict(ua: PartialUserAuth) -> dict:
-        return {
-            "entry_point": ua.entry_point,
-            "user_roles": _fv_to_plain(ua.user_roles),
-            "auth_server": _fv_to_plain(ua.auth_server),
-            "auth_protocol": _fv_to_plain(ua.auth_protocol),
-            "authorization": _fv_to_plain(ua.authorization),
-            "auth_platform": _fv_to_plain(ua.auth_platform),
-        }
-
-    doc = {
-        "schema_version": "req/v1",
-        "requirements": {
-            "project": {
-                "name": _fv_to_plain(project_name),
-                "id": _fv_to_plain(project_id),
-                "scope": _fv_to_plain(project_scope),
-                "department": _fv_to_plain(department),
-            },
-            "applications":       [app_to_dict(a) for a in merged_apps],
-            "components":         [comp_to_dict(c) for c in merged_comps],
-            "interactions":       [int_to_dict(i) for i in merged_interactions],
-            "user_auth":          [ua_to_dict(u) for u in user_auth],
-            "credentials":        credentials,
-            "data_encryption":    data_encryption,
-            "network_connections": network_connections,
-            "constraints":        constraints,
-            "open_items":         open_items,
-        }
-    }
-    validate_final_req(doc)
-    return yaml.dump(doc, allow_unicode=True, sort_keys=False, default_flow_style=False)
-
-
 # ── Partial input deserialization ─────────────────────────────────────────────
+
+_ENTITY_FIELDS = {
+    "infra": (PartialInfra, ["name", "node_kind", "infra_type", "network_type",
+                             "parent", "country", "vendor", "infra_owner"]),
+    "systems": (PartialSystem, ["name", "type", "owner", "vendor", "data_classification"]),
+    "components": (PartialComponent, ["system", "name", "kind", "layer", "component_role",
+                                      "function_desc", "sensitivity", "encryption_at_rest",
+                                      "key_management"]),
+    "stacks": (PartialStack, ["component", "component_name", "component_package", "version",
+                              "category", "license", "eol_date", "standard_flag"]),
+    "deployments": (PartialDeployment, ["component", "environment", "deployment_type",
+                                        "location_type", "infra", "runtime_type",
+                                        "runtime_detail", "instance_count"]),
+    "flows": (PartialFlow, ["source", "target", "protocol", "port", "auth_method",
+                            "encryption", "cross_border", "cross_border_basis", "via", "notes"]),
+    "network_links": (PartialNetworkLink, ["source_infra", "target_infra", "method", "bandwidth",
+                                           "encrypted", "encryption_method", "managed_by",
+                                           "redundancy", "notes"]),
+    "auth": (PartialAuth, ["subject", "applies_to", "auth_server", "protocol", "authorization",
+                           "authorization_platform", "user_roles", "mfa", "notes"]),
+    "ecosystem_relations": (PartialEcosystemRelation, ["source_system", "target_system",
+                                                       "relation_type", "notes"]),
+}
+
 
 def _to_field_value(raw_value) -> FieldValue | None:
     if raw_value is None:
@@ -464,7 +738,7 @@ def _to_field_value(raw_value) -> FieldValue | None:
 
 
 def _partial_req_from_dict(raw: dict, source_path: str) -> PartialReq:
-    """Fully reconstruct all supported PartialReq fields from serialized YAML."""
+    """Reconstruct a PartialReq (req/v2 entity shape) from serialized YAML."""
     req = PartialReq(
         source_tool=raw.get("source_tool", ""),
         source_file=raw.get("source_file", source_path),
@@ -472,50 +746,22 @@ def _partial_req_from_dict(raw: dict, source_path: str) -> PartialReq:
         project_id=_to_field_value(raw.get("project_id")),
         project_scope=_to_field_value(raw.get("project_scope")),
         department=_to_field_value(raw.get("department")),
+        data_classification=_to_field_value(raw.get("data_classification")),
         credentials=raw.get("credentials", []) or [],
-        data_encryption=raw.get("data_encryption", []) or [],
-        network_connections=raw.get("network_connections", []) or [],
         constraints=raw.get("constraints", []) or [],
         open_items=raw.get("open_items", []) or [],
         gaps=raw.get("gaps", []) or [],
         no_coverage=raw.get("no_coverage", []) or [],
     )
 
-    for raw_app in raw.get("applications", []) or []:
-        app = PartialApplication(id=raw_app.get("id", ""))
-        for field in (
-            "name", "type", "owner", "vendor", "dc_or_region",
-            "country", "platform", "zone_subnet", "infra_owner",
-        ):
-            setattr(app, field, _to_field_value(raw_app.get(field)))
-        req.applications.append(app)
-
-    for raw_component in raw.get("components", []) or []:
-        component = PartialComponent(
-            id=raw_component.get("id", ""),
-            app_id=raw_component.get("app_id", ""),
-        )
-        for field in (
-            "name", "comp_type", "language", "framework", "runtime", "sensitivity",
-        ):
-            setattr(component, field, _to_field_value(raw_component.get(field)))
-        req.components.append(component)
-
-    for raw_interaction in raw.get("interactions", []) or []:
-        interaction = PartialInteraction(id=raw_interaction.get("id", ""))
-        for field in (
-            "from_component", "to_component", "protocol", "port", "auth_method", "notes",
-        ):
-            setattr(interaction, field, _to_field_value(raw_interaction.get(field)))
-        req.interactions.append(interaction)
-
-    for raw_auth in raw.get("user_auth", []) or []:
-        user_auth = PartialUserAuth(entry_point=raw_auth.get("entry_point", ""))
-        for field in (
-            "user_roles", "auth_server", "auth_protocol", "authorization", "auth_platform",
-        ):
-            setattr(user_auth, field, _to_field_value(raw_auth.get(field)))
-        req.user_auth.append(user_auth)
+    for attr, (dataclass_type, fields) in _ENTITY_FIELDS.items():
+        for index, raw_entity in enumerate(raw.get(attr, []) or []):
+            if not isinstance(raw_entity, dict):
+                continue
+            entity = dataclass_type(id=raw_entity.get("id", f"{attr}_{index + 1}"))
+            for field_name in fields:
+                setattr(entity, field_name, _to_field_value(raw_entity.get(field_name)))
+            getattr(req, attr).append(entity)
 
     return req
 
@@ -540,7 +786,6 @@ def merge_partial_reqs(partial_files: list[str]) -> tuple[str, str, dict]:
     Returns: (merged_req_yaml, gap_report_md, gaps_dict)
     """
     all_reqs: list[PartialReq] = []
-
     for f in partial_files:
         with open(f, encoding="utf-8") as fp:
             raw = yaml.safe_load(fp) or {}
@@ -548,16 +793,7 @@ def merge_partial_reqs(partial_files: list[str]) -> tuple[str, str, dict]:
             raise ValueError(f"Partial requirements root must be a mapping: {f}")
         all_reqs.append(_partial_req_from_dict(raw, f))
 
-    merged_apps   = _merge_applications(all_reqs)
-    merged_comps  = _merge_components(all_reqs)
-    merged_ints   = _merge_interactions(all_reqs)
-    merged_auth   = _merge_user_auth(all_reqs)
-
-    all_creds     = _deduplicate([c for r in all_reqs for c in r.credentials])
-    all_enc       = _deduplicate([e for r in all_reqs for e in r.data_encryption])
-    all_network   = _deduplicate([n for r in all_reqs for n in r.network_connections])
-    all_constraints = list(dict.fromkeys(c for r in all_reqs for c in r.constraints))
-    all_open      = _deduplicate([o for r in all_reqs for o in r.open_items])
+    merged = _merge_entities(all_reqs)
 
     def _ensure_fv(v) -> FieldValue:
         if v is None:
@@ -568,19 +804,24 @@ def merge_partial_reqs(partial_files: list[str]) -> tuple[str, str, dict]:
             return _to_field_value(v)
         return fv(v, Confidence.UNKNOWN, "")
 
-    project_name  = merge_field([_ensure_fv(r.project_name) for r in all_reqs])
-    project_id    = merge_field([_ensure_fv(r.project_id) for r in all_reqs])
-    project_scope = merge_field([_ensure_fv(r.project_scope) for r in all_reqs])
-    department    = merge_field([_ensure_fv(r.department) for r in all_reqs])
+    project = {
+        "name": _plain(merge_field([_ensure_fv(r.project_name) for r in all_reqs])),
+        "id": _plain(merge_field([_ensure_fv(r.project_id) for r in all_reqs])),
+        "scope": _plain(merge_field([_ensure_fv(r.project_scope) for r in all_reqs])),
+        "department": _plain(merge_field([_ensure_fv(r.department) for r in all_reqs])),
+        "data_classification": _plain(merge_field(
+            [_ensure_fv(r.data_classification) for r in all_reqs])),
+    }
 
-    gaps = analyze_gaps(merged_apps, merged_comps, merged_ints,
-                        merged_auth, project_name)
+    all_creds = _deduplicate([c for r in all_reqs for c in r.credentials])
+    all_constraints = list(dict.fromkeys(c for r in all_reqs for c in r.constraints))
+    all_open = _deduplicate([o for r in all_reqs for o in r.open_items])
 
-    merged_yaml = to_final_req_yaml(
-        merged_apps, merged_comps, merged_ints, merged_auth,
-        all_creds, all_enc, all_network, all_constraints, all_open,
-        project_name, project_id, project_scope, department
-    )
+    doc, unresolved = _build_final(merged, project, all_creds, all_constraints, all_open)
+    validate_final_req_v2(doc)
+
+    gaps = analyze_gaps(doc, unresolved)
+    merged_yaml = yaml.dump(doc, allow_unicode=True, sort_keys=False, default_flow_style=False)
 
     sources = [r.source_file or r.source_tool for r in all_reqs]
     gap_report = generate_gap_report(gaps, sources)
@@ -615,7 +856,7 @@ def main(argv: list[str] | None = None) -> int:
         manifest = make_manifest(
             artifact_id=f"req-{Path(args.output).stem}",
             artifact_type="requirements",
-            schema="req/v1",
+            schema="req/v2",
             path=args.output,
             producer=f"archharness/{_cli_version}",
             input_artifacts=[Path(f).name for f in args.files],

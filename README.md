@@ -222,6 +222,7 @@ install the Python package, initialise the workspace, and run `doctor`.
 | `python -m archharness init-project <id>` | Scaffold an isolated project |
 | `python -m archharness diagram -i arch.yaml` | Run the diagram generator (draw.io/PNG/D2/PlantUML) |
 | `python -m archharness req --doc brief.md` | Run the requirements readers + merger |
+| `python -m archharness req-validate req.yaml` | Cross-field validation of a `req/v2` document (rules V1–V7) |
 | `python -m archharness validate-yaml config.yaml` | YAML syntax gate (CI fail-closed check) |
 
 `diagram`, `req`, and `validate-yaml` forward their flags to the same Python

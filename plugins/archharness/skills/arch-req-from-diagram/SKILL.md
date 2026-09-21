@@ -4,7 +4,8 @@ description: >
   Extract architecture requirements from diagram files or images.
   Supports: draw.io XML (.drawio), D2 (.d2), Architecture YAML (.yaml),
   and architecture images (.png/.jpg) via Claude Vision API.
-  Outputs a partial requirements YAML with confidence scores.
+  Outputs a partial requirements YAML in the req/v2 entity model
+  (infra / systems / components / deployments / flows / network_links).
   Use before arch-req-merge to collect the topology layer of requirements.
 ---
 
@@ -22,12 +23,24 @@ requirements from architecture diagram files or images — not to evaluate them.
 
 ## What you extract
 
-From any architecture source, extract:
-1. **Regions / DCs / Clouds** — name, location (country/city), platform type, owner
-2. **Network zones** — DMZ / App Zone / DB Zone / VPC / Subnet / VNET
-3. **Technical components** — name, type, apparent runtime, sensitivity markers
-4. **Connections** — from → to, protocol label (if visible), auth label (if visible)
-5. **Security elements** — ADFS, EnterpriseID, F5, WAF, Key Vault mentions
+From any architecture source, extract into the req/v2 entity model:
+
+1. **`infra` — hosting/network nodes** — regions, DCs, clouds (`iaas_vpc_vnet`),
+   zones/subnets, **and network appliances**: firewall, WAF, load balancer,
+   identity provider (ADFS/Entra), bastion, key vault. Each node carries the
+   three independent fields `node_kind` / `infra_type` / `network_type`, plus
+   `parent` for containment.
+2. **`systems`** — the application(s) the diagram describes.
+3. **`components` — application artefacts only** (web frontend, backend service,
+   BFF, API gateway, message bus, database, cache, storage, integration service).
+4. **`deployments`** — component → infra placement, `runtime_type`, environment.
+5. **`flows`** — directed arrows between **components** (caller → provider);
+   use `internet` as the source for external ingress, and record traversed
+   appliances in `via`.
+6. **`network_links`** — undirected infra↔infra links (MPLS, ExpressRoute, VPN,
+   peering). A carrier circuit is a link, not a node.
+
+> Appliances (F5, WAF, ADFS, Key Vault) are `infra`, never `components`.
 
 ## How to invoke the Python tool
 
@@ -56,30 +69,34 @@ partial `req.yaml` YAML block in the chat.
 Apply this extraction template to what you see:
 
 ```yaml
-requirements:
-  applications:
-    - id: "region_1"
-      dc_or_region: "[exact text from diagram]"
-      country: "[CN/US/DE/etc if visible]"
-      platform: "[private_dc/aws/azure]"
-      infra_owner: "[InfraSec/BizIT/etc if visible]"
-      _confidence: "medium"
-      _source: "vision"
-  components:
-    - id: "comp_1"
-      app_id: "region_1"
-      name: "[component name]"
-      type: "[FE/BE/DB/MQ/IP/LB/SEC]"
-      runtime: "[if visible]"
-      sensitivity: "[⚠ if marked]"
-      _confidence: "medium"
-  interactions:
-    - from_component: "[source component name]"
-      to_component: "[target component name]"
-      protocol: "[label text]"
-      auth_method: "[auth text if visible, else null]"
-      _confidence: "low"  # arrows are often partially readable
+infra:
+  - name: {value: "[exact text from diagram]"}
+    node_kind: {value: "data_center"}      # or iaas_vpc_vnet | network_zone | firewall | load_balancer | identity_provider | ...
+    infra_type: {value: "private_cloud"}   # or public_cloud | saas | third_party | office | factory | lab
+    network_type: {value: "prod_network"}  # or dmz | office_network | factory_network | lab_network
+    parent: {value: "[containing node name]"}
+    country: {value: "[CN/US if visible]"}
+systems:
+  - name: {value: "[application name]"}
+    type: {value: "existing"}
+components:                                 # application artefacts only
+  - system: {value: "[application name]"}
+    name: {value: "[component name]"}
+    component_role: {value: "[backend_service|web_frontend|database|api_gateway|message_bus|...]"}
+    sensitivity: {value: "[⚠ if marked]"}
+flows:
+  - from: {value: "[source component name]"}
+    to: {value: "[target component name]"}
+    protocol: {value: "[label text]"}
+    auth_method: {value: "[auth text if visible, else none]"}
+    via: {value: ["[appliance the path crosses]"]}
+network_links:
+  - from: {value: "[infra node name]"}
+    to: {value: "[infra node name]"}
+    method: {value: "[mpls|expressroute|vpn|vnet_peering|internet]"}
 ```
+
+References are **names**; the merger assigns the typed IDs (INF-nn, APP-nn, …).
 
 ## Confidence rules
 

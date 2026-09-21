@@ -63,6 +63,13 @@ def build_parser() -> argparse.ArgumentParser:
     enforce.add_argument("--policy", default=None, help="Gate policy file (default: standards/arch-gate-policy.yaml)")
     enforce.add_argument("--output", default=None, help="Write enforcement/v1 decision JSON here")
 
+    req_validate = commands.add_parser(
+        "req-validate", help="Validate a req/v2 requirements document (cross-field rules)"
+    )
+    req_validate.add_argument("path", help="req/v2 YAML or JSON document")
+    req_validate.add_argument("--json", action="store_true", dest="as_json",
+                              help="Emit findings as JSON")
+
     workflow = commands.add_parser(
         "workflow", help="Check and advance the artifact-gated pipeline state"
     )
@@ -489,6 +496,9 @@ def main(argv: list[str] | None = None) -> int:
             return _print_doctor(args.workspace, args.project)
         elif args.command == "enforce":
             return _run_enforce(args.validation, args.policy, args.output)
+        elif args.command == "req-validate":
+            from .requirements.validator import main as validate_main
+            return validate_main([args.path, *(["--json"] if args.as_json else [])])
         elif args.command == "workflow":
             return _run_workflow(args.workflow_command, args)
         return 0

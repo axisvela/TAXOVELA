@@ -1,4 +1,4 @@
-"""Tests for systems-registry consistency validation."""
+"""Tests for req/v2 multi-table systems-registry consistency validation."""
 
 import contextlib
 import io
@@ -16,11 +16,29 @@ from archharness import registry as registry_check  # noqa: E402
 
 REGISTRY = """# Registry
 
+## Infra nodes
+| 编号 | 参考图原名 | node_kind | infra_type | network_type | 父节点 | 位置/国家 | 文档用名 | 备注 |
+|---|---|---|---|---|---|---|---|---|
+| INF-01 | EastUS Region | region | public_cloud | prod_network | - | US | azure-eastus | hub region |
+| INF-02 | vNet-A | iaas_vpc_vnet | public_cloud | prod_network | INF-01 | US | vnet-a | spoke vnet |
+
+## Systems
+| 编号 | 参考图原名 | type | owner | vendor | 文档用名 | 备注 |
+|---|---|---|---|---|---|---|
+| APP-01 | Orders | new | org_it | - | orders-app | |
+
+## Components
+| 编号 | 参考图原名 | 所属系统 | 子系统 | kind | layer | component_role | 静态加密 | 文档用名 | 备注 |
+|---|---|---|---|---|---|---|---|---|---|
+| CMP-01 | Order API | APP-01 | order | service | be | backend_service | - | order-api | |
+"""
+
+LEGACY_REGISTRY = """# Registry
+
 | 编号 | 源提示词名称 | 类型 | 位置 | 文档用名 | 备注 |
 |------|--------------|------|------|----------|------|
 | SYS-01 | Original One | backend | dc | Scrubbed One | test |
 | SYS-02 | Original Two | database | dc | Scrubbed-Two | test |
-| SYS-03 | Redis | cache | dc | Redis | generic |
 """
 
 
@@ -31,13 +49,14 @@ class RegistryCheckTests(unittest.TestCase):
         self.root = pathlib.Path(self._tmp.name)
         (self.root / "input" / "documents").mkdir(parents=True)
         (self.root / "output" / "designs").mkdir(parents=True)
-        (self.root / "input" / "systems-registry.md").write_text(
-            REGISTRY, encoding="utf-8"
-        )
+        self.write_registry(REGISTRY)
         (self.root / "input" / "prompt.md").write_text(
-            "Codes-only prompt: SYS-01 through SYS-03.\n",
+            "Codes-only prompt: INF-01, INF-02, APP-01, CMP-01.\n",
             encoding="utf-8",
         )
+
+    def write_registry(self, text: str) -> None:
+        (self.root / "input" / "systems-registry.md").write_text(text, encoding="utf-8")
 
     def run_check(self) -> tuple[int, str]:
         output = io.StringIO()
@@ -47,36 +66,36 @@ class RegistryCheckTests(unittest.TestCase):
 
     def test_full_prompt_coverage_is_ok(self):
         (self.root / "input" / "prompt-indexed.md").write_text(
-            "SYS-01 through SYS-03\n", encoding="utf-8"
+            "INF-01 through INF-02, APP-01, CMP-01\n", encoding="utf-8"
         )
         code, output = self.run_check()
         self.assertEqual(code, 0, output)
-        self.assertIn("OK (3 registry rows, 3 codes cited)", output)
+        self.assertIn("OK (4 registry rows", output)
+        self.assertIn("4 codes cited", output)
         self.assertNotIn("WARN", output)
 
     def test_prompt_missing_registry_code_warns(self):
         (self.root / "input" / "prompt.md").write_text(
-            "Codes-only prompt: SYS-01 only.\n", encoding="utf-8"
+            "Codes-only prompt: INF-01, INF-02, CMP-01.\n", encoding="utf-8"
         )
         code, output = self.run_check()
         self.assertEqual(code, 0, output)
-        self.assertIn("SYS-02", output)
+        self.assertIn("APP-01", output)
         self.assertIn("not referenced by input/prompt.md", output)
 
     def test_out_of_scope_row_is_exempt(self):
+        self.write_registry(REGISTRY.replace(
+            "| orders-app | |", "| orders-app | OUT-OF-SCOPE |"))
         (self.root / "input" / "prompt.md").write_text(
-            "Codes-only prompt: SYS-01 and SYS-03.\n", encoding="utf-8"
-        )
-        (self.root / "input" / "systems-registry.md").write_text(
-            REGISTRY.replace("| test |", "| OUT-OF-SCOPE |"), encoding="utf-8"
+            "Codes-only prompt: INF-01, INF-02, CMP-01.\n", encoding="utf-8"
         )
         code, output = self.run_check()
         self.assertEqual(code, 0, output)
-        self.assertNotIn("not referenced by input/prompt.md", output)
+        self.assertNotIn("APP-01", output)
 
     def test_literal_name_in_prompt_is_error(self):
         (self.root / "input" / "prompt.md").write_text(
-            "Codes-only prompt: call Scrubbed-Two via SYS-01.\n", encoding="utf-8"
+            "Codes-only prompt: call order-api via CMP-01.\n", encoding="utf-8"
         )
         code, output = self.run_check()
         self.assertEqual(code, 1, output)
@@ -84,45 +103,47 @@ class RegistryCheckTests(unittest.TestCase):
 
     def test_unknown_code_is_error(self):
         (self.root / "input" / "prompt-indexed.md").write_text(
-            "SYS-01 and SYS-99\n", encoding="utf-8"
+            "CMP-01 and INF-99\n", encoding="utf-8"
         )
         code, output = self.run_check()
         self.assertEqual(code, 1)
-        self.assertIn("SYS-99 cited but not in registry", output)
+        self.assertIn("INF-99 cited but not in registry", output)
 
-    def test_literal_name_in_consumer_is_error(self):
-        (self.root / "input" / "prompt-indexed.md").write_text(
-            "Call Scrubbed-Two through SYS-01.\n", encoding="utf-8"
-        )
+    def test_unknown_prefix_in_registry_is_error(self):
+        self.write_registry(REGISTRY.replace(
+            "| CMP-01 | Order API",
+            "| ZZZ-01 | Mystery | APP-01 | - | service | be | backend_service | - | mystery | |\n"
+            "| CMP-01 | Order API",
+        ))
         code, output = self.run_check()
         self.assertEqual(code, 1)
-        self.assertIn("literal doc-name 'Scrubbed-Two'", output)
+        self.assertIn("ZZZ-01: unknown entity prefix", output)
 
     def test_generated_output_is_ignored(self):
         (self.root / "input" / "prompt-indexed.md").write_text(
-            "SYS-01..SYS-03\n", encoding="utf-8"
+            "INF-01, INF-02, APP-01, CMP-01\n", encoding="utf-8"
         )
         (self.root / "output" / "designs" / "arch.yaml").write_text(
-            "name: Scrubbed-Two\n", encoding="utf-8"
+            "name: order-api\n", encoding="utf-8"
         )
         code, output = self.run_check()
         self.assertEqual(code, 0, output)
 
     def test_platform_values_are_ignored_but_notes_are_checked(self):
         (self.root / "input" / "prompt-indexed.md").write_text(
-            "SYS-01–SYS-03\n", encoding="utf-8"
+            "INF-01, INF-02, APP-01, CMP-01\n", encoding="utf-8"
         )
         config = self.root / "config.yaml"
         config.write_text(
-            "datacenters:\n  - notes: SYS-01\n"
-            "platforms:\n  api_gateway: Scrubbed-Two\n",
+            "datacenters:\n  - notes: INF-01\n"
+            "platforms:\n  api_gateway: order-api\n",
             encoding="utf-8",
         )
         code, output = self.run_check()
         self.assertEqual(code, 0, output)
         config.write_text(
-            "datacenters:\n  - notes: Scrubbed-Two\n"
-            "platforms:\n  api_gateway: Scrubbed-Two\n",
+            "datacenters:\n  - notes: order-api\n"
+            "platforms:\n  api_gateway: order-api\n",
             encoding="utf-8",
         )
         code, output = self.run_check()
@@ -131,7 +152,7 @@ class RegistryCheckTests(unittest.TestCase):
 
     def test_ip_address_is_error(self):
         (self.root / "input" / "prompt-indexed.md").write_text(
-            "SYS-01..SYS-03\n", encoding="utf-8"
+            "INF-01, INF-02, APP-01, CMP-01\n", encoding="utf-8"
         )
         (self.root / "input" / "documents" / "requirements.md").write_text(
             "Host 192.0.2.10/24 must not appear.\n", encoding="utf-8"
@@ -140,6 +161,16 @@ class RegistryCheckTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("IP address/CIDR", output)
         self.assertIn("192.0.2.10/24", output)
+
+    def test_legacy_sys_registry_still_parses(self):
+        self.write_registry(LEGACY_REGISTRY)
+        (self.root / "input" / "prompt.md").write_text(
+            "Codes-only prompt: SYS-01 and SYS-02.\n", encoding="utf-8"
+        )
+        code, output = self.run_check()
+        self.assertEqual(code, 0, output)
+        self.assertIn("OK (2 registry rows", output)
+        self.assertIn("2 legacy", output)
 
 
 if __name__ == "__main__":

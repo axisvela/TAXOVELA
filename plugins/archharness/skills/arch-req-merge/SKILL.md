@@ -23,11 +23,14 @@ and produce a clear list of what still needs to be filled in.
 ## How to invoke (single pipeline for any number of sources)
 
 One command handles one source or many — the output is always the same
-`req/v1` schema (`schemas/req-v1.schema.json`), always with a gap report:
+`req/v2` schema (`schemas/req-v2.schema.json`), always with a gap report:
 
 ```bash
 archharness req --diagram arch.drawio --doc brief.md --csv cmdb.csv \
     -o req.yaml --report gap-report.md --manifest req.manifest.json
+
+# Cross-field validation (rules V1-V7) of the merged req/v2 document:
+archharness req-validate req.yaml            # add --json for machine output
 ```
 
 `--manifest` writes an `artifact/v1` provenance record (hash-bound to the
@@ -37,11 +40,21 @@ serialize pipeline, so downstream stages see one stable contract.
 
 ## What the merger does
 
-1. **Name matching** — identifies the same application/component across sources using fuzzy name matching
+1. **Per-entity merge** — matches each entity kind across sources:
+   - named entities (`infra`, `systems`, `components`) by normalized name
+   - `deployments` by (component, environment)
+   - `flows` by (source, target)
+   - `network_links` by (undirected endpoint pair, method)
+   - `auth` by (entry point, subject)
 2. **Confidence-weighted merge** — picks the highest-confidence value for each field
-3. **Conflict detection** — if two HIGH+ confidence sources give different values, flags `⚠CONFLICT`
-4. **Gap analysis** — checks every CRITICAL field and reports what's missing
-5. **Output** — `merged-req.yaml` + `gap-report.md`
+3. **Conflict detection** — if two MEDIUM+ confidence sources give different values, flags `CONFLICT`
+4. **Reference resolution** — partials reference other entities by **name**; the
+   merger resolves names to **typed IDs** (`INF-nn`, `APP-nn`, `CMP-nn`, `DEP-nn`,
+   `FLOW-nn`, `LNK-nn`, `AUTH-nn`, `STK-nn`) and drops any row whose required
+   reference cannot be resolved, recording a critical gap.
+5. **Gap analysis + contract validation** — checks every CRITICAL field, then
+   validates the output against `req/v2`
+6. **Output** — `req.yaml` + `gap-report.md`
 
 ## Confidence priority (high to low)
 
@@ -58,13 +71,18 @@ and flagged as `⚠CONFLICT`. The user must resolve conflicts manually.
 
 | Category | Critical fields |
 |----------|----------------|
-| Application | `dc_or_region`, `country`, `platform` |
-| Component | `comp_type` |
-| Interaction | `from_component`, `to_component`, `protocol`, `auth_method` |
-| User auth | `auth_server`, `auth_protocol` |
+| Infra | `name`, `node_kind` |
+| System | `name`, `type` (owner recommended) |
+| Component | `name`, owning system resolved, `kind` |
+| Deployment | `component` + `environment` resolved; `infra_id` required for `prod` |
+| Flow | both endpoints resolved to components, `protocol`, inline `auth_method` |
+| Network link | both `infra` endpoints resolved, `method` |
+| Auth | entry point resolved, `protocol` |
 | Project | `project_name` |
 
-All other fields are non-critical (can be TBD).
+All other fields are non-critical (can be TBD). Some strong recommendations are
+reported as non-critical gaps: component `component_role`, `sensitivity`,
+flow `port`, infra `country`.
 
 ## When to run arch-req-merge via CLI vs in chat
 
@@ -82,7 +100,8 @@ perform the merge logic manually:
 4. Output the merged YAML and gap list inline
 
 Chat merges are drafts: a CLI run is still required before arch-design,
-because only the CLI validates the output against `req/v1`.
+because only the CLI validates the output against `req/v2` and resolves
+name references into typed IDs.
 
 ## After merge: what to tell the user
 

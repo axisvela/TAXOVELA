@@ -2,134 +2,171 @@
 **Version**: 1.0 Draft  |  **Date**: 2026-03-23  |  **Author**: hahxxx1-Huiwen-Han
 **Project ID**: OMS-001  |  **Department**: SSG / TSD
 **Scope**: Standalone new application (full internal stack detail required)
+**Model**: `req/v2` — entity-separated (see `standards/requirements-model-v2.yaml`)
 
 ---
 
 ## 1. Project Overview
 
-The Order Management System (OMS) is a new internal application for SSG business unit
-to manage product orders across PRC and NA regions. It replaces a legacy Excel-based
-process with a web application backed by REST APIs and asynchronous event processing.
-Internal Company employees submit orders; external partners receive order confirmations
-via an API Gateway. All order data is classified Company Confidential.
+The Order Management System (OMS) is a new internal application for the SSG
+business unit to manage product orders. It replaces a legacy Excel-based process
+with a web application backed by REST APIs and asynchronous event processing.
+Internal Company employees submit orders; external partners receive order
+confirmations via the API Gateway. The most sensitive data (payment data) is
+classified **Company Confidential** / **Company Restricted**.
+
+Data residency: all data stays in China (Neimeng DC). No cross-border transfer.
 
 ---
 
-## 2. Applications in Scope
+## 2. Infrastructure Topology
 
-| App | Type | New/Existing | Owner | Scope |
-|-----|------|-------------|-------|-------|
-| OMS Web (Nginx/Vue) | Frontend | New | IT Org | Full internal stack |
-| OMS BFF (Spring Boot) | Backend | New | IT Org | Full internal stack |
-| OMS Order Service (Spring Boot) | Backend | New | IT Org | Full internal stack |
-| OMS Payment Service (Spring Boot) | Backend | New | IT Org | Full internal stack |
-| PostgreSQL (OMS DB) | Database | New | InfraSec (managed) | Full |
-| Kafka (shared platform) | Message Queue | Existing | InfraSec | Integration boundary only |
-| WSO2 API Gateway (shared) | Integration Platform | Existing | InfraSec | Integration boundary only |
-| ECC (SAP) | ERP | Existing (3rd party) | SAP / InfraSec | Black box — integration boundary only |
-| ADFS | Identity | Existing | InfraSec | Black box — integration boundary only |
+`node_kind` (topology role), `infra_type` (hosting category) and `network_type`
+(network/security domain) are three independent fields.
 
----
+| ID | Name | node_kind | infra_type | network_type | Parent | Country | Owner |
+|----|------|-----------|------------|--------------|--------|---------|-------|
+| INF-01 | Neimeng DC (Hohhot) | `data_center` | `private_cloud` | `prod_network` | — | CN | InfraSec |
+| INF-02 | DMZ Zone | `network_zone` | `private_cloud` | `dmz` | INF-01 | CN | InfraSec |
+| INF-03 | App Zone | `network_zone` | `private_cloud` | `prod_network` | INF-01 | CN | InfraSec |
+| INF-04 | DB Zone | `network_zone` | `private_cloud` | `prod_network` | INF-01 | CN | InfraSec |
+| INF-05 | Office Network | `office_network` | `office` | `office_network` | — | CN | InfraSec |
+| INF-06 | Internet | `internet_network` | — | — | — | — | — |
+| INF-07 | F5 BigIP | `load_balancer` | `private_cloud` | `dmz` | INF-02 | CN | InfraSec |
+| INF-08 | ADFS | `identity_provider` | `private_cloud` | `prod_network` | INF-03 | CN | InfraSec |
+| INF-09 | Internal K8s Secret Store | `key_management` | `private_cloud` | `prod_network` | INF-03 | CN | InfraSec |
 
-## 3. Physical Deployment
-
-| App/Component | Country | DC / Cloud Region | Zone/Subnet | Infrastructure Owner |
-|---------------|---------|-------------------|-------------|---------------------|
-| OMS Web | China | Neimeng DC (Hohhot) | DMZ | InfraSec |
-| OMS BFF | China | Neimeng DC (Hohhot) | App Zone | InfraSec |
-| OMS Order Service | China | Neimeng DC (Hohhot) | App Zone | InfraSec |
-| OMS Payment Service | China | Neimeng DC (Hohhot) | App Zone | InfraSec |
-| PostgreSQL (OMS DB) | China | Neimeng DC (Hohhot) | DB Zone | InfraSec |
-| Kafka | China | Neimeng DC (Hohhot) | App Zone | InfraSec |
-| WSO2 API Gateway | China | Neimeng DC (Hohhot) | DMZ | InfraSec |
-| ECC (SAP) | China | Neimeng DC (Hohhot) | App Zone | InfraSec / SAP |
-| ADFS | China | Neimeng DC (Hohhot) | App Zone | InfraSec |
-
-**Data residency**: All data stays in China (Neimeng DC). No cross-border data transfer.
+> F5 and ADFS are **infrastructure appliances** (`INF-nn`), not components.
 
 ---
 
-## 4. Network Topology
+## 3. Systems in Scope
 
-| From | To | Connection Type | Encrypted | Notes |
-|------|----|----------------|-----------|-------|
-| Internet | Neimeng DC | Internet | Yes (F5 TLS termination) | External access via F5 |
-| Office Network | Neimeng DC | MPLS | Yes (IPSec) | Internal employee access |
-
-No cross-DC or DC-to-cloud connections for this project.
-
----
-
-## 5. Technical Components (new/modified only)
-
-| Component | Type | Language | Framework | Runtime | Sensitivity |
-|-----------|------|----------|-----------|---------|-------------|
-| OMS Web | FE | JavaScript | Nginx / Vue 3 | Internal K8s | Company Internal |
-| OMS BFF | BE | Java 17 | Spring Boot 3.5 | Internal K8s | Company Confidential |
-| OMS Order Service | BE | Java 17 | Spring Boot 3.5 | Internal K8s | Company Confidential |
-| OMS Payment Service | BE | Java 17 | Spring Boot 3.5 | Internal K8s | Company Restricted |
-| PostgreSQL (OMS DB) | DB | N/A | PostgreSQL 16 | VM (InfraSec managed) | Company Confidential |
+| ID | System | Type | Owner | Vendor | Scope |
+|----|--------|------|-------|--------|-------|
+| APP-01 | Order Management System | New | IT Org | — | Full internal stack |
+| APP-02 | Integration Platform | Existing | IT Org | — | Boundary only (WSO2) |
+| APP-03 | Messaging Platform | Existing | IT Org | — | Boundary only (Kafka) |
+| APP-04 | ECC (SAP) | Existing | Third party | SAP | Black box — RFC boundary only |
 
 ---
 
-## 6. Integration Points
+## 4. Components & Services
 
-| # | From (initiator) | To (provider) | Protocol | Port | Auth Method | Notes |
-|---|---------|------|----------|------|-------------|-------|
-| 1 | Internet (User browser) | F5 | HTTPS | 443 | — | TLS termination at F5 |
-| 2 | F5 | OMS Web | HTTPS | 443 | — | F5 passes through after LB |
-| 3 | OMS Web | ADFS | HTTPS/SAML | 443 | SAML 2.0 redirect | Internal user SSO |
-| 4 | OMS Web | OMS BFF | HTTPS/TLS 1.3 | 443 | HTTPS + User Token (from ADFS) | Session token forwarded |
-| 5 | OMS BFF | WSO2 API Gateway | HTTPS/TLS 1.3 | 443 | OAuth2.0 Client Credentials | All cross-app calls via WSO2 |
-| 6 | WSO2 | OMS Order Service | HTTPS/TLS 1.3 | 8080 | OAuth2.0 Client Credentials | Internal call after WSO2 routing |
-| 7 | WSO2 | OMS Payment Service | HTTPS/TLS 1.3 | 8081 | OAuth2.0 Client Credentials | Internal call after WSO2 routing |
-| 8 | WSO2 | ECC (SAP) | TCP/RFC | 3300 | SAP Logon Ticket | SAP RFC protocol |
-| 9 | OMS Order Service | Kafka | Kafka/TLS | 9093 | SASL/SCRAM | Publish order events |
-| 10 | OMS Payment Service | PostgreSQL (OMS DB) | JDBC/TLS | 5432 | User/Password | PWD stored in K8s Secret |
-| 11 | OMS Order Service | PostgreSQL (OMS DB) | JDBC/TLS | 5432 | User/Password | PWD stored in K8s Secret |
+Infrastructure and security appliances do not appear here; they are `infra` L4
+nodes in §2.
 
-**Rule verified**: Every component pair has an explicit auth mechanism. ✓
+| ID | System | Name | kind | component_role | Stack | At-rest enc | Sensitivity |
+|----|--------|------|------|----------------|-------|-------------|-------------|
+| CMP-01 | APP-01 | OMS Web | component | `web_frontend` | Vue 3.4 | — | Company Internal |
+| CMP-02 | APP-01 | OMS BFF | service | `bff` | Java 17 / Spring Boot 3.5 | — | Company Confidential |
+| CMP-03 | APP-01 | OMS Order Service | service | `backend_service` | Java 17 / Spring Boot 3.5 | — | Company Confidential |
+| CMP-04 | APP-01 | OMS Payment Service | service | `backend_service` | Java 17 / Spring Boot 3.5 | AES-256 | Company Restricted |
+| CMP-05 | APP-01 | PostgreSQL (OMS DB) | component | `database` | PostgreSQL 16 | AES-256 (TDE) | Company Confidential |
+| CMP-06 | APP-02 | WSO2 API Gateway | component | `api_gateway` | — | — | Company Internal |
+| CMP-07 | APP-03 | Kafka | component | `message_bus` | — | — | Company Confidential |
+| CMP-08 | APP-04 | ECC RFC Interface | component | `integration_service` | — | — | Company Confidential |
+
+CMP-08 is the single **black-box boundary component** for the external ECC
+system: flows need a component endpoint, so an existing black-box system still
+exposes one boundary component.
+
+Stack bindings (`STK-nn`): `STK-01` Vue 3.4.0, `STK-02` Spring Boot 3.5.0,
+`STK-03` Java 17, `STK-04` PostgreSQL 16 (EOL 2028-11-09).
 
 ---
 
-## 7. User Authentication
+## 5. Deployments
 
-| Entry Point | User Roles | Auth Server | Protocol | Authorization |
-|-------------|-----------|-------------|----------|---------------|
-| OMS Web | Company SSG Employees (PRC), BU Managers | ADFS | SAML 2.0 | RBAC via AuthZ Platform |
+One component with N environments has N deployments; each deployment references
+an `INF-nn` and never copies infra dictionaries.
+
+| ID | Component | Env | deployment_type | location_type | Infra | runtime_type | Instances |
+|----|-----------|-----|-----------------|---------------|-------|--------------|-----------|
+| DEP-01 | CMP-01 OMS Web | prod | `private_cloud` | `data_center` | INF-02 (DMZ) | `container` | 2 |
+| DEP-02 | CMP-02 OMS BFF | prod | `private_cloud` | `data_center` | INF-03 (App Zone) | `container` | 2 |
+| DEP-03 | CMP-03 Order Svc | prod | `private_cloud` | `data_center` | INF-03 (App Zone) | `container` | 2 |
+| DEP-04 | CMP-04 Payment Svc | prod | `private_cloud` | `data_center` | INF-03 (App Zone) | `container` | 2 |
+| DEP-05 | CMP-05 OMS DB | prod | `private_cloud` | `data_center` | INF-04 (DB Zone) | `vm` | 1 |
+| DEP-06 | CMP-06 WSO2 | prod | `private_cloud` | `data_center` | INF-02 (DMZ) | `container` | 2 |
+| DEP-07 | CMP-07 Kafka | prod | `private_cloud` | `data_center` | INF-03 (App Zone) | `container` | 3 |
+
+---
+
+## 6. Component Communication Flows
+
+Directed (caller → provider). Endpoints are always components; the external
+sentinel `internet` is a source. Appliances are recorded in `via`, never as an
+endpoint. Service-to-service auth is an **inline enum** on the flow.
+
+| ID | From | To | Protocol | Port | auth_method | Encryption | Cross-border | via |
+|----|------|----|----------|------|-------------|------------|--------------|-----|
+| FLOW-01 | internet | CMP-01 | HTTPS | 443 | `none` | TLS1.3 | false | INF-07 (F5) |
+| FLOW-02 | CMP-01 | CMP-02 | HTTPS | 443 | `none` | TLS1.3 | false | — |
+| FLOW-03 | CMP-02 | CMP-06 | HTTPS | 443 | `OAuth2_ClientCredentials` | TLS1.3 | false | — |
+| FLOW-04 | CMP-06 | CMP-03 | HTTPS | 8080 | `OAuth2_ClientCredentials` | TLS1.3 | false | — |
+| FLOW-05 | CMP-06 | CMP-04 | HTTPS | 8081 | `OAuth2_ClientCredentials` | TLS1.3 | false | — |
+| FLOW-06 | CMP-06 | CMP-08 | TCP/RFC | 3300 | `Kerberos` | TLS1.3 | false | — |
+| FLOW-07 | CMP-03 | CMP-07 | Kafka | 9093 | `SASL_SCRAM` | TLS1.3 | false | — |
+| FLOW-08 | CMP-03 | CMP-05 | JDBC | 5432 | `UserPassword` | TLS1.3 | false | — |
+| FLOW-09 | CMP-04 | CMP-05 | JDBC | 5432 | `UserPassword` | TLS1.3 | false | — |
+
+**Rule verified**: every flow has an `auth_method`. ✓
+
+Note on FLOW-06: the SAP Logon Ticket is a ticket-based SSO mechanism that does
+not map exactly onto the enum; it is recorded as `Kerberos` with the exact
+mechanism in `notes`, and tracked as TBD-04.
+
+---
+
+## 7. Infra Network Links
+
+Undirected infrastructure interconnections (`INF-nn` ↔ `INF-nn`). A carrier
+circuit is a link, not a node.
+
+| ID | Source infra | Target infra | method | Bandwidth | Encrypted | Redundancy |
+|----|--------------|--------------|--------|-----------|-----------|------------|
+| LNK-01 | INF-05 Office Network | INF-01 Neimeng DC | `mpls` | — | Yes (IPSec) | primary |
+| LNK-02 | INF-06 Internet | INF-01 Neimeng DC | `internet` | — | No (TLS terminated at INF-07 F5) | primary |
+
+No cross-DC or DC-to-cloud links for this project.
+
+---
+
+## 8. User / Entry Authentication
+
+This entity is **user / entry authentication only** — service-to-service auth is
+inline on the flows in §6. An identity-provider redirect (Web → ADFS SAML) is
+captured here, not as a flow.
+
+| ID | Subject | Entry Point | auth_server | Protocol | Authorization | Roles | MFA |
+|----|---------|-------------|-------------|----------|---------------|-------|-----|
+| AUTH-01 | user | CMP-01 OMS Web | INF-08 ADFS | SAML2 | RBAC (AuthZ Platform) | SSG Employees (PRC), BU Managers | — |
 
 No external customer access in this project.
 
 ---
 
-## 8. Credential & Key Protection
+## 9. Credential & Key Protection
 
 | Environment | Solution | Notes |
 |-------------|----------|-------|
 | Private DC (Hohhot) | Kubernetes Secrets (encrypted at rest) | DB passwords, OAuth client secrets |
-| Private DC (Hohhot) | Internal K8s Secret | Additional encryption layer for Restricted data |
+| Private DC (Hohhot) | Internal K8s Secret (INF-09) | Additional encryption layer for Restricted data |
 
 No Azure Key Vault or AWS Secrets Manager (private DC only project).
-
----
-
-## 9. Data Encryption
-
-| Component | At Rest | Method | In Transit | Protocol | Cross-Border | Compliance |
-|-----------|---------|--------|------------|----------|--------------|------------|
-| PostgreSQL (OMS DB) | Yes | AES-256 (TDE) | Yes | TLS 1.3 | No | 中国数据安全法 |
-| OMS Payment Service data | Yes | AES-256 | Yes | TLS 1.3 | No | 中国数据安全法 |
-| Kafka messages | No | — | Yes | TLS 1.3 | No | — |
+No hardcoded credentials. ✓
 
 ---
 
 ## 10. Open Items / TBDs
 
-| ID | Item | Owner | Blocking | Target |
-|----|------|-------|----------|--------|
-| TBD-01 | Exact Kafka topic names and partition count | InfraSec Platform Team | No | Before dev |
-| TBD-02 | WSO2 API registration process and timeline | InfraSec Integration Team | No | Before go-live |
-| TBD-03 | PostgreSQL VM specifications (CPU/memory) | InfraSec Infra | No | Before go-live |
+| ID | Item | Owner | Blocking |
+|----|------|-------|----------|
+| TBD-01 | Exact Kafka topic names and partition count | InfraSec Platform Team | No |
+| TBD-02 | WSO2 API registration process and timeline | InfraSec Integration Team | No |
+| TBD-03 | PostgreSQL VM specifications (CPU/memory) | InfraSec Infra | No |
+| TBD-04 | Confirm the SAP Logon Ticket mapping to `Kerberos` vs a dedicated enum value | Security Architecture | No |
 
 No CRITICAL blocking items. ✓
 

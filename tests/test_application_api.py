@@ -11,7 +11,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from archharness import api  # noqa: E402
-from archharness.schemas import validate_final_req  # noqa: E402
+from archharness.schemas import validate_final_req_v2  # noqa: E402
 
 
 class ApplicationApiTests(unittest.TestCase):
@@ -33,8 +33,8 @@ class ApplicationApiTests(unittest.TestCase):
             )
             self.assertEqual(code, 0)
             doc = yaml.safe_load(out.read_text(encoding="utf-8"))
-            validate_final_req(doc)
-            self.assertEqual(doc["requirements"]["applications"][0]["name"], "Payments App")
+            validate_final_req_v2(doc)
+            self.assertEqual(doc["requirements"]["systems"][0]["name"], "Payments App")
 
     def test_run_requirements_missing_input_fails(self):
         with tempfile.TemporaryDirectory() as tmp:

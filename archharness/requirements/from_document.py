@@ -3,8 +3,10 @@ from_document.py — Extract architecture requirements from text documents.
 
 Supports: .pdf  .docx  .md  .txt
 
-Strategy: Extract text from the file, then use Claude API to identify
-architecture-relevant information and map it to the req.yaml schema.
+Strategy: extract text, then use the Claude API to identify architecture-relevant
+information and map it onto the req/v2 entity model (infra / systems / components
+/ deployments / flows / network_links / auth). References between entities are
+emitted as names; the merger resolves them to typed IDs.
 
 Usage:
     python from_document.py -i requirements.pdf -o partial-req.yaml
@@ -19,11 +21,8 @@ import re
 import sys
 from pathlib import Path
 
-import yaml
-
 from .normalizer import (
-    PartialReq, PartialApplication, PartialComponent, PartialInteraction,
-    PartialUserAuth, Confidence, fv, partial_req_to_yaml
+    Confidence, PartialReq, partial_req_to_yaml, v2_json_to_partial,
 )
 
 
@@ -36,7 +35,6 @@ def _extract_text_pdf(path: str) -> str:
             pages = [p.extract_text() or "" for p in pdf.pages]
         return "\n".join(pages)
     except ImportError:
-        # Fallback: try pypdf
         try:
             from pypdf import PdfReader
             reader = PdfReader(path)
@@ -53,7 +51,6 @@ def _extract_text_docx(path: str) -> str:
         for para in doc.paragraphs:
             if para.text.strip():
                 parts.append(para.text)
-        # Also extract tables
         for table in doc.tables:
             for row in table.rows:
                 cells = [c.text.strip() for c in row.cells if c.text.strip()]
@@ -71,9 +68,6 @@ def extract_text(path: str) -> str:
         text = _extract_text_pdf(path)
     elif ext in (".docx", ".doc"):
         text = _extract_text_docx(path)
-    elif ext in (".md", ".txt", ".rst"):
-        with open(path, encoding="utf-8", errors="replace") as f:
-            text = f.read()
     else:
         with open(path, encoding="utf-8", errors="replace") as f:
             text = f.read()
@@ -84,99 +78,110 @@ def extract_text(path: str) -> str:
 
 EXTRACTION_PROMPT = """You are an enterprise architecture analyst extracting structured requirements from a document.
 
-Read the following document and extract all architecture-relevant information. 
-Focus on: physical deployment locations, application names, technical stack, 
-integration points, authentication mechanisms, data sensitivity, and security requirements.
+Read the document and extract every architecture-relevant fact into the JSON shape below.
+Physical precision matters more than completeness: use null for anything not explicitly stated.
+
+Critical modelling rules:
+- `infra` holds hosting locations and network topology. node_kind is the topology role
+  (region | data_center | iaas_vpc_vnet | paas | saas | third_party | office_network |
+  factory_network | lab | internet_network | network_zone | subnet | firewall | waf |
+  security_gateway | router | switch | vpn_gateway | identity_provider | soc_monitoring |
+  load_balancer | bastion_host | logging_service | policy_service | key_management).
+  infra_type is the hosting category (private_cloud | public_cloud | saas | third_party |
+  office | factory | lab). network_type is the network/security domain (prod_network | dmz |
+  office_network | factory_network | lab_network). Use "parent" to name the containing node.
+- Firewalls, WAFs, routers, VPN gateways, load-balancer appliances, bastion hosts and
+  identity providers (ADFS, Entra ID) are infra nodes, NEVER components.
+- `components` are application services/databases/buses/API gateways only. Use "system"
+  to name the owning system, and set component_role to the closest value
+  (web_frontend | backend_service | bff | api_gateway | message_bus | database | cache |
+  object_storage | integration_service | data_lake | data_warehouse | batch_processing |
+  streaming_processing | ...).
+- `flows` are directed component-to-component communications (caller -> provider). Use the
+  literal "internet" as the source for external ingress. auth_method is service-to-service:
+  OAuth2_ClientCredentials | mTLS | ClientCertificate | SASL_SCRAM | Basic | ApiKey |
+  UserPassword | Kerberos | IAM_Role | ManagedIdentity | none. Put appliances the path
+  traverses in "via" (names).
+- `network_links` are undirected infra-to-infra connections. A carrier circuit
+  (ExpressRoute / MPLS / Direct Connect) is a link, not a node.
+- `auth` is user/entry authentication only (an identity-provider redirect is an auth row,
+  not a flow). subject is "user" or "application".
+- Encryption: at-rest goes on the component (encryption_at_rest), in-transit goes on the
+  flow (encryption = TLS1.3 | TLS1.2 | mTLS | IPSec | none | TBD).
+- Every reference between entities is a NAME, not an ID. Do not invent IDs.
 
 Document content:
 ---
 {document_text}
 ---
 
-Extract the information into this exact JSON structure. Use null for unknown fields. 
-Be conservative: only extract what is explicitly stated, do not infer.
-Output ONLY the JSON, no explanation:
+Output ONLY this JSON, no explanation. Use null for unknown fields; be conservative and
+extract only what the document states.
 
 {{
   "project": {{
-    "name": null,
-    "id": null,
-    "scope": null,
-    "department": null,
-    "business_purpose": null
+    "name": null, "id": null, "scope": "standalone|modification|e2e",
+    "department": null, "data_classification": null
   }},
-  "applications": [
-    {{
-      "name": "app name",
-      "type": "new|existing|modified|unknown",
-      "owner": "org_it|biz_owned|third_party|unknown",
-      "vendor": null,
-      "dc_or_region": "physical location if stated",
-      "country": "CN|US|DE|etc if stated",
-      "platform": "private_dc|aws|azure|saas|unknown",
-      "zone_subnet": "DMZ|App Zone|DB Zone|VPC|Subnet|unknown",
-      "infra_owner": "InfraSec|BizIT|department name|unknown"
-    }}
+  "infra": [
+    {{ "name": null, "node_kind": null, "infra_type": null, "network_type": null,
+       "parent": null, "country": null, "vendor": null, "infra_owner": null }}
+  ],
+  "systems": [
+    {{ "name": null, "type": "new|existing|modified", "owner": "org_it|biz_owned|third_party",
+       "vendor": null, "data_classification": null }}
   ],
   "components": [
-    {{
-      "app_id": "which app this belongs to",
-      "name": "component name",
-      "type": "FE|BE|DB|MQ|IP|LB|SEC",
-      "language": null,
-      "framework": null,
-      "runtime": null,
-      "sensitivity": "Company Restricted|Company Confidential|Company Internal|null"
-    }}
+    {{ "system": null, "name": null, "kind": "service|component", "layer": null,
+       "component_role": null, "function_desc": null, "sensitivity": null,
+       "encryption_at_rest": null, "key_management": null }}
   ],
-  "interactions": [
-    {{
-      "from": "initiator component name",
-      "to": "provider component name",
-      "protocol": "HTTPS|Kafka|SFTP|JDBC|RFC|TCP|null",
-      "port": null,
-      "auth_method": "OAuth2.0|mTLS|SAML|SASL/SCRAM|PWD|null"
-    }}
+  "stacks": [
+    {{ "component": null, "component_name": null, "component_package": null,
+       "version": null, "category": null, "license": null, "eol_date": null,
+       "standard_flag": null }}
   ],
-  "user_auth": [
-    {{
-      "entry_point": "which application",
-      "user_roles": ["role1", "role2"],
-      "auth_server": "ADFS|EnterpriseID|EntraID|null",
-      "auth_protocol": "SAML|CAS|OAuth2_AuthCode|OIDC|null",
-      "authorization": "RBAC|ABAC|PBAC|DAC|null"
-    }}
+  "deployments": [
+    {{ "component": null, "environment": "dev|test|staging|prod|dr",
+       "deployment_type": "private_cloud|public_cloud|public_cloud_paas|saas|third_party",
+       "location_type": "data_center|public_cloud_region|saas", "infra": null,
+       "runtime_type": "vm|container|physical|serverless", "runtime_detail": null,
+       "instance_count": null }}
   ],
-  "credentials": [
-    {{
-      "environment": "azure|aws|private_dc",
-      "solution": "Azure Key Vault|AWS Secrets Manager|K8s Secrets|null"
-    }}
+  "flows": [
+    {{ "from": null, "to": null, "protocol": null, "port": null, "auth_method": null,
+       "encryption": null, "cross_border": null, "via": [], "notes": null }}
   ],
-  "data_encryption": [
-    {{
-      "component": "DB or storage name",
-      "at_rest": true,
-      "at_rest_method": "AES-256|TDE|null",
-      "cross_border": false,
-      "cross_border_compliance": "GDPR|中国数据安全法|null"
-    }}
+  "network_links": [
+    {{ "from": null, "to": null, "method": null, "bandwidth": null, "encrypted": null,
+       "encryption_method": null, "managed_by": null, "redundancy": null, "notes": null }}
   ],
-  "constraints": ["list of explicit constraints mentioned"],
+  "auth": [
+    {{ "subject": "user|application", "applies_to": null, "auth_server": null,
+       "protocol": "OIDC|OAuth2_AuthCode|SAML2|CAS|Kerberos|Basic|ApiKey",
+       "authorization": "RBAC|ABAC|PBAC|DAC", "authorization_platform": null,
+       "user_roles": [], "mfa": null, "notes": null }}
+  ],
+  "ecosystem_relations": [
+    {{ "from": null, "to": null, "relation_type": "upstream|downstream|partner|customer",
+       "notes": null }}
+  ],
+  "credentials": [ {{ "environment": "azure|aws|private_dc|saas|other", "solution": null, "notes": null }} ],
+  "constraints": [],
+  "open_items": [ {{ "id": null, "description": null, "owner": null, "blocking": null }} ],
   "gaps_noted": ["information that seems important but is missing from the document"]
 }}
 """
 
 
 def call_llm_extraction(document_text: str, source: str) -> dict:
-    """Call Claude API to extract structured requirements from document text."""
+    """Call the Claude API to extract structured requirements from document text."""
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
         return {"error": "ANTHROPIC_API_KEY not set"}
 
     import urllib.request
 
-    # Truncate very long documents to stay within context limits
     max_chars = 80000
     if len(document_text) > max_chars:
         document_text = document_text[:max_chars] + "\n... [document truncated]"
@@ -185,7 +190,7 @@ def call_llm_extraction(document_text: str, source: str) -> dict:
 
     payload = json.dumps({
         "model": "claude-sonnet-4-6",
-        "max_tokens": 4096,
+        "max_tokens": 8192,
         "messages": [{"role": "user", "content": prompt}]
     }).encode("utf-8")
 
@@ -201,7 +206,7 @@ def call_llm_extraction(document_text: str, source: str) -> dict:
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
+        with urllib.request.urlopen(req, timeout=90) as resp:
             response = json.loads(resp.read().decode("utf-8"))
     except Exception as e:
         return {"error": str(e)}
@@ -225,109 +230,17 @@ def call_llm_extraction(document_text: str, source: str) -> dict:
 # ── Map LLM output → PartialReq ───────────────────────────────────────────────
 
 def map_to_partial_req(extracted: dict, source_file: str) -> PartialReq:
-    req = PartialReq(source_tool="arch-req-from-doc", source_file=source_file)
-    SRC = f"document:{Path(source_file).name}"
-    CONF = Confidence.MEDIUM   # document extraction is medium confidence
-
-    if "error" in extracted:
-        req.gaps.append(f"LLM extraction error: {extracted['error']}")
-        return req
-
-    # Project
-    proj = extracted.get("project", {})
-    if proj.get("name"):
-        req.project_name = fv(proj["name"], CONF, SRC)
-    if proj.get("id"):
-        req.project_id = fv(proj["id"], CONF, SRC)
-    if proj.get("scope"):
-        req.project_scope = fv(proj["scope"], CONF, SRC)
-    if proj.get("department"):
-        req.department = fv(proj["department"], CONF, SRC)
-
-    # Applications
-    for i, app_data in enumerate(extracted.get("applications", [])):
-        app = PartialApplication(id=f"doc_app_{i+1}")
-        if app_data.get("name"):
-            app.name = fv(app_data["name"], CONF, SRC)
-        if app_data.get("type") and app_data["type"] != "unknown":
-            app.type = fv(app_data["type"], CONF, SRC)
-        if app_data.get("owner") and app_data["owner"] != "unknown":
-            app.owner = fv(app_data["owner"], CONF, SRC)
-        if app_data.get("dc_or_region"):
-            app.dc_or_region = fv(app_data["dc_or_region"], CONF, SRC)
-        if app_data.get("country"):
-            app.country = fv(app_data["country"], CONF, SRC)
-        if app_data.get("platform") and app_data["platform"] != "unknown":
-            app.platform = fv(app_data["platform"], CONF, SRC)
-        if app_data.get("zone_subnet") and app_data["zone_subnet"] != "unknown":
-            app.zone_subnet = fv(app_data["zone_subnet"], CONF, SRC)
-        if app_data.get("infra_owner") and app_data["infra_owner"] != "unknown":
-            app.infra_owner = fv(app_data["infra_owner"], CONF, SRC)
-        req.applications.append(app)
-
-    # Components
-    for i, comp_data in enumerate(extracted.get("components", [])):
-        comp = PartialComponent(
-            id=f"doc_comp_{i+1}",
-            app_id=comp_data.get("app_id", "unknown")
-        )
-        if comp_data.get("name"):
-            comp.name = fv(comp_data["name"], CONF, SRC)
-        if comp_data.get("type"):
-            comp.comp_type = fv(comp_data["type"], CONF, SRC)
-        for field in ("language", "framework", "runtime", "sensitivity"):
-            val = comp_data.get(field)
-            if val:
-                setattr(comp, field, fv(val, CONF, SRC))
-        req.components.append(comp)
-
-    # Interactions
-    for i, iact in enumerate(extracted.get("interactions", [])):
-        interaction = PartialInteraction(id=f"doc_int_{i+1}")
-        if iact.get("from"):
-            interaction.from_component = fv(iact["from"], CONF, SRC)
-        if iact.get("to"):
-            interaction.to_component = fv(iact["to"], CONF, SRC)
-        if iact.get("protocol"):
-            interaction.protocol = fv(iact["protocol"], CONF, SRC)
-        if iact.get("auth_method"):
-            interaction.auth_method = fv(iact["auth_method"], Confidence.LOW, SRC,
-                                         "From document — verify each interaction has auth")
-        if iact.get("port"):
-            interaction.port = fv(str(iact["port"]), CONF, SRC)
-        req.interactions.append(interaction)
-
-    # User auth
-    for i, ua_data in enumerate(extracted.get("user_auth", [])):
-        pua = PartialUserAuth(entry_point=ua_data.get("entry_point", f"entry_{i+1}"))
-        if ua_data.get("user_roles"):
-            pua.user_roles = fv(ua_data["user_roles"], CONF, SRC)
-        if ua_data.get("auth_server"):
-            pua.auth_server = fv(ua_data["auth_server"], CONF, SRC)
-        if ua_data.get("auth_protocol"):
-            pua.auth_protocol = fv(ua_data["auth_protocol"], CONF, SRC)
-        if ua_data.get("authorization"):
-            pua.authorization = fv(ua_data["authorization"], CONF, SRC)
-        req.user_auth.append(pua)
-
-    # Credentials
-    for cred in extracted.get("credentials", []):
-        if cred.get("solution"):
-            req.credentials.append({**cred, "_source": SRC, "_confidence": "medium"})
-
-    # Data encryption
-    for enc in extracted.get("data_encryption", []):
-        req.data_encryption.append({**enc, "_source": SRC, "_confidence": "medium"})
-
-    # Constraints
-    req.constraints = extracted.get("constraints", [])
-
-    # Gaps noted by LLM
-    for gap in extracted.get("gaps_noted", []):
-        req.gaps.append(f"Document gap: {gap}")
-
-    req.gaps.append(f"Document extraction is MEDIUM confidence — verify all values, "
-                    f"especially authentication mechanisms and physical locations")
+    req = v2_json_to_partial(
+        extracted,
+        source_tool="arch-req-from-doc",
+        source_file=source_file,
+        confidence=Confidence.MEDIUM,
+        source_label=f"document:{Path(source_file).name}",
+    )
+    req.gaps.append(
+        "Document extraction is MEDIUM confidence — verify all values, especially "
+        "authentication mechanisms and physical locations"
+    )
     return req
 
 
@@ -357,9 +270,13 @@ def main():
         with open(args.output, "w", encoding="utf-8") as f:
             f.write(out)
         print(f"✓ Partial requirements written: {args.output}")
-        print(f"  Applications found: {len(req.applications)}")
-        print(f"  Components found: {len(req.components)}")
-        print(f"  Interactions found: {len(req.interactions)}")
+        for label, items in (
+            ("Infra nodes", req.infra), ("Systems", req.systems),
+            ("Components", req.components), ("Deployments", req.deployments),
+            ("Flows", req.flows), ("Network links", req.network_links),
+            ("Auth entries", req.auth),
+        ):
+            print(f"  {label}: {len(items)}")
         if req.gaps:
             print("  Notes:")
             for g in req.gaps[:5]:

@@ -30,15 +30,26 @@ Before asking any questions, read:
 
 ## Step 2 — Check for requirements document
 
-**If the user provides `req-*.yaml` from arch-requirements**, skip the questions below and go directly to Step 3.
-Read the requirements YAML:
-- `requirements.deployment[]` → platform, DC/region, zone/subnet for each component
-- `requirements.components[]` → becomes `deployment[].network_zones[].components[]`
-- `requirements.interactions[]` → becomes `interactions[]`
-- `requirements.user_auth[]` → populates `security.user_auth_*`
-- `requirements.credentials[]` → populates `security.key_management`
-- `requirements.open_items[]` where `blocking: true` → add as `# TODO:` comments in output YAML
-- `requirements.network_connections[]` → add cross-DC/cloud connectivity to `interactions[]`
+**If the user provides `req-*.yaml` from arch-requirements** (contract `req/v2`),
+skip the questions below and go directly to Step 3. The entity kinds map onto the
+diagram model directly:
+- `requirements.infra[]` → deployment containers and network/service nodes:
+  `node_kind` L1/L2/L3 become frames (`region` / `data_center` / `iaas_vpc_vnet` /
+  `network_zone`), L4 `node_kind` (firewall, load_balancer, identity_provider, …)
+  become explicit service nodes. `parent_id` drives nesting.
+- `requirements.systems[]` → the application grouping.
+- `requirements.components[]` + `requirements.deployments[]` → become
+  `deployment[].network_zones[].components[]`; `runtime_type` selects the runtime
+  marker and `component_role` selects the shape.
+- `requirements.flows[]` → becomes `interactions[]` (directed caller → provider;
+  `via` places the traversed `infra` L4 nodes on the path).
+- `requirements.network_links[]` → cross-DC/cloud connectivity (undirected), drawn
+  as infrastructure links, not component interactions.
+- `requirements.auth[]` → populates `security.user_auth_*` (user/entry auth only).
+- `requirements.stacks[]` → language/framework/version detail on the component.
+- `requirements.credentials[]` → populates `security.key_management`.
+- `requirements.ecosystem_relations[]` → related-application context.
+- `requirements.open_items[]` where `blocking: true` → add as `# TODO:` comments.
 
 **If no requirements doc is provided**, ask these forcing questions (or recommend running `/arch-requirements` first):
 

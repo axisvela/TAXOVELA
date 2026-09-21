@@ -12,7 +12,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from archharness.artifacts import verify_manifest  # noqa: E402
-from archharness.schemas import validate_final_req, validate_manifest  # noqa: E402
+from archharness.schemas import validate_final_req_v2, validate_manifest  # noqa: E402
 from archharness.requirements.command import main as req_main  # noqa: E402
 
 
@@ -45,13 +45,14 @@ class ReqManifestE2ETests(unittest.TestCase):
                 sys.argv = previous
 
             doc = yaml.safe_load(out.read_text(encoding="utf-8"))
-            self.assertEqual(doc["schema_version"], "req/v1")
-            validate_final_req(doc)
-            self.assertEqual(doc["requirements"]["applications"][0]["name"], "Payments App")
+            self.assertEqual(doc["schema_version"], "req/v2")
+            validate_final_req_v2(doc)
+            self.assertEqual(doc["requirements"]["systems"][0]["name"], "Payments App")
+            self.assertEqual(doc["requirements"]["systems"][0]["id"], "APP-01")
 
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             validate_manifest(manifest)
-            self.assertEqual(manifest["schema"], "req/v1")
+            self.assertEqual(manifest["schema"], "req/v2")
             self.assertEqual(manifest["type"], "requirements")
             self.assertTrue(
                 any(str(entry).endswith("cmdb.csv") for entry in manifest["input_artifacts"])

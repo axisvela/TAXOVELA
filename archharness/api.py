@@ -65,7 +65,7 @@ def run_requirements(
     workspace: str | None = None,
     project: str | None = None,
 ) -> int:
-    """Extract and merge requirements into a final ``req/v1`` document."""
+    """Extract and merge requirements into a final ``req/v2`` document."""
     argv: list[str] = []
     if diagram:
         argv += ["--diagram", *diagram]

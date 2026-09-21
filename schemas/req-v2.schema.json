@@ -1,0 +1,373 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/axisrobo/ea-harness/schemas/req-v2.schema.json",
+  "title": "ArchHarness Final Requirements (v2 — entity-separated)",
+  "version": "req/v2",
+  "status": "draft",
+  "description": "DRAFT contract. Separates the model by entity kind (infra / systems / components / deployments / flows / network_links / auth) instead of the flat req/v1 applications+components lists. Service-to-service auth and encryption are inline enums on flows; at-rest encryption is a component attribute; AUTH-nn covers user/entry authentication only. Frozen req/v1 remains valid. See docs/requirements-model-v2.md.",
+  "type": "object",
+  "required": ["schema_version", "requirements"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "req/v2",
+      "description": "Contract version. Readers must reject unknown major versions."
+    },
+    "requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project",
+        "infra",
+        "systems",
+        "components",
+        "deployments",
+        "flows",
+        "network_links",
+        "auth"
+      ],
+      "properties": {
+        "project": { "$ref": "#/$defs/project" },
+        "infra": { "type": "array", "items": { "$ref": "#/$defs/infra" } },
+        "systems": { "type": "array", "items": { "$ref": "#/$defs/system" } },
+        "components": { "type": "array", "items": { "$ref": "#/$defs/component" } },
+        "stacks": { "type": "array", "items": { "$ref": "#/$defs/stack" } },
+        "deployments": { "type": "array", "items": { "$ref": "#/$defs/deployment" } },
+        "flows": { "type": "array", "items": { "$ref": "#/$defs/flow" } },
+        "network_links": { "type": "array", "items": { "$ref": "#/$defs/networkLink" } },
+        "auth": { "type": "array", "items": { "$ref": "#/$defs/auth" } },
+        "ecosystem_relations": { "type": "array", "items": { "$ref": "#/$defs/ecosystemRelation" } },
+        "credentials": { "type": "array", "items": { "$ref": "#/$defs/credential" } },
+        "constraints": { "type": "array", "items": { "type": ["string", "object"] } },
+        "open_items": { "type": "array", "items": { "$ref": "#/$defs/openItem" } }
+      }
+    }
+  },
+  "$defs": {
+    "nullableString": { "type": ["string", "null"] },
+    "ref": {
+      "type": "string",
+      "pattern": "^(INF|APP|CMP|SUB|STK|DEP|FLOW|LNK|AUTH)-\\d{2,}$",
+      "description": "Typed entity reference. The prefix must match the target entity kind."
+    },
+    "env": { "enum": ["dev", "test", "staging", "prod", "dr", null] },
+
+    "project": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/nullableString" },
+        "id": { "$ref": "#/$defs/nullableString" },
+        "scope": { "enum": ["standalone", "e2e", "modification", null] },
+        "department": { "$ref": "#/$defs/nullableString" },
+        "author": { "$ref": "#/$defs/nullableString" },
+        "date": { "$ref": "#/$defs/nullableString" },
+        "data_classification": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+
+    "infra": {
+      "type": "object",
+      "required": ["id", "name", "node_kind"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^INF-\\d{2,}$" },
+        "name": { "type": "string" },
+        "node_kind": {
+          "description": "Topology role (eam tech_infra_node.node_kind).",
+          "enum": [
+            "region",
+            "data_center",
+            "iaas_vpc_vnet",
+            "paas",
+            "saas",
+            "third_party",
+            "office_network",
+            "factory_network",
+            "lab",
+            "internet_network",
+            "network_zone",
+            "subnet",
+            "firewall",
+            "security_gateway",
+            "waf",
+            "router",
+            "switch",
+            "vpn_gateway",
+            "identity_provider",
+            "soc_monitoring",
+            "load_balancer",
+            "bastion_host",
+            "logging_service",
+            "policy_service",
+            "key_management"
+          ]
+        },
+        "infra_type": {
+          "description": "Hosting category (eam tech_infra_node_attr.infra_type).",
+          "enum": ["private_cloud", "public_cloud", "saas", "third_party", "office", "factory", "lab", null]
+        },
+        "network_type": {
+          "description": "Network/security domain (distinct from node_kind and infra_type).",
+          "enum": ["office_network", "factory_network", "lab_network", "prod_network", "dmz", null]
+        },
+        "parent_id": { "$ref": "#/$defs/ref" },
+        "country": { "$ref": "#/$defs/nullableString" },
+        "vendor": { "$ref": "#/$defs/nullableString" },
+        "region_code": { "$ref": "#/$defs/nullableString" },
+        "dc_code": { "$ref": "#/$defs/nullableString" },
+        "vpc_vnet": { "$ref": "#/$defs/nullableString" },
+        "subnet_code": { "$ref": "#/$defs/nullableString" },
+        "zone_code": { "$ref": "#/$defs/nullableString" },
+        "biz_owner": { "$ref": "#/$defs/nullableString" },
+        "infra_owner": { "$ref": "#/$defs/nullableString" },
+        "status": { "enum": ["planned", "active", "restricted", "retired", null] },
+        "notes": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+
+    "system": {
+      "type": "object",
+      "required": ["id", "name", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^APP-\\d{2,}$" },
+        "name": { "type": "string" },
+        "type": { "enum": ["new", "existing", "modified"] },
+        "owner": { "enum": ["org_it", "biz_owned", "third_party", null] },
+        "vendor": { "$ref": "#/$defs/nullableString" },
+        "lifecycle_status": { "$ref": "#/$defs/nullableString" },
+        "source_system": { "$ref": "#/$defs/nullableString" },
+        "description": { "$ref": "#/$defs/nullableString" },
+        "data_classification": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+
+    "component": {
+      "type": "object",
+      "required": ["id", "system_id", "name", "kind"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^CMP-\\d{2,}$" },
+        "system_id": { "type": "string", "pattern": "^APP-\\d{2,}$" },
+        "subsystem": { "$ref": "#/$defs/nullableString" },
+        "name": { "type": "string" },
+        "kind": { "enum": ["service", "component"] },
+        "layer": { "enum": ["fe", "be", "api", "bff", "db", "mq", "ip", "lb", "bc", "other", null] },
+        "component_role": {
+          "description": "Authoritative diagram shape selector. MUST NOT be used for infrastructure/security devices.",
+          "enum": [
+            "application_service",
+            "web_frontend",
+            "backend_service",
+            "bff",
+            "ai_agent",
+            "api_gateway",
+            "load_balancer",
+            "message_bus",
+            "data_integration",
+            "integration_service",
+            "database",
+            "cache",
+            "file_storage",
+            "object_storage",
+            "metadata_store",
+            "data_processing",
+            "data_lake",
+            "data_warehouse",
+            "bi_report",
+            "batch_processing",
+            "streaming_processing",
+            "large_scale_compute",
+            null
+          ]
+        },
+        "function_desc": { "$ref": "#/$defs/nullableString" },
+        "sensitivity": { "$ref": "#/$defs/nullableString" },
+        "encryption_at_rest": { "$ref": "#/$defs/nullableString" },
+        "key_management": {
+          "type": ["string", "null"],
+          "pattern": "^INF-\\d{2,}$",
+          "description": "At-rest key store, as an infra L4 key_management node."
+        },
+        "status": { "enum": ["draft", "active", "deprecated", "retired", null] }
+      }
+    },
+
+    "stack": {
+      "type": "object",
+      "required": ["id", "component_id", "component", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^STK-\\d{2,}$" },
+        "component_id": { "type": "string", "pattern": "^CMP-\\d{2,}$" },
+        "component": { "type": "string" },
+        "component_package": { "$ref": "#/$defs/nullableString" },
+        "version": { "type": "string" },
+        "category": { "$ref": "#/$defs/nullableString" },
+        "sub_category": { "$ref": "#/$defs/nullableString" },
+        "eol_date": { "$ref": "#/$defs/nullableString" },
+        "license": { "$ref": "#/$defs/nullableString" },
+        "standard_flag": { "type": ["boolean", "null"] }
+      }
+    },
+
+    "deployment": {
+      "type": "object",
+      "required": ["id", "component_id", "environment", "deployment_type", "location_type", "runtime_type"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^DEP-\\d{2,}$" },
+        "component_id": { "type": "string", "pattern": "^CMP-\\d{2,}$" },
+        "environment": { "$ref": "#/$defs/env" },
+        "deployment_type": {
+          "enum": ["private_cloud", "public_cloud", "public_cloud_paas", "saas", "third_party"]
+        },
+        "location_type": { "enum": ["data_center", "public_cloud_region", "saas"] },
+        "infra_id": { "$ref": "#/$defs/ref" },
+        "runtime_type": { "enum": ["vm", "container", "physical", "serverless"] },
+        "runtime_detail": { "$ref": "#/$defs/nullableString" },
+        "instance_count": { "type": ["integer", "null"], "minimum": 0 },
+        "network_vpc": { "$ref": "#/$defs/nullableString" },
+        "network_zone": { "$ref": "#/$defs/nullableString" },
+        "network_subnet": { "$ref": "#/$defs/nullableString" },
+        "owner": { "$ref": "#/$defs/nullableString" },
+        "status": { "enum": ["planned", "active", "migrating", "retired", null] }
+      }
+    },
+
+    "flow": {
+      "type": "object",
+      "description": "Component communication flow. Directed: caller -> provider. Endpoints are components; the external sentinel 'internet' is allowed as a source. Service-to-service auth and encryption are inline enums on this object.",
+      "required": ["id", "source_component_id", "target_component_id", "protocol", "auth_method"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^FLOW-\\d{2,}$" },
+        "source_component_id": {
+          "type": "string",
+          "pattern": "^(CMP-\\d{2,}|internet)$",
+          "description": "Caller. 'internet' is the external-ingress sentinel."
+        },
+        "target_component_id": { "type": "string", "pattern": "^CMP-\\d{2,}$" },
+        "protocol": { "type": "string" },
+        "port": { "type": ["string", "integer", "null"] },
+        "auth_method": {
+          "description": "Inline service-to-service authentication method.",
+          "enum": [
+            "OAuth2_ClientCredentials",
+            "mTLS",
+            "ClientCertificate",
+            "SASL_SCRAM",
+            "Basic",
+            "ApiKey",
+            "UserPassword",
+            "Kerberos",
+            "IAM_Role",
+            "ManagedIdentity",
+            "none"
+          ]
+        },
+        "encryption": {
+          "description": "Inline in-transit encryption.",
+          "enum": ["TLS1.3", "TLS1.2", "mTLS", "IPSec", "none", "TBD", null]
+        },
+        "cross_border": { "type": ["boolean", "null"] },
+        "cross_border_basis": { "$ref": "#/$defs/nullableString" },
+        "via": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^INF-\\d{2,}$" },
+          "description": "Ordered infrastructure/security L4 nodes the path passes through. Never an endpoint."
+        },
+        "notes": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+
+    "networkLink": {
+      "type": "object",
+      "description": "Infrastructure network connection. Undirected. Endpoints MUST be infra nodes.",
+      "required": ["id", "source_infra_id", "target_infra_id", "method"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^LNK-\\d{2,}$" },
+        "source_infra_id": { "type": "string", "pattern": "^INF-\\d{2,}$" },
+        "target_infra_id": { "type": "string", "pattern": "^INF-\\d{2,}$" },
+        "method": {
+          "enum": ["mpls", "expressroute", "direct_connect", "vpc_peering", "vnet_peering", "vpn", "internet", "sdwan", "leased_line"]
+        },
+        "bandwidth": { "$ref": "#/$defs/nullableString" },
+        "encrypted": { "type": ["boolean", "null"] },
+        "encryption_method": { "$ref": "#/$defs/nullableString" },
+        "managed_by": { "$ref": "#/$defs/nullableString" },
+        "redundancy": { "enum": ["primary", "secondary", "backup", null] },
+        "notes": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+
+    "auth": {
+      "type": "object",
+      "description": "User / entry authentication only. Service-to-service auth is the inline flow.auth_method enum, NOT this object.",
+      "required": ["id", "subject", "protocol"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^AUTH-\\d{2,}$" },
+        "subject": {
+          "enum": ["user", "application"],
+          "description": "'application' means application entry auth, not service-to-service."
+        },
+        "applies_to": { "$ref": "#/$defs/ref" },
+        "auth_server": { "$ref": "#/$defs/nullableString" },
+        "protocol": {
+          "enum": [
+            "OIDC",
+            "OAuth2_AuthCode",
+            "SAML2",
+            "CAS",
+            "Kerberos",
+            "Basic",
+            "ApiKey"
+          ]
+        },
+        "authorization": { "enum": ["RBAC", "ABAC", "PBAC", "DAC", null] },
+        "authorization_platform": { "$ref": "#/$defs/nullableString" },
+        "user_roles": { "type": ["array", "string", "null"] },
+        "mfa": { "type": ["boolean", "null"] },
+        "notes": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+
+    "ecosystemRelation": {
+      "type": "object",
+      "required": ["id", "source_system_id", "target_system_id"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "source_system_id": { "type": "string", "pattern": "^APP-\\d{2,}$" },
+        "target_system_id": { "type": "string", "pattern": "^APP-\\d{2,}$" },
+        "relation_type": { "enum": ["upstream", "downstream", "partner", "customer", null] },
+        "notes": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+
+    "credential": {
+      "type": "object",
+      "required": ["environment"],
+      "additionalProperties": false,
+      "properties": {
+        "environment": { "enum": ["azure", "aws", "private_dc", "saas", "other"] },
+        "solution": { "$ref": "#/$defs/nullableString" },
+        "notes": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+
+    "openItem": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "description": { "$ref": "#/$defs/nullableString" },
+        "owner": { "$ref": "#/$defs/nullableString" },
+        "blocking": { "type": ["boolean", "null"] }
+      }
+    }
+  }
+}

@@ -60,6 +60,60 @@ def status_color(status: str | None) -> str:
     return STATUS_COLORS.get(status, DEFAULT_EDGE_COLOR)
 
 
+# ── Component lifecycle status ────────────────────────────────────────────────
+# The status is carried by the box colour; the text marker is never printed.
+
+COMPONENT_STATUSES = {
+    "NEW":      "newly_created",
+    "CHANGED":  "changed",
+    "EXISTING": "unchanged",
+    "REMOVE":   "removed",
+}
+
+STATUS_FILL = {
+    "NEW":      {"fill": "#C62828", "stroke": "#8E1F1F", "text": "#FFFFFF"},  # red
+    "CHANGED":  {"fill": "#F9A825", "stroke": "#B07A00", "text": "#000000"},  # yellow
+    "EXISTING": {"fill": "#1565C0", "stroke": "#0D3F7A", "text": "#FFFFFF"},  # blue
+    "REMOVE":   {"fill": "#9E9E9E", "stroke": "#6B6B6B", "text": "#FFFFFF"},  # grey
+}
+STATUS_FILL_DEFAULT = {"fill": "#78909C", "stroke": "#4E616B", "text": "#FFFFFF"}  # blue-grey
+
+# Trailing markers like "CMP-28 | Kafka (NA) | NEW" are redundant with `status:`.
+_STATUS_SUFFIX_RE = re.compile(
+    r"\s*\|?\s*(NEW|CHANGED|CHANGE|EXISTING|UNCHANGED|REMOVE|REMOVED|RETIRED)\s*$",
+    re.IGNORECASE)
+
+_STATUS_ALIASES = {
+    "NEWLY_CREATED": "NEW", "NEW": "NEW", "ADDED": "NEW", "PLANNED": "NEW",
+    "CHANGED": "CHANGED", "CHANGE": "CHANGED", "MODIFIED": "CHANGED", "UPDATED": "CHANGED",
+    "UNCHANGED": "EXISTING", "EXISTING": "EXISTING", "ACTIVE": "EXISTING",
+    "REMOVED": "REMOVE", "REMOVE": "REMOVE", "RETIRED": "REMOVE", "DELETED": "REMOVE",
+}
+
+
+def component_status(comp: dict) -> str | None:
+    """Lifecycle status of a component: NEW / CHANGED / EXISTING / REMOVE / None."""
+    declared = comp.get("status")
+    if declared:
+        key = re.sub(r"[\s\-]+", "_", str(declared).strip().upper())
+        if key in _STATUS_ALIASES:
+            return _STATUS_ALIASES[key]
+    match = _STATUS_SUFFIX_RE.search(str(comp.get("name", "")))
+    if match:
+        return _STATUS_ALIASES.get(match.group(1).upper().replace(" ", "_"))
+    return None
+
+
+def component_fill(comp: dict) -> dict:
+    """Fill/stroke/text colour for a component, from its status."""
+    return STATUS_FILL.get(component_status(comp), STATUS_FILL_DEFAULT)
+
+
+def component_name(comp: dict) -> str:
+    """Component name with any trailing lifecycle marker removed."""
+    return _STATUS_SUFFIX_RE.sub("", str(comp.get("name", comp.get("id", "")))).strip()
+
+
 # ── Code taxonomy (standards/diagram-codes.yaml) ──────────────────────────────
 
 # Compact fallback used only when the standard file cannot be read.

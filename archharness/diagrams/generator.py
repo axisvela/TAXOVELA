@@ -26,34 +26,35 @@ def _id(prefix: str = "") -> str:
 # ── Style selection helpers ───────────────────────────────────────────────────
 
 def _comp_style(comp: dict, status: str = "unchanged") -> str:
-    if comp.get("is_group"):
-        return styles.LOGICAL_GROUP
+    """Shape style plus the lifecycle colour (status is colour, never text)."""
     comp_type = comp.get("type", "BE")
     shape     = comp.get("shape", "")
     owner     = comp.get("owner", "org_it")
 
-    # Integration / gateways
-    if comp_type == "IP" or shape == "parallelogram":
-        return styles.API_GATEWAY
-    if comp_type == "MQ" or shape == "message_queue":
-        return styles.KAFKA_EVENT_BUS
-    if comp_type == "LB" or shape in ("hexagon", "trapezoid"):
-        return styles.LOAD_BALANCER
-    if comp_type == "DB" or shape == "cylinder":
-        return styles.DATABASE_CYLINDER
-    if comp_type in ("auth", "IDP") or shape == "circle":
-        return styles.IDENTITY_AUTH_CIRCLE
-    if shape == "bastion":
-        return styles.BASTION_HOST
+    if comp.get("is_group"):
+        base = styles.LOGICAL_GROUP
+    elif comp_type == "IP" or shape == "parallelogram":
+        base = styles.API_GATEWAY
+    elif comp_type == "MQ" or shape == "message_queue":
+        base = styles.KAFKA_EVENT_BUS
+    elif comp_type == "LB" or shape in ("hexagon", "trapezoid"):
+        base = styles.LOAD_BALANCER
+    elif comp_type == "DB" or shape == "cylinder":
+        base = styles.DATABASE_CYLINDER
+    elif comp_type in ("auth", "IDP") or shape == "circle":
+        base = styles.IDENTITY_AUTH_CIRCLE
+    elif shape == "bastion":
+        base = styles.BASTION_HOST
+    elif owner == "biz_owned" or comp.get("owner_type") == "biz":
+        base = styles.BIZ_OWNED
+    elif owner == "third_party":
+        base = styles.THIRD_PARTY
+    else:
+        base = styles.COMPANY_APP
 
-    # Application type by owner/status
-    if owner == "biz_owned" or comp.get("owner_type") == "biz":
-        return styles.BIZ_OWNED
-    if owner == "third_party":
-        return styles.THIRD_PARTY
-
-    # Default: Company internal app (dashed border)
-    return styles.COMPANY_APP
+    colour = labels.component_fill(comp)
+    return (f"{base}fillColor={colour['fill']};strokeColor={colour['stroke']};"
+            f"fontColor={colour['text']};")
 
 
 def _region_container_style(region: dict) -> str:
@@ -134,7 +135,7 @@ def _comp_label(comp: dict) -> str:
         # the group name plus its shared technology.
         head = comp.get("name", "group")
         return f"{head}\n{tech}" if tech else head
-    name = comp.get("name", comp.get("id", ""))
+    name = labels.component_name(comp)      # lifecycle markers live in the colour
     return f"{name}\n{tech}" if tech else name
 
 

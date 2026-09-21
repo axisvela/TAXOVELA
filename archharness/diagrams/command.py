@@ -67,6 +67,28 @@ def _export_png_via_drawio_cli(drawio_path: str, png_path: str) -> bool:
     return False
 
 
+def _export_png_via_d2_cli(d2_path: str, png_path: str) -> bool:
+    """Render the PNG from D2 — its auto-layout routes edges around nodes."""
+    import subprocess
+    candidates = [
+        "d2",
+        r"C:\Program Files\D2\d2.exe",
+        "/usr/local/bin/d2",
+        "/usr/bin/d2",
+    ]
+    for cmd in candidates:
+        try:
+            result = subprocess.run(
+                [cmd, "--layout", "elk", d2_path, png_path],
+                capture_output=True, timeout=180,
+            )
+            if result.returncode == 0 and Path(png_path).is_file():
+                return True
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            continue
+    return False
+
+
 def _export_png_via_matplotlib(arch: dict, png_path: str) -> bool:
     try:
         from .png_renderer import render_png
@@ -101,7 +123,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("-i", "--input",  required=True, help="Input YAML file or project input-relative path")
     parser.add_argument("-o", "--output", default=None,  help="Output .drawio file")
-    parser.add_argument("--png",  default=None, help="Export PNG (draw.io CLI or matplotlib)")
+    parser.add_argument("--png",  default=None, help="Export PNG (draw.io CLI, D2 CLI or matplotlib)")
+    parser.add_argument("--png-engine", default="auto", choices=["auto", "drawio", "d2", "matplotlib"],
+                        help="Which renderer produces the PNG (auto: draw.io, then D2, then matplotlib)")
     parser.add_argument("--d2",   default=None, help="Output D2 file (.d2)")
     parser.add_argument("--puml", default=None, help="Output PlantUML file (.puml)")
     parser.add_argument("--workspace", default=None, help="ArchHarness workspace root")
@@ -141,6 +165,7 @@ def main(argv: list[str] | None = None) -> int:
     arch = raw.get("arch", raw) if isinstance(raw, dict) else raw
 
     # ── draw.io ───────────────────────────────────────────────────────────────
+    out_path = None
     if args.output or args.png or not (args.d2 or args.puml):
         from .generator import generate_drawio
         out_path = args.output or (
@@ -159,18 +184,6 @@ def main(argv: list[str] | None = None) -> int:
         except OSError:
             return 2
 
-        if args.png:
-            print(f"  Attempting PNG export → {args.png}")
-            if _export_png_via_drawio_cli(out_path, args.png):
-                print(f"  ✓ PNG via draw.io CLI: {args.png}")
-            elif _export_png_via_matplotlib(arch, args.png):
-                print(f"  ✓ PNG via matplotlib: {args.png}")
-                print("  ⚠  For full-fidelity PNG, install the draw.io desktop CLI.")
-            else:
-                print("  ✗ PNG export failed. Install drawio CLI or: pip install matplotlib",
-                      file=sys.stderr)
-                return 2
-
     # ── D2 ────────────────────────────────────────────────────────────────────
     if args.d2:
         from .d2_generator import generate_d2
@@ -186,6 +199,29 @@ def main(argv: list[str] | None = None) -> int:
         except OSError:
             return 2
         print("  Render with: d2 --layout=elk " + args.d2 + " output.svg")
+
+    # ── PNG (engine-selectable: D2 routes edges around nodes) ─────────────────
+    if args.png:
+        print(f"  Attempting PNG export → {args.png}")
+        engine = args.png_engine
+        exported = False
+        if engine in ("auto", "drawio") and out_path:
+            if _export_png_via_drawio_cli(out_path, args.png):
+                print(f"  ✓ PNG via draw.io CLI: {args.png}")
+                exported = True
+        if not exported and engine in ("auto", "d2") and args.d2 and Path(args.d2).is_file():
+            if _export_png_via_d2_cli(args.d2, args.png):
+                print(f"  ✓ PNG via D2 CLI: {args.png}")
+                exported = True
+        if not exported and engine in ("auto", "matplotlib"):
+            if _export_png_via_matplotlib(arch, args.png):
+                print(f"  ✓ PNG via matplotlib: {args.png}")
+                print("  ⚠  Install the draw.io or D2 CLI for routed edges.")
+                exported = True
+        if not exported:
+            print("  ✗ PNG export failed. Install the drawio or d2 CLI, or: pip install matplotlib",
+                  file=sys.stderr)
+            return 2
 
     # ── PlantUML ──────────────────────────────────────────────────────────────
     if args.puml:

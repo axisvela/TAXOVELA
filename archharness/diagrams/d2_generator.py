@@ -98,69 +98,37 @@ def _d2_shape(comp: dict) -> Optional[str]:
 
 
 def _comp_style_block(comp: dict) -> str:
-    """Return a D2 style { } block for a component."""
+    """D2 style block: the lifecycle status drives the fill (default blue-grey)."""
     lines = []
-    ctype  = comp.get("type", "BE")
-    status = comp.get("status", "unchanged")
-    owner  = comp.get("owner_type", "")
-    sens   = comp.get("sensitivity", "")
+    ctype = comp.get("type", "BE")
+    sens  = comp.get("sensitivity", "")
 
-    # Fill color
-    if owner == "biz_owned":
-        lines.append('fill: "#8E24AA"')
-        lines.append('font-color: "#FFFFFF"')
-    elif owner == "third_party":
-        lines.append('fill: "#FB8C00"')
-    elif status in STATUS_FILL and status != "unchanged":
-        lines.append(f'fill: "{STATUS_FILL[status]}"')
-        if status in STATUS_FONT:
-            lines.append(f'font-color: "{STATUS_FONT[status]}"')
-    elif ctype == "LB":
-        lines.append('fill: "#FFCDD2"')
-        lines.append('stroke: "#B71C1C"')
-    elif ctype == "IP":
-        lines.append('fill: "#E1BEE7"')
-        lines.append('stroke: "#6A1B9A"')
-    elif ctype == "MQ":
-        lines.append('fill: "#D1C4E9"')
-        lines.append('stroke: "#4527A0"')
-    elif ctype == "DB":
-        lines.append('fill: "#FFF9C4"')
-        lines.append('stroke: "#F9A825"')
-    elif ctype == "SEC":
-        lines.append('fill: "#DCEDC8"')
-        lines.append('stroke: "#33691E"')
+    colour = labels.component_fill(comp)
+    lines.append(f'fill: "{colour["fill"]}"')
+    lines.append(f'stroke: "{colour["stroke"]}"')
+    lines.append(f'font-color: "{colour["text"]}"')
 
-    # Dashed border for logical (BE/FE) components
     if ctype in ("BE", "FE", "API", "BFF"):
         lines.append("stroke-dash: 5")
+    if comp.get("is_group"):
+        lines.append("stroke-dash: 4")
 
     # Sensitive data: bold label
     if "Restricted" in sens or "Confidential" in sens:
         lines.append("bold: true")
 
-    if not lines:
-        return ""
     return "{\n    style {\n      " + "\n      ".join(lines) + "\n    }\n  }"
 
 
 # ── Component label ────────────────────────────────────────────────────────────
 
 def _comp_label(comp: dict) -> str:
-    name = comp.get("name", comp.get("id", ""))
+    name = labels.component_name(comp)      # lifecycle markers live in the colour
     sens = comp.get("sensitivity", "")
     if "Restricted" in sens or "Confidential" in sens:
         name = "⚠ " + name
-    parts = [name]
-    tech = []
-    if comp.get("language"):
-        tech.append(comp["language"])
-    if comp.get("framework"):
-        tech.append(comp["framework"].split("-")[0])
-    if tech:
-        parts.append(f"({', '.join(tech)})")
-    if comp.get("runtime"):
-        parts.append(f"[{comp['runtime']}]")
+    tech = labels.tech_line(comp)
+    parts = [name] + ([tech] if tech else [])
     return "\\n".join(parts)   # D2 uses \n for multi-line labels
 
 

@@ -99,7 +99,10 @@ def _comp_colors(comp: dict) -> tuple:
 def _draw_component(ax, comp, ax_, ay, w, h):
     ctype = comp.get("type", "BE")
     shape = comp.get("shape", "")
-    fc, ec, tc = _comp_colors(comp)
+    # Lifecycle status drives the colour (default blue-grey); the marker text is
+    # never printed.
+    _colour = labels.component_fill(comp)
+    fc, ec, tc = _colour["fill"], _colour["stroke"], _colour["text"]
 
     if comp.get("is_group"):
         # A logical group is a frame; the title sits at its top edge and the
@@ -128,7 +131,7 @@ def _draw_component(ax, comp, ax_, ay, w, h):
     # Label — char width depends on shape
     # A logical group is a frame; its members are drawn as real nodes inside it,
     # so the frame label is just the group title.
-    name = comp.get("name", comp.get("id", ""))
+    name = labels.component_name(comp)
     sens = comp.get("sensitivity", "")
     if "Restricted" in sens or "Confidential" in sens:
         name = "⚠ " + name

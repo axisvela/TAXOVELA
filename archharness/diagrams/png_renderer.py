@@ -113,14 +113,19 @@ def _draw_component(ax, comp, ax_, ay, w, h):
         _draw_rect(ax, ax_, ay, w, h, fc, ec, lw=1.0, dashed=True, z=4)
 
     # Label — char width depends on shape
-    name = comp.get("name", comp.get("id", ""))
+    if comp.get("is_group"):
+        members = "\n".join(comp.get("member_names", []) or [])
+        name = f"{comp.get('name', 'group')}\n{members}" if members else comp.get("name", "group")
+    else:
+        name = comp.get("name", comp.get("id", ""))
     sens = comp.get("sensitivity", "")
     if "Restricted" in sens or "Confidential" in sens:
         name = "⚠ " + name
 
     # Estimate usable text width in characters (≈ 8.6px per char at fontsize 8)
     chars = max(8, int(w * 0.9 / 8.6))
-    wrapped = textwrap.fill(name, width=chars, max_lines=2)
+    max_lines = 3 + len(comp.get("member_names", []) or []) if comp.get("is_group") else 2
+    wrapped = textwrap.fill(name, width=chars, max_lines=max_lines)
 
     tech = labels.tech_line(comp)
 
@@ -244,6 +249,8 @@ def render_png(arch: dict, png_path: str, dpi: int = 130):
     # happened to be injected into sys.path by the legacy script.
     from .layout import calculate_layout
 
+    # Fold interchangeable siblings into logical groups (same pass as draw.io).
+    arch, _groups = topology.collapse_groups(arch)
     layout = calculate_layout(arch)
     positions    = layout["positions"]
     abs_pos      = layout["abs_positions"]

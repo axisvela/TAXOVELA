@@ -26,6 +26,8 @@ def _id(prefix: str = "") -> str:
 # ── Style selection helpers ───────────────────────────────────────────────────
 
 def _comp_style(comp: dict, status: str = "unchanged") -> str:
+    if comp.get("is_group"):
+        return styles.LOGICAL_GROUP
     comp_type = comp.get("type", "BE")
     shape     = comp.get("shape", "")
     owner     = comp.get("owner", "org_it")
@@ -122,9 +124,17 @@ def _comp_tooltip(comp: dict) -> str:
 
 
 def _comp_label(comp: dict) -> str:
-    """Component label: name plus a compact, lower-case technology line."""
-    name = comp.get("name", comp.get("id", ""))
+    """Component label: name plus a compact, lower-case technology line.
+
+    A logical group lists its members so the collapsed components stay visible.
+    """
     tech = labels.tech_line(comp)
+    if comp.get("is_group"):
+        members = "\n".join(comp.get("member_names", []) or [])
+        head = comp.get("name", "group")
+        label = f"{head}\n{members}" if members else head
+        return f"{label}\n{tech}" if tech else label
+    name = comp.get("name", comp.get("id", ""))
     return f"{name}\n{tech}" if tech else name
 
 
@@ -188,6 +198,9 @@ def generate_drawio(arch: dict) -> str:
     Convert an architecture YAML dict to a draw.io XML string.
     Returns the complete XML suitable for saving as a .drawio file.
     """
+    # Fold interchangeable siblings into logical groups before validating and
+    # laying out, so the group box — not each member — carries the edges.
+    arch, _groups = topology.collapse_groups(arch)
     validate_architecture_refs(arch)
     layout = calculate_layout(arch)
     positions = layout["positions"]
@@ -362,7 +375,8 @@ def generate_drawio(arch: dict) -> str:
             edge_cell.set("tooltip", interaction["notes"])
 
     # ── Legend ────────────────────────────────────────────────────────────────
-    legend_y = canvas_h - 240
+    # Placed below the lowest region so it can never overlap the diagram.
+    legend_y = layout.get("content_bottom", canvas_h - 240) + 30
     legend_id = _id("lgnd-")
     legend_group = ET.SubElement(root, "mxCell",
         id=legend_id, value="", style="group",
@@ -406,11 +420,11 @@ def generate_drawio(arch: dict) -> str:
     )
 
     def _legend_block(title: str, lines: list[str], y: int, prefix: str) -> int:
-        _make_vertex(root, _id(f"{prefix}title-"), title, title_style, 40, y, 240, 20)
+        _make_vertex(root, _id(f"{prefix}title-"), title, title_style, 40, y, 240, 16)
         for idx, line in enumerate(lines):
             _make_vertex(root, _id(prefix), line, item_style,
-                         40, y + 18 + idx * 14, 560, 14)
-        return y + 18 + 14 * len(lines) + 14
+                         40, y + 22 + idx * 14, 560, 14)
+        return y + 22 + 14 * len(lines) + 14
 
     code_y = legend_y + 212
     protocol_lines = labels.protocol_legend(interactions)
@@ -418,7 +432,10 @@ def generate_drawio(arch: dict) -> str:
         code_y = _legend_block("Protocol codes", protocol_lines, code_y, "proto-")
     auth_lines = labels.auth_legend(interactions)
     if auth_lines:
-        _legend_block("Auth codes", auth_lines, code_y, "auth-")
+        code_y = _legend_block("Auth codes", auth_lines, code_y, "auth-")
+
+    # Grow the page to cover the legends.
+    graph_model.set("pageHeight", str(int(max(canvas_h, code_y + 40))))
 
     # ── Serialize ─────────────────────────────────────────────────────────────
     raw_xml = ET.tostring(mxfile, encoding="unicode")

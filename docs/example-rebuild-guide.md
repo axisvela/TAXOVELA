@@ -109,8 +109,13 @@ python -m archharness req --diagram <arch>.yaml --doc requirements.md \
 ```bash
 python -m archharness validate-yaml output/designs/blueprint.yaml
 python -m archharness diagram -i output/designs/blueprint.yaml \
-    -o output/diagrams/diagram.drawio --png output/diagrams/diagram.png
+    -o output/diagrams/diagram-v6.drawio --png output/diagrams/diagram-v6.png
 ```
+
+**Diagram naming.** Generated diagrams are versioned, not overwritten: each run
+writes the next number, `diagram-v<N+1>.drawio` / `.png`. Take the highest number
+already in `output/diagrams/` and add one, so an earlier render stays available
+for comparison.
 
 Validation (`validate_result.json` / `enforce_result.json`) needs the
 LLM-driven `arch-validate` skill, or the deterministic gate:

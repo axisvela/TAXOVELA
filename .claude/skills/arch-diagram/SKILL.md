@@ -109,6 +109,14 @@ so components are **not** connected to it individually — the zone is marked
 (rule R-INF-4 in `standards/requirements-model-v2.yaml`). In a public cloud a
 firewall may sit in its own subnet and is then drawn as an explicit node.
 
+**Logical groups.** Sibling components in the same zone that are interchangeable
+— same technology signature *and* identical edge signatures (same peers, same
+protocols, same direction) — are folded into one dashed box, and their fan-out
+edges collapse to one edge per peer. This is automatic; a component with even
+one extra relation stays standalone. Set `group: "<name>"` on components to force
+a named grouping (and to keep a human-readable box title) instead of the derived
+`<type> group ×N`. The renderers use the same pass, so `.drawio` and `.png` agree.
+
 **Font hierarchy.** Component labels use `fontSize=14`, edge labels `fontSize=9`.
 Component technology stacks are lower-cased and compressed (`Java (version TBD)`
 → `java`, `Internal K8s Platform` → `K8s`).

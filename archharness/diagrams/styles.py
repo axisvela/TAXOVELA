@@ -144,6 +144,12 @@ THIRD_PARTY = (
     "fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;"
 )
 
+LOGICAL_GROUP = (
+    "rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=4 4;"
+    "fillColor=#FAFAFA;strokeColor=#666666;verticalAlign=top;spacingTop=4;"
+    + COMPONENT_FONT
+)
+
 TECH_PLATFORM_FRAME = (
     "shape=mxgraph.basic.frame;whiteSpace=wrap;html=1;verticalAlign=top;"
 )

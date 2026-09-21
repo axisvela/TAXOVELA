@@ -170,6 +170,64 @@ class TopologyTests(unittest.TestCase):
         arch = self._arch("azure_vnet")
         self.assertEqual(topology.zone_boundary_ids(arch), set())
 
+    def _group_arch(self) -> dict:
+        """Four identical services + one with an extra edge, all under one zone."""
+        services = [
+            {"id": f"CMP-{i:02d}", "name": f"service-{i}", "type": "BE",
+             "language": "Java (version TBD)", "runtime": "Internal K8s Platform"}
+            for i in range(5, 10)
+        ]
+        gateway = {"id": "CMP-04", "name": "gateway", "type": "IP",
+                   "shape": "parallelogram"}
+        return {
+            "deployment": [
+                {
+                    "id": "dc1", "type": "private_dc", "location": "DC",
+                    "network_zones": [
+                        {"id": "z1", "type": "app_zone", "name": "App",
+                         "components": [gateway, *services]},
+                        {"id": "z2", "type": "db_zone", "name": "DB", "components": [
+                            {"id": "CMP-19", "name": "DB", "type": "DB"}]},
+                    ],
+                }
+            ],
+            "interactions": [
+                *[{"from": "CMP-04", "to": s["id"], "protocol": "HTTPS",
+                   "auth": "mTLS"} for s in services],
+                *[{"from": s["id"], "to": "CMP-19", "protocol": "JDBC",
+                   "auth": "UserPassword"} for s in services],
+                # An extra relation makes CMP-09 non-interchangeable.
+                {"from": "CMP-09", "to": "CMP-19", "protocol": "Kafka",
+                 "auth": "SASL/SCRAM"},
+            ],
+        }
+
+    def test_identical_services_collapse_into_one_group(self):
+        arch, groups = topology.collapse_groups(self._group_arch())
+        self.assertEqual(len(groups), 1)
+        (gid, members), = groups.items()
+        self.assertEqual(len(members), 4)            # CMP-09 excluded
+        self.assertNotIn("CMP-09", members)
+
+        zone = arch["deployment"][0]["network_zones"][0]
+        ids = [c["id"] for c in zone["components"]]
+        self.assertIn(gid, ids)
+        self.assertNotIn("CMP-05", ids)
+        self.assertIn("CMP-09", ids)                 # stays standalone
+
+        # edges are rewired onto the group, so the fan-out collapses to one each
+        edges = {(e["from"], e["to"]) for e in arch["interactions"]}
+        self.assertIn(("CMP-04", gid), edges)
+        self.assertIn((gid, "CMP-19"), edges)
+        self.assertEqual(len([e for e in arch["interactions"]
+                              if e["from"] == "CMP-04" and e["to"] == gid]), 1)
+        self.assertEqual(len([e for e in arch["interactions"]
+                              if e["from"] == gid and e["to"] == "CMP-19"]), 1)
+
+    def test_group_needs_a_minimum_size(self):
+        arch, groups = topology.collapse_groups(self._group_arch(), min_size=5)
+        self.assertEqual(groups, {})
+
     def test_boundary_edges_are_dropped_not_reconnected(self):
         # A zone firewall is not a hub: pairing A->FW against every FW->B would
         # fabricate a complete bipartite graph, so the edges are dropped and the

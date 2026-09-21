@@ -4,21 +4,29 @@ layout.py — Size and position calculations for all draw.io elements.
 Layout strategy:
   - Header area: title block
   - Top strip: Internet node (left) + user actor
-  - Main grid: regions in 2 columns, auto-sized
-  - Each DC: zones stacked, each zone auto-sized from its components
-  - Zone interior: components in rows, centred, respecting max row width
+  - Main grid: regions balanced across two columns by height, auto-sized
+  - Each DC: zones stacked, each zone sized from the rows it will actually draw
+  - Zone interior: components in rows, centred, respecting the usable width
+
+Sizing and placement are driven by **one** row-splitting pass: the height of a
+zone is computed from the rows it will contain at its final width, so a zone can
+never be shorter than its content. Component boxes grow with their label
+(up to ``MAX_COMP_W``) and get taller when the label wraps, so names are not
+truncated.
 """
+
+from . import labels
 
 # ── Spacing constants ─────────────────────────────────────────────────────────
 
 CANVAS_MARGIN   = 50
-REGION_GAP      = 70       # gap between columns
+REGION_GAP      = 70       # gap between region boxes (rows and columns)
 REGION_PAD      = 22       # padding inside DC/cloud container
 ZONE_GAP        = 18       # gap between zones
 ZONE_HEADER     = 32       # zone label height
 ZONE_PAD        = 16       # padding inside zone
 
-# Component sizes
+# Base component sizes (a label may grow the box beyond these)
 COMP_W          = 150      # backend service
 COMP_H          = 52
 DB_W            = 120
@@ -28,17 +36,21 @@ GW_H            = 56
 HEX_W           = 110      # hexagon (F5 / FW / LB)
 HEX_H           = 60
 
-COMP_GAP_H      = 14       # horizontal gap between components
-COMP_GAP_V      = 14       # vertical gap between rows
+COMP_GAP_H      = 16       # horizontal gap between components
+COMP_GAP_V      = 18       # vertical gap between rows
 
 REGION_MIN_W    = 380
 REGION_TITLE_H  = 44
 
-# Max components per row — computed dynamically, see _row_budget()
-MAX_ROW_W       = 460      # max usable width inside a zone for a single row
+# Component sizing
+MAX_ROW_W       = 520      # preferred single-row width inside a zone
+MAX_COMP_W      = 260      # a label never widens a box beyond this
+MAX_GROUP_W     = 340      # logical-group boxes may be a little wider
+CHAR_W          = 7.4      # ≈ px per character at fontSize 14
+LINE_H          = 15       # ≈ px per label line
 
 
-def _component_size(comp: dict) -> tuple[int, int]:
+def _base_component_size(comp: dict) -> tuple[int, int]:
     t = comp.get("type", "BE")
     s = comp.get("shape", "")
     if t == "DB" or s == "cylinder":
@@ -50,7 +62,37 @@ def _component_size(comp: dict) -> tuple[int, int]:
     return COMP_W, COMP_H
 
 
-def _split_into_rows(components: list, max_row_w: int = MAX_ROW_W) -> list[list]:
+def _label_text(comp: dict) -> tuple[str, str]:
+    name = comp.get("name", comp.get("id", ""))
+    tech = labels.tech_line(comp)
+    return name, tech
+
+
+def _component_size(comp: dict) -> tuple[int, int]:
+    """Adaptive size: the box grows with its label, up to MAX_COMP_W."""
+    if comp.get("is_group"):
+        names = comp.get("member_names") or []
+        longest = max([len(comp.get("name", ""))] + [len(n) for n in names] + [0])
+        width = max(COMP_W, min(int(longest * CHAR_W) + 26, MAX_GROUP_W))
+        lines = 2 + len(names)          # header + one line per member + tech line
+        return width, max(COMP_H, 14 + LINE_H * lines)
+
+    base_w, base_h = _base_component_size(comp)
+    name, tech = _label_text(comp)
+
+    longest = max([len(name)] + [len(line) for line in tech.split("\n")] + [0])
+    wanted_w = int(longest * CHAR_W) + 26           # text + inner padding
+    w = max(base_w, min(wanted_w, MAX_COMP_W))
+
+    # How many lines will the label need at this width?
+    per_line = max(8, int((w - 22) / CHAR_W))
+    name_lines = max(1, -(-len(name) // per_line))
+    lines = name_lines + (1 if tech else 0)
+    h = max(base_h, 14 + LINE_H * lines)
+    return w, h
+
+
+def _split_into_rows(components: list, max_row_w: int) -> list[list]:
     """Split components into rows such that each row fits within max_row_w."""
     rows, row, row_w = [], [], 0
     for comp in components:
@@ -67,49 +109,73 @@ def _split_into_rows(components: list, max_row_w: int = MAX_ROW_W) -> list[list]
     return rows
 
 
-def _zone_size(zone: dict) -> tuple[int, int]:
-    components = zone.get("components", [])
+def _row_metrics(row: list) -> tuple[int, int]:
+    width = sum(_component_size(c)[0] for c in row) + COMP_GAP_H * (len(row) - 1)
+    height = max((_component_size(c)[1] for c in row), default=0)
+    return width, height
+
+
+def _zone_height(components: list, inner_w: int) -> int:
+    """Height of a zone at ``inner_w`` — uses the same split as placement."""
     if not components:
-        return REGION_MIN_W - 2 * REGION_PAD, ZONE_HEADER + ZONE_PAD * 2 + 40
-
-    rows = _split_into_rows(components)
-    max_row_w = 0
-    total_h = ZONE_HEADER + ZONE_PAD
+        return ZONE_HEADER + ZONE_PAD * 2 + 40
+    rows = _split_into_rows(components, inner_w)
+    total = ZONE_HEADER + ZONE_PAD
     for row in rows:
-        rw = sum(_component_size(c)[0] for c in row) + COMP_GAP_H * (len(row) - 1)
-        rh = max(_component_size(c)[1] for c in row)
-        max_row_w = max(max_row_w, rw)
-        total_h += rh + COMP_GAP_V
-    total_h += ZONE_PAD
-
-    total_w = max_row_w + ZONE_PAD * 2
-    return max(total_w, REGION_MIN_W - 2 * REGION_PAD), total_h
+        total += _row_metrics(row)[1] + COMP_GAP_V
+    return total + ZONE_PAD
 
 
-def _region_width(region: dict) -> int:
+def _zone_natural_width(components: list) -> int:
+    """Width a zone would like, laying rows out at the preferred max width."""
+    if not components:
+        return REGION_MIN_W - 2 * REGION_PAD
+    rows = _split_into_rows(components, MAX_ROW_W)
+    widest = max((_row_metrics(r)[0] for r in rows), default=0)
+    return max(widest + ZONE_PAD * 2, REGION_MIN_W - 2 * REGION_PAD)
+
+
+def _zones_of(region: dict) -> list:
     rtype = region.get("type", "private_dc")
-    zones_key = "network_zones" if rtype == "private_dc" else "subnets"
-    zones = region.get(zones_key, [])
+    key = "network_zones" if rtype == "private_dc" else "subnets"
+    return region.get(key, []) or []
+
+
+def _region_natural_width(region: dict) -> int:
+    zones = _zones_of(region)
     if not zones:
         return REGION_MIN_W
-    fake_zones = [{"components": z.get("components", [])} for z in zones]
-    max_zw = max((_zone_size(fz)[0] for fz in fake_zones), default=REGION_MIN_W - 2 * REGION_PAD)
-    return max(max_zw + REGION_PAD * 2, REGION_MIN_W)
+    widest = max((_zone_natural_width(z.get("components", [])) for z in zones),
+                 default=REGION_MIN_W - 2 * REGION_PAD)
+    return max(widest + REGION_PAD * 2, REGION_MIN_W)
 
 
-def _region_height(region: dict) -> int:
-    rtype = region.get("type", "private_dc")
-    zones_key = "network_zones" if rtype == "private_dc" else "subnets"
-    zones = region.get(zones_key, [])
+def _region_height(region: dict, region_w: int) -> int:
+    """Height of a region at its final width (single source of truth)."""
+    zones = _zones_of(region)
     if not zones:
         return 200
-    total_h = REGION_TITLE_H + REGION_PAD
+    inner = region_w - 2 * REGION_PAD - 2 * ZONE_PAD
+    total = REGION_TITLE_H + REGION_PAD
     for zone in zones:
-        fake = {"components": zone.get("components", [])}
-        _, zh = _zone_size(fake)
-        total_h += zh + ZONE_GAP
-    total_h += REGION_PAD
-    return total_h
+        total += _zone_height(zone.get("components", []), inner) + ZONE_GAP
+    return total + REGION_PAD
+
+
+def _balance_columns(deployment: list, natural_w: dict, natural_h: dict) -> tuple[list, list]:
+    """Greedy two-column packing: next region goes to the shorter column."""
+    left, right, left_h, right_h = [], [], 0, 0
+    for region in deployment:
+        rid = region["id"]
+        # Height at the natural width is a good proxy for the packing decision.
+        h = natural_h[rid]
+        if left_h <= right_h:
+            left.append(region)
+            left_h += h + REGION_GAP
+        else:
+            right.append(region)
+            right_h += h + REGION_GAP
+    return left, right
 
 
 def calculate_layout(arch: dict) -> dict:
@@ -126,68 +192,60 @@ def calculate_layout(arch: dict) -> dict:
     positions: dict[str, tuple] = {}
     deployment = arch.get("deployment", [])
 
-    # ── Assign regions to two columns ────────────────────────────────────────
-    left_regions  = [r for i, r in enumerate(deployment) if i % 2 == 0]
-    right_regions = [r for i, r in enumerate(deployment) if i % 2 == 1]
+    # ── Natural sizes, then balance the two columns ───────────────────────────
+    natural_w = {r["id"]: _region_natural_width(r) for r in deployment}
+    natural_h = {r["id"]: _region_height(r, natural_w[r["id"]]) for r in deployment}
+    left_regions, right_regions = _balance_columns(deployment, natural_w, natural_h)
+    left_ids = {r["id"] for r in left_regions}
 
-    # Column widths = max region width in that column
-    left_col_w  = max((_region_width(r)  for r in left_regions),  default=REGION_MIN_W)
-    right_col_w = max((_region_width(r)  for r in right_regions), default=REGION_MIN_W)
+    left_col_w = max((natural_w[r["id"]] for r in left_regions), default=REGION_MIN_W)
+    right_col_w = max((natural_w[r["id"]] for r in right_regions), default=REGION_MIN_W)
 
-    left_x  = CANVAS_MARGIN
+    left_x = CANVAS_MARGIN
     right_x = left_x + left_col_w + REGION_GAP
     start_y = 140   # space for header + internet node
 
-    left_y  = start_y
-    right_y = start_y
-
+    left_y = right_y = start_y
     for region in deployment:
         rid = region["id"]
-        rtype = region.get("type", "private_dc")
-        rw = left_col_w if rid in {r["id"] for r in left_regions} else right_col_w
-        rh = _region_height(region)
-
-        if rid in {r["id"] for r in left_regions}:
-            positions[rid] = (left_x, left_y, rw, rh)
+        rw = left_col_w if rid in left_ids else right_col_w
+        rh = _region_height(region, rw)      # recompute at the final width
+        origin_x = left_x if rid in left_ids else right_x
+        if rid in left_ids:
+            positions[rid] = (origin_x, left_y, rw, rh)
             left_y += rh + REGION_GAP
         else:
-            positions[rid] = (right_x, right_y, rw, rh)
+            positions[rid] = (origin_x, right_y, rw, rh)
             right_y += rh + REGION_GAP
 
-    # ── Place zones and components ────────────────────────────────────────────
+    # ── Place zones and components (same split as the height calculation) ─────
     for region in deployment:
         rid = region["id"]
         rx, ry, rw, rh = positions[rid]
-        rtype = region.get("type", "private_dc")
-        zones_key = "network_zones" if rtype == "private_dc" else "subnets"
-
         avail_zone_w = rw - 2 * REGION_PAD
-        zone_y_off   = REGION_TITLE_H + REGION_PAD
+        inner_w = avail_zone_w - ZONE_PAD * 2
+        zone_y_off = REGION_TITLE_H + REGION_PAD
 
-        for zone in region.get(zones_key, []):
-            zid   = zone["id"]
+        for zone in _zones_of(region):
+            zid = zone["id"]
             comps = zone.get("components", [])
-            fake  = {"components": comps}
-            _, zh = _zone_size(fake)
+            zh = _zone_height(comps, inner_w)
 
             positions[zid] = (REGION_PAD, zone_y_off, avail_zone_w, zh)
             zone_y_off += zh + ZONE_GAP
 
-            # Layout components inside the zone (relative to zone top-left)
-            rows  = _split_into_rows(comps, max_row_w=avail_zone_w - ZONE_PAD * 2)
-            cy    = ZONE_HEADER + ZONE_PAD
+            # Components inside the zone, relative to the zone top-left
+            rows = _split_into_rows(comps, inner_w)
+            cy = ZONE_HEADER + ZONE_PAD
 
             for row in rows:
-                row_w = sum(_component_size(c)[0] for c in row) + COMP_GAP_H * (len(row) - 1)
-                row_h = max(_component_size(c)[1] for c in row)
-                # Centre the row
-                cx = (avail_zone_w - row_w) // 2
+                row_w, row_h = _row_metrics(row)
+                cx = (avail_zone_w - row_w) // 2      # centre the row
 
                 for comp in row:
                     cw, ch = _component_size(comp)
                     cid = comp["id"]
-                    # Vertically centre within the tallest component in row
-                    cy_adj = (row_h - ch) // 2
+                    cy_adj = (row_h - ch) // 2        # centre within the row
                     positions[cid] = (cx, cy + cy_adj, cw, ch)
                     cx += cw + COMP_GAP_H
 
@@ -198,10 +256,8 @@ def calculate_layout(arch: dict) -> dict:
     for region in deployment:
         rid = region["id"]
         rx, ry, rw, rh = positions[rid]
-        rtype = region.get("type", "private_dc")
-        zones_key = "network_zones" if rtype == "private_dc" else "subnets"
 
-        for zone in region.get(zones_key, []):
+        for zone in _zones_of(region):
             zid = zone["id"]
             zx_r, zy_r, zw, zh = positions[zid]
             abs_zx = rx + zx_r
@@ -225,11 +281,21 @@ def calculate_layout(arch: dict) -> dict:
     canvas_w = max(all_x2, default=800) + CANVAS_MARGIN * 2
     canvas_h = max(all_y2, default=600) + CANVAS_MARGIN * 2
 
+    # Bottom of the lowest region — legends are placed below this, never on top
+    # of the diagram (region positions are absolute; zone/component ones are not).
+    region_ids = {r["id"] for r in deployment}
+    content_bottom = max(
+        (pos[1] + pos[3] for rid, pos in positions.items()
+         if rid in region_ids and len(pos) == 4),
+        default=600,
+    )
+
     return {
-        "positions":     positions,
-        "abs_positions": abs_positions,
-        "canvas_w":      canvas_w,
-        "canvas_h":      canvas_h,
-        "left_x":        left_x,
-        "right_x":       right_x,
+        "positions":      positions,
+        "abs_positions":  abs_positions,
+        "canvas_w":       canvas_w,
+        "canvas_h":       canvas_h,
+        "content_bottom": content_bottom,
+        "left_x":         left_x,
+        "right_x":        right_x,
     }

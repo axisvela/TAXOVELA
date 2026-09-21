@@ -175,6 +175,14 @@ Mirrors `tech_infra_node` + `tech_infra_node_attr` (`07-infra-topology-prd`).
 > matrix (`07-infra-topology-prd` §9.3), e.g.
 > `public_cloud`: `region → iaas_vpc_vnet → subnet`;
 > `private_cloud`: `region → data_center → network_zone/subnet`.
+>
+> **Rule R-INF-4** — a firewall is a **zone boundary**, not a per-component hub.
+> In a **private cloud** it is a container-class infra node on a `network_zone`:
+> every flow entering or leaving that zone passes through it implicitly, so it is
+> **not** connected to each component — the zone carries the firewall marker
+> instead (the diagram renderers contract `A → FW → B` into `A → B`). In a
+> **public cloud** a firewall may instead live in its own dedicated subnet and is
+> then modelled and linked as an explicit node.
 
 ### 4.2 `systems` — application / system (APP-nn)
 

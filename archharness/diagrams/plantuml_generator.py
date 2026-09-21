@@ -35,6 +35,8 @@ Skinparam colors match diagram-style.yaml:
 
 import re
 
+from . import labels
+
 
 # ── Zone color mapping ────────────────────────────────────────────────────────
 
@@ -287,11 +289,8 @@ def generate_plantuml(arch: dict) -> str:
         if not src or not tgt:
             raise ValueError(f"Unresolved interaction reference during PlantUML render: {src_yaml!r} -> {tgt_yaml!r}")
 
-        protocol = iact.get("protocol", "")
-        auth     = iact.get("auth", "")
-        label    = protocol
-        if auth and auth not in ("—", "-", ""):
-            label += f"\\n({auth})"
+        protocol = labels.clean_protocol(iact.get("protocol", ""))
+        label = labels.edge_label(iact).replace("\n", "\\n")
 
         # Dashed arrow for async
         arrow = "..>" if any(x in protocol.lower() for x in ("kafka", "amqp", "event")) else "-->"

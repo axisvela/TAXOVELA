@@ -1,0 +1,10 @@
+﻿schema_version: 1
+project:
+  id: 06-factory-mes-industrial
+  name: Factory MES (PlantMES) 鈥?Plant Edge + Central DC Integration
+  platform: private-cloud
+  data_classification: confidential
+paths:
+  input: ./input
+  working: ./working
+  output: ./output

@@ -27,6 +27,8 @@ D2 shape mapping (closest approximation to Company shape spec):
 import re
 from typing import Optional
 
+from . import labels
+
 
 # ── D2 style constants ────────────────────────────────────────────────────────
 
@@ -338,11 +340,8 @@ def generate_d2(arch: dict) -> str:
         if not src_path or not tgt_path:
             raise ValueError(f"Unresolved interaction reference during D2 render: {src_yaml!r} -> {tgt_yaml!r}")
 
-        protocol = iact.get("protocol", "")
-        auth     = iact.get("auth", "")
-        label    = protocol
-        if auth and auth not in ("—", "-", ""):
-            label += f"\\n({auth})"
+        protocol = labels.clean_protocol(iact.get("protocol", ""))
+        label = labels.edge_label(iact).replace("\n", "\\n")
 
         edge_style = ""
         # Dashed for async/logical

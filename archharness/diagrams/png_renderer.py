@@ -17,6 +17,8 @@ import matplotlib.patches as mpatches
 from matplotlib.patches import FancyBboxPatch, Polygon
 import numpy as np
 
+from . import labels, topology
+
 # ── Color palette ─────────────────────────────────────────────────────────────
 
 ZONE_COLORS = {
@@ -116,23 +118,18 @@ def _draw_component(ax, comp, ax_, ay, w, h):
     if "Restricted" in sens or "Confidential" in sens:
         name = "⚠ " + name
 
-    # Estimate usable text width in characters (≈ 7px per char at fontsize 6.5)
-    chars = max(8, int(w * 0.9 / 7))
+    # Estimate usable text width in characters (≈ 8.6px per char at fontsize 8)
+    chars = max(8, int(w * 0.9 / 8.6))
     wrapped = textwrap.fill(name, width=chars, max_lines=2)
 
-    tech = ""
-    if comp.get("language"):
-        tech = comp["language"]
-        if comp.get("framework"):
-            short_fw = comp["framework"].split("-")[0]
-            tech += f"/{short_fw}"
+    tech = labels.tech_line(comp)
 
     label_y = ay + h/2 + (5 if tech else 0)
-    ax.text(ax_+w/2, label_y, wrapped, fontsize=6.5, ha="center", va="center",
+    ax.text(ax_+w/2, label_y, wrapped, fontsize=8.0, ha="center", va="center",
             color=tc, fontweight="bold", linespacing=1.15, zorder=7,
             clip_on=True)
     if tech:
-        ax.text(ax_+w/2, ay+h/2-8, tech, fontsize=5.2, ha="center", va="center",
+        ax.text(ax_+w/2, ay+h/2-9, tech, fontsize=6.0, ha="center", va="center",
                 color=tc, style="italic", alpha=0.75, zorder=7, clip_on=True)
 
 # ── Edge helpers ──────────────────────────────────────────────────────────────
@@ -165,8 +162,8 @@ def _draw_edge(ax, sx, sy, sw, sh, tx, ty, tw, th,
         ang   = math.atan2(ey1-ey0, ex1-ex0)
         mx    = (ex0+ex1)/2 - math.sin(ang)*9
         my    = (ey0+ey1)/2 + math.cos(ang)*9
-        ax.text(mx, my, label, fontsize=5.2, ha="center", va="center",
-                color="#333333", zorder=9,
+        ax.text(mx, my, label, fontsize=4.2, ha="center", va="center",
+                color=color, zorder=9,
                 bbox=dict(facecolor="white", alpha=0.88, edgecolor="none",
                           boxstyle="round,pad=0.8", lw=0))
 
@@ -188,7 +185,7 @@ def _draw_ingress_edge(ax, src_pos, dc_top_x, dc_top_y, dc_w,
         zorder=6)
     if label:
         mx, my = (ex0+ex1)/2, (ey0+ey1)/2 - 6
-        ax.text(mx, my, label, fontsize=5, ha="center", va="center",
+        ax.text(mx, my, label, fontsize=4.2, ha="center", va="center",
                 color="#555555", zorder=7,
                 bbox=dict(facecolor="white", alpha=0.85, edgecolor="none",
                           boxstyle="round,pad=0.7"))
@@ -250,8 +247,15 @@ def render_png(arch: dict, png_path: str, dpi: int = 130):
     layout = calculate_layout(arch)
     positions    = layout["positions"]
     abs_pos      = layout["abs_positions"]
-    canvas_w     = layout["canvas_w"]
-    canvas_h     = layout["canvas_h"] + 130  # legend
+    canvas_w       = layout["canvas_w"]
+    protocol_lines = labels.protocol_legend(arch.get("interactions", []))
+    auth_lines     = labels.auth_legend(arch.get("interactions", []))
+    code_block_h   = 0
+    if protocol_lines:
+        code_block_h += 14 + 11 * len(protocol_lines) + 8
+    if auth_lines:
+        code_block_h += 14 + 11 * len(auth_lines) + 8
+    canvas_h       = layout["canvas_h"] + 130 + code_block_h  # legend + code tables
 
     fig, ax = plt.subplots(figsize=(canvas_w/dpi, canvas_h/dpi))
     ax.set_xlim(0, canvas_w)
@@ -274,18 +278,23 @@ def render_png(arch: dict, png_path: str, dpi: int = 130):
             for comp in zone.get("components", []):
                 comp_to_region[comp["id"]] = rid
 
+    # Private-cloud firewalls are zone boundaries: contract them out of the graph.
+    boundary_ids = topology.zone_boundary_ids(arch)
+    firewall_zones = topology.boundary_zones(arch)
+    interactions = topology.contract(arch.get("interactions", []), boundary_ids)
+
     external_sources = {"internet", "user", "office-network"}
     # group: dc_id → list of (protocol, auth)
     ingress_by_dc: dict[str, list] = {}
     internal_interactions = []
-    for iact in arch.get("interactions", []):
+    for iact in interactions:
         if iact.get("from", "") in external_sources:
             tgt = iact.get("to", "")
             dc  = comp_to_region.get(tgt)
             if dc:
                 if dc not in ingress_by_dc:
                     ingress_by_dc[dc] = []
-                ingress_by_dc[dc].append(iact.get("protocol", ""))
+                ingress_by_dc[dc].append(labels.clean_protocol(iact.get("protocol", "")))
         else:
             internal_interactions.append(iact)
 
@@ -336,14 +345,16 @@ def render_png(arch: dict, png_path: str, dpi: int = 130):
                 linewidth=0.45, linestyle=(0, (9, 4)), zorder=2)
             ax.add_patch(zp2)
             zlabel = zone.get("name", zt.replace("_"," ").upper())
+            if zid in firewall_zones:
+                zlabel += "  · FW"   # all in/out traffic passes the zone firewall
             ax.text(azx+6, azy+5, zlabel, fontsize=6.5, fontweight="bold",
                     color=zc["label"], va="top", zorder=5)
 
             # Components
             for comp in zone.get("components", []):
                 cid = comp["id"]
-                if cid not in abs_pos:
-                    continue
+                if cid not in abs_pos or cid in boundary_ids:
+                    continue   # zone-boundary firewall: implied, not drawn
                 cx, cy, cw, ch = abs_pos[cid]
                 _draw_component(ax, comp, cx, cy, cw, ch)
 
@@ -373,11 +384,7 @@ def render_png(arch: dict, png_path: str, dpi: int = 130):
         tp = abs_pos.get(tgt_id)
         if not sp or not tp:
             continue
-        proto = iact.get("protocol", "")
-        auth  = iact.get("auth", "")
-        label = proto
-        if auth and auth not in ("—", "-", ""):
-            label += f"\n({auth})"
+        label = labels.edge_label(iact)
 
         # Use alternate curvature for same-region vs cross-region
         same_dc = comp_to_region.get(src_id) == comp_to_region.get(tgt_id)
@@ -385,11 +392,27 @@ def render_png(arch: dict, png_path: str, dpi: int = 130):
 
         _draw_edge(ax, sp[0], sp[1], sp[2], sp[3],
                        tp[0], tp[1], tp[2], tp[3],
-                       label=label, rad=rad)
+                       label=label, rad=rad,
+                       color=labels.status_color(labels.parse_status(iact)))
 
     # ── Legend ────────────────────────────────────────────────────────────────
     leg_y = layout["canvas_h"] + 18
     _draw_legend(ax, CANVAS_MARGIN := 50, leg_y, canvas_w - 100, lh=95)
+
+    # ── Code legends ──────────────────────────────────────────────────────────
+    def _code_block(title: str, lines: list[str], y: float) -> float:
+        ax.text(60, y, title, fontsize=7.5, fontweight="bold",
+                color="#222222", ha="left", va="top", zorder=10)
+        for i, line in enumerate(lines):
+            ax.text(60, y + 14 + i * 11, line, fontsize=6.0, color="#333333",
+                    ha="left", va="top", zorder=10)
+        return y + 14 + 11 * len(lines) + 8
+
+    code_y = leg_y + 112
+    if protocol_lines:
+        code_y = _code_block("Protocol codes", protocol_lines, code_y)
+    if auth_lines:
+        _code_block("Auth codes", auth_lines, code_y)
 
     # ── Header ────────────────────────────────────────────────────────────────
     name     = arch.get("name", "Architecture Diagram")

@@ -333,6 +333,14 @@ rules:
       components.
   - id: "R-INF-3"
     text: "Allowed infra parent/child combinations follow the type policy matrix (node_kind L1->L2->L3)."
+  - id: "R-INF-4"
+    text: >
+      Firewalls are zone boundaries, not per-component hubs. In a private cloud a
+      firewall is a container-class infra node attached to a network_zone: every
+      flow entering or leaving that zone passes through it implicitly, so it is
+      NOT connected to each component and the zone itself carries the firewall
+      marker. In a public cloud a firewall may instead live in its own dedicated
+      subnet and is then modelled (and linked) as an explicit node.
   - id: "R-CMP-1"
     text: "layer is a coarse filter; component_role drives the diagram shape."
   - id: "R-CMP-2"

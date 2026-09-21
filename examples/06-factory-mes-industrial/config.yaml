@@ -1,0 +1,70 @@
+# config.yaml — example overlay for factory-mes-industrial
+#
+# PlantMES runs autonomously at the plant site (local K8s + PgSQL HA) and
+# integrates with central systems through Kafka hubs in the DCs.
+# The diagram is a migration view: existing vs new interfaces.
+
+datacenters:
+  - id: "plant-us-01"
+    aliases: ["Plant US 01", "US Plant Site"]
+    location: { city: "Plant City", state: "State Y", country: "US" }
+    model: "plant-edge"
+    zones: ["APP Zone"]
+    region: "NA"
+    notes: "Plant-local stack: INF-01–INF-02, CMP-01–CMP-20. K8s; survives WAN outage. (See input/systems-registry.md.)"
+
+  - id: "dc-us"
+    aliases: ["US DC"]
+    location: { city: "City C", state: "State X", country: "US" }
+    model: "two-tier"
+    zones: ["App Zone"]
+    region: "NA"
+    notes: "INF-03; CMP-21 (external authorization) and INF-14 (IdP). (See input/systems-registry.md.)"
+
+  - id: "dc-cn-primary"
+    aliases: ["CN Primary DC", "主DC"]
+    location: { city: "City A", province: "Province A", country: "CN" }
+    model: "two-tier"
+    zones: ["Intranet", "App Zone"]
+    region: "APAC-CN"
+    notes: "INF-04; CMP-22 + CMP-23; CMP-24–CMP-27 in INF-12. (See input/systems-registry.md.)"
+
+  - id: "dc-us-na"
+    aliases: ["NA DC"]
+    location: { city: "City C", state: "State X", country: "US" }
+    model: "multi-zone"
+    zones:
+      - "NA-PROD-INA-INTEGRATION"
+      - "NA-PROD-INA-K8S"
+      - "NA-PROD-INA-LAKEHOUSE"
+      - "NA-PROD-INA-SAP"
+    region: "NA"
+    notes: "INF-05; CMP-28 in INF-08; CMP-29 in INF-10; CMP-26 / CMP-30–CMP-31 in INF-09; CMP-32–CMP-34 in INF-11. (See input/systems-registry.md.)"
+
+  - id: "dc-cn-secondary"
+    aliases: ["CN Secondary DC", "备DC"]
+    location: { city: "City B", province: "Province B", country: "CN" }
+    model: "two-tier"
+    zones: ["Intranet"]
+    region: "APAC-CN"
+    notes: "INF-06; CMP-35 messaging component. (See input/systems-registry.md.)"
+
+  - id: "azure-eastus"
+    aliases: ["Azure US East"]
+    location: { city: "Virginia", state: "VA", country: "US" }
+    model: "saas"
+    zones: ["EDW"]
+    region: "NA"
+    notes: "INF-07; CMP-36 consuming plant events (SASL_SSL). (See input/systems-registry.md.)"
+
+platforms:
+  api_gateway: "APIM"
+  message_bus: "Kafka"
+  k8s_platform: "Internal K8s Platform"
+  integration_platforms:
+    - "APIM"
+    - "Kafka"
+    - "Spring Cloud Gateway"
+  auth_internal: "ADFS"
+  auth_external: "Enterprise ID"
+  authz_platform: "AuthZ Platform"

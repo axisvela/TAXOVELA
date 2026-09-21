@@ -12,7 +12,7 @@ import uuid
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
-from . import styles
+from . import labels, styles, topology
 from .layout import calculate_layout, REGION_TITLE_H, REGION_PAD, ZONE_GAP
 
 
@@ -122,16 +122,10 @@ def _comp_tooltip(comp: dict) -> str:
 
 
 def _comp_label(comp: dict) -> str:
-    """Build the component label. Includes tech stack in parentheses if present."""
+    """Component label: name plus a compact, lower-case technology line."""
     name = comp.get("name", comp.get("id", ""))
-    tech_parts = []
-    if comp.get("language"):
-        tech_parts.append(comp["language"])
-    if comp.get("framework"):
-        tech_parts.append(comp["framework"])
-    if tech_parts:
-        name += f"\n({', '.join(tech_parts)})"
-    return name
+    tech = labels.tech_line(comp)
+    return f"{name}\n{tech}" if tech else name
 
 
 # ── Reference integrity ─────────────────────────────────────────────────────
@@ -260,6 +254,11 @@ def generate_drawio(arch: dict) -> str:
     # ── Regions ───────────────────────────────────────────────────────────────
     deployment = arch.get("deployment", arch.get("arch", {}).get("deployment", []))
 
+    # Private-cloud firewalls are zone boundaries: contract them out of the graph
+    # and mark the zone instead of drawing an edge per component.
+    boundary_ids = topology.zone_boundary_ids(arch)
+    firewall_zones = topology.boundary_zones(arch)
+
     for region in deployment:
         rid = region["id"]
         if rid not in positions:
@@ -292,6 +291,8 @@ def generate_drawio(arch: dict) -> str:
             cell_map[zid] = zone_cell_id
 
             zone_label = zone.get("name", zone.get("type", zid).replace("_", " ").upper())
+            if zid in firewall_zones:
+                zone_label += "  · FW"   # all in/out traffic passes the zone firewall
 
             if rtype == "private_dc":
                 zone_style = styles.ZONE_CONTAINER
@@ -306,8 +307,8 @@ def generate_drawio(arch: dict) -> str:
             # Components inside zone
             for comp in zone.get("components", []):
                 cid = comp["id"]
-                if cid not in positions:
-                    continue
+                if cid not in positions or cid in boundary_ids:
+                    continue   # zone-boundary firewall: implied, not drawn
                 cx_rel, cy_rel, cw, ch = positions[cid]
 
                 comp_cell_id = _id(f"comp-")
@@ -330,7 +331,10 @@ def generate_drawio(arch: dict) -> str:
                     comp_cell.set("tooltip", comp_tooltip)
 
     # ── Edges (interactions) ──────────────────────────────────────────────────
-    interactions = arch.get("interactions", arch.get("arch", {}).get("interactions", []))
+    interactions = topology.contract(
+        arch.get("interactions", arch.get("arch", {}).get("interactions", [])),
+        boundary_ids,
+    )
 
     for i, interaction in enumerate(interactions):
         src_yaml = interaction.get("from", "")
@@ -342,14 +346,14 @@ def generate_drawio(arch: dict) -> str:
         if not src_cell or not tgt_cell:
             raise ValueError(f"Unresolved interaction reference during render: {src_yaml!r} -> {tgt_yaml!r}")
 
-        protocol = interaction.get("protocol", "")
-        auth     = interaction.get("auth", "")
-        label    = protocol
-        if auth and auth != "—":
-            label += f"\n({auth})"
+        label = labels.edge_label(interaction)
+        # Status drives the edge colour: EXISTING blue, NEW/CHANGE red,
+        # REMOVE grey, unspecified/TBD blue-grey.
+        color = labels.status_color(labels.parse_status(interaction))
+        edge_style = f"{styles.EDGE_SOLID}strokeColor={color};fontColor={color};"
 
         edge_id = _id(f"edge-")
-        edge_cell = _make_edge(root, edge_id, label, styles.EDGE_SOLID,
+        edge_cell = _make_edge(root, edge_id, label, edge_style,
             src_cell, tgt_cell
         )
         edge_cell.set("parent", "1")
@@ -389,6 +393,32 @@ def generate_drawio(arch: dict) -> str:
         lx = (idx % 4) * 155
         ly = (idx // 4) * 56
         _make_vertex(root, _id("li-"), label, style, lx, ly, 140, 40, parent_id=legend_id)
+
+    # ── Code legends ──────────────────────────────────────────────────────────
+    # Edges carry only codes (P-… / AU-…); these blocks map them back to methods.
+    title_style = (
+        "text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;"
+        "whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=12;fontStyle=1;"
+    )
+    item_style = (
+        "text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;"
+        "whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;"
+    )
+
+    def _legend_block(title: str, lines: list[str], y: int, prefix: str) -> int:
+        _make_vertex(root, _id(f"{prefix}title-"), title, title_style, 40, y, 240, 20)
+        for idx, line in enumerate(lines):
+            _make_vertex(root, _id(prefix), line, item_style,
+                         40, y + 18 + idx * 14, 560, 14)
+        return y + 18 + 14 * len(lines) + 14
+
+    code_y = legend_y + 212
+    protocol_lines = labels.protocol_legend(interactions)
+    if protocol_lines:
+        code_y = _legend_block("Protocol codes", protocol_lines, code_y, "proto-")
+    auth_lines = labels.auth_legend(interactions)
+    if auth_lines:
+        _legend_block("Auth codes", auth_lines, code_y, "auth-")
 
     # ── Serialize ─────────────────────────────────────────────────────────────
     raw_xml = ET.tostring(mxfile, encoding="unicode")

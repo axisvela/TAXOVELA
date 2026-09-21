@@ -5,7 +5,8 @@ description: >
   Produces .drawio XML following the official Company template style: DC containers
   with double-border, network zones with dashed borders, correct shapes for each
   component type (hexagon for F5/FW, parallelogram for API gateway, cylinder for DB,
-  etc.), edges labeled with protocol and auth. Optionally exports PNG.
+  etc.), edges labeled with shared protocol/auth codes (P-* / AU-*), and a code
+  legend. Optionally exports PNG.
   Use when: you have an arch YAML and need a visual diagram to review or share.
 ---
 
@@ -59,6 +60,58 @@ use `archharness sketch "Browser -> API -> DB" -o diagram.drawio` instead.
 
 Sensitivity markers:
 - Components with `Company Confidential` or `Company Restricted` get a ⚠ prefix on their label.
+
+## Edge labels — shared code vocabulary
+
+Edge labels are **codes**, not prose. The vocabulary lives in
+`standards/diagram-codes.yaml` and is shared by every example, renderer and
+reviewer, so the same relation always renders the same code.
+
+| Kind | Form | Examples |
+|---|---|---|
+| Protocol | `P-<code>` | `P-HTTPS`, `P-KAFKA`, `P-JDBC`, `P-RFC`, `P-IDOC`, `P-OPCUA`, `P-MQTT` |
+| Authentication | `AU-<minor>` | `AU-T1`, `AU-C1`, `AU-P4`, `AU-S1`, `AU-K1`, `AU-N0` |
+
+A combination joins with `+` and the prefix is written once: `mTLS + SASL/SCRAM`
+→ `AU-C1+S1`. Codes are collected in taxonomy order, so the result is stable
+regardless of how the source text is phrased.
+
+**Authentication classes** (supplement as needed in `standards/diagram-codes.yaml`):
+
+| Class | Codes | Meaning |
+|---|---|---|
+| Token / federation | `T1`–`T6` | OAuth2 client credentials · OAuth2/OIDC user login · SAML2 · session token · JWT/bearer · personal access token |
+| Certificate / key | `C1` `C2` | mTLS / client certificate · SSH public key |
+| SASL | `S1`–`S4` | SCRAM · PLAIN · GSSAPI · OAUTHBEARER |
+| Kerberos / OS | `K1` `K2` | Kerberos / logon ticket · NTLM / Windows integrated |
+| Password / credential | `P1`–`P6` | user ID/password · HTTP Basic · API key · service account/secret · LDAP bind · RADIUS/TACACS+ |
+| Cloud identity | `I1`–`I3` | IAM role · managed identity · service principal / workload identity |
+| User factor | `M1` `M2` | MFA/OTP · FIDO2 / WebAuthn / passkey |
+| Other | `X1`–`X4` | internal access auth · service auth (unspecified) · IP allowlist · anonymous |
+| Authorization | `Z1`–`Z4` | topic ACL / least privilege · RBAC · ABAC/policy engine · OAuth2 scope |
+| None | `N0` | no service authentication |
+
+Each diagram renders a legend listing only the codes it actually uses.
+
+**Edge colour = interface status** (the `[STATUS: …]` marker is never printed):
+
+| Status | Colour |
+|---|---|
+| `EXISTING` | blue `#1565C0` |
+| `NEW`, `CHANGE` | red `#C62828` |
+| `REMOVE` | grey `#9E9E9E` |
+| `TBD` / unspecified | blue-grey `#78909C` |
+
+**Zone-boundary firewalls.** In a private cloud a firewall is a container-class
+infra node on the network-zone boundary: all in/out traffic passes it implicitly,
+so components are **not** connected to it individually — the zone is marked
+`· FW` and flows are declared directly between the components that talk
+(rule R-INF-4 in `standards/requirements-model-v2.yaml`). In a public cloud a
+firewall may sit in its own subnet and is then drawn as an explicit node.
+
+**Font hierarchy.** Component labels use `fontSize=14`, edge labels `fontSize=9`.
+Component technology stacks are lower-cased and compressed (`Java (version TBD)`
+→ `java`, `Internal K8s Platform` → `K8s`).
 
 ## How to invoke
 

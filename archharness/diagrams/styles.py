@@ -53,48 +53,57 @@ AWS_SUBNET_PUBLIC = (
 )
 
 # ── Component shapes ──────────────────────────────────────────────────────────
+#
+# Component labels are the primary reading target, so they use a larger font
+# (COMPONENT_FONT) while edges/captions stay smaller (EDGE_FONT).
+
+COMPONENT_FONT = "fontFamily=Helvetica;fontSize=14;"
+EDGE_FONT = "fontSize=9;"
 
 COMPANY_APP = (
-    "rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;"
+    "rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" + COMPONENT_FONT
 )
 
 BACKEND_SERVICE = (
-    "rounded=0;whiteSpace=wrap;html=1;"
+    "rounded=0;whiteSpace=wrap;html=1;" + COMPONENT_FONT
 )
 
 WEB_FRONTEND = (
-    "rounded=1;whiteSpace=wrap;html=1;"
+    "rounded=1;whiteSpace=wrap;html=1;" + COMPONENT_FONT
 )
 
 API_GATEWAY = (
     "shape=parallelogram;perimeter=parallelogramPerimeter;"
-    "whiteSpace=wrap;html=1;fixedSize=1;"
+    "whiteSpace=wrap;html=1;fixedSize=1;" + COMPONENT_FONT
 )
 
 KAFKA_EVENT_BUS = (
     "shape=parallelogram;html=1;strokeWidth=1;"
     "perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;"
+    + COMPONENT_FONT
 )
 
 DATABASE_CYLINDER = (
-    "shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;"
+    "shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" + COMPONENT_FONT
 )
 
 CACHE_ELLIPSE = (
-    "ellipse;whiteSpace=wrap;html=1;"
+    "ellipse;whiteSpace=wrap;html=1;" + COMPONENT_FONT
 )
 
 IDENTITY_AUTH_CIRCLE = (
     "ellipse;whiteSpace=wrap;html=1;aspect=fixed;"
-    "shadow=0;gradientColor=none;fillColor=default;"
+    "shadow=0;gradientColor=none;fillColor=default;" + COMPONENT_FONT
 )
 
 FIREWALL_HEXAGON = (
     "shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;"
+    + COMPONENT_FONT
 )
 
 LOAD_BALANCER = (
     "shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;"
+    + COMPONENT_FONT
 )
 
 VPN_MPLS = (
@@ -148,12 +157,12 @@ DATA_LAKE = (
 
 EDGE_SOLID = (
     "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;"
-    "jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;"
+    "jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" + EDGE_FONT
 )
 
 EDGE_DASHED = (
     "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;"
-    "jettySize=auto;html=1;dashed=1;dashPattern=8 8;"
+    "jettySize=auto;html=1;dashed=1;dashPattern=8 8;" + EDGE_FONT
 )
 
 # ── Status fill colors ────────────────────────────────────────────────────────

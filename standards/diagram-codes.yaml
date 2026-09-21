@@ -1,0 +1,131 @@
+# diagram-codes.yaml — shared protocol and authentication codes for diagrams.
+#
+# One taxonomy for every example: edge labels carry only these codes and each
+# diagram renders a legend that maps the codes it actually uses back to the full
+# method. Keeping the table here (not in a renderer) means the same relation
+# always renders the same code across examples, tools and reviewers.
+#
+# Matching rules:
+#   * `pattern` is a regular expression matched case-insensitively.
+#   * Codes are collected in file order and deduplicated, so a combination
+#     ("mTLS + SASL/SCRAM") renders as `AU-S1+C1` — stable regardless of how the
+#     source text is phrased.
+#   * Put the most specific pattern first: a generic pattern would otherwise
+#     swallow a specific one (e.g. a bare `tls` rule would mis-tag `Kafka/TLS`).
+#
+# Consumed by archharness/diagrams/labels.py; documented for authors in the
+# arch-diagram skill.
+
+version: "diagram-codes/v1"
+description: >
+  Edge-label coding scheme. Protocols are P-prefixed, authentication methods are
+  AU-prefixed. Each code belongs to a major class with a stable minor code.
+
+# ── Protocols (P-) ────────────────────────────────────────────────────────────
+protocol:
+  prefix: "P-"
+  classes:
+    Web / API:
+      - {code: "P-HTTPS",     description: "HTTPS",              pattern: "\\bhttps\\b"}
+      - {code: "P-HTTP",      description: "HTTP",               pattern: "\\bhttp\\b"}
+      - {code: "P-gRPC",      description: "gRPC",               pattern: "\\bgrpc\\b"}
+      - {code: "P-GRAPHQL",   description: "GraphQL",            pattern: "\\bgraphql\\b"}
+      - {code: "P-WEBSOCKET", description: "WebSocket",          pattern: "\\bwebsocket\\b|\\bwss\\b|\\bws\\b"}
+      - {code: "P-SOAP",      description: "SOAP",               pattern: "\\bsoap\\b"}
+    Messaging:
+      - {code: "P-KAFKA",     description: "Kafka",              pattern: "\\bkafka\\b|sasl_ssl"}
+      - {code: "P-AMQP",      description: "AMQP / RabbitMQ",    pattern: "\\bamqp\\b|rabbitmq"}
+      - {code: "P-MQTT",      description: "MQTT",               pattern: "\\bmqtt\\b"}
+      - {code: "P-JMS",       description: "JMS",                pattern: "\\bjms\\b"}
+      - {code: "P-NATS",      description: "NATS",               pattern: "\\bnats\\b"}
+    Data access:
+      - {code: "P-JDBC",      description: "JDBC",               pattern: "\\bjdbc\\b"}
+      - {code: "P-ODBC",      description: "ODBC",               pattern: "\\bodbc\\b"}
+      - {code: "P-REDIS",     description: "Redis protocol",     pattern: "\\bredis\\b"}
+      - {code: "P-MONGO",     description: "MongoDB wire",       pattern: "\\bmongo"}
+      - {code: "P-ELASTIC",   description: "Elasticsearch",      pattern: "elasticsearch|opensearch"}
+    SAP:
+      - {code: "P-IDOC",      description: "SAP IDOC",           pattern: "\\bidoc\\b"}
+      - {code: "P-RFC",       description: "SAP RFC",            pattern: "\\brfc\\b"}
+      - {code: "P-SLT",       description: "SAP SLT replication", pattern: "\\bslt\\b"}
+      - {code: "P-ODATA",     description: "SAP OData",          pattern: "\\bodata\\b"}
+    File transfer:
+      - {code: "P-FTPS",      description: "FTPS",               pattern: "\\bftps\\b"}
+      - {code: "P-SFTP",      description: "SFTP",               pattern: "\\bsftp\\b"}
+      - {code: "P-FTP",       description: "FTP",                pattern: "\\bftp\\b"}
+      - {code: "P-SCP",       description: "SCP",                pattern: "\\bscp\\b"}
+      - {code: "P-SMB",       description: "SMB / CIFS",         pattern: "\\bsmb\\b|\\bcifs\\b"}
+      - {code: "P-NFS",       description: "NFS",                pattern: "\\bnfs\\b"}
+    Industrial:
+      - {code: "P-OPCUA",     description: "OPC-UA",             pattern: "opc[\\s-]?ua"}
+      - {code: "P-MODBUS",    description: "Modbus",             pattern: "\\bmodbus\\b"}
+      - {code: "P-PROFINET",  description: "PROFINET",           pattern: "\\bprofinet\\b"}
+      - {code: "P-ETHERCAT",  description: "EtherCAT",           pattern: "\\bethercat\\b"}
+    Infrastructure / ops:
+      - {code: "P-SSH",       description: "SSH",                pattern: "\\bssh\\b"}
+      - {code: "P-SNMP",      description: "SNMP",               pattern: "\\bsnmp\\b"}
+      - {code: "P-LDAP",      description: "LDAP",               pattern: "\\bldap\\b"}
+      - {code: "P-DNS",       description: "DNS",                pattern: "\\bdns\\b"}
+      - {code: "P-NTP",       description: "NTP",                pattern: "\\bntp\\b"}
+      - {code: "P-SMTP",      description: "SMTP",               pattern: "\\bsmtp\\b"}
+      - {code: "P-ICMP",      description: "ICMP / ping",        pattern: "\\bicmp\\b|\\bping\\b"}
+    Transport:
+      - {code: "P-TCP",       description: "TCP",                pattern: "\\btcp\\b"}
+      - {code: "P-UDP",       description: "UDP",                pattern: "\\budp\\b"}
+
+# ── Authentication (AU-) ──────────────────────────────────────────────────────
+auth:
+  prefix: "AU-"
+  none_code: "N0"
+  classes:
+    - major: "Token / federation"
+      codes:
+        - {code: "T1", description: "OAuth2 client credentials", pattern: "oauth\\s*2(?:\\.0)?\\s*client\\s*credentials|oauth2[_\\s]*client"}
+        - {code: "T2", description: "OAuth2 / OIDC user login",   pattern: "oauth\\s*2(?:\\.0)?\\s*authorization\\s*code|oauth2[_\\s]*authcode|\\boidc\\b"}
+        - {code: "T3", description: "SAML 2.0 assertion",         pattern: "\\bsaml\\b"}
+        - {code: "T4", description: "Session token / cookie",     pattern: "session\\s*token|session\\s*cookie"}
+        - {code: "T5", description: "JWT / bearer token",         pattern: "\\bjwt\\b|bearer\\s+token|\\bpat\\b"}
+        - {code: "T6", description: "Personal access token",      pattern: "access\\s*token|personal\\s*access\\s*token"}
+    - major: "Certificate / key"
+      codes:
+        - {code: "C1", description: "mTLS / client certificate",  pattern: "\\bmtls\\b|client[_\\s]*certificate|\\bx\\.?509\\b"}
+        - {code: "C2", description: "SSH key / public key",       pattern: "ssh[_\\s]*key|public[_\\s]*key|publickey"}
+    - major: "SASL"
+      codes:
+        - {code: "S4", description: "SASL/OAUTHBEARER",           pattern: "oauthbearer|sasl\\s*/?\\s*oauth"}
+        - {code: "S3", description: "SASL/GSSAPI",                pattern: "sasl\\s*/?\\s*gssapi|gssapi"}
+        - {code: "S2", description: "SASL/PLAIN",                 pattern: "sasl\\s*/?\\s*plain"}
+        - {code: "S1", description: "SASL/SCRAM",                 pattern: "sasl\\s*/?\\s*scram|sasl[_\\s]*scram"}
+    - major: "Kerberos / OS"
+      codes:
+        - {code: "K1", description: "Kerberos / logon ticket",    pattern: "kerberos|logon\\s*ticket"}
+        - {code: "K2", description: "NTLM / Windows integrated",  pattern: "\\bntlm\\b|windows[_\\s]*(?:integrated|auth)|spnego"}
+    - major: "Password / credential"
+      codes:
+        - {code: "P4", description: "Service account / secret",   pattern: "service[_\\s]*account|sap\\s*technical\\s*user|vault[_\\s]*secret"}
+        - {code: "P1", description: "User ID / password",         pattern: "user\\s*/\\s*password|userpassword"}
+        - {code: "P2", description: "HTTP Basic auth",            pattern: "\\bbasic\\b"}
+        - {code: "P3", description: "API key",                    pattern: "api[_\\s]*key"}
+        - {code: "P5", description: "LDAP / directory bind",      pattern: "ldap\\s*bind|\\bldap\\b"}
+        - {code: "P6", description: "RADIUS / TACACS+",           pattern: "\\bradius\\b|\\btacacs\\b"}
+    - major: "Cloud identity"
+      codes:
+        - {code: "I1", description: "IAM role",                   pattern: "iam[_\\s]*role"}
+        - {code: "I2", description: "Managed identity",           pattern: "managed[_\\s]*identity"}
+        - {code: "I3", description: "Service principal / workload identity", pattern: "service[_\\s]*principal|workload[_\\s]*identity"}
+    - major: "User factor"
+      codes:
+        - {code: "M1", description: "MFA / OTP",                  pattern: "\\bmfa\\b|\\botp\\b|totp|two[-\\s]*factor|2fa"}
+        - {code: "M2", description: "FIDO2 / WebAuthn / passkey", pattern: "fido2?|webauthn|passkey"}
+    - major: "Other"
+      codes:
+        - {code: "X1", description: "Internal access authentication", pattern: "internal\\s+access\\s+authentication"}
+        - {code: "X2", description: "Service auth (unspecified)", pattern: "service\\s+auth"}
+        - {code: "X3", description: "IP allowlist / trusted network", pattern: "ip[_\\s]*allow|allowlist|trusted\\s*network|ip\\s*whitelist"}
+        - {code: "X4", description: "Anonymous / public access",  pattern: "anonymous|public\\s*access"}
+    - major: "Authorization"
+      codes:
+        - {code: "Z1", description: "Topic ACL / least privilege", pattern: "topic\\s*acl|least[-\\s]*privilege|\\bacl\\b"}
+        - {code: "Z2", description: "RBAC",                       pattern: "\\brbac\\b|role[-\\s]*based"}
+        - {code: "Z3", description: "ABAC / policy engine",       pattern: "\\babac\\b|policy\\s*engine|\\bopa\\b"}
+        - {code: "Z4", description: "OAuth2 scope",               pattern: "\\bscope\\b|\\bscopes\\b"}

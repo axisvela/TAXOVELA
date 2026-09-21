@@ -162,6 +162,17 @@ class RegistryCheckTests(unittest.TestCase):
         self.assertIn("IP address/CIDR", output)
         self.assertIn("192.0.2.10/24", output)
 
+    def test_relationship_rows_are_exempt_from_prompt_coverage(self):
+        self.write_registry(REGISTRY + """
+## Deployments
+| 编号 | 参考图原名 | 组件 | 环境 | deployment_type | location_type | infra 节点 | runtime_type | 实例数 | 文档用名 | 备注 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| DEP-01 | App VM | CMP-01 | prod | public_cloud | public_cloud_region | INF-02 | vm | 2 | order-api-eus | |
+""")
+        code, output = self.run_check()
+        self.assertEqual(code, 0, output)
+        self.assertNotIn("DEP-01", output)
+
     def test_legacy_sys_registry_still_parses(self):
         self.write_registry(LEGACY_REGISTRY)
         (self.root / "input" / "prompt.md").write_text(

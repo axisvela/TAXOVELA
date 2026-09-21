@@ -45,7 +45,11 @@ L4_KINDS = {
     "identity_provider", "soc_monitoring", "load_balancer", "bastion_host",
     "logging_service", "policy_service", "key_management",
 }
-APPLIANCE_KINDS = L4_KINDS
+# node_kinds that must never be modelled as an application component.
+# `load_balancer` is deliberately excluded: an application-layer load balancer
+# may be a component with component_role=load_balancer (rule R-CMP-2); only an
+# infrastructure appliance must be an infra L4 node.
+APPLIANCE_KINDS = L4_KINDS - {"load_balancer"}
 
 PARENT_ALLOWED = {
     **{kind: set() for kind in L1_KINDS},                       # region is a root

@@ -12,12 +12,14 @@ existing examples keep working until they are rebuilt.
 
 Checks:
   1. Unknown codes cited in docs (ERROR) — a code with no registry row.
-  2. Registry rows never cited in any doc (WARN) — possibly dead entries.
+  2. Inventory rows never cited in any doc (WARN) — possibly dead entries.
+     Inventory = infra / systems / components / subsystems; relationship rows
+     (deployments, flows, network_links, auth) are exempt.
   3. Distinctive "doc-name" literals in docs outside the registry (ERROR).
      Plain single-word names (Kafka, Redis, S3, …) are skipped here and printed
      separately for manual review.
   4. IPv4 addresses/CIDRs in textual example files (ERROR).
-  5. Scope guard (WARN): an in-scope registry row not referenced by
+  5. Scope guard (WARN): an in-scope inventory row not referenced by
      `input/prompt.md`. Mark a row `OUT-OF-SCOPE` in its 备注/Notes column to
      exempt it.
   6. Malformed rows (ERROR/WARN): unknown prefix, or a column count that does
@@ -47,6 +49,11 @@ _FALLBACK_PREFIXES = {
 }
 LEGACY_PREFIX = "SYS"
 LEGACY_ENTITY = "legacy"
+
+# Only inventory entities are checked against the one-shot prompt. Relationship
+# rows (deployments, flows, network_links, auth, ecosystem_relations) are
+# consequences of the inventory, not items the prompt must enumerate.
+SCOPE_GUARD_ENTITIES = {"infra", "systems", "components", "subsystems", "legacy"}
 
 
 def _load_prefixes() -> dict[str, str]:
@@ -87,7 +94,7 @@ IPV4_PATTERN = re.compile(
 )
 
 # Header aliases (Chinese registry headers + tolerant English forms).
-_HEADER_CODE = {"编号", "id", "code", "序号"}
+_HEADER_CODE = {"编号", "序号", "code"}
 _HEADER_DOCNAME = {"文档用名", "doc name", "doc-name", "document name", "名称"}
 _HEADER_NOTES = {"备注", "notes", "note", "remark"}
 _HEADER_SOURCE = {"参考图原名", "source name", "original name", "原名"}
@@ -147,9 +154,10 @@ def parse_registry(path: Path) -> dict[str, dict]:
         code_col = _column_index(header, _HEADER_CODE)
         name_col = _column_index(header, _HEADER_DOCNAME)
         notes_col = _column_index(header, _HEADER_NOTES)
-        # A registry table is identified by both a code column and a doc-name
-        # column; other markdown tables (legends, notes) are ignored.
-        if code_col is None or name_col is None:
+        # A registry table is identified by its code column (编号). Derived
+        # tables (flows, links, auth) have no doc-name column; other markdown
+        # tables without a 编号 column are ignored.
+        if code_col is None:
             continue
         width = len(header)
 
@@ -167,7 +175,7 @@ def parse_registry(path: Path) -> dict[str, dict]:
             # keep the row so check_example can report it.
             code = f"{prefix}-{int(match.group(2)):02d}"
 
-            doc_name = cells[name_col] if name_col < len(cells) else ""
+            doc_name = cells[name_col] if name_col is not None and name_col < len(cells) else ""
             notes = cells[notes_col] if notes_col is not None and notes_col < len(cells) else ""
             entity = LEGACY_ENTITY if prefix == LEGACY_PREFIX else PREFIXES.get(prefix, "unknown")
 
@@ -290,7 +298,8 @@ def check_example(root: Path) -> int:
         return prefix, int(number)
 
     for code in sorted(rows, key=_sort_key):
-        if code not in cited and rows[code]["in_scope"]:
+        if (code not in cited and rows[code]["in_scope"]
+                and rows[code]["entity"] in SCOPE_GUARD_ENTITIES):
             print(f"{root}: WARN: {code} ({rows[code]['doc_name']}) never cited in docs")
 
     # 3. Distinctive doc-name literals outside the registry.
@@ -314,7 +323,8 @@ def check_example(root: Path) -> int:
     if prompt_path.is_file():
         prompt_codes = _codes_in(read_doc_text(prompt_path))
         for code in sorted(rows, key=_sort_key):
-            if code not in prompt_codes and rows[code]["in_scope"]:
+            if (code not in prompt_codes and rows[code]["in_scope"]
+                    and rows[code]["entity"] in SCOPE_GUARD_ENTITIES):
                 print(f"{root}: WARN: {code} ({rows[code]['doc_name']}) is in the "
                       f"registry but not referenced by input/prompt.md (mark the "
                       f"row OUT-OF-SCOPE if that is deliberate)")

@@ -290,7 +290,7 @@ def render_png(arch: dict, png_path: str, dpi: int = 130):
     for region in deployment:
         rid   = region["id"]
         rtype = region.get("type", "private_dc")
-        zkey  = "network_zones" if rtype == "private_dc" else "subnets"
+        zkey  = topology.region_zones_key(region)
         for zone in region.get(zkey, []):
             for comp in zone.get("components", []):
                 comp_to_region[comp["id"]] = rid
@@ -322,7 +322,7 @@ def render_png(arch: dict, png_path: str, dpi: int = 130):
             continue
         rx, ry, rw, rh = positions[rid]
         rtype = region.get("type", "private_dc")
-        zkey  = "network_zones" if rtype == "private_dc" else "subnets"
+        zkey  = topology.region_zones_key(region)
 
         # Container
         is_aws    = rtype == "aws_vpc"

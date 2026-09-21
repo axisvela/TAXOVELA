@@ -15,7 +15,7 @@ never be shorter than its content. Component boxes grow with their label
 truncated.
 """
 
-from . import labels
+from . import labels, topology
 
 # ── Spacing constants ─────────────────────────────────────────────────────────
 
@@ -46,8 +46,8 @@ REGION_TITLE_H  = 44
 
 # Component sizing
 MAX_ROW_W       = 520      # preferred single-row width inside a zone
-MAX_COMP_W      = 260      # a label never widens a box beyond this
-MAX_GROUP_W     = 470      # logical-group frames fit several members per row
+MAX_COMP_W      = int(topology.LAYOUT_POLICY.get("max_component_width", 260))
+MAX_GROUP_W     = int(topology.LAYOUT_POLICY.get("max_group_width", 470))
 CHAR_W          = 7.4      # ≈ px per character at fontSize 14
 LINE_H          = 15       # ≈ px per label line
 
@@ -173,9 +173,8 @@ def _zone_natural_width(components: list) -> int:
 
 
 def _zones_of(region: dict) -> list:
-    rtype = region.get("type", "private_dc")
-    key = "network_zones" if rtype == "private_dc" else "subnets"
-    return region.get(key, []) or []
+    """Zone list for a region — the container shape comes from role policy."""
+    return topology.region_zones(region)
 
 
 def _region_natural_width(region: dict) -> int:

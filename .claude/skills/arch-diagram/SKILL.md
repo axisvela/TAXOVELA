@@ -102,12 +102,25 @@ Each diagram renders a legend listing only the codes it actually uses.
 | `REMOVE` | grey `#9E9E9E` |
 | `TBD` / unspecified | blue-grey `#78909C` |
 
-**Zone-boundary firewalls.** In a private cloud a firewall is a container-class
-infra node on the network-zone boundary: all in/out traffic passes it implicitly,
-so components are **not** connected to it individually — the zone is marked
-`· FW` and flows are declared directly between the components that talk
-(rule R-INF-4 in `standards/requirements-model-v2.yaml`). In a public cloud a
-firewall may sit in its own subnet and is then drawn as an explicit node.
+**Semantic roles are declared by the model, not guessed by the renderer.** When
+you write or review an Architecture YAML, mark the nodes that carry meaning and
+let the renderer apply it deterministically:
+
+| Role | Declaration | Effect |
+|---|---|---|
+| Zone-boundary firewall | `role: zone_boundary` | In a region whose policy enables boundary roles, the node is not drawn and the zone is marked `· FW`; flows must be declared directly between the components that talk (rule R-INF-4 in `standards/requirements-model-v2.yaml`). Elsewhere (public cloud) the node stays explicit. |
+| Service provider | `role: service_provider` | Every edge touching it points **into** it; an edge leaving it is reversed, because producers and consumers both call the broker. |
+| Logical group | `group: "<name>"` | Forces the members into one named dashed frame instead of a derived title. |
+
+Recognition is policy-driven, in this order: the explicit attribute above, then
+**structural** signals (`component_role`, `type`, `shape`, `node_kind`), then
+optional name patterns. Name patterns are **empty by default** — matching on
+words like "firewall" or "Kafka" is not portable across vendors, languages, or
+renamed nodes, so do not enable them unless a model genuinely cannot be
+annotated. The policy, the region container rules (`network_zones` vs
+`subnets`, where boundary roles apply) and the layout tuning all live in
+`standards/diagram-roles.yaml`, so no architecture-specific rule is hardcoded in
+the renderers.
 
 **Logical groups.** Sibling components in the same zone that are interchangeable
 — same technology signature *and* identical edge signatures (same peers, same

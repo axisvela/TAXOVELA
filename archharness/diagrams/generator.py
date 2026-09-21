@@ -162,8 +162,7 @@ def _collect_declared_ids(arch: dict) -> tuple[set[str], list[str]]:
 
     for region in deployment or []:
         _add(region.get("id", ""))
-        zones_key = "network_zones" if region.get("type", "private_dc") == "private_dc" else "subnets"
-        for zone in region.get(zones_key, []) or []:
+        for zone in topology.region_zones(region):
             _add(zone.get("id", ""))
             for comp in zone.get("components", []) or []:
                 _add(comp.get("id", ""))
@@ -293,8 +292,7 @@ def generate_drawio(arch: dict) -> str:
         region_cell.set("parent", "1")
 
         # Zones / subnets inside region
-        zones_key = "network_zones" if rtype == "private_dc" else "subnets"
-        for zone in region.get(zones_key, []):
+        for zone in topology.region_zones(region):
             zid = zone["id"]
             if zid not in positions:
                 continue

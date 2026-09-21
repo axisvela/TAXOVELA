@@ -147,7 +147,7 @@ class TopologyTests(unittest.TestCase):
                             "id": "z1", "type": "app_zone", "name": "App",
                             "components": [
                                 {"id": "INF-15", "name": "Boundary Firewall",
-                                 "type": "LB"},
+                                 "type": "LB", "role": "zone_boundary"},
                                 {"id": "CMP-01", "name": "API", "type": "BE"},
                             ],
                         },
@@ -169,6 +169,25 @@ class TopologyTests(unittest.TestCase):
     def test_public_cloud_firewall_is_an_ordinary_node(self):
         arch = self._arch("azure_vnet")
         self.assertEqual(topology.zone_boundary_ids(arch), set())
+
+    def test_role_is_explicit_not_name_matched(self):
+        # Name matching is off by default (not portable): the model must say so.
+        comp = {"id": "INF-99", "name": "Some Firewall", "type": "LB"}
+        self.assertFalse(topology.node_has_role(comp, "zone_boundary"))
+        comp["role"] = "zone_boundary"
+        self.assertTrue(topology.node_has_role(comp, "zone_boundary"))
+
+    def test_structural_signals_recognise_a_broker(self):
+        # component_role/type/shape signals are the portable fallback.
+        self.assertTrue(topology.node_has_role({"id": "C", "type": "MQ"}, "service_provider"))
+        self.assertTrue(topology.node_has_role(
+            {"id": "C", "component_role": "message_bus"}, "service_provider"))
+        self.assertFalse(topology.node_has_role({"id": "C", "type": "BE"}, "service_provider"))
+
+    def test_region_container_shape_comes_from_policy(self):
+        self.assertEqual(topology.region_zones_key({"type": "private_dc"}), "network_zones")
+        self.assertEqual(topology.region_zones_key({"type": "azure_vnet"}), "subnets")
+        self.assertEqual(topology.region_zones_key({"type": "anything-else"}), "subnets")
 
     def _group_arch(self) -> dict:
         """Four identical services + one with an extra edge, all under one zone."""
@@ -284,7 +303,8 @@ class DrawioRenderTests(unittest.TestCase):
                             "id": "z1", "type": "app_zone", "name": "App",
                             "components": [
                                 {"id": "INF-15", "name": "Boundary Firewall",
-                                 "type": "LB", "runtime": "Network Appliance"},
+                                 "type": "LB", "role": "zone_boundary",
+                                 "runtime": "Network Appliance"},
                                 {"id": "CMP-01", "name": "Order API", "type": "BE",
                                  "language": "Java (version TBD)",
                                  "framework": "Spring (version TBD)",

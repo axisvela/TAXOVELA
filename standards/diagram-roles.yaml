@@ -1,0 +1,76 @@
+# diagram-roles.yaml — semantic roles the diagram renderers act on.
+#
+# The architecture model is where meaning is decided: the LLM (arch-design /
+# arch-diagram skills) or an engineer marks a node with its role, and the
+# renderers apply it deterministically. This file is only the *policy* for
+# recognising a role when the model does not state it, and for deciding which
+# region kinds use zone-boundary semantics. Nothing here names a specific
+# example, vendor product or language.
+#
+# Resolution order for every role:
+#   1. explicit attribute on the node (authoritative)
+#   2. structural signals (type / shape / component_role / node_kind)
+#   3. optional name patterns — OFF by default; enable per project when a model
+#      cannot be annotated, because name matching is not portable
+#
+# Consumed by archharness/diagrams/topology.py.
+
+version: "diagram-roles/v1"
+description: >
+  Role policy for diagram rendering. Prefer an explicit role on the node;
+  structural signals are the portable fallback.
+
+# ── Regions: how a region holds its zones, and where boundary rules apply ─────
+regions:
+  default:
+    zones_key: "subnets"          # unknown region kinds default to subnets
+    boundary_roles: []
+  by_type:
+    private_dc:
+      zones_key: "network_zones"
+      boundary_roles: ["zone_boundary"]
+    plant:
+      zones_key: "network_zones"
+      boundary_roles: ["zone_boundary"]
+    aws_vpc:
+      zones_key: "subnets"
+      boundary_roles: []          # public cloud: a firewall may own a subnet
+    azure_vnet:
+      zones_key: "subnets"
+      boundary_roles: []
+    saas:
+      zones_key: "subnets"
+      boundary_roles: []
+
+# ── Node roles ────────────────────────────────────────────────────────────────
+roles:
+  # A firewall on a zone edge: all of that zone's in/out traffic passes it, so it
+  # is a boundary of the zone rather than a node every component connects to.
+  zone_boundary:
+    attribute: "role"             # node.role == "zone_boundary"
+    signals:
+      node_kind: ["firewall", "waf", "security_gateway"]
+      type: ["FW"]
+      shape: ["hexagon_firewall"]
+    name_patterns: []             # e.g. ["firewall", "防火墙"] when unavoidable
+
+  # A broker: producers and consumers both call it, so every edge points into it
+  # and an edge that leaves it is reversed.
+  service_provider:
+    direction: "inbound_only"
+    attribute: "role"
+    signals:
+      component_role: ["message_bus"]
+      type: ["MQ"]
+      shape: ["message_queue"]
+    name_patterns: []
+
+  # Interchangeable siblings folded into one dashed frame.
+  logical_group:
+    attribute: "group"            # node.group == "<name>" forces the grouping
+    min_size: 3
+
+# ── Tuning ────────────────────────────────────────────────────────────────────
+layout:
+  max_group_width: 470
+  max_component_width: 260

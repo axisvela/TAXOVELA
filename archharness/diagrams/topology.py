@@ -13,60 +13,103 @@ addressed explicitly, so those nodes stay in the graph as ordinary nodes.
 
 from __future__ import annotations
 
-FIREWALL_HINTS = ("firewall", "azfw", "pan-os", "fortigate", "waf")
 BOUNDARY_ROLE = "zone_boundary"
+PROVIDER_ROLE = "service_provider"
+
+# Policy fallback, used only when standards/diagram-roles.yaml cannot be read.
+_FALLBACK_POLICY = {
+    "regions": {
+        "default": {"zones_key": "subnets", "boundary_roles": []},
+        "by_type": {"private_dc": {"zones_key": "network_zones",
+                                   "boundary_roles": ["zone_boundary"]}},
+    },
+    "roles": {
+        "zone_boundary": {"attribute": "role", "signals": {
+            "node_kind": ["firewall", "waf", "security_gateway"], "type": ["FW"]}},
+        "service_provider": {"attribute": "role", "direction": "inbound_only",
+                             "signals": {"component_role": ["message_bus"], "type": ["MQ"],
+                                         "shape": ["message_queue"]}},
+        "logical_group": {"attribute": "group", "min_size": 3},
+    },
+    "layout": {"max_group_width": 470, "max_component_width": 260},
+}
 
 
-GROUP_MIN_SIZE = 3          # fewer than this is not worth drawing as a group
-GROUP_MAX_W = 340           # a group box never widens beyond this
+def _load_policy() -> dict:
+    try:
+        import yaml
+        from ..paths import require_archharness_root
+        path = require_archharness_root() / "standards" / "diagram-roles.yaml"
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        return data if data.get("roles") else _FALLBACK_POLICY
+    except Exception:
+        return _FALLBACK_POLICY
 
 
-def _is_boundary_component(comp: dict) -> bool:
-    if comp.get("role") == BOUNDARY_ROLE:
+POLICY = _load_policy()
+_ROLES = POLICY.get("roles") or {}
+_REGIONS = POLICY.get("regions") or {}
+LAYOUT_POLICY = POLICY.get("layout") or {}
+GROUP_MIN_SIZE = int((_ROLES.get("logical_group") or {}).get("min_size", 3))
+GROUP_MAX_W = int(LAYOUT_POLICY.get("max_group_width", 470))
+
+
+def region_policy(region: dict) -> dict:
+    """Merge the default region policy with the one for this region's type."""
+    merged = dict((_REGIONS.get("default") or {"zones_key": "subnets",
+                                               "boundary_roles": []}))
+    merged.update((_REGIONS.get("by_type") or {}).get(region.get("type", ""), {}))
+    return merged
+
+
+def region_zones_key(region: dict) -> str:
+    return region_policy(region).get("zones_key", "subnets")
+
+
+def region_zones(region: dict) -> list:
+    return region.get(region_zones_key(region), []) or []
+
+
+def node_has_role(comp: dict, role: str) -> bool:
+    """Explicit attribute first, then structural signals, then opt-in patterns."""
+    spec = _ROLES.get(role) or {}
+    attribute = spec.get("attribute")
+    if attribute and comp.get(attribute) == role:
         return True
+    for key, values in (spec.get("signals") or {}).items():
+        value = comp.get(key)
+        if value is not None and value in (values or []):
+            return True
     text = f"{comp.get('name', '')} {comp.get('id', '')}".lower()
-    return any(hint in text for hint in FIREWALL_HINTS)
+    return any(str(p).lower() in text for p in (spec.get("name_patterns") or []))
+
+
+def _regions_with_role(arch: dict, role: str):
+    """Yield (region, zone, component) for every node carrying ``role``."""
+    deployment = arch.get("deployment", arch.get("arch", {}).get("deployment", [])) or []
+    for region in deployment:
+        if role not in (region_policy(region).get("boundary_roles") or []):
+            continue
+        for zone in region_zones(region):
+            for comp in zone.get("components", []) or []:
+                if node_has_role(comp, role):
+                    yield region, zone, comp
 
 
 def zone_boundary_ids(arch: dict) -> set[str]:
-    """IDs of private-cloud firewall nodes that act as zone boundaries."""
-    ids: set[str] = set()
-    deployment = arch.get("deployment", arch.get("arch", {}).get("deployment", [])) or []
-    for region in deployment:
-        # Public cloud keeps explicit firewall nodes (own subnet / peering rules).
-        if region.get("type", "private_dc") != "private_dc":
-            continue
-        for zone in region.get("network_zones", []) or []:
-            for comp in zone.get("components", []) or []:
-                if _is_boundary_component(comp):
-                    ids.add(comp.get("id"))
-    return ids
+    """IDs of nodes that act as zone boundaries (per region policy)."""
+    return {comp.get("id") for _r, _z, comp in _regions_with_role(arch, BOUNDARY_ROLE)}
 
 
 def boundary_zones(arch: dict) -> set[str]:
-    """Zone IDs that contain a boundary firewall (used to mark the zone)."""
-    zones: set[str] = set()
-    deployment = arch.get("deployment", arch.get("arch", {}).get("deployment", [])) or []
-    for region in deployment:
-        if region.get("type", "private_dc") != "private_dc":
-            continue
-        for zone in region.get("network_zones", []) or []:
-            for comp in zone.get("components", []) or []:
-                if _is_boundary_component(comp):
-                    zones.add(zone.get("id"))
-    return zones
-
-
-def _is_message_bus(comp: dict) -> bool:
-    return comp.get("type") == "MQ" or comp.get("shape") == "message_queue" \
-        or comp.get("component_role") == "message_bus"
+    """Zone IDs that contain a boundary node (used to mark the zone)."""
+    return {zone.get("id") for _r, zone, _c in _regions_with_role(arch, BOUNDARY_ROLE)}
 
 
 def _all_components(arch: dict) -> list:
     out = []
     for region in arch.get("deployment", arch.get("arch", {}).get("deployment", [])) or []:
-        key = "subnets" if region.get("type", "private_dc") != "private_dc" else "network_zones"
-        for zone in region.get(key, []) or []:
+        for zone in region_zones(region):
             out.extend(zone.get("components", []) or [])
     return out
 
@@ -78,7 +121,8 @@ def normalize_provider_direction(arch: dict) -> dict:
     the bus is reversed (the label stays the same). This keeps the arrow meaning
     "caller → provider" everywhere, which is what the reader expects of a broker.
     """
-    bus_ids = {c.get("id") for c in _all_components(arch) if _is_message_bus(c)}
+    bus_ids = {c.get("id") for c in _all_components(arch)
+               if node_has_role(c, PROVIDER_ROLE)}
     if not bus_ids:
         return arch
     interactions = arch.get("interactions", arch.get("arch", {}).get("interactions", [])) or []
@@ -132,11 +176,7 @@ def collapse_groups(arch: dict, min_size: int = GROUP_MIN_SIZE):
     id_map: dict[str, str] = {}
 
     for region in deployment:
-        if region.get("type", "private_dc") != "private_dc":
-            zones = region.get("subnets", []) or []
-        else:
-            zones = region.get("network_zones", []) or []
-        for zone in zones:
+        for zone in region_zones(region):
             components = zone.get("components", []) or []
             buckets: dict = {}
             for comp in components:

@@ -54,6 +54,11 @@ starts. A BLOCK decision stops the pipeline until findings are fixed and
 validation is re-run. Never skip a stage or fabricate predecessor outputs;
 invoke `@arch-workflow status` / `@arch-workflow can <stage>` when in doubt.
 
+Recorded artifacts are hash-verified, not just named: a manifest that no longer
+matches the file on disk fails the gate closed, so a diagram cannot be edited
+underneath a recorded decision. `python -m archharness workflow verify` reports
+those findings directly and exits 1 when any artifact is stale or altered.
+
 ## Roadmap
 
 The repository-level priorities for product capability, engineering quality, and
@@ -229,13 +234,23 @@ install the Python package, initialise the workspace, and run `doctor`.
 | `python -m archharness doctor` | Self-check installation, workspace, and project |
 | `python -m archharness init-workspace .` | Create the workspace metadata |
 | `python -m archharness init-project <id>` | Scaffold an isolated project |
+| `python -m archharness list-projects` | List the projects in a workspace |
 | `python -m archharness diagram -i arch.yaml` | Run the diagram generator (draw.io/PNG/D2/PlantUML) |
+| `python -m archharness diagram -i arch.yaml --routing-diagnostics routes.json` | Also record per-edge routing strategy, lane, and fallback |
+| `python -m archharness arch-check -i blueprint.yaml [--json]` | Deterministic rules on an architecture model (A-01…A-06) |
 | `python -m archharness req --doc brief.md` | Run the requirements readers + merger |
 | `python -m archharness req-validate req.yaml` | Cross-field validation of a `req/v2` document (rules V1–V7) |
 | `python -m archharness validate-yaml config.yaml` | YAML syntax gate (CI fail-closed check) |
+| `python -m archharness workflow status` | Show per-stage readiness |
+| `python -m archharness workflow can <stage>` | Exit 0 only if that stage may start |
+| `python -m archharness workflow verify [--json]` | Re-verify recorded artifact digests |
+| `python -m archharness enforce --validation validate_result.json` | Apply the gate policy (PASS/WARN/BLOCK) |
+| `python -m archharness sketch "Browser -> API -> DB" -o d.drawio` | One-shot sketch without a YAML file |
+| `python -m archharness model diff old.yaml new.yaml` | Semantic model diff |
+| `python -m archharness plugins` | List discovered plugins and capabilities |
 
-`diagram`, `req`, and `validate-yaml` forward their flags to the same Python
-tools under `tools/`, so both invocation styles are equivalent:
+`arch-check`, `diagram`, `req`, and `validate-yaml` forward their flags to the
+same Python tools under `tools/`, so both invocation styles are equivalent:
 
 ```bash
 python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml
@@ -288,6 +303,24 @@ Or explicitly target a project from anywhere in the workspace:
 python tools/arch-diagram-gen/arch_diagram_gen.py -i projects/payments/input/arch.yaml \
   --project payments
 ```
+
+### Check a model before review
+
+Objective rules can be decided from the architecture YAML alone, so clear them
+before spending a review cycle:
+
+```bash
+python -m archharness arch-check -i output/designs/blueprint.yaml
+# ERROR A-03: interaction api -> db has no protocol label
+# ERROR A-04: interaction api -> db has no authentication label
+#   ...
+# 2 error(s), 0 warning(s)
+
+python -m archharness arch-check -i output/designs/blueprint.yaml --json
+```
+
+Exit code 1 means at least one `ERROR`. Every finding carries a rule id
+(`A-01`…`A-06`) and the evidence it came from.
 
 ### Validate a diagram
 

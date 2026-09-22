@@ -1,0 +1,60 @@
+# config.yaml — example overlay for service-delivery-private-cloud
+#
+# SSOC spans four private DCs plus Azure-hosted satellite systems, and
+# integrates with SAP (RFC), SYS-51, and external 3PL partners.
+# Deep-merged on top of the repository-root config.yaml.
+# (System codes resolve via input/systems-registry.md.)
+
+datacenters:
+  - id: "dc-cn-primary"
+    aliases: ["CN Primary DC", "主DC"]
+    location: { city: "City A", province: "Province A", country: "CN" }
+    model: "three-tier"
+    zones: ["DMZ", "Intranet", "DB Zone"]
+    region: "APAC-CN"
+    notes: "SYS-01 ingress, SYS-02..SYS-04 DMZ K8s, SYS-05..SYS-11 Intranet K8s, SYS-12..SYS-19 DB Zone (7 HA groups), SYS-52. (See input/systems-registry.md.)"
+
+  - id: "dc-us"
+    aliases: ["US DC"]
+    location: { city: "City C", state: "State X", country: "US" }
+    model: "two-tier"
+    zones: ["App Zone", "Intranet"]
+    region: "NA"
+    notes: "SYS-25, SYS-26, SYS-27, SYS-28, SYS-29, SYS-30. (See input/systems-registry.md.)"
+
+  - id: "dc-cn-secondary"
+    aliases: ["CN Secondary DC", "备DC"]
+    location: { city: "City B", province: "Province B", country: "CN" }
+    model: "two-tier"
+    zones: ["Intranet"]
+    region: "APAC-CN"
+    notes: "SYS-31, SYS-32, SYS-33, SYS-34, SYS-35. (See input/systems-registry.md.)"
+
+  - id: "dc-cn-support"
+    aliases: ["Support DC"]
+    location: { city: "City F", country: "CN" }
+    model: "two-tier"
+    zones: ["App Zone"]
+    region: "APAC-CN"
+    notes: "SYS-36, SYS-37 support systems. (See input/systems-registry.md.)"
+
+  - id: "azure-global"
+    aliases: ["Azure"]
+    location: { country: "US" }
+    model: "saas"
+    zones: ["SaaS apps"]
+    region: "NA"
+    notes: "SYS-38, SYS-39, SYS-40 and SYS-41 consuming SSOC APIs. (See input/systems-registry.md.)"
+
+platforms:
+  api_gateway: "WSO2 API Gateway"
+  message_bus: "Kafka"
+  k8s_platform: "Internal K8s Platform"
+  integration_platforms:
+    - "WSO2 API Gateway"
+    - "Kafka"
+    - "MFT platform"
+    - "SFTP/MFT"
+  auth_internal: "ADFS"
+  auth_external: "Enterprise ID"
+  authz_platform: "AuthZ Platform"

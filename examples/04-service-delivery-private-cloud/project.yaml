@@ -1,0 +1,10 @@
+﻿schema_version: 1
+project:
+  id: 04-service-delivery-private-cloud
+  name: Service Delivery Platform (SSOC) 鈥?Private Cloud Multi-DC
+  platform: private-cloud
+  data_classification: confidential
+paths:
+  input: ./input
+  working: ./working
+  output: ./output

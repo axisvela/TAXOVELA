@@ -1,0 +1,8 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "SSOC-NA-001-REQ-md",
+  "type": "requirements",
+  "schema": "arch-requirements",
+  "path": "../../output/requirements/REQ.md",
+  "sha256": "fc4a6edfc2cf38192845ae4356f01423960097d2758c4e100fc2df8fc9fb1bd3"
+}

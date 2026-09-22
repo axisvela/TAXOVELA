@@ -1,0 +1,12 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "REQ-OSP-001",
+  "type": "requirements",
+  "schema": "req/v1",
+  "path": "output\\requirements\\REQ.md",
+  "sha256": "288de9159f3f182f7d886dcbf054de3975fee14ea15aa5bfa090fc2c8162e1a9",
+  "model_version": "openai/gpt-5.6-sol",
+  "producer": "archharness/0.7.0",
+  "produced_at": "2026-09-14T11:26:47+00:00",
+  "input_artifacts": ["input\\prompt.md", "input\\diagrams\\supply-chain-order-20260914.png", "input\\systems-registry.md", "input\\documents\\requirements.md", "project.yaml", "config.yaml"]
+}

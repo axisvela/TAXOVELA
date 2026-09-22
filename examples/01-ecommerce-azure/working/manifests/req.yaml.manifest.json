@@ -1,0 +1,12 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "01-ecommerce-azure-req.yaml",
+  "type": "requirements",
+  "schema": "requirements/v1",
+  "path": "output\\requirements\\req.yaml",
+  "sha256": "a842a6cec0eea98cf6430cbea4c6d9831b32fe5a67f8162d107be5bd64785833",
+  "model_version": null,
+  "producer": "arch-requirements",
+  "produced_at": "2026-09-14T13:41:41+00:00",
+  "input_artifacts": []
+}

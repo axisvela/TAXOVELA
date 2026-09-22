@@ -1,0 +1,271 @@
+{
+  "schema_version": "validation/v1",
+  "source": {
+    "path": "output\\diagrams\\diagram.png",
+    "sha256": "e19b7f9035554e8b4112030036c103eda5b8ad2bc5d9fdcd957aa31e96e104cd",
+    "media_type": "image/png",
+    "validated_at": "2026-09-15T00:56:16Z",
+    "validator_version": "arch-validate/2.0",
+    "ruleset_digest": "26ffb5197517453a4f91bb994cdea3fdce8ef3256390f131b4fb62d7b069db21"
+  },
+  "dimensions": {
+    "Cloud_Network_Completeness": {
+      "raw_score": 4.4,
+      "weight": 2.0,
+      "weighted_score": 0.88
+    },
+    "Connectivity": {
+      "raw_score": 0.0,
+      "weight": 1.0,
+      "weighted_score": 0.0
+    },
+    "Technical_Component_Completeness": {
+      "raw_score": 5.3,
+      "weight": 2.0,
+      "weighted_score": 1.06
+    },
+    "Interaction_Integration": {
+      "raw_score": 8.0,
+      "weight": 2.0,
+      "weighted_score": 1.6
+    },
+    "Security_Compliance": {
+      "raw_score": 0.0,
+      "weight": 2.0,
+      "weighted_score": 0.0
+    },
+    "Terminology_Expression": {
+      "raw_score": 6.0,
+      "weight": 1.0,
+      "weighted_score": 0.6
+    }
+  },
+  "issues": [
+    {
+      "id": "VAL-001",
+      "rule_id": "E-PC-001",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "Internet/office ingress to SYS-01",
+      "evidence": "The visible DMZ is empty and labelled 'Inbound Path TBD'; no F5, firewall, WAF, or load balancer is shown before the Internal K8s/App Zone.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-002",
+      "rule_id": "S-002",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "External-to-private network boundary",
+      "evidence": "The HTTPS user path terminates in the private App Zone without a populated DMZ security component.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-003",
+      "rule_id": "E-009",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Connectivity",
+      "subject": "dc-cn-primary to Azure East US and East US 2",
+      "evidence": "Both hybrid boundaries and connectivity gateways visibly retain 'TBD'; ExpressRoute, IPSec VPN, or another approved connection type is not identified.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-004",
+      "rule_id": "E-010",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Connectivity",
+      "subject": "Hybrid transport encryption",
+      "evidence": "Application HTTPS is shown, but neither hybrid network connection identifies tunnel/link encryption such as IPSec or encrypted ExpressRoute.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-005",
+      "rule_id": "E-PC-005",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "SYS-05 outbound and hybrid controls",
+      "evidence": "SYS-05 is a visible egress gateway, but carrier, routing, firewall inspection, allow-list enforcement point, and private DNS implementation remain TBD.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-006",
+      "rule_id": "E-AZ-001",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "Azure East US and East US 2 topology",
+      "evidence": "The regions do not show complete Hub VNETs containing Central Firewall, Bastion, Virtual Network Gateway, DNS forwarding, and monitoring/SIEM, nor VNET peering to explicit spokes.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-007",
+      "rule_id": "E-AZ-008",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "SYS-08 and SYS-09 Azure PaaS access",
+      "evidence": "SYS-09 is labelled as private-endpoint based, but centralized Private DNS and public-access disablement are not shown; SYS-08 is only in a 'Private Subnet' boundary with its exact private endpoint TBD.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-008",
+      "rule_id": "S-001",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "INT-03, INT-06, and INT-07 service authentication",
+      "evidence": "The diagram explicitly labels internal service authentication and the SYS-08 service credential/rotation as TBD.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-009",
+      "rule_id": "S-004",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "Internal user identity path",
+      "evidence": "Microsoft Entra ID is shown as primary for office users while ADFS is only a fallback; the Entra protocol, token format/validation, fallback trigger, and role mapping are TBD.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-010",
+      "rule_id": "S-006",
+      "severity": "medium",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "User and tenant authorization",
+      "evidence": "No AuthZ Platform node or implemented application RBAC/ABAC control is visible; the blueprint describes implementation and role mapping as TBD.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-011",
+      "rule_id": "S-007",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "Hybrid credential and key protection",
+      "evidence": "No Azure Key Vault or Managed Identity is shown. SYS-05 secret storage, SYS-08 credentials, and SYS-09 API-key delivery/storage/access/rotation remain TBD.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-012",
+      "rule_id": "E-PC-004",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "Private-DC privileged operations",
+      "evidence": "No office-network to PAW to private-management path is visible; the blueprint states PAW implementation confirmation is TBD.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-013",
+      "rule_id": "E-AZ-006",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "Azure privileged operations",
+      "evidence": "Neither Azure region shows Azure Bastion Standard, Defender JIT, or restricted administrative paths.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-014",
+      "rule_id": "S-008",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "CN-to-US SYS-08 and SYS-09 data flows",
+      "evidence": "The cross-border arrows do not state payload data classification or an approved legal/compliance basis; minimization, redaction, logging, retention, and approval remain TBD.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-015",
+      "rule_id": "E-003",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "Azure Global Microsoft Entra ID jurisdiction",
+      "evidence": "The boundary is visibly labelled 'Location TBD' and 'Microsoft/TBD', so tenant data jurisdiction cannot be determined.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-016",
+      "rule_id": "E-004",
+      "severity": "medium",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "Infrastructure ownership",
+      "evidence": "The private DC and both Azure regional boundaries visibly retain TBD owner labels; the Entra boundary owner is only 'Microsoft/TBD'.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-017",
+      "rule_id": "E-012",
+      "severity": "medium",
+      "disposition": "must_fix",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "SYS-01, SYS-02, SYS-03, and SYS-05 technology stacks",
+      "evidence": "Framework or product versions remain TBD; SYS-02 and SYS-03 have no resolved framework, preventing a definitive vulnerability-management scope.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-018",
+      "rule_id": "E-013",
+      "severity": "medium",
+      "disposition": "must_fix",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "SYS-04 and hybrid connectivity gateways",
+      "evidence": "The PostgreSQL host/service model and both private-connectivity gateway implementations are TBD, leaving runtime and patch ownership unresolved.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-019",
+      "rule_id": "S-009",
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Security_Compliance",
+      "subject": "SYS-04 PostgreSQL and backups",
+      "evidence": "At-rest encryption, key ownership, backup protection, and TLS certificate trust/enforcement are not identified.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-020",
+      "rule_id": "V-007",
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Terminology_Expression",
+      "subject": "Central private-DC interaction labels",
+      "evidence": "Multiple long protocol/auth labels overlap components and arrows, making endpoint association difficult to verify visually.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-021",
+      "rule_id": "V-104",
+      "severity": "low",
+      "disposition": "consider",
+      "dimension": "Terminology_Expression",
+      "subject": "Azure service notation",
+      "evidence": "Generic boxes are used for Azure identity, Databricks, connectivity, and model services instead of recognizable Azure service icons.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-022",
+      "rule_id": null,
+      "severity": "medium",
+      "disposition": "consider",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "Operations, availability, and recovery",
+      "evidence": "Monitoring, centralized logging/SIEM, capacity, HA, backup topology, RTO, RPO, and regional recovery remain absent or TBD.",
+      "confidence": "medium"
+    }
+  ],
+  "summary": {
+    "total_score": 4.14,
+    "must_fix": 18,
+    "should_fix": 2,
+    "consider": 2
+  }
+}

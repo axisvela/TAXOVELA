@@ -1,0 +1,14 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "validate_result.json",
+  "type": "validation-result",
+  "schema": "validation/v1",
+  "path": "output\\validation\\validate_result.json",
+  "sha256": "3b72f39271252b610ec9ac51bdbf06af871180c01cefb2e4b3f853fed7686a74",
+  "model_version": "arch-validate/2.0",
+  "producer": "arch-validate",
+  "produced_at": "2026-09-15T00:58:31Z",
+  "input_artifacts": [
+    "diagram.png"
+  ]
+}

@@ -1,0 +1,67 @@
+# config.yaml — example overlay for supply-chain-order-private-cloud
+#
+# OSP is deployed active-active in CN (three-tier) and NA (multi-zone).
+# SAP (ECC/S4) integration via RFC + SLT, Debezium CDC into RabbitMQ/Kafka.
+# CN and NA share one logical component set (CMP-01–CMP-24); each region has its
+# own deployment units.
+
+datacenters:
+  - id: "dc-cn-primary"
+    aliases: ["CN Primary DC", "主DC"]
+    location: { city: "City A", province: "Province A", country: "CN" }
+    model: "three-tier"
+    zones: ["DMZ", "Intranet", "App Zone", "DB Zone"]
+    region: "APAC-CN"
+    notes: "INF-01; CMP-01 (web, Nginx) in INF-02; CMP-02–CMP-10 backend K8s + CMP-11–CMP-14 in INF-02; CMP-17–CMP-21 in INF-03; SAP CMP-33/CMP-34. (See input/systems-registry.md.)"
+
+  - id: "dc-us"
+    aliases: ["NA DC", "US DC"]
+    location: { city: "City C", state: "State X", country: "US" }
+    model: "multi-zone"
+    zones:
+      - "NA-PROD-INA-K8S"
+      - "NA-PROD-INA-INTEGRATION"
+      - "NA-PROD-INA-SAP"
+      - "NA-PROD-INA-SERVER"
+      - "NA-PROD-INA-DB"
+    region: "NA"
+    notes: "INF-04; CMP-01–CMP-10 plus CMP-22–CMP-24 in INF-05 (K8s); CMP-13–CMP-14 in INF-06; CMP-15–CMP-16 in INF-07; CMP-35 in INF-08; CMP-17–CMP-21 in INF-09. (See input/systems-registry.md.)"
+
+  - id: "dc-us-identity"
+    aliases: ["Identity DC"]
+    location: { city: "City C", state: "State X", country: "US" }
+    model: "two-tier"
+    zones: ["App Zone"]
+    region: "NA"
+    notes: "INF-10; INF-22 for employee SSO (AUTH-01). (See input/systems-registry.md.)"
+
+  - id: "aws-us"
+    aliases: ["AWS Cloud US"]
+    location: { city: "N. Virginia", state: "VA", country: "US" }
+    model: "vpc"
+    zones: ["Private subnet (APP)"]
+    region: "NA"
+    notes: "INF-11; CMP-30 and related apps consuming events over messaging. (See input/systems-registry.md.)"
+
+  - id: "azure-us"
+    aliases: ["Azure Cloud US"]
+    location: { country: "US" }
+    model: "saas"
+    zones: ["APP Zone"]
+    region: "NA"
+    notes: "INF-12; CMP-31–CMP-32 and other SaaS apps over HTTPS / messaging. (See input/systems-registry.md.)"
+
+platforms:
+  api_gateway: "Spring Cloud Gateway"
+  message_bus: "Kafka"
+  k8s_platform: "Internal K8s Platform"
+  integration_platforms:
+    - "Spring Cloud Gateway"
+    - "APIH"
+    - "WSO2 API Gateway"
+    - "Kafka"
+    - "RabbitMQ"
+    - "Debezium"
+  auth_internal: "ADFS"
+  auth_external: "Enterprise ID"
+  authz_platform: "AuthZ Platform"

@@ -1,0 +1,492 @@
+_template:
+  id: "private-cloud"
+  version: "2.0"
+  mixed_with: "azure satellite boundary"
+
+# TODO TBD-001: Confirm the NA cut-over sequence for SYS-11.
+# TODO TBD-004: Security must approve the selected mTLS device authentication for SYS-01 to SYS-02.
+# TODO TBD-005: Partner owners must confirm HTTPS/mTLS for SYS-42 through SYS-47 or document an approved EDI alternative.
+# TODO TBD-006: SAP owner must confirm hosting, SNC-protected RFC endpoints, and SAP authentication.
+# TODO TBD-007: Cloud owner must confirm the Azure US region, subnet ownership, and private connectivity roadmap.
+# TODO TBD-008: InfraSec must confirm IPsec encryption over each named private WAN path.
+# TODO TBD-009: InfraSec must select the enterprise vault and rotation controls for non-K8s secrets.
+# TODO TBD-010: Data owners must confirm AES-256 at-rest implementation for all HA data platforms and managed files.
+# TODO TBD-011: Privacy/Legal must approve the minimized CN-US transfer dataset and transfer basis.
+# TODO TBD-013: Integration owner must complete migration from Basic Auth to OAuth2 client credentials or obtain risk acceptance.
+arch:
+  id: "SSOC-NA-001-TechDiagram-V1.0"
+  name: "Service Delivery Platform (SSOC) - Private Cloud Multi-DC Technical Architecture"
+  platform: "hybrid_cloud"
+  version: "V1.0"
+  author: "ArchHarness"
+  owner_team: "Service Delivery Platform Team"
+  last_modified: "2026-09-14"
+
+  deployment:
+    - id: "dc-cn-primary"
+      type: "private_dc"
+      role: "production"
+      location: "CN Primary DC, City A, Province A [CN]"
+      owner: "InfraSec"
+      network_zones:
+        - id: "dc-cn-primary-dmz"
+          type: "dmz"
+          name: "DMZ"
+          components:
+            - id: "SYS-52"
+              name: "SYS-52 | Edge router"
+              type: "NW"
+              runtime: "Private DC network platform"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "Named Internet edge; no IP or CIDR assigned"
+            - id: "SYS-01"
+              name: "SYS-01 | F5"
+              type: "LB"
+              shape: "hexagon"
+              runtime: "Private DC appliance"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "HA ingress and TLS termination group"
+            - id: "SYS-02"
+              name: "SYS-02 | Service-Supply-Chain-dmz-nginx-proxy"
+              type: "FE"
+              language: "N/A"
+              framework: "Nginx (version TBD)"
+              runtime: "Internal K8s Platform"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "HA DMZ reverse-proxy workload"
+            - id: "SYS-03"
+              name: "SYS-03 | Service-Supply-Chain-gateway"
+              type: "API"
+              language: "Java (version TBD)"
+              framework: "Spring Cloud (version TBD)"
+              runtime: "Internal K8s Platform"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "HA DMZ API gateway workload"
+            - id: "SYS-04"
+              name: "SYS-04 | Service-Supply-Chain-web"
+              type: "FE"
+              language: "Java (version TBD)"
+              framework: "Spring Cloud (version TBD)"
+              runtime: "Internal K8s Platform"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "HA web frontend workload"
+
+        - id: "dc-cn-primary-intranet"
+          type: "intranet"
+          name: "Intranet"
+          components:
+            - id: "SYS-05"
+              name: "SYS-05 | WSO2"
+              type: "IP"
+              shape: "parallelogram"
+              framework: "WSO2 API Gateway (version TBD)"
+              runtime: "Private DC integration platform"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "HA API mediation; all cross-application APIs traverse this component"
+            - id: "SYS-06"
+              name: "SYS-06 | Kafka (primary)"
+              type: "MQ"
+              shape: "message_queue"
+              framework: "Kafka (version TBD)"
+              runtime: "Private DC HA cluster"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "Primary event bus; all cross-application events traverse this component"
+            - id: "SYS-07"
+              name: "SYS-07 | Service-Supply-Chain-int-nginx-proxy"
+              type: "BE"
+              language: "N/A"
+              framework: "Nginx (version TBD)"
+              runtime: "Internal K8s Platform"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+            - id: "SYS-08"
+              name: "SYS-08 | Service-Supply-Chain-main"
+              type: "BE"
+              language: "Java (version TBD)"
+              framework: "Spring Cloud (version TBD)"
+              runtime: "Internal K8s Platform"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+            - id: "SYS-09"
+              name: "SYS-09 | Service-Supply-Chain-websocket"
+              type: "BE"
+              language: "Java (version TBD)"
+              framework: "Spring Cloud (version TBD)"
+              runtime: "Internal K8s Platform"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+            - id: "SYS-10"
+              name: "SYS-10 | Service-Supply-Chain-* group (10 services)"
+              type: "BE"
+              language: "Java (version TBD)"
+              framework: "Spring Cloud (version TBD)"
+              runtime: "Internal K8s Platform HA workload group"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "rms, tms, oms, wms, mds, ips, autopilot, ves, cfs, scs"
+            - id: "SYS-11"
+              name: "SYS-11 | Service-Supply-Chain-* group (22 services)"
+              type: "BE"
+              language: "Java (version TBD)"
+              framework: "Spring Cloud (version TBD)"
+              runtime: "Internal K8s Platform HA workload group"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "Registry label retained; supplied member list has 21 names pending reconciliation"
+            - id: "SYS-51"
+              name: "SYS-51 | MFT platform"
+              type: "IP"
+              shape: "parallelogram"
+              framework: "MFT platform (version TBD)"
+              runtime: "Private DC HA integration platform"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "Only managed file-transfer egress to SYS-48 through SYS-50"
+
+        - id: "dc-cn-primary-db"
+          type: "db_zone"
+          name: "DB Zone"
+          components:
+            - id: "SYS-12"
+              name: "SYS-12 | MySQL TMS HA (1 primary + 2 replicas)"
+              type: "DB"
+              shape: "cylinder"
+              framework: "MySQL (version TBD)"
+              runtime: "Private DC HA group"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "AES-256 at rest; no cross-region database replication"
+            - id: "SYS-13"
+              name: "SYS-13 | MySQL Main HA (1 primary + 2 replicas)"
+              type: "DB"
+              shape: "cylinder"
+              framework: "MySQL (version TBD)"
+              runtime: "Private DC HA group"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "AES-256 at rest; no cross-region database replication"
+            - id: "SYS-14"
+              name: "SYS-14 | MySQL WMS HA (1 primary + 2 replicas)"
+              type: "DB"
+              shape: "cylinder"
+              framework: "MySQL (version TBD)"
+              runtime: "Private DC HA group"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "AES-256 at rest; no cross-region database replication"
+            - id: "SYS-15"
+              name: "SYS-15 | MySQL MDS HA (1 primary + 2 replicas)"
+              type: "DB"
+              shape: "cylinder"
+              framework: "MySQL (version TBD)"
+              runtime: "Private DC HA group"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "AES-256 at rest; no cross-region database replication"
+            - id: "SYS-16"
+              name: "SYS-16 | MySQL OMS HA (1 primary + 2 replicas)"
+              type: "DB"
+              shape: "cylinder"
+              framework: "MySQL (version TBD)"
+              runtime: "Private DC HA group"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "AES-256 at rest; no cross-region database replication"
+            - id: "SYS-17"
+              name: "SYS-17 | Redis HA (3 primary + 3 replicas)"
+              type: "DB"
+              shape: "cylinder"
+              framework: "Redis (version TBD)"
+              runtime: "Private DC HA group"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "TLS and ACL authentication; AES-256 at rest"
+            - id: "SYS-18"
+              name: "SYS-18 | RabbitMQ HA (3 replicas)"
+              type: "MQ"
+              shape: "message_queue"
+              framework: "RabbitMQ (version TBD)"
+              runtime: "Private DC HA group"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "TLS and SCRAM authentication; AES-256 at rest"
+            - id: "SYS-19"
+              name: "SYS-19 | Elasticsearch HA (3 nodes)"
+              type: "DB"
+              shape: "cylinder"
+              framework: "Elasticsearch (version TBD)"
+              runtime: "Private DC HA group"
+              sensitivity: "Acme Confidential"
+              owner_type: "org_it"
+              status: "changed"
+              notes: "TLS and service authentication; AES-256 at rest"
+
+    - id: "dc-us"
+      type: "private_dc"
+      role: "production"
+      location: "US DC, City C, State X [US]"
+      owner: "InfraSec"
+      network_zones:
+        - id: "dc-us-intranet"
+          type: "intranet"
+          name: "App Zone / Intranet"
+          components:
+            - {id: "SYS-25", name: "SYS-25 | Account-Service", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "SYS-26", name: "SYS-26 | Service-customer-master-data", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "SYS-27", name: "SYS-27 | Serice-Data-serviceE", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Registry-resolved label retained"}
+            - {id: "SYS-28", name: "SYS-28 | Price-master-ROW", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "SYS-29", name: "SYS-29 | ADFS", type: "SEC", shape: "circle", sensitivity: "Acme Confidential", owner_type: "org_it", status: "unchanged", notes: "Internal SAML identity provider"}
+            - {id: "SYS-30", name: "SYS-30 | Enterprise ID", type: "SEC", shape: "circle", sensitivity: "Acme Confidential", owner_type: "org_it", status: "unchanged", notes: "External OIDC identity provider"}
+
+    - id: "dc-cn-secondary"
+      type: "private_dc"
+      role: "production"
+      location: "CN Secondary DC, City B, Province B [CN]"
+      owner: "InfraSec"
+      network_zones:
+        - id: "dc-cn-secondary-intranet"
+          type: "intranet"
+          name: "Intranet"
+          components:
+            - {id: "SYS-31", name: "SYS-31 | Reverse-Management-System", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "SYS-32", name: "SYS-32 | procurement-service", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "SYS-33", name: "SYS-33 | lakehouse", type: "DS", shape: "stored_data", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box data API boundary"}
+            - {id: "SYS-34", name: "SYS-34 | Kafka (secondary)", type: "MQ", shape: "message_queue", sensitivity: "Acme Confidential", owner_type: "org_it", status: "unchanged", notes: "Secondary event cluster"}
+            - {id: "SYS-35", name: "SYS-35 | support-hub", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+
+    - id: "dc-cn-support"
+      type: "private_dc"
+      role: "production"
+      location: "Support DC, City F [CN]"
+      owner: "InfraSec"
+      network_zones:
+        - id: "dc-cn-support-app"
+          type: "app_zone"
+          name: "App Zone"
+          components:
+            - {id: "SYS-36", name: "SYS-36 | support-portal", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "SYS-37", name: "SYS-37 | support-gateway", type: "API", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+
+    - id: "sap-landscape"
+      type: "private_dc"
+      role: "production"
+      location: "SAP landscape [location TBD]"
+      owner: "SAP Team (TBD)"
+      network_zones:
+        - id: "sap-private-zone"
+          type: "intranet"
+          name: "SAP Private Zone"
+          components:
+            - {id: "SYS-20", name: "SYS-20 | S4", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP ERP hub; no DMZ exposure"}
+            - {id: "SYS-21", name: "SYS-21 | SECC", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP black-box boundary"}
+            - {id: "SYS-22", name: "SYS-22 | LSCRM", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP black-box boundary"}
+            - {id: "SYS-23", name: "SYS-23 | CECC", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP black-box boundary"}
+            - {id: "SYS-24", name: "SYS-24 | S3", type: "DS", shape: "stored_data", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP object-storage boundary"}
+
+    - id: "azure-us-satellites"
+      type: "azure_vnet"
+      role: "production"
+      location: "Azure US [exact region TBD]"
+      owner: "ThirdParty / Cloud Owner (TBD)"
+      subnets:
+        - id: "azure-us-saas"
+          type: "spoke"
+          name: "SaaS Application Boundary"
+          components:
+            - {id: "SYS-38", name: "SYS-38 | analytics-a", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
+            - {id: "SYS-39", name: "SYS-39 | analytics-b", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
+            - {id: "SYS-40", name: "SYS-40 | analytics-c", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
+        - id: "azure-us-app"
+          type: "spoke"
+          name: "Application Boundary"
+          components:
+            - {id: "SYS-41", name: "SYS-41 | edge-cache", type: "BE", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing event-consuming black-box boundary"}
+
+    - id: "external-3pl"
+      type: "private_dc"
+      role: "production"
+      location: "Partner hosted [locations TBD]"
+      owner: "ThirdParty"
+      network_zones:
+        - id: "external-3pl-boundary"
+          type: "dmz"
+          name: "Internet 3PL Boundary"
+          components:
+            - {id: "SYS-42", name: "SYS-42 | logistics partner A", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
+            - {id: "SYS-43", name: "SYS-43 | logstics-vendor-1", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner; registry spelling retained"}
+            - {id: "SYS-44", name: "SYS-44 | logistics partner B", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
+            - {id: "SYS-45", name: "SYS-45 | logistics partner C", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
+            - {id: "SYS-46", name: "SYS-46 | logistics partner D", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
+            - {id: "SYS-47", name: "SYS-47 | logistics partner E", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
+
+    - id: "external-file-partners"
+      type: "private_dc"
+      role: "production"
+      location: "Partner hosted [locations TBD]"
+      owner: "ThirdParty"
+      network_zones:
+        - id: "external-file-boundary"
+          type: "dmz"
+          name: "Internet File-Transfer Boundary"
+          components:
+            - {id: "SYS-48", name: "SYS-48 | file partner A", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External managed-file partner"}
+            - {id: "SYS-49", name: "SYS-49 | file partner B", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External managed-file partner"}
+            - {id: "SYS-50", name: "SYS-50 | file partner C", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External managed-file partner"}
+
+  interactions:
+    - {from: "internet", to: "SYS-52", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Authorization Code", encryption: "TLS 1.3", notes: "External clients and 3PL traffic enter the named edge"}
+    - {from: "SYS-52", to: "SYS-01", protocol: "HTTPS/TLS 1.3", auth: "mTLS", encryption: "TLS 1.3", notes: "Routed ingress to F5 HA group"}
+    - {from: "SYS-01", to: "SYS-02", protocol: "HTTPS/TLS 1.3", auth: "mTLS", encryption: "TLS 1.3", notes: "Selected secure default pending TBD-004 approval"}
+    - {from: "SYS-02", to: "SYS-04", protocol: "HTTPS/TLS 1.3", auth: "mTLS", encryption: "TLS 1.3", notes: "DMZ reverse proxy to web tier"}
+    - {from: "SYS-04", to: "SYS-03", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 User Token", encryption: "TLS 1.3", notes: "Web API call"}
+    - {from: "SYS-03", to: "SYS-05", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Basic Auth replacement target"}
+    - {from: "SYS-05", to: "SYS-10", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3", notes: "Mediated API route"}
+    - {from: "SYS-05", to: "SYS-11", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3", notes: "Mediated API route"}
+
+    - {from: "SYS-07", to: "SYS-06", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "SYS-08", to: "SYS-06", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "SYS-09", to: "SYS-06", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "SYS-10", to: "SYS-06", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "SYS-11", to: "SYS-06", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+
+    - {from: "SYS-07", to: "SYS-12", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-08", to: "SYS-13", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-09", to: "SYS-13", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-10", to: "SYS-12", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3", notes: "Group routes to authorized schemas only"}
+    - {from: "SYS-10", to: "SYS-13", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-10", to: "SYS-14", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-10", to: "SYS-15", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-10", to: "SYS-16", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-11", to: "SYS-12", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3", notes: "Group routes to authorized schemas only"}
+    - {from: "SYS-11", to: "SYS-13", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-11", to: "SYS-14", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-11", to: "SYS-15", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-11", to: "SYS-16", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+
+    - {from: "SYS-07", to: "SYS-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-08", to: "SYS-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-09", to: "SYS-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-10", to: "SYS-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-11", to: "SYS-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "SYS-07", to: "SYS-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "SYS-08", to: "SYS-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "SYS-09", to: "SYS-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "SYS-10", to: "SYS-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "SYS-11", to: "SYS-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "SYS-07", to: "SYS-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "SYS-08", to: "SYS-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "SYS-09", to: "SYS-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "SYS-10", to: "SYS-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "SYS-11", to: "SYS-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+
+    - {from: "SYS-07", to: "SYS-20", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC", notes: "Encrypted private WAN; SAP endpoint confirmation pending"}
+    - {from: "SYS-08", to: "SYS-20", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "SYS-09", to: "SYS-20", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "SYS-10", to: "SYS-20", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "SYS-11", to: "SYS-20", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "SYS-20", to: "SYS-21", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "SYS-20", to: "SYS-22", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "SYS-20", to: "SYS-23", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "SYS-07", to: "SYS-24", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "SYS-08", to: "SYS-24", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "SYS-09", to: "SYS-24", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "SYS-10", to: "SYS-24", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "SYS-11", to: "SYS-24", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+
+    - {from: "SYS-05", to: "SYS-25", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec", notes: "CN-US minimized API dataset"}
+    - {from: "SYS-05", to: "SYS-26", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "SYS-05", to: "SYS-27", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "SYS-05", to: "SYS-28", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "SYS-05", to: "SYS-31", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "SYS-05", to: "SYS-32", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "SYS-05", to: "SYS-33", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "SYS-06", to: "SYS-34", protocol: "Kafka/TLS over IPsec private WAN", auth: "SASL/SCRAM", encryption: "TLS 1.3 + IPsec", notes: "One-way event publication; no database replication"}
+    - {from: "SYS-05", to: "SYS-35", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "SYS-05", to: "SYS-36", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "SYS-05", to: "SYS-37", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+
+    - {from: "SYS-05", to: "SYS-38", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Outbound-only Azure SaaS API integration"}
+    - {from: "SYS-05", to: "SYS-39", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Outbound-only Azure SaaS API integration"}
+    - {from: "SYS-05", to: "SYS-40", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Outbound-only Azure SaaS API integration"}
+    - {from: "SYS-06", to: "SYS-41", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3", notes: "Outbound event stream; private connectivity target pending TBD-007"}
+
+    - {from: "SYS-05", to: "SYS-42", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
+    - {from: "SYS-05", to: "SYS-43", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
+    - {from: "SYS-05", to: "SYS-44", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
+    - {from: "SYS-05", to: "SYS-45", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
+    - {from: "SYS-05", to: "SYS-46", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
+    - {from: "SYS-05", to: "SYS-47", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
+    - {from: "SYS-51", to: "SYS-48", protocol: "SFTP/SSH", auth: "Vault-managed SSH certificate", encryption: "SSH-2", notes: "Managed transfer with automated key rotation"}
+    - {from: "SYS-51", to: "SYS-49", protocol: "SFTP/SSH", auth: "Vault-managed SSH certificate", encryption: "SSH-2", notes: "Managed transfer with automated key rotation"}
+    - {from: "SYS-51", to: "SYS-50", protocol: "SFTP/SSH", auth: "Vault-managed SSH certificate", encryption: "SSH-2", notes: "Managed transfer with automated key rotation"}
+
+    - {from: "SYS-04", to: "SYS-29", protocol: "HTTPS/SAML 2.0", auth: "Signed SAML assertion + MFA", encryption: "TLS 1.3", notes: "Internal operations and BU user SSO"}
+    - {from: "internet", to: "SYS-30", protocol: "HTTPS/OIDC", auth: "OAuth2.0 Authorization Code + PKCE + MFA", encryption: "TLS 1.3", notes: "Partner and carrier authentication; application callback endpoint remains TBD"}
+
+  security:
+    key_management:
+      private_dc: "Kubernetes Secrets encrypted at rest for workloads; enterprise vault with HSM-backed keys for F5, WSO2, Kafka, HA data platforms, MFT platform, and network devices; automated rotation; no hardcoded credentials"
+      azure: "Azure Key Vault with managed identities and private endpoints for Azure-owned secrets; third-party control evidence required"
+      partner_keys: "SYS-51 obtains short-lived SSH certificates from the enterprise vault; dual control and automated rotation"
+    user_auth_internal:
+      server: "SYS-29 | ADFS"
+      protocol: "SAML 2.0 over TLS 1.3 with signed assertions and MFA"
+    user_auth_external:
+      server: "SYS-30 | Enterprise ID"
+      protocol: "OIDC / OAuth2.0 Authorization Code with PKCE and MFA"
+    authorization:
+      platform: "AuthZ Platform"
+      enforcement: "SYS-05 API policy plus application-level RBAC, least privilege, deny by default"
+    bastion:
+      unified: "Privileged Access Workstation (PAW)"
+      access_path: "Office Network -> MFA -> PAW -> approved management plane -> named private zone"
+    operational_access:
+      - "No public SSH, RDP, database, message-broker, or management endpoints"
+      - "MFA, just-in-time elevation, named accounts, session recording, and dual approval for privileged access"
+      - "Administrative traffic is isolated from application and data traffic"
+      - "Quarterly access recertification and immediate revocation on role change"
+    network_segmentation:
+      ingress: "Internet traffic enters via SYS-52 and terminates at SYS-01; DMZ has no direct route to DB Zone"
+      east_west: "Allowlisted flows only; cross-application APIs use SYS-05 and events use SYS-06"
+      database: "DB Zone accepts encrypted connections only from SYS-07 through SYS-11 service identities"
+      external: "3PL APIs use SYS-05; files use SYS-51; SAP RFC is Intranet-only; no partner has direct Intranet access"
+      inter_dc: "Named private WAN paths use IPsec encryption; no direct cross-region database replication"
+    data_protection:
+      in_transit: "TLS 1.3 preferred and TLS 1.2 minimum; mTLS for trust-boundary APIs; SAP SNC for RFC; SSH-2 for SFTP"
+      at_rest: "AES-256 for Confidential data in MySQL, Redis, RabbitMQ, Elasticsearch, Kafka, Azure services, backups, and managed-file staging"
+      cross_border: "Minimize and classify CN-US API/event fields; encrypt in transit; retain in approved region; Privacy/Legal approval required before production"
+      backups: "Encrypted, immutable backups with separate keys, restore testing, defined retention, and region-bound storage"
+    monitoring:
+      centralized: "F5, WSO2, Kafka, K8s, databases, MFT platform, identity, Azure, and network audit logs forward to the enterprise SIEM"
+      controls: "Tamper-resistant retention, time synchronization, correlation IDs, DLP alerts, authentication anomaly detection, and 24x7 incident routing"
+    resilience:
+      application: "K8s anti-affinity, health checks, rolling deployment, disruption budgets, and capacity monitoring across HA workload groups"
+      data: "Documented HA groups, encrypted backups, tested restore procedures, and no unsupported cross-border replication"
+      integration: "WSO2, Kafka, F5, MFT platform, and edge routing run as monitored HA services with tested failover"

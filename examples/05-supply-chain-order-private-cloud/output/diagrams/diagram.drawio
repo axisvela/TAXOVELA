@@ -1,0 +1,587 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="arch-harness" version="24.6.4" type="device">
+  <diagram id="diag-a2705c6509d7" name="Page-1">
+    <mxGraphModel dx="2000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1168" pageHeight="2228" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="hdr-ade957a24eda" value="&lt;b&gt;Diagram: Supply-Chain Order Platform (OSP) - Active-Active CN and NA Technical Architecture&lt;/b&gt;&lt;br/&gt;ID: OSP-001-TechDiagram-V1.0&lt;br/&gt;Platform: hybrid_cloud" style="text;whiteSpace=wrap;overflow=hidden;rounded=0;fontFamily=Helvetica;fontSize=11;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="40" y="-120" width="600" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="inet-de3c0f25c71c" value="Internet" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.internet;" parent="1" vertex="1">
+          <mxGeometry x="40" y="80" width="60" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="user-7eac9118c74d" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;align=center;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="160" y="70" width="37" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-28f73f0828c9" value="City A, Province A [CN]&#10;(InfraSec)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="50" y="140" width="474" height="1376" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-6afd2ac0a46b" value="Intranet" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-28f73f0828c9" vertex="1">
+          <mxGeometry x="22" y="66" width="430" height="204" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-3a0bc2ead766" value="⚠ SYS-01 | F5&#10;(N/A, F5)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-6afd2ac0a46b" vertex="1" tooltip="Lang: N/A | Framework: F5 | Runtime: Network appliance | Classification: Company Confidential | Notes: CN ingress load balancer">
+          <mxGeometry x="16" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-50f0c06bfa31" value="⚠ SYS-02 | WAF&#10;(N/A, Enterprise WAF)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-6afd2ac0a46b" vertex="1" tooltip="Lang: N/A | Framework: Enterprise WAF | Runtime: Security appliance | Classification: Company Confidential | Notes: Optional CN WAF; enable after security-owner decision">
+          <mxGeometry x="140" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-a5b90b2a168b" value="⚠ SYS-03 | Edge router&#10;(N/A, Edge router)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-6afd2ac0a46b" vertex="1" tooltip="Lang: N/A | Framework: Edge router | Runtime: Network platform | Classification: Company Confidential | Notes: CN edge routing boundary">
+          <mxGeometry x="264" y="52" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-7c12bde83b22" value="⚠ SYS-04 | scop-cn-web&#10;(N/A, Nginx)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-6afd2ac0a46b" vertex="1" tooltip="Lang: N/A | Framework: Nginx | Runtime: Private DC web tier | Classification: Company Confidential | Notes: CN employee web tier">
+          <mxGeometry x="140" y="122" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-394571d12291" value="App Zone" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-28f73f0828c9" vertex="1">
+          <mxGeometry x="22" y="288" width="430" height="810" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-b3aec0a227e5" value="⚠ SYS-05 | Spring Cloud Gateway&#10;(Java, Spring Cloud Gateway)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-394571d12291" vertex="1" tooltip="Lang: Java | Framework: Spring Cloud Gateway | Runtime: Internal K8s Platform | Classification: Company Confidential | Notes: CN application gateway">
+          <mxGeometry x="58" y="48" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-8ecae2766ce0" value="⚠ SYS-06 | Order Creation&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="50" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-2b77b21dcfe4" value="⚠ SYS-07 | Order Change&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="118" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-60089633c754" value="⚠ SYS-08 | Data Distribution&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="118" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-daa1f822ec80" value="⚠ SYS-09 | Master Data&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="184" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-33c324206a21" value="⚠ SYS-10 | Order Inquiry&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="184" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-e3f1e1b7275d" value="⚠ SYS-11 | Basic Operation&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="250" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-16525c316534" value="⚠ SYS-12 | Logging&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="250" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-15fe6078f6bd" value="⚠ SYS-13 | etc.&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="318" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-acee27cb96b8" value="⚠ SYS-14 | APIM&#10;(N/A, APIM)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-394571d12291" vertex="1" tooltip="Lang: N/A | Framework: APIM | Runtime: Integration platform | Classification: Company Confidential | Notes: CN API management boundary">
+          <mxGeometry x="222" y="316" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-121379e28567" value="⚠ SYS-15 | WSO2&#10;(N/A, WSO2 API Gateway)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-394571d12291" vertex="1" tooltip="Lang: N/A | Framework: WSO2 API Gateway | Runtime: Integration platform | Classification: Company Confidential | Notes: CN API gateway boundary">
+          <mxGeometry x="58" y="386" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-0709ff704fc7" value="⚠ SYS-16 | APIH&#10;(N/A, APIH)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-394571d12291" vertex="1" tooltip="Lang: N/A | Framework: APIH | Runtime: Integration platform | Classification: Company Confidential | Notes: CN API mediation boundary">
+          <mxGeometry x="222" y="386" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-ea7652a4e80c" value="⚠ SYS-17 | Kafka&#10;(N/A, Kafka)" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="zone-394571d12291" vertex="1" tooltip="Lang: N/A | Framework: Kafka | Runtime: Messaging platform | Classification: Company Confidential | Notes: CN event and CDC publication bus">
+          <mxGeometry x="58" y="456" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-e461ab4d60d8" value="⚠ SYS-18 | RabbitMQ&#10;(N/A, RabbitMQ)" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="zone-394571d12291" vertex="1" tooltip="Lang: N/A | Framework: RabbitMQ | Runtime: Messaging platform | Classification: Company Confidential | Notes: CN CDC staging bus">
+          <mxGeometry x="222" y="456" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-533b98baf242" value="⚠ SYS-19 | Debezium&#10;(Java, Debezium)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-394571d12291" vertex="1" tooltip="Lang: Java | Framework: Debezium | Runtime: Internal K8s Platform | Classification: Company Confidential | Notes: CN CDC connector; no direct cross-region database replication">
+          <mxGeometry x="58" y="526" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-0cd0287ad010" value="⚠ SYS-20 | ECC-CN&#10;(N/A, SAP ECC Function and SLT)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="zone-394571d12291" vertex="1" tooltip="Lang: N/A | Framework: SAP ECC Function and SLT | Runtime: Existing ERP platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="528" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-b31a09f022eb" value="⚠ SYS-21 | S4-CN&#10;(N/A, SAP S/4 Function and SLT)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="zone-394571d12291" vertex="1" tooltip="Lang: N/A | Framework: SAP S/4 Function and SLT | Runtime: Existing ERP platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="596" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-1b500c13eadd" value="⚠ SYS-50 | eComm-order-platform&#10;(N/A, Existing application)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: CN private platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="596" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-11dedf7e3287" value="⚠ SYS-51 | SOS(sales order service)-PRC&#10;(N/A, Existing application)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: CN private platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="662" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-f8dbeb1752be" value="⚠ SYS-52 | CFOS(customer order fullfillment service)-PRC&#10;(N/A, Existing application)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: CN private platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="662" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-6fbbe9c4909b" value="⚠ SYS-53 | CFOS(customer order fullfillment service)-AP&#10;(N/A, Existing application)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: CN private platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="728" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-af8e3b55422d" value="⚠ SYS-54 | SSCS(Service supply chain service)-AP&#10;(N/A, Existing application)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-394571d12291" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: CN private platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="728" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-ebba2cae45ae" value="DB Zone" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-28f73f0828c9" vertex="1">
+          <mxGeometry x="22" y="1116" width="430" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-83dde1856785" value="⚠ SYS-22 | Elasticsearch HA&#10;(N/A, Elasticsearch HA)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-ebba2cae45ae" vertex="1" tooltip="Lang: N/A | Framework: Elasticsearch HA | Runtime: HA data platform | Classification: Company Confidential | Notes: Encrypted search index">
+          <mxGeometry x="21" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-6fa6762b024d" value="⚠ SYS-23 | Redis HA&#10;(N/A, Redis HA)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-ebba2cae45ae" vertex="1" tooltip="Lang: N/A | Framework: Redis HA | Runtime: HA data platform | Classification: Company Confidential | Notes: Encrypted cache persistence">
+          <mxGeometry x="155" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-450a6c655f6d" value="⚠ SYS-24 | MySQL HA&#10;(N/A, MySQL HA)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-ebba2cae45ae" vertex="1" tooltip="Lang: N/A | Framework: MySQL HA | Runtime: HA data platform | Classification: Company Confidential | Notes: CN-only relational group; AES-256 at rest">
+          <mxGeometry x="289" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-fd74c68b5345" value="⚠ SYS-25 | PostgreSQL HA&#10;(N/A, PostgreSQL HA)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-ebba2cae45ae" vertex="1" tooltip="Lang: N/A | Framework: PostgreSQL HA | Runtime: HA data platform | Classification: Company Confidential | Notes: AES-256 at rest">
+          <mxGeometry x="88" y="126" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-85b69d5bc855" value="⚠ SYS-26 | SQLServer HA&#10;(N/A, SQL Server HA)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-ebba2cae45ae" vertex="1" tooltip="Lang: N/A | Framework: SQL Server HA | Runtime: HA data platform | Classification: Company Confidential | Notes: TDE AES-256 at rest">
+          <mxGeometry x="222" y="126" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-eb5b41404439" value="City C, State X [US]&#10;(InfraSec)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="594" y="140" width="474" height="1482" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-388501f0daf7" value="NA-PROD-INA-EARTH" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-eb5b41404439" vertex="1">
+          <mxGeometry x="22" y="66" width="430" height="138" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-8f52125320a8" value="⚠ SYS-28 | F5&#10;(N/A, F5)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-388501f0daf7" vertex="1" tooltip="Lang: N/A | Framework: F5 | Runtime: Network appliance | Classification: Company Confidential | Notes: NA ingress load balancer">
+          <mxGeometry x="16" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-f2bccb6f5976" value="⚠ SYS-29 | WAF&#10;(N/A, Enterprise WAF)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-388501f0daf7" vertex="1" tooltip="Lang: N/A | Framework: Enterprise WAF | Runtime: Security appliance | Classification: Company Confidential | Notes: Optional NA WAF; enable after security-owner decision">
+          <mxGeometry x="140" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-0fdc53b9c348" value="⚠ SYS-30 | Edge router&#10;(N/A, Edge router)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-388501f0daf7" vertex="1" tooltip="Lang: N/A | Framework: Edge router | Runtime: Network platform | Classification: Company Confidential | Notes: NA edge routing boundary">
+          <mxGeometry x="264" y="52" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-db202b5d409f" value="NA-PROD-INA-K8S" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-eb5b41404439" vertex="1">
+          <mxGeometry x="22" y="222" width="430" height="530" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-a908d8fc50a9" value="⚠ SYS-31 | osp-na-web&#10;(N/A, Nginx)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: N/A | Framework: Nginx | Runtime: Internal K8s Platform | Classification: Company Confidential | Notes: NA employee web tier">
+          <mxGeometry x="58" y="50" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-6746aa112d37" value="⚠ SYS-32 | Spring Cloud Gateway&#10;(Java, Spring Cloud Gateway)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: Java | Framework: Spring Cloud Gateway | Runtime: Internal K8s Platform | Classification: Company Confidential | Notes: NA application gateway">
+          <mxGeometry x="222" y="48" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-a0a6b124d5f8" value="⚠ SYS-33 | Order Creation&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="118" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-f2db7b38b238" value="⚠ SYS-34 | Order Change&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="118" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-010ca1ade535" value="⚠ SYS-35 | Data Distribution&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="184" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-1dd785387914" value="⚠ SYS-36 | Master Data&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="184" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-0e131a38c925" value="⚠ SYS-37 | Order Inquiry&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="250" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-8af2a20662a1" value="⚠ SYS-38 | Basic Operation&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="250" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-41385a17d8c0" value="⚠ SYS-39 | Logging&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="316" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-73b58e76f9c2" value="⚠ SYS-40 | etc.&#10;(Java, Spring)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="316" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-2d5bec8bedbd" value="⚠ SYS-58 | ERPS（ERP service）&#10;(N/A, Existing application)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="382" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-88a4677df2ff" value="⚠ SYS-59 | LGS(logistics gateway service)-NA&#10;(N/A, Existing application)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="222" y="382" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-7785f114730c" value="⚠ SYS-60 | IBS(Installbase service)&#10;(N/A, Existing application)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-db202b5d409f" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="140" y="448" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-ff504af1ae5b" value="NA-PROD-INA-INTEGRATION" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-eb5b41404439" vertex="1">
+          <mxGeometry x="22" y="770" width="430" height="134" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-a8f686c7b480" value="⚠ SYS-41 | APIH&#10;(N/A, APIH)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-ff504af1ae5b" vertex="1" tooltip="Lang: N/A | Framework: APIH | Runtime: Integration platform | Classification: Company Confidential | Notes: Sole NA cross-application API mediator">
+          <mxGeometry x="58" y="48" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-9ded6199c074" value="⚠ SYS-42 | Kafka&#10;(N/A, Kafka)" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="zone-ff504af1ae5b" vertex="1" tooltip="Lang: N/A | Framework: Kafka | Runtime: Messaging platform | Classification: Company Confidential | Notes: Sole NA cross-application event mediator">
+          <mxGeometry x="222" y="48" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-3f144ecbab5a" value="NA-PROD-INA-SAP" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-eb5b41404439" vertex="1">
+          <mxGeometry x="22" y="922" width="430" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-96feb727eb31" value="⚠ SYS-45 | S4-NA&#10;(N/A, SAP S/4 Function and SLT)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="zone-3f144ecbab5a" vertex="1" tooltip="Lang: N/A | Framework: SAP S/4 Function and SLT | Runtime: Existing ERP platform | Classification: Company Confidential">
+          <mxGeometry x="140" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-3a602de187a1" value="NA-PROD-INA-SERVER" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-eb5b41404439" vertex="1">
+          <mxGeometry x="22" y="1070" width="430" height="134" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-68f53a74dc9a" value="⚠ SYS-43 | RabbitMQ&#10;(N/A, RabbitMQ)" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="zone-3a602de187a1" vertex="1" tooltip="Lang: N/A | Framework: RabbitMQ | Runtime: Messaging platform | Classification: Company Confidential | Notes: NA CDC staging bus">
+          <mxGeometry x="58" y="48" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-afc01f51f604" value="⚠ SYS-44 | Debezium&#10;(Java, Debezium)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-3a602de187a1" vertex="1" tooltip="Lang: Java | Framework: Debezium | Runtime: Server platform | Classification: Company Confidential | Notes: NA CDC connector; no direct cross-region database replication">
+          <mxGeometry x="222" y="48" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-42d70eb2607b" value="NA-PROD-INA-DB" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-eb5b41404439" vertex="1">
+          <mxGeometry x="22" y="1222" width="430" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-4aee5f2a162e" value="⚠ SYS-46 | Elasticsearch HA&#10;(N/A, Elasticsearch HA)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-42d70eb2607b" vertex="1" tooltip="Lang: N/A | Framework: Elasticsearch HA | Runtime: HA data platform | Classification: Company Confidential | Notes: Encrypted search index">
+          <mxGeometry x="21" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-5a04658bd963" value="⚠ SYS-47 | Redis HA&#10;(N/A, Redis HA)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-42d70eb2607b" vertex="1" tooltip="Lang: N/A | Framework: Redis HA | Runtime: HA data platform | Classification: Company Confidential | Notes: Encrypted cache persistence">
+          <mxGeometry x="155" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-2425176888b1" value="⚠ SYS-48 | PostgreSQL HA&#10;(N/A, PostgreSQL HA)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-42d70eb2607b" vertex="1" tooltip="Lang: N/A | Framework: PostgreSQL HA | Runtime: HA data platform | Classification: Company Confidential | Notes: AES-256 at rest">
+          <mxGeometry x="289" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-9cf125c6f041" value="⚠ SYS-49 | SQLServer HA&#10;(N/A, SQL Server HA)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-42d70eb2607b" vertex="1" tooltip="Lang: N/A | Framework: SQL Server HA | Runtime: HA data platform | Classification: Company Confidential | Notes: TDE AES-256 at rest">
+          <mxGeometry x="155" y="126" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-69b5a1984f9b" value="City C, State X [US]&#10;(InfraSec)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="50" y="1586" width="474" height="236" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-008c5d55830f" value="App Zone" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-69b5a1984f9b" vertex="1">
+          <mxGeometry x="22" y="66" width="430" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-39b70eeb0338" value="⚠ SYS-27 | ADFS&#10;(N/A, ADFS)" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;" parent="zone-008c5d55830f" vertex="1" tooltip="Lang: N/A | Framework: ADFS | Runtime: Existing identity platform | Classification: Company Confidential | Notes: Employee SSO with MFA policy enforcement">
+          <mxGeometry x="140" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-3cfd07636673" value="AWS US East, N. Virginia [US]&#10;(Third Party)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="594" y="1692" width="474" height="236" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-0809870b238c" value="Private subnet (APP)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-3cfd07636673" vertex="1">
+          <mxGeometry x="22" y="66" width="430" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-be570af775a1" value="⚠ SYS-55 | SOS(sales order service)-ROW&#10;(N/A, Existing application)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="zone-0809870b238c" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: AWS private application subnet | Classification: Company Confidential | Notes: AWS US event consumer">
+          <mxGeometry x="140" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-dac2c0f00e75" value="Azure US [US]&#10;(Third Party)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="50" y="1892" width="474" height="236" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-c5fbb95688c6" value="APP Zone" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-dac2c0f00e75" vertex="1">
+          <mxGeometry x="22" y="66" width="430" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-98563c4a1b31" value="⚠ SYS-56 | edge-cache&#10;(N/A, Existing Azure application)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="zone-c5fbb95688c6" vertex="1" tooltip="Lang: N/A | Framework: Existing Azure application | Runtime: Azure application platform | Classification: Company Confidential">
+          <mxGeometry x="58" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-1f7b69d0b9a7" value="⚠ SYS-57 | D365&#10;(N/A, Dynamics 365)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="zone-c5fbb95688c6" vertex="1" tooltip="Lang: N/A | Framework: Dynamics 365 | Runtime: Microsoft SaaS | Classification: Company Confidential">
+          <mxGeometry x="222" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-a9e56ebc19e6" value="HTTPS&#10;(Mutual TLS)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-3a0bc2ead766" target="comp-50f0c06bfa31" edge="1" tooltip="CN optional WAF inspection">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-d669c7a8d5df" value="HTTPS&#10;(Mutual TLS)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-50f0c06bfa31" target="comp-a5b90b2a168b" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-d92d890bc47e" value="HTTPS&#10;(Mutual TLS)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a5b90b2a168b" target="comp-7c12bde83b22" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-85eb4fecdf72" value="HTTPS/SAML 2.0&#10;(SAML 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-7c12bde83b22" target="comp-39b70eeb0338" edge="1" tooltip="CN employee SSO">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-8c57dd0b1d45" value="HTTPS&#10;(SAML bearer session token)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-7c12bde83b22" target="comp-b3aec0a227e5" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-85b84a7c1982" value="HTTPS&#10;(Mutual TLS)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-8f52125320a8" target="comp-f2bccb6f5976" edge="1" tooltip="NA optional WAF inspection">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-256ab20a7a87" value="HTTPS&#10;(Mutual TLS)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-f2bccb6f5976" target="comp-0fdc53b9c348" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-6c04848d6028" value="HTTPS&#10;(Mutual TLS)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-0fdc53b9c348" target="comp-a908d8fc50a9" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-c0e0d4311387" value="HTTPS/SAML 2.0&#10;(SAML 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a908d8fc50a9" target="comp-39b70eeb0338" edge="1" tooltip="NA employee SSO">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-26caa229efa1" value="HTTPS&#10;(SAML bearer session token)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a908d8fc50a9" target="comp-6746aa112d37" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-12188a0d834e" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-b3aec0a227e5" target="comp-8ecae2766ce0" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-be0f69fc3729" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-b3aec0a227e5" target="comp-2b77b21dcfe4" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-21618d8918b1" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-b3aec0a227e5" target="comp-60089633c754" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-d2a88bc70c8d" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-b3aec0a227e5" target="comp-daa1f822ec80" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-add73b478b81" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-b3aec0a227e5" target="comp-33c324206a21" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-6b4a421c56ba" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-b3aec0a227e5" target="comp-e3f1e1b7275d" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9a6b50e3021c" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-b3aec0a227e5" target="comp-16525c316534" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-bf661bddf430" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-b3aec0a227e5" target="comp-15fe6078f6bd" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-7180afc2cabc" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-6746aa112d37" target="comp-a0a6b124d5f8" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-f23b9e5c730c" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-6746aa112d37" target="comp-f2db7b38b238" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-f57ffb764515" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-6746aa112d37" target="comp-010ca1ade535" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ab0c613515f7" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-6746aa112d37" target="comp-1dd785387914" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9728c00562a7" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-6746aa112d37" target="comp-0e131a38c925" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-fe610d4c1f4e" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-6746aa112d37" target="comp-8af2a20662a1" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-4058a629f2ce" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-6746aa112d37" target="comp-41385a17d8c0" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-41f83ff94498" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-6746aa112d37" target="comp-73b58e76f9c2" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-7644e722cefb" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-8ecae2766ce0" target="comp-0709ff704fc7" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-0e70395748bb" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-2b77b21dcfe4" target="comp-0709ff704fc7" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ab942d69db43" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-60089633c754" target="comp-acee27cb96b8" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-d9c6e0514127" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-daa1f822ec80" target="comp-121379e28567" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3f2d323ac0bb" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-33c324206a21" target="comp-0709ff704fc7" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-787a9ccc7411" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-e3f1e1b7275d" target="comp-121379e28567" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-aaca2001d117" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-16525c316534" target="comp-acee27cb96b8" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-b9b3d00d8a7e" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-15fe6078f6bd" target="comp-0709ff704fc7" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-694d40024859" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-8ecae2766ce0" target="comp-ea7652a4e80c" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-d8e11ab567c0" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-2b77b21dcfe4" target="comp-ea7652a4e80c" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-dd0ff1b2b072" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-60089633c754" target="comp-ea7652a4e80c" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-0d3b727cc577" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-daa1f822ec80" target="comp-ea7652a4e80c" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-603fc8fa1ce2" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-33c324206a21" target="comp-ea7652a4e80c" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ce0ce9b883fa" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-e3f1e1b7275d" target="comp-ea7652a4e80c" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-7e50fe5e5faa" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-16525c316534" target="comp-ea7652a4e80c" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-f8e2ef88559f" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-15fe6078f6bd" target="comp-ea7652a4e80c" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9cc3ecc74b8f" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a0a6b124d5f8" target="comp-a8f686c7b480" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-702ebab95bb4" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-f2db7b38b238" target="comp-a8f686c7b480" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3994e3df1f03" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-010ca1ade535" target="comp-a8f686c7b480" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-552dfd0fc6ba" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-1dd785387914" target="comp-a8f686c7b480" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-aaae862b3091" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-0e131a38c925" target="comp-a8f686c7b480" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-26f31a481783" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-8af2a20662a1" target="comp-a8f686c7b480" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-8fc6fe44f668" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-41385a17d8c0" target="comp-a8f686c7b480" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-7d8fe8b2b37b" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-73b58e76f9c2" target="comp-a8f686c7b480" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3e7652f23469" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a0a6b124d5f8" target="comp-9ded6199c074" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-82c294de5931" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-f2db7b38b238" target="comp-9ded6199c074" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ead282f5246d" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-010ca1ade535" target="comp-9ded6199c074" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-bdea2b756ca3" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-1dd785387914" target="comp-9ded6199c074" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-11f319561b4e" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-0e131a38c925" target="comp-9ded6199c074" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-4d670a1d9ac2" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-8af2a20662a1" target="comp-9ded6199c074" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-0f5c954c9325" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-41385a17d8c0" target="comp-9ded6199c074" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-5cc19bab935d" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-73b58e76f9c2" target="comp-9ded6199c074" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3a2332ae1e05" value="RFC/SNC&#10;(SAP Logon Ticket)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-8ecae2766ce0" target="comp-0cd0287ad010" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-f71af264dd7b" value="RFC/SNC&#10;(SAP Logon Ticket)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-2b77b21dcfe4" target="comp-b31a09f022eb" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-a9b52b7b2f92" value="RFC/SNC&#10;(SAP Logon Ticket)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-daa1f822ec80" target="comp-b31a09f022eb" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-f48ec9a0f5d0" value="RFC/SNC&#10;(SAP Logon Ticket)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a0a6b124d5f8" target="comp-96feb727eb31" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ab4ff1b189b8" value="RFC/SNC&#10;(SAP Logon Ticket)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-f2db7b38b238" target="comp-96feb727eb31" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-e92c21234fb5" value="RFC/SNC&#10;(SAP Logon Ticket)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-1dd785387914" target="comp-96feb727eb31" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-62e8ac5e44b6" value="RFC/SNC&#10;(SAP technical user from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-b31a09f022eb" target="comp-533b98baf242" edge="1" tooltip="CN SLT change feed">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-83da6e8ef43e" value="AMQPS&#10;(Username/password from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-533b98baf242" target="comp-e461ab4d60d8" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-d298a2cd37de" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-e461ab4d60d8" target="comp-ea7652a4e80c" edge="1" tooltip="CN CDC publication">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-179cf89a5af1" value="RFC/SNC&#10;(SAP technical user from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-96feb727eb31" target="comp-afc01f51f604" edge="1" tooltip="NA SLT change feed">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-863fc44ab2ab" value="AMQPS&#10;(Username/password from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-afc01f51f604" target="comp-68f53a74dc9a" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-06fda7e46f7c" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-68f53a74dc9a" target="comp-9ded6199c074" edge="1" tooltip="NA CDC publication">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-b1e8e982ac54" value="Kafka&#10;(Mutual TLS and SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-ea7652a4e80c" target="comp-9ded6199c074" edge="1" tooltip="CN-to-NA minimized order events; no database replication">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3b0d57294861" value="Kafka&#10;(Mutual TLS and SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-9ded6199c074" target="comp-ea7652a4e80c" edge="1" tooltip="NA-to-CN minimized order events; no database replication">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-4de70c1d0d3d" value="JDBC&#10;(Database role credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-8ecae2766ce0" target="comp-450a6c655f6d" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1d44d62c63d2" value="JDBC&#10;(Database role credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-2b77b21dcfe4" target="comp-450a6c655f6d" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-95d2937edf2e" value="JDBC&#10;(Database role credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-60089633c754" target="comp-85b69d5bc855" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-e65cb78f2ae2" value="RESP/TLS&#10;(ACL credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-daa1f822ec80" target="comp-6fa6762b024d" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-a0d4107d654e" value="JDBC&#10;(Database role credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-daa1f822ec80" target="comp-fd74c68b5345" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-bb3f53457159" value="HTTPS&#10;(Service credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-33c324206a21" target="comp-83dde1856785" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-366ca1577775" value="JDBC&#10;(Read-only database role from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-33c324206a21" target="comp-fd74c68b5345" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-e68565913c77" value="JDBC&#10;(Database role credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-e3f1e1b7275d" target="comp-85b69d5bc855" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-bb32d74733fe" value="HTTPS&#10;(Service credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-16525c316534" target="comp-83dde1856785" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-0ed6067decce" value="JDBC&#10;(Database role credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-15fe6078f6bd" target="comp-fd74c68b5345" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-fd044610d796" value="JDBC&#10;(Database role credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a0a6b124d5f8" target="comp-2425176888b1" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9f41f53473dd" value="JDBC&#10;(Database role credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-f2db7b38b238" target="comp-2425176888b1" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ba808a6a1d39" value="JDBC&#10;(Database role credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-010ca1ade535" target="comp-9cf125c6f041" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-84812718f621" value="RESP/TLS&#10;(ACL credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-1dd785387914" target="comp-5a04658bd963" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3d18b9f4fad4" value="JDBC&#10;(Database role credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-1dd785387914" target="comp-2425176888b1" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3b5fa99e1ec9" value="HTTPS&#10;(Service credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-0e131a38c925" target="comp-4aee5f2a162e" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-6c6bee9b46d3" value="JDBC&#10;(Read-only database role from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-0e131a38c925" target="comp-2425176888b1" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-06ac309551fa" value="JDBC&#10;(Database role credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-8af2a20662a1" target="comp-9cf125c6f041" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3966d8e1a610" value="HTTPS&#10;(Service credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-41385a17d8c0" target="comp-4aee5f2a162e" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9c2e62485571" value="JDBC&#10;(Database role credential from K8s Secrets)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-73b58e76f9c2" target="comp-2425176888b1" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-13be2d0a4cd8" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-acee27cb96b8" target="comp-1b500c13eadd" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1c37a304d70b" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-121379e28567" target="comp-11dedf7e3287" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ed4c09779fd0" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-0709ff704fc7" target="comp-f8dbeb1752be" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-a8814ece6f56" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-0709ff704fc7" target="comp-6fbbe9c4909b" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-a1c2b3dc3c70" value="Kafka&#10;(SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-ea7652a4e80c" target="comp-af8e3b55422d" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-2eeb82c72639" value="Kafka&#10;(Mutual TLS and SASL/SCRAM-SHA-512)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-9ded6199c074" target="comp-be570af775a1" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-46c5e5f00854" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a8f686c7b480" target="comp-98563c4a1b31" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-51fd2a152f6a" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a8f686c7b480" target="comp-1f7b69d0b9a7" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-e76741cc1e01" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a8f686c7b480" target="comp-2d5bec8bedbd" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-626e1352d35c" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a8f686c7b480" target="comp-88a4677df2ff" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ef04c6b21b32" value="HTTPS&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a8f686c7b480" target="comp-7785f114730c" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="lgnd-fe541eb817d2" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="40" y="1988" width="640" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="ltitle-a2b66c636fef" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=14;fontStyle=1;" parent="lgnd-fe541eb817d2" vertex="1">
+          <mxGeometry x="0" y="-30" width="100" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-b9c35e74cf26" value="Internal App (IT Org)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="lgnd-fe541eb817d2" vertex="1">
+          <mxGeometry x="0" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-58fd77fe2286" value="API Gateway / Integration" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="lgnd-fe541eb817d2" vertex="1">
+          <mxGeometry x="155" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-d4c22e6f737d" value="Database" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="lgnd-fe541eb817d2" vertex="1">
+          <mxGeometry x="310" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-3b9674809c61" value="Firewall / LB" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="lgnd-fe541eb817d2" vertex="1">
+          <mxGeometry x="465" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-5cd3770083e1" value="Identity / Auth" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;" parent="lgnd-fe541eb817d2" vertex="1">
+          <mxGeometry x="0" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-9023a74a8a27" value="Biz Owned" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#8E24AA;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-fe541eb817d2" vertex="1">
+          <mxGeometry x="155" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-cec8856a4852" value="Third Party" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-fe541eb817d2" vertex="1">
+          <mxGeometry x="310" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,12 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "01-ecommerce-azure-REQ.md",
+  "type": "requirements-document",
+  "schema": "text/markdown",
+  "path": "output\\requirements\\REQ.md",
+  "sha256": "365df64819e8e83f05a2f27a7c008795e99591a469aec518104fe8c85cf6cc87",
+  "model_version": null,
+  "producer": "arch-requirements",
+  "produced_at": "2026-09-14T13:41:41+00:00",
+  "input_artifacts": []
+}

@@ -1,0 +1,281 @@
+{
+  "schema_version": "validation/v1",
+  "source": {
+    "path": "output\\diagrams\\diagram.png",
+    "sha256": "d3e8422e8fcc77a855fd68795ee9b9975ea0feebf978d17a1e0bc5ab0e5e98c8",
+    "media_type": "image/png",
+    "validated_at": "2026-09-15T00:54:43Z",
+    "validator_version": "arch-validate/validation-v1",
+    "ruleset_digest": "108fb1df631d3340c93c32de423f14b61344465f991d9eb39fbec161675ab124"
+  },
+  "dimensions": {
+    "Cloud_Network_Completeness": {
+      "raw_score": 4.0,
+      "weight": 2.0,
+      "weighted_score": 0.8
+    },
+    "Connectivity": {
+      "raw_score": 8.0,
+      "weight": 1.0,
+      "weighted_score": 0.8
+    },
+    "Technical_Component_Completeness": {
+      "raw_score": 3.2,
+      "weight": 2.0,
+      "weighted_score": 0.64
+    },
+    "Interaction_Integration": {
+      "raw_score": 6.0,
+      "weight": 2.0,
+      "weighted_score": 1.2
+    },
+    "Security_Compliance": {
+      "raw_score": 2.0,
+      "weight": 2.0,
+      "weighted_score": 0.4
+    },
+    "Terminology_Expression": {
+      "raw_score": 4.5,
+      "weight": 1.0,
+      "weighted_score": 0.45
+    }
+  },
+  "issues": [
+    {
+      "id": "ISS-001",
+      "rule_id": "E-AZ-001",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "SYS-01 and SYS-04 regional Hub VNETs",
+      "evidence": "Each regional hub visibly contains Azure Firewall and an ExpressRoute gateway, but neither hub shows Azure Bastion, DNS/DNS forwarding, or a monitoring/SIEM collector required by the Azure hub-spoke baseline.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-002",
+      "rule_id": "E-008",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "Azure East US and Azure Japan East Region boundaries",
+      "evidence": "Azure East US is drawn as three independent Region-level boxes and Azure Japan East as two; VNETs should be nested under one Region boundary per physical Region so the deployment boundary is unambiguous.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-003",
+      "rule_id": "AZ-STD-TOPOLOGY-REGIONAL-HUB",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "SYS-06 to SYS-08 inter-region hub connection",
+      "evidence": "The East US and Japan East hubs are connected using Global VNet peering. azure-standard.yaml requires regional hubs to interconnect through ExpressRoute Global Reach or VPN.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-004",
+      "rule_id": "E-AZ-008",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "SYS-16 Storage private endpoint architecture",
+      "evidence": "SYS-16 is identified as private-endpoint storage, but no Private DNS Zone, DNS forwarder, or Firewall DNS proxy is visible, so private endpoint name resolution cannot be validated.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-005",
+      "rule_id": "AZ-STD-AZURE-POLICY-NSG",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "All Azure workload and platform subnets",
+      "evidence": "No subnet shows an NSG or an equivalent note. azure-standard.yaml requires every subnet to have an NSG and requires ASGs where multiple applications share a subnet.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-006",
+      "rule_id": "AZ-STD-DISASTER-RECOVERY",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "Multi-region availability and disaster recovery controls",
+      "evidence": "The diagram does not show zone redundancy or regional replication for Storage, Key Vault, DNS, or APIM, does not show multi-zone AKS nodes, and provides public ingress only in East US despite the multi-region title.",
+      "confidence": "medium"
+    },
+    {
+      "id": "ISS-007",
+      "rule_id": "E-011",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "SYS-11 through SYS-21 application components",
+      "evidence": "Labels such as AKS (BU), App VMs, Shared services, App (AP), DB (BU/AP), and DC systems are generic platform or tier names rather than deployable service names and explicit component categories.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-008",
+      "rule_id": "E-012",
+      "severity": "medium",
+      "disposition": "must_fix",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "Custom application workloads in SYS-02, SYS-03, and SYS-05",
+      "evidence": "No custom workload has a language, framework, version, or principal security-relevant library. blueprint.yaml explicitly records the application stacks as TBD.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-009",
+      "rule_id": "E-013",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "SYS-13, SYS-15, SYS-18, SYS-19, SYS-20, and SYS-21",
+      "evidence": "The diagram and blueprint do not identify a concrete runtime for these components; both databases also lack an engine and Azure hosting model.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-010",
+      "rule_id": "E-AZ-004",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Interaction_Integration",
+      "subject": "Internet to SYS-10 to SYS-11/SYS-12 ingress path",
+      "evidence": "External e-commerce API traffic terminates at Application Gateway WAF v2 and then connects directly to workloads. No Azure API Management node in Spoke VNET Internal mode is present for authentication, authorization, quotas, and policy enforcement.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-011",
+      "rule_id": "W-006",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Interaction_Integration",
+      "subject": "SYS-11/SYS-12 to SYS-15 cross-application calls",
+      "evidence": "Business workloads call shared services directly. The blueprint says traffic hairpins through SYS-06, but a firewall is not an API or messaging integration platform and does not satisfy the required integration mediation.",
+      "confidence": "medium"
+    },
+    {
+      "id": "ISS-012",
+      "rule_id": "S-005",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "External customer authentication path",
+      "evidence": "The Internet ingress relationship is labeled OIDC/OAuth2 in blueprint.yaml, but Microsoft Entra ID is not an independent node connected to the user-facing entry point as required by S-005.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-013",
+      "rule_id": "S-006",
+      "severity": "medium",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "User and application authorization architecture",
+      "evidence": "AuthZ Platform and RBAC are mentioned only in blueprint security prose; the diagram contains no authorization node or application-level RBAC/ABAC component and no authorization relationship.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-014",
+      "rule_id": "E-AZ-005",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "Azure credential, key, and certificate management",
+      "evidence": "No regional Azure Key Vault nodes or consuming relationships are visible. Blueprint prose declares intended Key Vault controls, but the technical deployment view does not locate or connect them and therefore cannot prove private endpoints, rotation, soft-delete, or purge protection.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-015",
+      "rule_id": "E-AZ-006",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "Azure operational access path",
+      "evidence": "Neither regional hub contains Azure Bastion Standard, and no PAW to Bastion to private workload path, Defender for Cloud JIT control, or Bastion-restricted NSG path is visible.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-016",
+      "rule_id": "S-008",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "SYS-06 to SYS-08 US-Japan cross-border flow",
+      "evidence": "The cross-border flow is encrypted but has no data-classification label or compliance/legal basis. The project is confidential and blueprint TODO TBD-12 leaves PII/payment-data scope and compliance obligations unresolved.",
+      "confidence": "medium"
+    },
+    {
+      "id": "ISS-017",
+      "rule_id": "AZ-STD-DATA-SECURITY-AT-REST",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "SYS-13, SYS-16, and SYS-19 data stores",
+      "evidence": "The data stores have no visible AES-256, TDE, disk/storage encryption, or CMK relationship. Blueprint prose states intended encryption but leaves database engines and key ownership unresolved; the view does not demonstrate the mandatory control.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-018",
+      "rule_id": "V-001",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Terminology_Expression",
+      "subject": "Azure Subnet and private-DC Zone containers",
+      "evidence": "Physical Subnet and Zone containers are consistently drawn with dashed borders, while V-001 requires physical entities to use solid borders and reserves dashed borders for logical concepts.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-019",
+      "rule_id": "V-008",
+      "severity": "medium",
+      "disposition": "must_fix",
+      "dimension": "Terminology_Expression",
+      "subject": "Diagram legend",
+      "evidence": "A legend exists for principal shapes and fills, but it does not explain solid versus dashed boundary semantics, arrow direction, connection line meaning, protocol/authentication labels, or all visible component presentations.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-020",
+      "rule_id": "AZ-STD-OBSERVABILITY",
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "Centralized Azure monitoring and logging",
+      "evidence": "No Log Analytics workspace, Azure Monitor alerts, diagnostic settings, or log flows from Firewall, Application Gateway, NSGs, workloads, and PaaS services are shown.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-021",
+      "rule_id": "AZ-STD-HYBRID-RESILIENCE",
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Connectivity",
+      "subject": "Japan DC to Azure Japan East hybrid connection",
+      "evidence": "Japan has only Carrier C ExpressRoute and no second independent ExpressRoute circuit or labeled VPN failover; blueprint.yaml explicitly identifies the second circuit as an open item.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-022",
+      "rule_id": "V-104",
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Terminology_Expression",
+      "subject": "Azure service iconography",
+      "evidence": "Azure services are rendered primarily with generic polygons and rectangles instead of recognizable official Azure icons, reducing service-type certainty and platform readability.",
+      "confidence": "high"
+    },
+    {
+      "id": "ISS-023",
+      "rule_id": "V-007",
+      "severity": "low",
+      "disposition": "consider",
+      "dimension": "Terminology_Expression",
+      "subject": "Long VNET/Subnet and component labels",
+      "evidence": "Several labels exceed 40 characters, are clipped inside narrow nodes, or collide with connection labels. blueprint.yaml resolves the intended text, but the rendered diagram remains difficult to review without that source.",
+      "confidence": "high"
+    }
+  ],
+  "summary": {
+    "total_score": 4.29,
+    "must_fix": 19,
+    "should_fix": 3,
+    "consider": 1
+  }
+}

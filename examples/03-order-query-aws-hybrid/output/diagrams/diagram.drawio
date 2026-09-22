@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="arch-harness" version="24.6.4" type="device">
+  <diagram id="diag-c42410339487" name="Page-1">
+    <mxGraphModel dx="2000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1268" pageHeight="3146" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="hdr-50cb5f8f2e54" value="&lt;b&gt;Diagram: Order Query Platform (OQP ROW) - AWS Hybrid Technical Architecture&lt;/b&gt;&lt;br/&gt;ID: 03-order-query-aws-hybrid-TechDiagram-V1.0&lt;br/&gt;Platform: hybrid_cloud" style="text;whiteSpace=wrap;overflow=hidden;rounded=0;fontFamily=Helvetica;fontSize=11;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="40" y="-120" width="600" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="inet-3810a5ab8ce2" value="Internet" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.internet;" parent="1" vertex="1">
+          <mxGeometry x="40" y="80" width="60" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="user-52e27fa9df4a" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;align=center;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="160" y="70" width="37" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-fea45b81424b" value="AWS US, N. Virginia [US]&#10;(TBD)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="50" y="140" width="524" height="1220" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-eef5ae4588f7" value="Public subnet (DMZ) - Frontend K8s" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_public;strokeColor=#F58534;fillColor=#FEF6EE;verticalAlign=top;align=left;spacingLeft=30;fontColor=#F58534;dashed=0;" parent="reg-fea45b81424b" vertex="1">
+          <mxGeometry x="22" y="66" width="480" height="138" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-6156a739cbb5" value="ALB + AWS WAF" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-eef5ae4588f7" vertex="1" tooltip="Notes: Public HTTPS ingress; OWASP controls; no administrative ingress">
+          <mxGeometry x="41" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-f71b20ebec6d" value="AWS DMZ Boundary Firewall" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-eef5ae4588f7" vertex="1" tooltip="Notes: Restricts Public subnet to Private App subnet traffic">
+          <mxGeometry x="165" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-df643a073f1f" value="⚠ SYS-05 - OP(order portal)-row-web&#10;(JavaScript/TypeScript version TBD, Nginx and React versions TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-eef5ae4588f7" vertex="1" tooltip="Lang: JavaScript/TypeScript version TBD | Framework: Nginx and React versions TBD | Runtime: SYS-58 frontend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="289" y="52" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-c2c36e394ddf" value="Private subnet (App Zone) - Backend K8s" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-fea45b81424b" vertex="1">
+          <mxGeometry x="22" y="222" width="480" height="732" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-c85280090580" value="AWS App Boundary Firewall" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Notes: Restricts App subnet to DB subnet and approved MPLS integration paths">
+          <mxGeometry x="21" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-8635b9323c31" value="⚠ SYS-58 - Internal K8s Platform" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Runtime: AWS managed infrastructure; product/version TBD | Classification: Company Confidential | Notes: Platform substrate for frontend and backend K8s clusters">
+          <mxGeometry x="145" y="52" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-42923fd0cd73" value="⚠ SYS-06 - Gateway&#10;(TBD, TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: TBD | Framework: TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="309" y="52" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-ecfa772fc821" value="⚠ SYS-07 - Order Portal&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="83" y="122" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-98b01ffd25e3" value="⚠ SYS-08 - Order Report&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="247" y="122" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-812f1a97a54a" value="⚠ SYS-09 - Order Notification&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="83" y="188" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-839d5e62815f" value="⚠ SYS-10 - Transform Service&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="247" y="188" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-25db031eeccf" value="⚠ SYS-11 - Task Service&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="83" y="254" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-1698f81b2c3d" value="⚠ SYS-12 - Order Web&#10;(JavaScript/TypeScript version TBD, React version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: JavaScript/TypeScript version TBD | Framework: React version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="247" y="254" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-9e66d209d34a" value="⚠ SYS-13 - D365 Consumer&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="83" y="320" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-47a58ebc0f03" value="⚠ SYS-14 - OFS(order fulfill service) Consumer&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="247" y="320" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-09b30fa25c94" value="⚠ SYS-15 - PRC Consumer&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential | Notes: Request/control messages only across border; PRC rows remain in China">
+          <mxGeometry x="83" y="386" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-3edbafa0603a" value="⚠ SYS-16 - SOS(salse order servie) Consumer&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="247" y="386" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-9c0ed3eb0345" value="⚠ SYS-17 - IC(invoice service) Consumer&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="83" y="452" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-c86c1474b3fb" value="⚠ SYS-18 - LOS(logistics operation servie) Consumer&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="247" y="452" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-e9e9fda5dbba" value="⚠ SYS-19 - SDS(service data service) Consumer&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="83" y="518" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-c8f12e297a53" value="⚠ SYS-20 - SIS(supply intelligence service) Consumer&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="247" y="518" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-e6e2ab19503d" value="⚠ SYS-21 - NA Consumer&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="83" y="584" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-99af99b63f20" value="⚠ SYS-22 - Consumer Task&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential">
+          <mxGeometry x="247" y="584" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-15540933c1a6" value="⚠ SYS-23 - XXL-Job scheduler&#10;(Java version TBD, Spring version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: Java version TBD | Framework: Spring version TBD | Runtime: SYS-58 backend K8s cluster | Classification: Company Confidential | Notes: HA topology TBD-02">
+          <mxGeometry x="83" y="650" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-291673cda459" value="⚠ SYS-24 - SOS(salse order servie)&#10;(TBD, TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c2c36e394ddf" vertex="1" tooltip="Lang: TBD | Framework: TBD | Runtime: Beside SYS-58 backend K8s cluster | Classification: Company Confidential | Notes: CMDB A-XXXX-05">
+          <mxGeometry x="247" y="650" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-80cbfa1bd4d4" value="Private subnet (DB Zone)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-fea45b81424b" vertex="1">
+          <mxGeometry x="22" y="972" width="480" height="208" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-70a0bf0ac1a2" value="⚠ SYS-25 - PostgreSQL ODS&#10;(SQL, PostgreSQL version TBD)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-80cbfa1bd4d4" vertex="1" tooltip="Lang: SQL | Framework: PostgreSQL version TBD | Runtime: AWS managed/self-managed selection TBD | Classification: Company Confidential | Notes: Sizing TBD-01; encryption configuration TBD-07">
+          <mxGeometry x="46" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-fb0eb746e6d2" value="⚠ SYS-26 - PostgreSQL DWS&#10;(SQL, PostgreSQL version TBD)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-80cbfa1bd4d4" vertex="1" tooltip="Lang: SQL | Framework: PostgreSQL version TBD | Runtime: AWS managed/self-managed selection TBD | Classification: Company Confidential | Notes: Sizing TBD-01; encryption configuration TBD-07">
+          <mxGeometry x="180" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-0d90bcd38537" value="⚠ SYS-27 - Redis&#10;(TBD, Redis version TBD)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-80cbfa1bd4d4" vertex="1" tooltip="Lang: TBD | Framework: Redis version TBD | Runtime: AWS managed/self-managed selection TBD | Classification: Company Confidential | Notes: Encryption configuration TBD-07">
+          <mxGeometry x="314" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-56703ebdff07" value="⚠ SYS-28 - S3&#10;(Amazon S3)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-80cbfa1bd4d4" vertex="1" tooltip="Framework: Amazon S3 | Runtime: AWS managed service | Classification: Company Confidential | Notes: Private HTTPS access; endpoint placement and encryption configuration TBD">
+          <mxGeometry x="165" y="126" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-bc65988777e5" value="dc-us, City C, State X [US]&#10;(InfraSec / IT Org)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="644" y="140" width="524" height="664" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-c6443733639e" value="Public subnet (DMZ)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-bc65988777e5" vertex="1">
+          <mxGeometry x="22" y="66" width="480" height="208" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-79efdf99488c" value="dc-us Boundary Firewall" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-c6443733639e" vertex="1">
+          <mxGeometry x="21" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-11d8e53dbd92" value="SYS-03 - SOWB(sales operation workbench)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c6443733639e" vertex="1" tooltip="Notes: Internal portal">
+          <mxGeometry x="145" y="52" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-281f28bd984d" value="SYS-04 - external OP(order portal) site" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-c6443733639e" vertex="1" tooltip="Notes: External portal">
+          <mxGeometry x="309" y="52" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-9d5c7bbd50cc" value="SYS-29 - DMZ-APIM" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-c6443733639e" vertex="1" tooltip="Notes: Mandatory external API mediation">
+          <mxGeometry x="165" y="122" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-97221a6a55f7" value="App and Integration Zone" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-bc65988777e5" vertex="1">
+          <mxGeometry x="22" y="292" width="480" height="332" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-fc3d379a92dd" value="SYS-01 - ADFS" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;" parent="zone-97221a6a55f7" vertex="1" tooltip="Notes: Internal SSO">
+          <mxGeometry x="83" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-348d7ca37ba9" value="SYS-02 - Enterprise ID" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;" parent="zone-97221a6a55f7" vertex="1" tooltip="Notes: External identity provider">
+          <mxGeometry x="247" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-b358f9f4c616" value="SYS-30 - APIM" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-97221a6a55f7" vertex="1" tooltip="Notes: Mandatory internal API mediation">
+          <mxGeometry x="83" y="114" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-bb65f6c06b13" value="SYS-32 - kafka-us" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="zone-97221a6a55f7" vertex="1" tooltip="Notes: TLS enabled; exact topic mappings TBD-05">
+          <mxGeometry x="247" y="114" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-a6fe7b43fdc0" value="SYS-38 - SDS(service data service)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-97221a6a55f7" vertex="1" tooltip="Notes: CMDB A-XXXX-01">
+          <mxGeometry x="83" y="184" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-cd42d92fabe9" value="SYS-39 - 2b service portal" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-97221a6a55f7" vertex="1" tooltip="Notes: CMDB A-XXXX-02">
+          <mxGeometry x="247" y="184" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-684fe0aed84b" value="SYS-40 - OOP(order open platform)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-97221a6a55f7" vertex="1" tooltip="Notes: CMDB A-XXXX-03">
+          <mxGeometry x="83" y="250" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-c0999b469530" value="SYS-41 - order orchestration" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-97221a6a55f7" vertex="1" tooltip="Notes: CMDB A-XXXX-04">
+          <mxGeometry x="247" y="250" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-960c1d0bdc88" value="dc-us-na, City C, State X [US]&#10;(InfraSec / IT Org / Data Org)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="50" y="1430" width="524" height="688" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-df68c5870b1b" value="NA-PROD-INA-INTEGRATION" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-960c1d0bdc88" vertex="1">
+          <mxGeometry x="22" y="66" width="480" height="208" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-4e8b017429e3" value="dc-us-na Boundary Firewall" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-df68c5870b1b" vertex="1">
+          <mxGeometry x="21" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-b6f19a06233d" value="SYS-31 - APIH" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-df68c5870b1b" vertex="1" tooltip="Notes: Mandatory NA API mediation">
+          <mxGeometry x="145" y="50" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-619730cfe21f" value="SYS-35 - kafka-us-na" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="zone-df68c5870b1b" vertex="1" tooltip="Notes: TLS enabled; exact topic mappings TBD-05">
+          <mxGeometry x="309" y="50" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-efaa157d9630" value="SYS-36 - kafka-us-log" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="zone-df68c5870b1b" vertex="1" tooltip="Notes: TLS enabled; exact topic mappings TBD-05">
+          <mxGeometry x="165" y="122" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-6b008d989f0e" value="NA-PROD-INA-K8S" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-960c1d0bdc88" vertex="1">
+          <mxGeometry x="22" y="292" width="480" height="196" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-88fcb0712ad1" value="SYS-50 - IC(invoice service)-NA" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-6b008d989f0e" vertex="1" tooltip="Notes: CMDB A-XXXX-18">
+          <mxGeometry x="83" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-a6abfce8a0ab" value="SYS-51 - SIS(supply intelligence service)-NA" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-6b008d989f0e" vertex="1" tooltip="Notes: CMDB A-XXXX-19">
+          <mxGeometry x="247" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-1cc8d03c60e9" value="SYS-52 - GAP(general account platform)-OTC-NA" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-6b008d989f0e" vertex="1" tooltip="Notes: CMDB A-XXXX-20">
+          <mxGeometry x="165" y="114" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-65ad48817e78" value="NA-PROD-INA-DB" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-960c1d0bdc88" vertex="1">
+          <mxGeometry x="22" y="506" width="480" height="142" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-bce7640d21c5" value="⚠ SYS-37 - OP(order portal) ES" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-65ad48817e78" vertex="1" tooltip="Classification: Company Confidential | Notes: Existing Elasticsearch">
+          <mxGeometry x="113" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-c0bac5bfe323" value="⚠ SYS-53 - Lakehouse-ROW" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-65ad48817e78" vertex="1" tooltip="Classification: Company Confidential | Notes: CMDB A-XXXX-21">
+          <mxGeometry x="247" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-2008882eb737" value="dc-cn-primary, City A, Province A [CN]&#10;(InfraSec / IT Org / SAP Team)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="644" y="874" width="524" height="462" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-c02b444708dd" value="DMZ" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-2008882eb737" vertex="1">
+          <mxGeometry x="22" y="66" width="480" height="138" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-892b78e8ce52" value="dc-cn-primary Boundary Firewall" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-c02b444708dd" vertex="1" tooltip="Notes: Blocks PRC row payloads from cross-border links">
+          <mxGeometry x="185" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-f49e9c73eee7" value="Intranet" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-2008882eb737" vertex="1">
+          <mxGeometry x="22" y="222" width="480" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-8f894ab87c1e" value="SYS-33 - kafka-cn" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="zone-f49e9c73eee7" vertex="1" tooltip="Notes: TLS enabled; PRC topics remain in China">
+          <mxGeometry x="83" y="48" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-0d865e735431" value="SYS-48 - GAP(general account platform)-OTC" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-f49e9c73eee7" vertex="1" tooltip="Notes: CMDB A-XXXX-16">
+          <mxGeometry x="247" y="50" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-09165bf9015a" value="SYS-49 - ECC" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-f49e9c73eee7" vertex="1" tooltip="Notes: SAP ERP black box; CMDB A-XXXX-17">
+          <mxGeometry x="165" y="118" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-ddced8279274" value="dc-cn-secondary, City B, Province B [CN]&#10;(InfraSec / IT Org / Data Org)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="50" y="2188" width="524" height="540" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-0581ffd8b581" value="DMZ" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-ddced8279274" vertex="1">
+          <mxGeometry x="22" y="66" width="480" height="138" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-26792ff34f9f" value="dc-cn-secondary Boundary Firewall" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-0581ffd8b581" vertex="1" tooltip="Notes: Blocks PRC row payloads from cross-border links">
+          <mxGeometry x="185" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-1a3dbb8c21ac" value="Intranet" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-ddced8279274" vertex="1">
+          <mxGeometry x="22" y="222" width="480" height="278" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-bea7f8a4e9df" value="SYS-34 - kafka-ikp" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="zone-1a3dbb8c21ac" vertex="1" tooltip="Notes: In-country mediation; TLS enabled; exact topic mappings TBD-05">
+          <mxGeometry x="83" y="48" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-9afc1b5d42f8" value="SYS-42 - CSP(cload servie portal)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-1a3dbb8c21ac" vertex="1" tooltip="Notes: CMDB A-XXXX-10">
+          <mxGeometry x="247" y="50" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-5ed929dd1226" value="SYS-43 - IC(invoice service)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-1a3dbb8c21ac" vertex="1" tooltip="Notes: CMDB A-XXXX-11">
+          <mxGeometry x="16" y="124" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-3dbc9be6c9e8" value="SYS-44 - LOS(logistics operation servie)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-1a3dbb8c21ac" vertex="1" tooltip="Notes: CMDB A-XXXX-12">
+          <mxGeometry x="180" y="124" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-8879e0684e11" value="⚠ SYS-45 - Lakehouse" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-1a3dbb8c21ac" vertex="1" tooltip="Classification: Company Confidential | Notes: CMDB A-XXXX-13">
+          <mxGeometry x="344" y="118" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-bb719e440b35" value="SYS-46 - OP(order portal)-PRC" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-1a3dbb8c21ac" vertex="1" tooltip="Notes: CMDB A-XXXX-14">
+          <mxGeometry x="83" y="196" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-1bf5808c2bd2" value="SYS-47 - SIS(supply intelligence service)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-1a3dbb8c21ac" vertex="1" tooltip="Notes: CMDB A-XXXX-15">
+          <mxGeometry x="247" y="196" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-e5cf54d6692d" value="Azure US, exact region TBD [US]&#10;(IT Org / Data Org)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="644" y="1406" width="524" height="248" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-70dd11fa420c" value="Existing Azure and SaaS Sources" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-e5cf54d6692d" vertex="1">
+          <mxGeometry x="22" y="66" width="480" height="142" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-097893b46579" value="⚠ SYS-54 - D365" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-70dd11fa420c" vertex="1" tooltip="Classification: Company Confidential | Notes: Existing SaaS; CMDB A-XXXX-06; exact Azure region TBD-03">
+          <mxGeometry x="16" y="54" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-8130f16204e5" value="⚠ SYS-55 - edge-cache" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-70dd11fa420c" vertex="1" tooltip="Classification: Company Confidential | Notes: CMDB A-XXXX-07; exact Azure region TBD-03">
+          <mxGeometry x="180" y="54" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-f1e83dbad26c" value="⚠ SYS-56 - ROW DWP(data warehosue platform)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-70dd11fa420c" vertex="1" tooltip="Classification: Company Confidential | Notes: CMDB A-XXXX-08; exact Azure region TBD-03">
+          <mxGeometry x="344" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-194502d1a71c" value="Azure CN North, exact numbered region TBD [CN]&#10;(Data Org)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="50" y="2798" width="524" height="248" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-893fa1862928" value="EDW" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-194502d1a71c" vertex="1">
+          <mxGeometry x="22" y="66" width="480" height="142" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-fcdebfc27953" value="⚠ SYS-57 - PRC DWP(data warehosue platform)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-893fa1862928" vertex="1" tooltip="Classification: Company Confidential | Notes: In-country data source; CMDB A-XXXX-09; exact Azure region TBD-03">
+          <mxGeometry x="180" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-52142eb8e7e2" value="HTTPS/SAML 2.0; port TBD&#10;(SAML 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="user-52e27fa9df4a" target="comp-fc3d379a92dd" edge="1" tooltip="Internal employee authentication; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-edfca2b2f905" value="HTTPS/SAML 2.0; port TBD&#10;(SAML 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="user-52e27fa9df4a" target="comp-348d7ca37ba9" edge="1" tooltip="External partner authentication; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-2c4b2f32711c" value="HTTPS/SAML 2.0; port TBD&#10;(SAML 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-fc3d379a92dd" target="comp-11d8e53dbd92" edge="1" tooltip="Internal portal SSO; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-704cb076fba4" value="HTTPS/SAML 2.0; port TBD&#10;(SAML 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-348d7ca37ba9" target="comp-281f28bd984d" edge="1" tooltip="External portal SSO; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1687c8f6b077" value="HTTPS; port TBD&#10;(OAuth 2.0; flow TBD)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="inet-3810a5ab8ce2" target="comp-6156a739cbb5" edge="1" tooltip="User browser public ingress; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-33fbb7a2d4d8" value="HTTPS; port TBD&#10;(OAuth 2.0 user token)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-6156a739cbb5" target="comp-df643a073f1f" edge="1" tooltip="WAF-filtered frontend ingress; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-c9cb9d9fb68a" value="HTTPS; port TBD&#10;(SAML 2.0 session / OAuth 2.0 token exchange TBD)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-11d8e53dbd92" target="comp-df643a073f1f" edge="1" tooltip="Internal portal launch path; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-c7caabb44f38" value="HTTPS; port TBD&#10;(SAML 2.0 session / OAuth 2.0 token exchange TBD)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-281f28bd984d" target="comp-df643a073f1f" edge="1" tooltip="External portal launch path; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-38ca541f2450" value="HTTPS; port TBD&#10;(OAuth 2.0 user token)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-df643a073f1f" target="comp-f71b20ebec6d" edge="1" tooltip="DMZ-to-App boundary; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-7ca7c42e77fb" value="HTTPS; port TBD&#10;(OAuth 2.0 user token)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-f71b20ebec6d" target="comp-42923fd0cd73" edge="1" tooltip="Allow-listed gateway route only; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-d89f55e77719" value="HTTPS; port TBD&#10;(OAuth 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-42923fd0cd73" target="comp-ecfa772fc821" edge="1" tooltip="Service matrix TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-c633bfebfaaa" value="HTTPS; port TBD&#10;(OAuth 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-42923fd0cd73" target="comp-98b01ffd25e3" edge="1" tooltip="Service matrix TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-936ec6ebb47b" value="HTTPS; port TBD&#10;(OAuth 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-42923fd0cd73" target="comp-812f1a97a54a" edge="1" tooltip="Service matrix TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9708042c61a7" value="HTTPS; port TBD&#10;(OAuth 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-42923fd0cd73" target="comp-839d5e62815f" edge="1" tooltip="Service matrix TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-58d0ba58298c" value="HTTPS; port TBD&#10;(OAuth 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-42923fd0cd73" target="comp-25db031eeccf" edge="1" tooltip="Service matrix TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-5e3fa65bc39a" value="HTTPS; port TBD&#10;(OAuth 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-42923fd0cd73" target="comp-1698f81b2c3d" edge="1" tooltip="Service matrix TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9c2712cbf533" value="HTTPS; port TBD&#10;(OAuth 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-42923fd0cd73" target="comp-99af99b63f20" edge="1" tooltip="Service matrix TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-bcb3d403061c" value="HTTPS; port TBD&#10;(OAuth 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-42923fd0cd73" target="comp-15540933c1a6" edge="1" tooltip="Service matrix and scheduler HA TBD">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-c5dfbaa0e25b" value="HTTPS; port TBD&#10;(OAuth 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-42923fd0cd73" target="comp-291673cda459" edge="1" tooltip="Service matrix TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-45ac871aada5" value="JDBC/TLS; port TBD&#10;(Password from AWS Secrets Manager)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-ecfa772fc821" target="comp-c85280090580" edge="1" tooltip="DB boundary; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-dad3529ade79" value="JDBC/TLS; port TBD&#10;(Password from AWS Secrets Manager)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-c85280090580" target="comp-70a0bf0ac1a2" edge="1" tooltip="ODS access; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-8d058d2aec04" value="JDBC/TLS; port TBD&#10;(Password from AWS Secrets Manager)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-98b01ffd25e3" target="comp-fb0eb746e6d2" edge="1" tooltip="DWS reporting access through DB boundary controls; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-88c6e4acb846" value="Redis/TLS; port TBD&#10;(Password from AWS Secrets Manager)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-ecfa772fc821" target="comp-0d90bcd38537" edge="1" tooltip="Cache access through DB boundary controls; port TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ae645a682a68" value="HTTPS; port TBD&#10;(AWS IAM role)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-98b01ffd25e3" target="comp-56703ebdff07" edge="1" tooltip="Private object-storage access; endpoint placement TBD">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-90ded11005c3" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-9e66d209d34a" target="comp-bb65f6c06b13" edge="1" tooltip="Provisional cluster assignment; confirm TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-09a9076e4bc0" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-47a58ebc0f03" target="comp-bb65f6c06b13" edge="1" tooltip="Provisional cluster assignment; confirm TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-3b1cc4248115" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-09b30fa25c94" target="comp-bea7f8a4e9df" edge="1" tooltip="In-country query mediation; no PRC row payload crosses to AWS; confirm TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-60437e693eb7" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-3edbafa0603a" target="comp-bb65f6c06b13" edge="1" tooltip="Provisional cluster assignment; confirm TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ad403144c805" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-9c0ed3eb0345" target="comp-bb65f6c06b13" edge="1" tooltip="Provisional cluster assignment; confirm TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ad5209887a78" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-c86c1474b3fb" target="comp-bb65f6c06b13" edge="1" tooltip="Provisional cluster assignment; confirm TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-987e905cd98d" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-e9e9fda5dbba" target="comp-bb65f6c06b13" edge="1" tooltip="Provisional cluster assignment; confirm TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-6f8782ee09be" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-c8f12e297a53" target="comp-bb65f6c06b13" edge="1" tooltip="Provisional cluster assignment; confirm TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-dbea624352bb" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-e6e2ab19503d" target="comp-619730cfe21f" edge="1" tooltip="Provisional NA cluster assignment; confirm TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-c89013ccd7a4" value="HTTPS; port TBD&#10;(OAuth 2.0)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-15540933c1a6" target="comp-99af99b63f20" edge="1" tooltip="Scheduled consumer task invocation; exact schedule and HA TBD">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9fc5a92684d1" value="HTTPS; port TBD&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a6fe7b43fdc0" target="comp-b358f9f4c616" edge="1" tooltip="Mandatory mediation; exact mapping TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-f3f2a1c88708" value="HTTPS; port TBD&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-cd42d92fabe9" target="comp-b358f9f4c616" edge="1" tooltip="Mandatory mediation; exact mapping TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-b4407dcac41a" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-684fe0aed84b" target="comp-bb65f6c06b13" edge="1" tooltip="Mandatory mediation; exact mapping TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-83550473533f" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-c0999b469530" target="comp-bb65f6c06b13" edge="1" tooltip="Mandatory mediation; exact mapping TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-2759132442f2" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-9afc1b5d42f8" target="comp-bea7f8a4e9df" edge="1" tooltip="In-country topic TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-5b50af6e38fa" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-5ed929dd1226" target="comp-bea7f8a4e9df" edge="1" tooltip="In-country topic TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-647c584296c6" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-3dbc9be6c9e8" target="comp-bea7f8a4e9df" edge="1" tooltip="In-country topic TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-5f7bcee1682a" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-8879e0684e11" target="comp-bea7f8a4e9df" edge="1" tooltip="In-country topic TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-cef2e3d37ea5" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-bb719e440b35" target="comp-bea7f8a4e9df" edge="1" tooltip="In-country topic TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-de1d356c30b3" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-1bf5808c2bd2" target="comp-bea7f8a4e9df" edge="1" tooltip="In-country topic TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-a46777a917c6" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-0d865e735431" target="comp-8f894ab87c1e" edge="1" tooltip="In-country topic TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-8367b3eeae87" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-09165bf9015a" target="comp-8f894ab87c1e" edge="1" tooltip="In-country topic TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-dbb3405441dd" value="HTTPS; port TBD&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-88fcb0712ad1" target="comp-b6f19a06233d" edge="1" tooltip="Mandatory NA mediation; exact mapping TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-f90251512d53" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a6abfce8a0ab" target="comp-619730cfe21f" edge="1" tooltip="Mandatory NA mediation; exact mapping TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-af8f5b3c3168" value="HTTPS; port TBD&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-1cc8d03c60e9" target="comp-b6f19a06233d" edge="1" tooltip="Mandatory NA mediation; exact mapping TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-7580c19ac258" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-c0bac5bfe323" target="comp-efaa157d9630" edge="1" tooltip="Mandatory NA mediation; exact mapping TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-a79840c08520" value="HTTPS; port TBD&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-097893b46579" target="comp-9d5c7bbd50cc" edge="1" tooltip="Approved Azure US mediation; provisional mapping TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1cbed054649c" value="HTTPS; port TBD&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-8130f16204e5" target="comp-b358f9f4c616" edge="1" tooltip="Approved Azure US mediation; provisional mapping TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-68e5c96f15c3" value="Kafka/TLS; port TBD&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-f1e83dbad26c" target="comp-619730cfe21f" edge="1" tooltip="Approved Azure US mediation; provisional mapping TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-5c23675f3464" value="HTTPS; port TBD&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-bea7f8a4e9df" target="comp-fcdebfc27953" edge="1" tooltip="In-country query execution; no PRC row replication; exact adapter mapping TBD-05">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-219857750f7b" value="HTTPS; port TBD&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-42923fd0cd73" target="comp-b358f9f4c616" edge="1" tooltip="Mandatory internal mediation; port and mapping TBD">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-0779070a09c2" value="HTTPS; port TBD&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-42923fd0cd73" target="comp-b6f19a06233d" edge="1" tooltip="Mandatory NA mediation; port and mapping TBD">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-e9d78d2bc093" value="HTTPS; port TBD&#10;(OAuth 2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="inet-3810a5ab8ce2" target="comp-9d5c7bbd50cc" edge="1" tooltip="External system applications through DMZ-APIM and boundary firewall">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-b018f52ced63" value="MPLS with application TLS 1.2+&#10;(Application-layer OAuth 2.0 or SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="reg-bc65988777e5" target="reg-fea45b81424b" edge="1" tooltip="Firewalls at both boundaries; ports TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9f66d7a5ed15" value="MPLS with application TLS 1.2+&#10;(Application-layer OAuth 2.0 or SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="reg-960c1d0bdc88" target="reg-fea45b81424b" edge="1" tooltip="Firewalls at both boundaries; ports TBD-04">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9b2fa55cb8a6" value="MPLS with application TLS 1.2+&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="reg-2008882eb737" target="reg-fea45b81424b" edge="1" tooltip="Firewalls at both boundaries; PRC row payloads prohibited">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-9dbf80ef9b1c" value="MPLS with application TLS 1.2+&#10;(SASL/SCRAM)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="reg-ddced8279274" target="reg-fea45b81424b" edge="1" tooltip="Firewalls at both boundaries; PRC row payloads prohibited">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="lgnd-6704a90bfa2c" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="40" y="2906" width="640" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="ltitle-1bd329651816" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=14;fontStyle=1;" parent="lgnd-6704a90bfa2c" vertex="1">
+          <mxGeometry x="0" y="-30" width="100" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-f9cd9639069a" value="Internal App (IT Org)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="lgnd-6704a90bfa2c" vertex="1">
+          <mxGeometry x="0" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-c08a151d0301" value="API Gateway / Integration" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="lgnd-6704a90bfa2c" vertex="1">
+          <mxGeometry x="155" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-b4ed2ccc8f3b" value="Database" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="lgnd-6704a90bfa2c" vertex="1">
+          <mxGeometry x="310" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-0c1ee1d39ba6" value="Firewall / LB" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="lgnd-6704a90bfa2c" vertex="1">
+          <mxGeometry x="465" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-03982b21c4ed" value="Identity / Auth" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;" parent="lgnd-6704a90bfa2c" vertex="1">
+          <mxGeometry x="0" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-62447453f616" value="Biz Owned" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#8E24AA;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-6704a90bfa2c" vertex="1">
+          <mxGeometry x="155" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-48c8d9469977" value="Third Party" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-6704a90bfa2c" vertex="1">
+          <mxGeometry x="310" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,20 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "REQ.md",
+  "type": "requirements_document",
+  "schema": "requirements/v1",
+  "path": "output\\requirements\\REQ.md",
+  "sha256": "9b45f85305e5befb7bd25beb507d899ffab46be8420067f23e0a446092a75017",
+  "model_version": null,
+  "producer": "arch-requirements",
+  "produced_at": "2026-09-14T12:50:57+00:00",
+  "input_artifacts": [
+    "input/prompt.md",
+    "input/diagrams/order-query-portal-20260914.png",
+    "input/systems-registry.md",
+    "input/documents/requirements.md",
+    "input/api/cmdb-export.csv",
+    "project.yaml",
+    "config.yaml"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "01-ecommerce-azure-blueprint.yaml",
+  "type": "technical-deployment-view",
+  "schema": "architecture/v1",
+  "path": "output\\designs\\blueprint.yaml",
+  "sha256": "1283862211998a465051ca298ffa2f341fed61af2599914e2f39df7e1df36e30",
+  "model_version": "openai/gpt-5.6-sol",
+  "producer": "arch-design",
+  "produced_at": "2026-09-14T13:05:20Z",
+  "input_artifacts": [
+    "01-ecommerce-azure-req.yaml",
+    "01-ecommerce-azure-REQ.md"
+  ]
+}

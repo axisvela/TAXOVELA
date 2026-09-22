@@ -1,0 +1,158 @@
+{
+  "artifacts": {
+    "REQ.md": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "REQ.md",
+        "type": "requirements_document",
+        "schema": "requirements/v1",
+        "path": "output\\requirements\\REQ.md",
+        "sha256": "9b45f85305e5befb7bd25beb507d899ffab46be8420067f23e0a446092a75017",
+        "model_version": null,
+        "producer": "arch-requirements",
+        "produced_at": "2026-09-14T12:50:57+00:00",
+        "input_artifacts": [
+          "input/prompt.md",
+          "input/diagrams/order-query-portal-20260914.png",
+          "input/systems-registry.md",
+          "input/documents/requirements.md",
+          "input/api/cmdb-export.csv",
+          "project.yaml",
+          "config.yaml"
+        ]
+      }
+    },
+    "req.yaml": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "req.yaml",
+        "type": "requirements",
+        "schema": "requirements/v1",
+        "path": "output\\requirements\\req.yaml",
+        "sha256": "9972443d3f53795d7887572e799620609e9736a57213500dd0417ebbe955f516",
+        "model_version": null,
+        "producer": "arch-requirements",
+        "produced_at": "2026-09-14T12:50:57+00:00",
+        "input_artifacts": [
+          "input/prompt.md",
+          "input/diagrams/order-query-portal-20260914.png",
+          "input/systems-registry.md",
+          "input/documents/requirements.md",
+          "input/api/cmdb-export.csv",
+          "project.yaml",
+          "config.yaml"
+        ]
+      }
+    },
+    "blueprint.yaml": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "blueprint.yaml",
+        "type": "technical-deployment-view",
+        "schema": "architecture/v1",
+        "path": "output\\designs\\blueprint.yaml",
+        "sha256": "e6db27a83f282513613a03649911f36d7641d134d42eb2a228d00ede999c3f6c",
+        "model_version": "openai/gpt-5.6-sol",
+        "producer": "arch-design",
+        "produced_at": "2026-09-14T13:29:39+00:00",
+        "input_artifacts": [
+          "req.yaml",
+          "REQ.md"
+        ]
+      }
+    },
+    "diagram.png": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "diagram-png",
+        "type": "technical-deployment-view",
+        "schema": "image/png",
+        "path": "output\\diagrams\\diagram.png",
+        "sha256": "bd924bd03b007f9bea6a20d1cab1892c1683f269eca4be6477080a3aa6e16633",
+        "model_version": null,
+        "producer": "archharness diagram",
+        "produced_at": "2026-09-14T13:39:04+00:00",
+        "input_artifacts": [
+          "blueprint.yaml"
+        ]
+      }
+    },
+    "diagram.drawio": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "diagram-drawio",
+        "type": "technical-deployment-view",
+        "schema": "application/vnd.jgraph.mxfile",
+        "path": "output\\diagrams\\diagram.drawio",
+        "sha256": "de1a9b79314d2571f16e75ec9e6ee7103ffc5986f43d4949212529c947239c36",
+        "model_version": null,
+        "producer": "archharness diagram",
+        "produced_at": "2026-09-14T13:39:04+00:00",
+        "input_artifacts": [
+          "blueprint.yaml"
+        ]
+      }
+    },
+    "validate_result.json": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "validate_result.json",
+        "type": "validation-result",
+        "schema": "validation/v1",
+        "path": "output\\validation\\validate_result.json",
+        "sha256": "36df3ed57530196f50b3a859db3e82c1d0bed42fa9daad0301f6ce5ede1e7e9d",
+        "model_version": "openai/gpt-5.6-sol",
+        "producer": "arch-validate",
+        "produced_at": "2026-09-15T00:55:02+00:00",
+        "input_artifacts": [
+          "diagram-png",
+          "blueprint.yaml",
+          "config.yaml"
+        ]
+      }
+    },
+    "enforce_result.json": {
+      "kind": "decision",
+      "data": {
+        "schema_version": "enforcement/v1",
+        "decision": "BLOCK",
+        "validation": {
+          "path": "output\\diagrams\\diagram.png",
+          "sha256": "bd924bd03b007f9bea6a20d1cab1892c1683f269eca4be6477080a3aa6e16633",
+          "ruleset_digest": "54f0a273accf65bde893b44e7b4f375f23929acf529b0e98f26d63147ed68425"
+        },
+        "policy": {
+          "path": "../../standards/arch-gate-policy.yaml",
+          "digest": "5829fac16d42d2b2c63b728cf9098175b82a23a52045e10dab5cbe13bd7dd97b",
+          "block_threshold": 6.0,
+          "warn_threshold": 8.0,
+          "must_fix_zero_required": true
+        },
+        "evaluation": {
+          "total_score": 5.54,
+          "must_fix": 20,
+          "should_fix": 5,
+          "consider": 2
+        },
+        "reasons": [
+          "must_fix=20 > 0 (must_fix_zero_required)"
+        ],
+        "producer": "archharness/0.7.0",
+        "produced_at": "2026-09-15T01:03:22+00:00"
+      }
+    }
+  },
+  "stages_completed": [
+    "requirements",
+    "design",
+    "draw",
+    "validate",
+    "enforce"
+  ]
+}

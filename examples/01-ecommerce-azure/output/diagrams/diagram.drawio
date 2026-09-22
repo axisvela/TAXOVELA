@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="arch-harness" version="24.6.4" type="device">
+  <diagram id="diag-63e691831166" name="Page-1">
+    <mxGraphModel dx="2000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1000" pageHeight="2530" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="hdr-b0e57f0d1ea0" value="&lt;b&gt;Diagram: E-commerce Platform - Azure Multi-Region Hub-Spoke Architecture&lt;/b&gt;&lt;br/&gt;ID: 01-ecommerce-azure-TechDiagram-V1.0&lt;br/&gt;Platform: azure" style="text;whiteSpace=wrap;overflow=hidden;rounded=0;fontFamily=Helvetica;fontSize=11;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="40" y="-120" width="600" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="inet-461837aba1c8" value="Internet" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.internet;" parent="1" vertex="1">
+          <mxGeometry x="40" y="80" width="60" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="user-e9607fca6e66" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;align=center;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="160" y="70" width="37" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-76860f730abe" value="Azure East US, Virginia [US]&#10;(InfraSec)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="50" y="140" width="390" height="524" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-2edb21b95a40" value="SYS-01 vnet-ecom-coreservice-eus - AzureFirewallSubnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" parent="reg-76860f730abe" vertex="1">
+          <mxGeometry x="22" y="66" width="346" height="138" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-9f481dfa6cdc" value="⚠ SYS-06 | Azure Firewall (EastUS)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-2edb21b95a40" vertex="1" tooltip="Runtime: Azure managed service | Classification: Acme Confidential | Notes: Central inspection for East US spoke egress, east-west, hybrid, and inter-region traffic; UDR forced tunneling prevents firewall bypass.">
+          <mxGeometry x="118" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-0fdd5271ac62" value="SYS-01 vnet-ecom-coreservice-eus - GatewaySubnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" parent="reg-76860f730abe" vertex="1">
+          <mxGeometry x="22" y="222" width="346" height="262" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-9a07084bc37a" value="⚠ SYS-07 | ExpressRoute gateway (EastUS)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-0fdd5271ac62" vertex="1" tooltip="Runtime: Azure managed service | Classification: Acme Confidential | Notes: Zone-redundant hub gateway for the two dedicated ExpressRoute circuits and encrypted backup paths.">
+          <mxGeometry x="16" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-d5dc781de241" value="SYS-22 | Carrier A ExpressRoute" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-0fdd5271ac62" vertex="1" tooltip="Notes: Primary US dedicated circuit; IPsec overlay provides payload encryption.">
+          <mxGeometry x="180" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-b4f350cb6b2a" value="SYS-23 | Carrier B ExpressRoute" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-0fdd5271ac62" vertex="1" tooltip="Notes: Secondary US dedicated circuit on a different carrier; IPsec overlay provides payload encryption.">
+          <mxGeometry x="16" y="114" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-40743d96f977" value="SYS-24 | MPLS" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-0fdd5271ac62" vertex="1" tooltip="Notes: Backup US WAN path with IPsec overlay.">
+          <mxGeometry x="180" y="114" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-e683b9fd05e9" value="SYS-25 | Internet VPN" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-0fdd5271ac62" vertex="1" tooltip="Notes: Backup US site-to-site VPN using IKEv2 and IPsec.">
+          <mxGeometry x="98" y="180" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-6698d0919713" value="Azure East US, Virginia [US]&#10;(Business IT)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="510" y="140" width="390" height="700" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-d0c985538799" value="SYS-02 vnet-ecom-bu-eus - DMZ / Application Gateway subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_public;strokeColor=#F58534;fillColor=#FEF6EE;verticalAlign=top;align=left;spacingLeft=30;fontColor=#F58534;dashed=0;" parent="reg-6698d0919713" vertex="1">
+          <mxGeometry x="22" y="66" width="346" height="138" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-d3910cdfd92e" value="⚠ SYS-10 | Application Gateway" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-d0c985538799" vertex="1" tooltip="Runtime: Azure Application Gateway WAF v2 | Classification: Acme Confidential | Notes: Only public application ingress; WAF prevention mode with managed OWASP rules and end-to-end TLS.">
+          <mxGeometry x="118" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-07452294f157" value="SYS-02 vnet-ecom-bu-eus - AKS subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-6698d0919713" vertex="1">
+          <mxGeometry x="22" y="222" width="346" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-70bcce3bbea2" value="⚠ SYS-11 | AKS (BU)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-07452294f157" vertex="1" tooltip="Runtime: AKS | Classification: Acme Confidential | Notes: Private AKS cluster; workload identity enabled; application language and framework remain TBD.">
+          <mxGeometry x="98" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-215690326866" value="SYS-02 vnet-ecom-bu-eus - Application subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-6698d0919713" vertex="1">
+          <mxGeometry x="22" y="370" width="346" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-d3c7ad4217ed" value="⚠ SYS-12 | App VMs" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-215690326866" vertex="1" tooltip="Runtime: Azure VMs | Classification: Acme Confidential | Notes: Private application servers; language, framework, and versions remain TBD.">
+          <mxGeometry x="98" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-da17afd2cea5" value="SYS-02 vnet-ecom-bu-eus - Database subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-6698d0919713" vertex="1">
+          <mxGeometry x="22" y="518" width="346" height="142" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-bbacd745ea07" value="⚠ SYS-13 | DB (BU)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-da17afd2cea5" vertex="1" tooltip="Classification: Acme Confidential | Notes: Private database endpoint; database engine and Azure hosting model remain TBD; encryption at rest is mandatory.">
+          <mxGeometry x="113" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-3d734f26fd6f" value="Azure East US, Virginia [US]&#10;(InfraSec)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="50" y="734" width="390" height="532" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-dd3dbade9b5d" value="SYS-03 vnet-ecom-common-eus - Common AKS subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-3d734f26fd6f" vertex="1">
+          <mxGeometry x="22" y="66" width="346" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-f6d5be9ebae7" value="⚠ SYS-14 | Common AKS" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-dd3dbade9b5d" vertex="1" tooltip="Runtime: AKS | Classification: Acme Confidential | Notes: Private shared-services AKS cluster with workload identity; application stack remains TBD.">
+          <mxGeometry x="98" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-9de81c39f245" value="SYS-03 vnet-ecom-common-eus - Shared-backend subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-3d734f26fd6f" vertex="1">
+          <mxGeometry x="22" y="214" width="346" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-662a9ea7ff99" value="⚠ SYS-15 | Shared services" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-9de81c39f245" vertex="1" tooltip="Classification: Acme Confidential | Notes: Private shared backend; interfaces and runtime remain TBD.">
+          <mxGeometry x="98" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-8584464e9188" value="SYS-03 vnet-ecom-common-eus - Private-endpoint subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-3d734f26fd6f" vertex="1">
+          <mxGeometry x="22" y="362" width="346" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-d8e15576c400" value="⚠ SYS-16 | Storage" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-8584464e9188" vertex="1" tooltip="Runtime: Azure managed service with private endpoint | Classification: Acme Confidential | Notes: Private endpoint only; public network access disabled; storage service and SKU remain TBD.">
+          <mxGeometry x="98" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-355f4ac870a6" value="Azure Japan East, Tokyo [JP]&#10;(InfraSec)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="510" y="910" width="390" height="392" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-6e5338b97223" value="SYS-04 vnet-ecom-coreservice-ap - AzureFirewallSubnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" parent="reg-355f4ac870a6" vertex="1">
+          <mxGeometry x="22" y="66" width="346" height="138" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-594f9acf07b9" value="⚠ SYS-08 | Azure Firewall (JapanEast)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-6e5338b97223" vertex="1" tooltip="Runtime: Azure managed service | Classification: Acme Confidential | Notes: Central inspection for Japan East spoke egress, hybrid, and inter-region traffic; UDR forced tunneling prevents firewall bypass.">
+          <mxGeometry x="118" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-e2ac95b15f4d" value="SYS-04 vnet-ecom-coreservice-ap - GatewaySubnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" parent="reg-355f4ac870a6" vertex="1">
+          <mxGeometry x="22" y="222" width="346" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-803e8daccc43" value="⚠ SYS-09 | ExpressRoute gateway (JapanEast)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-e2ac95b15f4d" vertex="1" tooltip="Runtime: Azure managed service | Classification: Acme Confidential | Notes: Zone-redundant hub gateway for the Japan dedicated ExpressRoute circuit.">
+          <mxGeometry x="16" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-29a9483784d2" value="SYS-26 | Carrier C ExpressRoute" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-e2ac95b15f4d" vertex="1" tooltip="Notes: Primary Japan dedicated circuit; IPsec overlay provides payload encryption; second circuit remains an open item.">
+          <mxGeometry x="180" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-1965cdf14ff0" value="Azure Japan East, Tokyo [JP]&#10;(Business IT)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="50" y="1336" width="390" height="666" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-cebc3b9f92ff" value="SYS-05 vnet-ecom-ap-prod - DMZ subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_public;strokeColor=#F58534;fillColor=#FEF6EE;verticalAlign=top;align=left;spacingLeft=30;fontColor=#F58534;dashed=0;" parent="reg-1965cdf14ff0" vertex="1">
+          <mxGeometry x="22" y="66" width="346" height="104" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-a65b5c587cdd" value="SYS-05 vnet-ecom-ap-prod - AKS subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-1965cdf14ff0" vertex="1">
+          <mxGeometry x="22" y="188" width="346" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-a7f572e269f2" value="⚠ SYS-17 | AKS (AP)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-a65b5c587cdd" vertex="1" tooltip="Runtime: AKS | Classification: Acme Confidential | Notes: Private AKS cluster routable from SYS-21 through SYS-26 and SYS-08; workload identity enabled; application stack remains TBD.">
+          <mxGeometry x="98" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-cffe5d6622dd" value="SYS-05 vnet-ecom-ap-prod - Application subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-1965cdf14ff0" vertex="1">
+          <mxGeometry x="22" y="336" width="346" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-3596ad039371" value="⚠ SYS-18 | App (AP)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-cffe5d6622dd" vertex="1" tooltip="Classification: Acme Confidential | Notes: Private AP application tier; runtime, language, framework, and versions remain TBD.">
+          <mxGeometry x="98" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-a2ab509255f6" value="SYS-05 vnet-ecom-ap-prod - Database subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-1965cdf14ff0" vertex="1">
+          <mxGeometry x="22" y="484" width="346" height="142" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-b69764e19ab3" value="⚠ SYS-19 | DB (AP)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-a2ab509255f6" vertex="1" tooltip="Classification: Acme Confidential | Notes: Private database endpoint; database engine and Azure hosting model remain TBD; encryption at rest is mandatory.">
+          <mxGeometry x="113" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-fc83b8f93aa9" value="US HQ DC, City C, State X [US]&#10;(InfraSec)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="510" y="1372" width="390" height="480" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-de3fedcca0bb" value="PROD-DMZ-SERVER" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-fc83b8f93aa9" vertex="1">
+          <mxGeometry x="22" y="66" width="346" height="104" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-eb9fd6b8ac57" value="PROD-INA-INTEGRATION" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-fc83b8f93aa9" vertex="1">
+          <mxGeometry x="22" y="188" width="346" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-fd1b8a52c076" value="⚠ SYS-20 | US HQ DC systems" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-eb9fd6b8ac57" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing corporate systems treated as a black-box boundary; exact internal placement and interfaces remain TBD.">
+          <mxGeometry x="98" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-2297cc028ec1" value="PROD-INA-DB" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-fc83b8f93aa9" vertex="1">
+          <mxGeometry x="22" y="336" width="346" height="104" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-c1bea585eca2" value="Japan DC, Osaka [JP]&#10;(InfraSec)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="50" y="2072" width="390" height="358" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-d1706de47566" value="DMZ" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-c1bea585eca2" vertex="1">
+          <mxGeometry x="22" y="66" width="346" height="104" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-e2440f13c50b" value="Intranet" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-c1bea585eca2" vertex="1">
+          <mxGeometry x="22" y="188" width="346" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-555973f1a983" value="⚠ SYS-21 | Japan DC systems" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-e2440f13c50b" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing local systems treated as a black-box boundary; exact internal placement and interfaces remain TBD.">
+          <mxGeometry x="98" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-c8bd255bf8ce" value="HTTPS/TLS 1.3&#10;(OIDC/OAuth2.0 Authorization Code with PKCE)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="inet-461837aba1c8" target="comp-d3910cdfd92e" edge="1" tooltip="External customers authenticate with Microsoft Entra ID; all public traffic passes through Application Gateway WAF v2.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-fc35001cf87d" value="HTTPS/TLS 1.3&#10;(mTLS)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-d3910cdfd92e" target="comp-70bcce3bbea2" edge="1" tooltip="Primary WAF-protected route to the East US AKS workload.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-dc83fb66fe63" value="HTTPS/TLS 1.3&#10;(mTLS)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-d3910cdfd92e" target="comp-d3c7ad4217ed" edge="1" tooltip="WAF-protected route to the East US VM application tier.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-72600e04a6f1" value="TCP/TLS 1.3&#10;(Microsoft Entra workload identity)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-70bcce3bbea2" target="comp-bbacd745ea07" edge="1" tooltip="Final database-native protocol and port depend on the selected database engine.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-714bf85d6fd9" value="TCP/TLS 1.3&#10;(Microsoft Entra managed identity)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-d3c7ad4217ed" target="comp-bbacd745ea07" edge="1" tooltip="Final database-native protocol and port depend on the selected database engine.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-886aeae44528" value="HTTPS/TLS 1.3&#10;(OAuth2.0 Client Credentials + mTLS)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-70bcce3bbea2" target="comp-662a9ea7ff99" edge="1" tooltip="East-west route hairpins through SYS-06; direct spoke-to-spoke firewall bypass is prohibited.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ad8b91eb6000" value="HTTPS/TLS 1.3&#10;(OAuth2.0 Client Credentials + mTLS)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-d3c7ad4217ed" target="comp-662a9ea7ff99" edge="1" tooltip="East-west route hairpins through SYS-06; direct spoke-to-spoke firewall bypass is prohibited.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-4d0ab61edeec" value="HTTPS/TLS 1.3&#10;(OAuth2.0 Client Credentials + mTLS)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-f6d5be9ebae7" target="comp-662a9ea7ff99" edge="1" tooltip="Shared-services internal API access.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-aab57dc150b6" value="HTTPS/TLS 1.3&#10;(Microsoft Entra workload identity)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-70bcce3bbea2" target="comp-d8e15576c400" edge="1" tooltip="Storage access through private endpoint only.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-20781b93eab8" value="HTTPS/TLS 1.3&#10;(Microsoft Entra managed identity)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-d3c7ad4217ed" target="comp-d8e15576c400" edge="1" tooltip="Storage access through private endpoint only.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-4d76202d1bc0" value="HTTPS/TLS 1.3&#10;(Microsoft Entra workload identity)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-f6d5be9ebae7" target="comp-d8e15576c400" edge="1" tooltip="Storage access through private endpoint only.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1b3da5552c03" value="HTTPS/TLS 1.3&#10;(Microsoft Entra managed identity)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-662a9ea7ff99" target="comp-d8e15576c400" edge="1" tooltip="Storage access through private endpoint only.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-d10a17d37aa8" value="TCP/TLS 1.3&#10;(Microsoft Entra workload identity)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-a7f572e269f2" target="comp-b69764e19ab3" edge="1" tooltip="Final database-native protocol and port depend on the selected database engine.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-e802ece6f1f2" value="TCP/TLS 1.3&#10;(Microsoft Entra managed identity)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-3596ad039371" target="comp-b69764e19ab3" edge="1" tooltip="Final database-native protocol and port depend on the selected database engine.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-47179d034ad3" value="VNet peering + UDR&#10;(Azure RBAC + NSG policy)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="reg-6698d0919713" target="comp-9f481dfa6cdc" edge="1" tooltip="All East US BU spoke egress and east-west traffic is forced through the hub firewall.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-764b66745e25" value="VNet peering&#10;(Azure Firewall policy + NSG policy)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-9f481dfa6cdc" target="reg-6698d0919713" edge="1" tooltip="Inspected return path to the BU spoke.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-b22e23bb70ec" value="VNet peering + UDR&#10;(Azure RBAC + NSG policy)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="reg-3d734f26fd6f" target="comp-9f481dfa6cdc" edge="1" tooltip="All East US common-spoke egress and east-west traffic is forced through the hub firewall.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-60b796ed9f28" value="VNet peering&#10;(Azure Firewall policy + NSG policy)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-9f481dfa6cdc" target="reg-3d734f26fd6f" edge="1" tooltip="Inspected return path to the common spoke; no direct SYS-02-to-SYS-03 peering route is used.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-04689612a4f5" value="VNet peering + UDR&#10;(Azure RBAC + NSG policy)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="reg-1965cdf14ff0" target="comp-594f9acf07b9" edge="1" tooltip="All Japan East spoke egress and hybrid traffic is forced through the hub firewall.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-6606c4eddc8e" value="VNet peering&#10;(Azure Firewall policy + NSG policy)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-594f9acf07b9" target="reg-1965cdf14ff0" edge="1" tooltip="Inspected return path to the AP spoke.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-22b0514324a1" value="ExpressRoute private peering + IPsec&#10;(IKEv2 certificate authentication)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-fd1b8a52c076" target="comp-d5dc781de241" edge="1" tooltip="Primary US hybrid path.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-030a1700db49" value="ExpressRoute private peering + IPsec&#10;(IKEv2 certificate authentication)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-d5dc781de241" target="comp-9a07084bc37a" edge="1" tooltip="Carrier A primary circuit terminates at the East US ExpressRoute gateway.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1cadfdb346d0" value="ExpressRoute private peering + IPsec&#10;(IKEv2 certificate authentication)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-fd1b8a52c076" target="comp-b4f350cb6b2a" edge="1" tooltip="Secondary US hybrid path on a different carrier.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-fb75c7796072" value="ExpressRoute private peering + IPsec&#10;(IKEv2 certificate authentication)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-b4f350cb6b2a" target="comp-9a07084bc37a" edge="1" tooltip="Carrier B secondary circuit terminates at the East US ExpressRoute gateway.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-f40ab1128928" value="MPLS + IPsec&#10;(IKEv2 certificate authentication)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-fd1b8a52c076" target="comp-40743d96f977" edge="1" tooltip="Backup US WAN path.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-7a5c242f9a84" value="MPLS + IPsec&#10;(IKEv2 certificate authentication)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-40743d96f977" target="comp-9a07084bc37a" edge="1" tooltip="Backup MPLS path terminates through the East US hub gateway.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-4957b34dfd60" value="Site-to-site VPN&#10;(IKEv2 certificate authentication)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-fd1b8a52c076" target="comp-e683b9fd05e9" edge="1" tooltip="Internet VPN backup path.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-521fe8473a05" value="Site-to-site VPN&#10;(IKEv2 certificate authentication)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-e683b9fd05e9" target="comp-9a07084bc37a" edge="1" tooltip="Internet VPN terminates at the East US hub gateway.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-d050119128f1" value="Hub routed transit&#10;(Azure Firewall policy)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-9a07084bc37a" target="comp-9f481dfa6cdc" edge="1" tooltip="Hybrid traffic is inspected before reaching East US workloads.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-706382257c46" value="HTTPS/TLS 1.3&#10;(mTLS + OAuth2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-9f481dfa6cdc" target="comp-662a9ea7ff99" edge="1" tooltip="Resolved target for US HQ integration; application contract remains to be finalized.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-95a74bd089ac" value="ExpressRoute private peering + IPsec&#10;(IKEv2 certificate authentication)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-555973f1a983" target="comp-29a9483784d2" edge="1" tooltip="Primary Japan hybrid path.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-bfb3d7b16dc1" value="ExpressRoute private peering + IPsec&#10;(IKEv2 certificate authentication)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-29a9483784d2" target="comp-803e8daccc43" edge="1" tooltip="Carrier C circuit terminates at the Japan East ExpressRoute gateway.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-4ce75bbf3760" value="Hub routed transit&#10;(Azure Firewall policy)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-803e8daccc43" target="comp-594f9acf07b9" edge="1" tooltip="Japan hybrid traffic is inspected before reaching the AP spoke.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-7118f3a7f8e3" value="HTTPS/TLS 1.3&#10;(mTLS + OAuth2.0 Client Credentials)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-594f9acf07b9" target="comp-a7f572e269f2" edge="1" tooltip="Inspected SYS-21 access to SYS-17 through the dedicated circuit and hub-spoke path.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-fbc9dd9192cd" value="Global VNet peering&#10;(Azure RBAC + Azure Firewall policy)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-9f481dfa6cdc" target="comp-594f9acf07b9" edge="1" tooltip="Approved inter-region application traffic only; no database replication is assumed.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ee90a5ccc7ef" value="Global VNet peering&#10;(Azure RBAC + Azure Firewall policy)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-594f9acf07b9" target="comp-9f481dfa6cdc" edge="1" tooltip="Inspected return path for approved inter-region application traffic.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="lgnd-ea0ef68c860b" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="40" y="2290" width="640" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="ltitle-b940171b4703" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=14;fontStyle=1;" parent="lgnd-ea0ef68c860b" vertex="1">
+          <mxGeometry x="0" y="-30" width="100" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-fa0bd39c941f" value="Internal App (IT Org)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="lgnd-ea0ef68c860b" vertex="1">
+          <mxGeometry x="0" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-6d9b530d3239" value="API Gateway / Integration" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="lgnd-ea0ef68c860b" vertex="1">
+          <mxGeometry x="155" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-e2982b6849b4" value="Database" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="lgnd-ea0ef68c860b" vertex="1">
+          <mxGeometry x="310" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-bb7a946b9477" value="Firewall / LB" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="lgnd-ea0ef68c860b" vertex="1">
+          <mxGeometry x="465" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-7d08ee2f8e35" value="Identity / Auth" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;" parent="lgnd-ea0ef68c860b" vertex="1">
+          <mxGeometry x="0" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-2830fdc3f383" value="Biz Owned" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#8E24AA;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-ea0ef68c860b" vertex="1">
+          <mxGeometry x="155" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-1578ba336c5a" value="Third Party" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-ea0ef68c860b" vertex="1">
+          <mxGeometry x="310" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

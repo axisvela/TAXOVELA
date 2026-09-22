@@ -1,0 +1,8 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "SSOC-NA-001-req-yaml",
+  "type": "requirements",
+  "schema": "arch-requirements",
+  "path": "../../output/requirements/req.yaml",
+  "sha256": "986e8822e77df0863fe686f10dabc426972805ea36e0b0179b943b278b722f0f"
+}

@@ -1,0 +1,321 @@
+{
+  "schema_version": "validation/v1",
+  "source": {
+    "path": "output\\diagrams\\diagram.png",
+    "sha256": "bd924bd03b007f9bea6a20d1cab1892c1683f269eca4be6477080a3aa6e16633",
+    "media_type": "image/png",
+    "validated_at": "2026-09-15T00:55:02+00:00",
+    "validator_version": "arch-validate/openai-gpt-5.6-sol+archharness-0.7.0",
+    "ruleset_digest": "54f0a273accf65bde893b44e7b4f375f23929acf529b0e98f26d63147ed68425"
+  },
+  "dimensions": {
+    "Cloud_Network_Completeness": {
+      "raw_score": 7.86,
+      "weight": 2.0,
+      "weighted_score": 1.57
+    },
+    "Connectivity": {
+      "raw_score": 0.0,
+      "weight": 1.0,
+      "weighted_score": 0.0
+    },
+    "Technical_Component_Completeness": {
+      "raw_score": 6.29,
+      "weight": 2.0,
+      "weighted_score": 1.26
+    },
+    "Interaction_Integration": {
+      "raw_score": 6.0,
+      "weight": 2.0,
+      "weighted_score": 1.2
+    },
+    "Security_Compliance": {
+      "raw_score": 5.55,
+      "weight": 2.0,
+      "weighted_score": 1.11
+    },
+    "Terminology_Expression": {
+      "raw_score": 4.0,
+      "weight": 1.0,
+      "weighted_score": 0.4
+    }
+  },
+  "issues": [
+    {
+      "id": "VAL-001",
+      "rule_id": "E-AWS-001/E-AWS-002",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "AWS US N. Virginia network topology",
+      "evidence": "The PNG shows one three-tier AWS boundary, not a Hub VPC and workload Spoke VPC. Transit Gateway, centralized firewall, Route 53 Resolver/private hosted zones, CloudWatch/CloudTrail/Security Hub/GuardDuty, SIEM, account separation, and the dedicated regional Hub are absent.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-002",
+      "rule_id": "E-AWS-003",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "SYS-05 OP(order portal)-row-web",
+      "evidence": "SYS-05 is an application workload drawn inside Public subnet (DMZ) - Frontend K8s. The AWS standard prohibits application workloads and workload public IP exposure in public subnets.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-003",
+      "rule_id": "E-AWS-005",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Interaction_Integration",
+      "subject": "AWS external API ingress",
+      "evidence": "The visible AWS ingress is Internet -> ALB + AWS WAF -> SYS-05 -> AWS DMZ Boundary Firewall -> SYS-06 Gateway. SYS-06 is not identified as the configured APIM in a private Spoke subnet, and PrivateLink to the backend is not shown.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-004",
+      "rule_id": "E-AWS-007",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Interaction_Integration",
+      "subject": "SYS-28 S3 access",
+      "evidence": "SYS-08 connects directly to SYS-28 S3. No S3 VPC Endpoint, PrivateLink, endpoint policy, or Private DNS is drawn; blueprint.yaml explicitly leaves endpoint placement TBD.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-005",
+      "rule_id": "E-AWS-006",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "AWS workload credentials and keys",
+      "evidence": "Some DB edge labels say Password from AWS Secrets Manager and the S3 edge says AWS IAM role, but no Secrets Manager/KMS nodes, consuming workload relationships, automatic KMS rotation, or general workload IAM-role model are rendered. The blueprint leaves rotation periods TBD-07.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-006",
+      "rule_id": "E-AWS-008",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "AWS operational access",
+      "evidence": "No Office Network -> PAW or AWS Systems Manager Session Manager -> private administration endpoint path appears in the PNG. The blueprint only states a unified operating model is TBD.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-007",
+      "rule_id": "AWS-standard east_west",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "AWS App-to-DB boundary enforcement",
+      "evidence": "SYS-08 -> SYS-26 and SYS-07 -> SYS-27 bypass the drawn NET-AWS-APP-FW node. Text claiming boundary controls does not match the visible topology; only SYS-25 is reached through the firewall node.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-008",
+      "rule_id": "E-PC-001",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "Private-DC Internet ingress",
+      "evidence": "Internet connects directly to SYS-29 DMZ-APIM in dc-us. The mandatory Company F5 ingress stack is not present on this path; the generic dc-us Boundary Firewall does not replace the required F5 L7/WAF/LB control.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-009",
+      "rule_id": "E-PC-004",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "Private-DC operational access",
+      "evidence": "None of dc-us, dc-us-na, dc-cn-primary, or dc-cn-secondary shows the mandatory Office Network -> PAW -> private DC -> target path, MFA/JIT control, or session recording boundary.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-010",
+      "rule_id": "E-PC-005/AWS-standard hybrid_connectivity",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Connectivity",
+      "subject": "Four private-DC-to-AWS region links",
+      "evidence": "All four region-level links are labeled MPLS with application TLS 1.2+, not AWS Direct Connect (or a documented equivalent termination) through Transit Gateway and the central Hub firewall. No IPSec/tunnel encryption assertion is shown; application TLS alone does not define transport-layer private connectivity.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-011",
+      "rule_id": "E-002",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "Azure US source boundary",
+      "evidence": "The public-cloud title says Azure US, exact region TBD. A country is not an exact Azure Region and cannot establish residency or connectivity location.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-012",
+      "rule_id": "E-002",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "Azure CN North source boundary",
+      "evidence": "The public-cloud title says exact numbered region TBD. Azure China North and China North 2/3 have distinct physical and service characteristics; the exact Region is unresolved.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-013",
+      "rule_id": "E-004",
+      "severity": "medium",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "AWS US infrastructure ownership",
+      "evidence": "The AWS boundary owner is displayed as TBD and blueprint.yaml also sets owner: TBD, leaving cloud security and operations accountability unassigned.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-014",
+      "rule_id": "E-006/V-101",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Cloud_Network_Completeness",
+      "subject": "Azure US and Azure CN network placement",
+      "evidence": "Both Azure source boundaries contain generic dashed groups, but neither explicitly identifies a VNET, Subnet, or Private Endpoint/Public Endpoint access mode for the represented Azure components.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-015",
+      "rule_id": "E-012",
+      "severity": "medium",
+      "disposition": "must_fix",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "19 of 38 custom application components",
+      "evidence": "Nineteen custom FE/BE/API components have no concrete language/framework metadata in blueprint.yaml; SYS-06 is explicitly TBD/TBD and unchanged organization-owned application components expose no stack. The PNG cannot support vulnerability-scan scoping for these components.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-016",
+      "rule_id": "E-013",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "40 of 65 technical components",
+      "evidence": "Forty component records have no runtime field. Zone placement is not a runtime declaration, and the diagram does not place those components in VM, K8s, PaaS, or other runtime frames.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-017",
+      "rule_id": "S-006/E-PC-003",
+      "severity": "medium",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "Authorization control",
+      "evidence": "ADFS and Enterprise ID with SAML are visible, but AuthZ Platform is absent and no relationship to SYS-29/SYS-30/SYS-31 or SYS-06 is drawn. RBAC exists only as blueprint prose with role model and ownership TBD-08.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-018",
+      "rule_id": "S-008",
+      "severity": "critical",
+      "disposition": "must_fix",
+      "dimension": "Security_Compliance",
+      "subject": "PRC-to-US cross-border path SYS-15 -> SYS-34",
+      "evidence": "The rendered edge identifies Kafka/TLS and SASL/SCRAM only. It does not label data classification, allowed request/non-row payload semantics, prohibited PRC rows, transfer purpose, retention, or a Chinese data-law/legal basis; blueprint.yaml leaves the legal basis TBD.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-019",
+      "rule_id": "V-103",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Terminology_Expression",
+      "subject": "dc-us DMZ naming",
+      "evidence": "The private data center dc-us uses Public subnet (DMZ). Private-DC network boundaries must use Zone/VLAN/Segment terminology, not the public-cloud Subnet term.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-020",
+      "rule_id": "diagram-spec layout/readability",
+      "severity": "high",
+      "disposition": "must_fix",
+      "dimension": "Terminology_Expression",
+      "subject": "Rendered PNG label legibility",
+      "evidence": "At 1238x2794, component labels are visibly clipped with bracketed ellipses and the AWS application tier contains overlapping component metadata, interaction labels, and crossing lines. Nominal XML values cannot be reliably read or associated with an edge in the delivered PNG.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-021",
+      "rule_id": "diagram-style arrows",
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Interaction_Integration",
+      "subject": "All 61 interaction ports",
+      "evidence": "Every rendered interaction uses port TBD. Ports are optional under the shape spec but must be resolved before firewall rules, security groups, NACLs, and implementation approval can be verified.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-022",
+      "rule_id": "S-009/AWS-standard data_security",
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Security_Compliance",
+      "subject": "Nine confidential data stores",
+      "evidence": "The confidential stores do not carry concrete at-rest encryption labels. AWS data-store encryption is TBD-07 and existing stores show no AES-256/TDE/CMK declaration.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-023",
+      "rule_id": "E-012/AWS-standard disaster_recovery",
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Technical_Component_Completeness",
+      "subject": "TBD platform versions and resilience",
+      "evidence": "Twenty-one rendered metadata annotations contain version TBD or equivalent unresolved technology details. Multi-AZ topology, regional API/Secrets/S3/Route53 resilience, and SYS-23 scheduler HA are not resolved.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-024",
+      "rule_id": "V-104",
+      "severity": "medium",
+      "disposition": "should_fix",
+      "dimension": "Terminology_Expression",
+      "subject": "AWS and Azure visual vocabulary",
+      "evidence": "The cloud sections use generic containers and generic component shapes rather than recognizable AWS and Azure icon libraries, reducing platform-specific clarity.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-025",
+      "rule_id": "V-007",
+      "severity": "low",
+      "disposition": "should_fix",
+      "dimension": "Terminology_Expression",
+      "subject": "Component naming quality",
+      "evidence": "Visible names and blueprint metadata include misspellings such as salse, servie, cload, and warehosue, plus undefined abbreviations that reduce traceability to authoritative registry names.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-026",
+      "rule_id": "V-008",
+      "severity": "low",
+      "disposition": "consider",
+      "dimension": "Terminology_Expression",
+      "subject": "Diagram legend",
+      "evidence": "A legend exists, but its small text and crowded examples are difficult to read at the exported resolution and it does not explain warning markers or connection-line semantics.",
+      "confidence": "high"
+    },
+    {
+      "id": "VAL-027",
+      "rule_id": "V-105",
+      "severity": "low",
+      "disposition": "consider",
+      "dimension": "Terminology_Expression",
+      "subject": "Combined ALB and WAF symbol",
+      "evidence": "ALB + AWS WAF is represented as one firewall-style hexagon. Separate or nested official symbols would distinguish load balancing from WAF policy enforcement and improve control ownership clarity.",
+      "confidence": "high"
+    }
+  ],
+  "summary": {
+    "total_score": 5.54,
+    "must_fix": 20,
+    "should_fix": 5,
+    "consider": 2
+  }
+}

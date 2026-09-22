@@ -1,0 +1,15 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "blueprint.yaml",
+  "type": "technical-deployment-view",
+  "schema": "architecture/v1",
+  "path": "output\\designs\\blueprint.yaml",
+  "sha256": "e6db27a83f282513613a03649911f36d7641d134d42eb2a228d00ede999c3f6c",
+  "model_version": "openai/gpt-5.6-sol",
+  "producer": "arch-design",
+  "produced_at": "2026-09-14T13:29:39+00:00",
+  "input_artifacts": [
+    "req.yaml",
+    "REQ.md"
+  ]
+}

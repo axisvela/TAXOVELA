@@ -1,0 +1,167 @@
+{
+  "artifacts": {
+    "req.yaml": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "req-OSP-001",
+        "type": "requirements",
+        "schema": "req/v1",
+        "path": "output\\requirements\\req.yaml",
+        "sha256": "1f14a9a3077e116148054290d6a939719bf9581a9defdf4cb2bcf190b12b26c9",
+        "model_version": "openai/gpt-5.6-sol",
+        "producer": "archharness/0.7.0",
+        "produced_at": "2026-09-14T11:26:47+00:00",
+        "input_artifacts": [
+          "input\\prompt.md",
+          "input\\diagrams\\supply-chain-order-20260914.png",
+          "input\\systems-registry.md",
+          "input\\documents\\requirements.md",
+          "project.yaml",
+          "config.yaml"
+        ]
+      }
+    },
+    "REQ.md": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "REQ-OSP-001",
+        "type": "requirements",
+        "schema": "req/v1",
+        "path": "output\\requirements\\REQ.md",
+        "sha256": "288de9159f3f182f7d886dcbf054de3975fee14ea15aa5bfa090fc2c8162e1a9",
+        "model_version": "openai/gpt-5.6-sol",
+        "producer": "archharness/0.7.0",
+        "produced_at": "2026-09-14T11:26:47+00:00",
+        "input_artifacts": [
+          "input\\prompt.md",
+          "input\\diagrams\\supply-chain-order-20260914.png",
+          "input\\systems-registry.md",
+          "input\\documents\\requirements.md",
+          "project.yaml",
+          "config.yaml"
+        ]
+      }
+    },
+    "blueprint.yaml": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "blueprint-OSP-001",
+        "type": "technical-deployment-view",
+        "schema": "arch/v1",
+        "path": "output\\designs\\blueprint.yaml",
+        "sha256": "7978252bb1e33a53d3e2563a2d1f4f30de8db6c806d057926382478a87b1dd8c",
+        "model_version": "openai/gpt-5.6-sol",
+        "producer": "archharness/0.7.0",
+        "produced_at": "2026-09-14T13:29:18Z",
+        "input_artifacts": [
+          "req-OSP-001",
+          "config.yaml",
+          "input\\systems-registry.md",
+          "tools\\arch-diagram-gen\\templates\\CATALOG.yaml",
+          "tools\\arch-diagram-gen\\arch-schema-reference.yaml",
+          "tools\\arch-diagram-gen\\templates\\private-cloud.yaml"
+        ]
+      }
+    },
+    "diagram.png": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "diagram-png",
+        "type": "technical-deployment-view",
+        "schema": "image/png",
+        "path": "output\\diagrams\\diagram.png",
+        "sha256": "5833dcc6754605bdb4de12755ca580b517c11b2eaa424434c81140bfa509768d",
+        "model_version": null,
+        "producer": "archharness diagram",
+        "produced_at": "2026-09-14T13:39:09+00:00",
+        "input_artifacts": [
+          "blueprint.yaml"
+        ]
+      }
+    },
+    "diagram.drawio": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "diagram-drawio",
+        "type": "technical-deployment-view",
+        "schema": "application/vnd.jgraph.mxfile",
+        "path": "output\\diagrams\\diagram.drawio",
+        "sha256": "b84d346f8873b9d4a0551f6514ea268f91fe7068c1d0627f23643cffa420f23f",
+        "model_version": null,
+        "producer": "archharness diagram",
+        "produced_at": "2026-09-14T13:39:09+00:00",
+        "input_artifacts": [
+          "blueprint.yaml"
+        ]
+      }
+    },
+    "validate_result.json": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "validate-result-OSP-001",
+        "type": "validation-result",
+        "schema": "validation/v1",
+        "path": "output\\validation\\validate_result.json",
+        "sha256": "902871380612cca18d93e1ce83cac1f1eab3666c57cdf006f210e0c5e9a6a9f4",
+        "model_version": "openai/gpt-5.6-sol",
+        "producer": "arch-validate/validation-v1",
+        "produced_at": "2026-09-15T00:57:33Z",
+        "input_artifacts": [
+          "diagram-png",
+          "blueprint-OSP-001",
+          "config.yaml",
+          "standards/private-cloud-standard.yaml",
+          ".agents/skills/arch-validate/rules/accuracy-rules.yaml",
+          ".agents/skills/arch-validate/rules/platform-rules.yaml",
+          ".agents/skills/arch-validate/rules/interaction-rules.yaml",
+          ".agents/skills/arch-validate/rules/security-rules.yaml",
+          ".agents/skills/arch-validate/rules/diagram-rules.yaml",
+          ".agents/skills/arch-validate/rules/compliance/terminology.yaml"
+        ]
+      }
+    },
+    "enforce_result.json": {
+      "kind": "decision",
+      "data": {
+        "schema_version": "enforcement/v1",
+        "decision": "BLOCK",
+        "validation": {
+          "path": "output\\diagrams\\diagram.png",
+          "sha256": "5833dcc6754605bdb4de12755ca580b517c11b2eaa424434c81140bfa509768d",
+          "ruleset_digest": "sha256:dbead7910d2389e078f45c6074c13ddfe070a4b99c32634d3b551abcbaae90dd"
+        },
+        "policy": {
+          "path": "../../standards/arch-gate-policy.yaml",
+          "digest": "5829fac16d42d2b2c63b728cf9098175b82a23a52045e10dab5cbe13bd7dd97b",
+          "block_threshold": 6.0,
+          "warn_threshold": 8.0,
+          "must_fix_zero_required": true
+        },
+        "evaluation": {
+          "total_score": 5.81,
+          "must_fix": 24,
+          "should_fix": 4,
+          "consider": 0
+        },
+        "reasons": [
+          "must_fix=24 > 0 (must_fix_zero_required)"
+        ],
+        "producer": "archharness/0.7.0",
+        "produced_at": "2026-09-15T01:03:22+00:00"
+      }
+    }
+  },
+  "stages_completed": [
+    "requirements",
+    "design",
+    "draw",
+    "validate",
+    "enforce"
+  ]
+}

@@ -1,0 +1,67 @@
+# config.yaml — example overlay for order-query-aws-hybrid
+#
+# OVP ROW runs on AWS US (three-tier subnet model mirroring the private-DC
+# standard) and integrates with four private DCs plus Azure data sources.
+# Every cross-system call is mediated by APIM/APIH or a Kafka cluster.
+
+datacenters:
+  - id: "aws-us"
+    aliases: ["AWS US", "AWS US VPC"]
+    location: { city: "N. Virginia", state: "VA", country: "US" }
+    model: "three-tier-subnets"
+    zones: ["Public subnet (DMZ)", "Private subnet (App Zone)", "Private subnet (DB Zone)"]
+    region: "NA"
+    notes: "VPC hosts OVP ROW; subnets mirror the private-cloud three-tier model."
+
+  - id: "dc-us"
+    aliases: ["US DC", "US East DC"]
+    location: { city: "City C", state: "State X", country: "US" }
+    model: "three-tier"
+    zones: ["Public subnet (DMZ)", "App Zone", "DB Zone"]
+    region: "NA"
+    notes: "Identity hub: SYS-01 + SYS-02; SYS-03 portal; SYS-29; SYS-32 Kafka. (See input/systems-registry.md.)"
+
+  - id: "dc-us-na"
+    aliases: ["NA DC", "NA-DC"]
+    location: { city: "City C", state: "State X", country: "US" }
+    model: "multi-zone"
+    zones: ["NA-PROD-INA-INTEGRATION", "NA-PROD-INA-K8S", "NA-PROD-INA-DB"]
+    region: "NA"
+    notes: "Multi-zone: SYS-31 + SYS-35/SYS-36 Kafka clusters live in INTEGRATION zone; SYS-37 in DB zone. (See input/systems-registry.md.)"
+
+  - id: "dc-cn-primary"
+    aliases: ["CN Primary DC", "主DC"]
+    location: { city: "City A", province: "Province A", country: "CN" }
+    model: "two-tier"
+    zones: ["DMZ", "Intranet"]
+    region: "APAC-CN"
+    notes: "Hosts SYS-48 and SYS-49; SYS-33 Kafka. (See input/systems-registry.md.)"
+
+  - id: "dc-cn-secondary"
+    aliases: ["CN Secondary DC", "备DC"]
+    location: { city: "City B", province: "Province B", country: "CN" }
+    model: "two-tier"
+    zones: ["DMZ", "Intranet"]
+    region: "APAC-CN"
+    notes: "Hosts SYS-42–SYS-47; SYS-34 Kafka. (See input/systems-registry.md.)"
+
+  - id: "azure-cn-north"
+    aliases: ["Azure CN North"]
+    location: { city: "City E", country: "CN" }
+    model: "saas"
+    zones: ["EDW"]
+    region: "APAC-CN"
+    notes: "SYS-57 data source (data stays in-country). (See input/systems-registry.md.)"
+
+platforms:
+  api_gateway: "APIM"
+  message_bus: "Kafka"
+  k8s_platform: "Internal K8s Platform"
+  integration_platforms:
+    - "APIM"
+    - "DMZ-APIM"
+    - "APIH"
+    - "Kafka"
+  auth_internal: "ADFS"
+  auth_external: "Enterprise ID"
+  authz_platform: "AuthZ Platform"

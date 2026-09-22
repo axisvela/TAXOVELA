@@ -1,0 +1,10 @@
+﻿schema_version: 1
+project:
+  id: 03-order-query-aws-hybrid
+  name: Order Query Platform (OVP ROW) 鈥?AWS + Multi-DC Hybrid
+  platform: aws-hybrid
+  data_classification: confidential
+paths:
+  input: ./input
+  working: ./working
+  output: ./output

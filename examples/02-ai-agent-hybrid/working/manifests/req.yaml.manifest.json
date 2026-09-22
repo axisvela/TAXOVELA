@@ -1,0 +1,12 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "req.yaml",
+  "type": "requirements",
+  "schema": "requirements/v1",
+  "path": "output\\requirements\\req.yaml",
+  "sha256": "cce8e1b913331b9a74e5fc599b34f5891fa10adc9499a881ed4d785b775126ac",
+  "model_version": null,
+  "producer": "arch-requirements",
+  "produced_at": "2026-09-14T11:23:29+00:00",
+  "input_artifacts": []
+}

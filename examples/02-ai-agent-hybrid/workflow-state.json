@@ -1,0 +1,139 @@
+{
+  "artifacts": {
+    "REQ.md": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "REQ.md",
+        "type": "requirements_document",
+        "schema": "requirements/v1",
+        "path": "output\\requirements\\REQ.md",
+        "sha256": "5cfdfde442e723639885025ac33dc0b8e2ba59f528e76b6fa0900d200fdda65a",
+        "model_version": null,
+        "producer": "arch-requirements",
+        "produced_at": "2026-09-14T11:23:29+00:00",
+        "input_artifacts": []
+      }
+    },
+    "req.yaml": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "req.yaml",
+        "type": "requirements",
+        "schema": "requirements/v1",
+        "path": "output\\requirements\\req.yaml",
+        "sha256": "cce8e1b913331b9a74e5fc599b34f5891fa10adc9499a881ed4d785b775126ac",
+        "model_version": null,
+        "producer": "arch-requirements",
+        "produced_at": "2026-09-14T11:23:29+00:00",
+        "input_artifacts": []
+      }
+    },
+    "blueprint.yaml": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "blueprint.yaml",
+        "type": "technical-deployment-view",
+        "schema": "architecture/v1",
+        "path": "output\\designs\\blueprint.yaml",
+        "sha256": "cb4625a35c164fcd5be1fa1f7486e7cbdbd92543a6e89d804325d095a4e1d6d7",
+        "model_version": "V1.0",
+        "producer": "arch-design",
+        "produced_at": "2026-09-14T13:06:02+00:00",
+        "input_artifacts": [
+          "req.yaml"
+        ]
+      }
+    },
+    "diagram.png": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "diagram-png",
+        "type": "technical-deployment-view",
+        "schema": "image/png",
+        "path": "output\\diagrams\\diagram.png",
+        "sha256": "e19b7f9035554e8b4112030036c103eda5b8ad2bc5d9fdcd957aa31e96e104cd",
+        "model_version": null,
+        "producer": "archharness diagram",
+        "produced_at": "2026-09-14T13:39:01+00:00",
+        "input_artifacts": [
+          "blueprint.yaml"
+        ]
+      }
+    },
+    "diagram.drawio": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "diagram-drawio",
+        "type": "technical-deployment-view",
+        "schema": "application/vnd.jgraph.mxfile",
+        "path": "output\\diagrams\\diagram.drawio",
+        "sha256": "79c5de5c021cf35e230e8f4ca9e0fc1483b74488b63412d71ef18d2ad9a9f572",
+        "model_version": null,
+        "producer": "archharness diagram",
+        "produced_at": "2026-09-14T13:39:01+00:00",
+        "input_artifacts": [
+          "blueprint.yaml"
+        ]
+      }
+    },
+    "validate_result.json": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "validate_result.json",
+        "type": "validation-result",
+        "schema": "validation/v1",
+        "path": "output\\validation\\validate_result.json",
+        "sha256": "3b72f39271252b610ec9ac51bdbf06af871180c01cefb2e4b3f853fed7686a74",
+        "model_version": "arch-validate/2.0",
+        "producer": "arch-validate",
+        "produced_at": "2026-09-15T00:58:31Z",
+        "input_artifacts": [
+          "diagram.png"
+        ]
+      }
+    },
+    "enforce_result.json": {
+      "kind": "decision",
+      "data": {
+        "schema_version": "enforcement/v1",
+        "decision": "BLOCK",
+        "validation": {
+          "path": "output\\diagrams\\diagram.png",
+          "sha256": "e19b7f9035554e8b4112030036c103eda5b8ad2bc5d9fdcd957aa31e96e104cd",
+          "ruleset_digest": "26ffb5197517453a4f91bb994cdea3fdce8ef3256390f131b4fb62d7b069db21"
+        },
+        "policy": {
+          "path": "../../standards/arch-gate-policy.yaml",
+          "digest": "5829fac16d42d2b2c63b728cf9098175b82a23a52045e10dab5cbe13bd7dd97b",
+          "block_threshold": 6.0,
+          "warn_threshold": 8.0,
+          "must_fix_zero_required": true
+        },
+        "evaluation": {
+          "total_score": 4.14,
+          "must_fix": 18,
+          "should_fix": 2,
+          "consider": 2
+        },
+        "reasons": [
+          "must_fix=18 > 0 (must_fix_zero_required)"
+        ],
+        "producer": "archharness/0.7.0",
+        "produced_at": "2026-09-15T01:03:22+00:00"
+      }
+    }
+  },
+  "stages_completed": [
+    "requirements",
+    "design",
+    "draw",
+    "validate",
+    "enforce"
+  ]
+}

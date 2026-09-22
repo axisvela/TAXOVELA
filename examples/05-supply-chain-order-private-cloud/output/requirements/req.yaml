@@ -1,0 +1,179 @@
+# req.yaml — Supply-Chain Order Platform (OSP), req/v2
+# Generated from input/systems-registry.md + input/documents/requirements.md
+
+schema_version: req/v2
+
+requirements:
+  project:
+    name: "Supply-Chain Order Platform (OSP)"
+    id: "OSP-001"
+    scope: "standalone"
+    department: "Supply Chain IT"
+    data_classification: "Acme Confidential"
+
+  infra:
+    - {id: "INF-01", name: "dc-cn-primary", node_kind: "data_center", infra_type: "private_cloud", network_type: "prod_network", country: "CN"}
+    - {id: "INF-02", name: "dc-cn-primary App Zone", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-01", country: "CN"}
+    - {id: "INF-03", name: "dc-cn-primary DB Zone", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-01", country: "CN"}
+    - {id: "INF-04", name: "dc-us", node_kind: "data_center", infra_type: "private_cloud", network_type: "prod_network", country: "US"}
+    - {id: "INF-05", name: "NA-PROD-INA-K8S", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-04", country: "US"}
+    - {id: "INF-06", name: "NA-PROD-INA-INTEGRATION", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-04", country: "US"}
+    - {id: "INF-07", name: "NA-PROD-INA-SERVER", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-04", country: "US"}
+    - {id: "INF-08", name: "NA-PROD-INA-SAP", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-04", country: "US"}
+    - {id: "INF-09", name: "NA-PROD-INA-DB", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-04", country: "US"}
+    - {id: "INF-10", name: "dc-us-identity", node_kind: "data_center", infra_type: "private_cloud", network_type: "prod_network", country: "US"}
+    - {id: "INF-11", name: "AWS US", node_kind: "iaas_vpc_vnet", infra_type: "public_cloud", network_type: "prod_network", country: "US", vendor: "Amazon Web Services"}
+    - {id: "INF-12", name: "Azure US", node_kind: "iaas_vpc_vnet", infra_type: "public_cloud", network_type: "prod_network", country: "US", vendor: "Microsoft Azure"}
+    - {id: "INF-13", name: "Office Network", node_kind: "office_network", infra_type: "office", network_type: "office_network", country: "CN"}
+    - {id: "INF-14", name: "dc-cn-primary DMZ", node_kind: "network_zone", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-01", country: "CN"}
+    - {id: "INF-15", name: "dc-us DMZ", node_kind: "network_zone", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-04", country: "US"}
+    - {id: "INF-16", name: "F5 (CN)", node_kind: "load_balancer", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-14", country: "CN", vendor: "F5"}
+    - {id: "INF-17", name: "WAF (CN)", node_kind: "waf", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-14", country: "CN"}
+    - {id: "INF-18", name: "Earth Router (CN)", node_kind: "router", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-14", country: "CN"}
+    - {id: "INF-19", name: "F5 (NA)", node_kind: "load_balancer", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-15", country: "US", vendor: "F5"}
+    - {id: "INF-20", name: "WAF (NA)", node_kind: "waf", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-15", country: "US"}
+    - {id: "INF-21", name: "Earth Router (NA)", node_kind: "router", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-15", country: "US"}
+    - {id: "INF-22", name: "ADFS", node_kind: "identity_provider", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-10", country: "US", vendor: "Microsoft"}
+
+  systems:
+    - {id: "APP-01", name: "Supply-Chain Order Platform", type: "new", owner: "org_it", data_classification: "Acme Confidential"}
+    - {id: "APP-02", name: "CN peer applications", type: "existing", owner: "org_it"}
+    - {id: "APP-03", name: "AWS peer", type: "existing", owner: "org_it", vendor: "Amazon Web Services"}
+    - {id: "APP-04", name: "Azure peers", type: "existing", owner: "org_it", vendor: "Microsoft Azure"}
+    - {id: "APP-05", name: "SAP CN", type: "existing", owner: "third_party", vendor: "SAP"}
+    - {id: "APP-06", name: "SAP NA", type: "existing", owner: "third_party", vendor: "SAP"}
+
+  components:
+    - {id: "CMP-01", system_id: "APP-01", subsystem: "web", name: "scop/osp web tier", kind: "component", layer: "fe", component_role: "web_frontend"}
+    - {id: "CMP-02", system_id: "APP-01", subsystem: "gateway", name: "Spring Cloud Gateway", kind: "component", layer: "ip", component_role: "api_gateway"}
+    - {id: "CMP-03", system_id: "APP-01", subsystem: "order", name: "Order Creation", kind: "service", layer: "be", component_role: "backend_service"}
+    - {id: "CMP-04", system_id: "APP-01", subsystem: "order", name: "Order Change", kind: "service", layer: "be", component_role: "backend_service"}
+    - {id: "CMP-05", system_id: "APP-01", subsystem: "order", name: "Data Distribution", kind: "service", layer: "be", component_role: "backend_service"}
+    - {id: "CMP-06", system_id: "APP-01", subsystem: "master", name: "Master Data", kind: "service", layer: "be", component_role: "backend_service"}
+    - {id: "CMP-07", system_id: "APP-01", subsystem: "order", name: "Order Inquiry", kind: "service", layer: "be", component_role: "backend_service"}
+    - {id: "CMP-08", system_id: "APP-01", subsystem: "ops", name: "Basic Operation", kind: "service", layer: "be", component_role: "backend_service"}
+    - {id: "CMP-09", system_id: "APP-01", subsystem: "ops", name: "Logging", kind: "service", layer: "be", component_role: "backend_service"}
+    - {id: "CMP-10", system_id: "APP-01", subsystem: "ops", name: "etc.", kind: "service", layer: "be", component_role: "backend_service"}
+    - {id: "CMP-11", system_id: "APP-01", subsystem: "integration", name: "APIM", kind: "component", layer: "ip", component_role: "api_gateway"}
+    - {id: "CMP-12", system_id: "APP-01", subsystem: "integration", name: "WSO2", kind: "component", layer: "ip", component_role: "integration_service"}
+    - {id: "CMP-13", system_id: "APP-01", subsystem: "integration", name: "APIH", kind: "component", layer: "ip", component_role: "integration_service"}
+    - {id: "CMP-14", system_id: "APP-01", subsystem: "messaging", name: "Kafka", kind: "component", layer: "mq", component_role: "message_bus"}
+    - {id: "CMP-15", system_id: "APP-01", subsystem: "messaging", name: "RabbitMQ", kind: "component", layer: "mq", component_role: "message_bus"}
+    - {id: "CMP-16", system_id: "APP-01", subsystem: "messaging", name: "Debezium", kind: "service", layer: "mq", component_role: "data_integration"}
+    - {id: "CMP-17", system_id: "APP-01", subsystem: "search", name: "ES HA GRP", kind: "component", layer: "db", component_role: "database"}
+    - {id: "CMP-18", system_id: "APP-01", subsystem: "cache", name: "Redis HA GRP", kind: "component", layer: "db", component_role: "cache"}
+    - {id: "CMP-19", system_id: "APP-01", subsystem: "db", name: "MySQL HA GRP", kind: "component", layer: "db", component_role: "database", encryption_at_rest: "AES-256"}
+    - {id: "CMP-20", system_id: "APP-01", subsystem: "db", name: "PostgreSQL HA GRP", kind: "component", layer: "db", component_role: "database", encryption_at_rest: "AES-256"}
+    - {id: "CMP-21", system_id: "APP-01", subsystem: "db", name: "SQLServer HA GRP", kind: "component", layer: "db", component_role: "database", encryption_at_rest: "AES-256"}
+    - {id: "CMP-22", system_id: "APP-01", subsystem: "na-backend", name: "ERPS", kind: "service", layer: "be", component_role: "backend_service"}
+    - {id: "CMP-23", system_id: "APP-01", subsystem: "na-backend", name: "LGS-NA", kind: "service", layer: "be", component_role: "backend_service"}
+    - {id: "CMP-24", system_id: "APP-01", subsystem: "na-backend", name: "IBS", kind: "service", layer: "be", component_role: "backend_service"}
+    - {id: "CMP-25", system_id: "APP-02", name: "eComm-order-platform", kind: "component", layer: "ip", component_role: "integration_service"}
+    - {id: "CMP-26", system_id: "APP-02", name: "SOS-PRC", kind: "component", layer: "ip", component_role: "integration_service"}
+    - {id: "CMP-27", system_id: "APP-02", name: "CFOS-PRC", kind: "component", layer: "ip", component_role: "integration_service"}
+    - {id: "CMP-28", system_id: "APP-02", name: "CFOS-AP", kind: "component", layer: "ip", component_role: "integration_service"}
+    - {id: "CMP-29", system_id: "APP-02", name: "SSCS-AP", kind: "component", layer: "ip", component_role: "integration_service"}
+    - {id: "CMP-30", system_id: "APP-03", name: "SOS-ROW", kind: "component", layer: "ip", component_role: "integration_service"}
+    - {id: "CMP-31", system_id: "APP-04", name: "eComm-platform", kind: "component", layer: "ip", component_role: "integration_service"}
+    - {id: "CMP-32", system_id: "APP-04", name: "D365", kind: "component", layer: "ip", component_role: "integration_service"}
+    - {id: "CMP-33", system_id: "APP-05", name: "ECC-CN", kind: "component", layer: "ip", component_role: "integration_service"}
+    - {id: "CMP-34", system_id: "APP-05", name: "S4-CN", kind: "component", layer: "ip", component_role: "integration_service"}
+    - {id: "CMP-35", system_id: "APP-06", name: "S4-NA", kind: "component", layer: "ip", component_role: "integration_service"}
+
+  stacks:
+    - {id: "STK-01", component_id: "CMP-01", component: "Nginx", version: "1.25.0", category: "Web Server", license: "BSD-2-Clause", standard_flag: true}
+    - {id: "STK-02", component_id: "CMP-03", component: "Spring Boot", version: "3.2.0", category: "Framework", license: "Apache-2.0", standard_flag: true}
+    - {id: "STK-03", component_id: "CMP-03", component: "Java", version: "17.0.0", category: "Runtime", standard_flag: true}
+    - {id: "STK-04", component_id: "CMP-14", component: "Kafka", version: "3.6.0", category: "Messaging", license: "Apache-2.0", standard_flag: true}
+    - {id: "STK-05", component_id: "CMP-20", component: "PostgreSQL", version: "16.0.0", category: "Database", eol_date: "2028-11-09", license: "PostgreSQL", standard_flag: true}
+
+  deployments:
+    - {id: "DEP-01", component_id: "CMP-01", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-02", component_id: "CMP-01", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-03", component_id: "CMP-02", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-04", component_id: "CMP-02", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-05", component_id: "CMP-03", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-06", component_id: "CMP-03", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-07", component_id: "CMP-04", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-08", component_id: "CMP-04", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-09", component_id: "CMP-05", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-10", component_id: "CMP-05", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-11", component_id: "CMP-06", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-12", component_id: "CMP-06", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-13", component_id: "CMP-07", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-14", component_id: "CMP-07", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-15", component_id: "CMP-08", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-16", component_id: "CMP-08", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-17", component_id: "CMP-09", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-18", component_id: "CMP-09", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-19", component_id: "CMP-10", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-20", component_id: "CMP-10", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-21", component_id: "CMP-11", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-22", component_id: "CMP-12", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-23", component_id: "CMP-13", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-24", component_id: "CMP-13", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-06", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-25", component_id: "CMP-14", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 3}
+    - {id: "DEP-26", component_id: "CMP-14", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-06", runtime_type: "container", instance_count: 3}
+    - {id: "DEP-27", component_id: "CMP-15", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-28", component_id: "CMP-15", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-07", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-29", component_id: "CMP-16", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-30", component_id: "CMP-16", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-07", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-31", component_id: "CMP-17", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-03", runtime_type: "vm", instance_count: 3}
+    - {id: "DEP-32", component_id: "CMP-17", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "vm", instance_count: 3}
+    - {id: "DEP-33", component_id: "CMP-18", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-03", runtime_type: "vm", instance_count: 3}
+    - {id: "DEP-34", component_id: "CMP-18", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "vm", instance_count: 3}
+    - {id: "DEP-35", component_id: "CMP-19", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-03", runtime_type: "vm", instance_count: 3}
+    - {id: "DEP-36", component_id: "CMP-20", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-03", runtime_type: "vm", instance_count: 3}
+    - {id: "DEP-37", component_id: "CMP-20", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "vm", instance_count: 3}
+    - {id: "DEP-38", component_id: "CMP-21", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-03", runtime_type: "vm", instance_count: 3}
+    - {id: "DEP-39", component_id: "CMP-21", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "vm", instance_count: 3}
+    - {id: "DEP-40", component_id: "CMP-22", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-41", component_id: "CMP-23", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-42", component_id: "CMP-24", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-05", runtime_type: "container", instance_count: 2}
+    - {id: "DEP-43", component_id: "CMP-35", environment: "prod", deployment_type: "third_party", location_type: "saas", infra_id: "INF-08", runtime_type: "physical", instance_count: 1}
+    - {id: "DEP-44", component_id: "CMP-33", environment: "prod", deployment_type: "third_party", location_type: "saas", infra_id: "INF-01", runtime_type: "physical", instance_count: 1}
+    - {id: "DEP-45", component_id: "CMP-31", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-12", runtime_type: "serverless", instance_count: 1}
+
+  flows:
+    - {id: "FLOW-01", source_component_id: "internet", target_component_id: "CMP-01", protocol: "HTTPS", port: "443", auth_method: "none", encryption: "TLS1.3", cross_border: false, via: ["INF-16"], notes: "CN employees; user auth = AUTH-01"}
+    - {id: "FLOW-02", source_component_id: "internet", target_component_id: "CMP-01", protocol: "HTTPS", port: "443", auth_method: "none", encryption: "TLS1.3", cross_border: false, via: ["INF-19"], notes: "NA employees; user auth = AUTH-01"}
+    - {id: "FLOW-03", source_component_id: "CMP-01", target_component_id: "CMP-02", protocol: "HTTPS", port: "443", auth_method: "none", encryption: "TLS1.3", cross_border: false, notes: "internal access authentication"}
+    - {id: "FLOW-04", source_component_id: "CMP-02", target_component_id: "CMP-03", protocol: "HTTPS", port: "8080", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.3", cross_border: false}
+    - {id: "FLOW-05", source_component_id: "CMP-03", target_component_id: "CMP-20", protocol: "JDBC", port: "5432", auth_method: "UserPassword", encryption: "TLS1.3", cross_border: false, notes: "credentials in K8s Secret"}
+    - {id: "FLOW-06", source_component_id: "CMP-03", target_component_id: "CMP-13", protocol: "HTTPS", port: "443", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.3", cross_border: false, notes: "cross-app mediation"}
+    - {id: "FLOW-07", source_component_id: "CMP-16", target_component_id: "CMP-15", protocol: "TCP", port: "5672", auth_method: "UserPassword", encryption: "TLS1.3", cross_border: false, notes: "CDC pipeline"}
+    - {id: "FLOW-08", source_component_id: "CMP-15", target_component_id: "CMP-14", protocol: "Kafka", port: "9093", auth_method: "SASL_SCRAM", encryption: "TLS1.3", cross_border: false, notes: "CDC to events"}
+    - {id: "FLOW-09", source_component_id: "CMP-13", target_component_id: "CMP-33", protocol: "RFC", port: "3300", auth_method: "Kerberos", encryption: "TLS1.3", cross_border: false, notes: "SAP Function module"}
+    - {id: "FLOW-10", source_component_id: "CMP-14", target_component_id: "CMP-30", protocol: "Kafka", port: "9093", auth_method: "SASL_SCRAM", encryption: "TLS1.3", cross_border: true, cross_border_basis: "CN-NA order event replication to the AWS peer; ACME Confidential, no personal data"}
+    - {id: "FLOW-11", source_component_id: "CMP-14", target_component_id: "CMP-32", protocol: "HTTPS", port: "443", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.3", cross_border: false, notes: "Azure SaaS"}
+    - {id: "FLOW-12", source_component_id: "CMP-13", target_component_id: "CMP-22", protocol: "HTTPS", port: "443", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.3", cross_border: false, notes: "NA backend"}
+    - {id: "FLOW-13", source_component_id: "CMP-14", target_component_id: "CMP-17", protocol: "HTTPS", port: "9200", auth_method: "Basic", encryption: "TLS1.3", cross_border: false, notes: "search indexing"}
+
+  network_links:
+    - {id: "LNK-01", source_infra_id: "INF-13", target_infra_id: "INF-01", method: "mpls", encrypted: true, encryption_method: "IPSec", managed_by: "InfraSec", redundancy: "primary", notes: "employee access CN"}
+    - {id: "LNK-02", source_infra_id: "INF-13", target_infra_id: "INF-04", method: "mpls", encrypted: true, encryption_method: "IPSec", managed_by: "InfraSec", redundancy: "primary", notes: "employee access NA"}
+    - {id: "LNK-03", source_infra_id: "INF-01", target_infra_id: "INF-04", method: "mpls", encrypted: true, encryption_method: "IPSec", managed_by: "InfraSec", redundancy: "primary", notes: "CN/NA active-active backbone"}
+    - {id: "LNK-04", source_infra_id: "INF-04", target_infra_id: "INF-11", method: "vpn", encrypted: true, encryption_method: "IPSec", managed_by: "InfraSec", redundancy: "primary", notes: "AWS peer"}
+    - {id: "LNK-05", source_infra_id: "INF-04", target_infra_id: "INF-12", method: "expressroute", encrypted: true, encryption_method: "IPSec", managed_by: "InfraSec", redundancy: "primary", notes: "Azure peers"}
+
+  auth:
+    - {id: "AUTH-01", subject: "user", applies_to: "CMP-01", auth_server: "INF-22", protocol: "SAML2", authorization: "RBAC", mfa: true, notes: "employees via the identity DC"}
+    - {id: "AUTH-02", subject: "application", applies_to: "CMP-11", auth_server: "INF-22", protocol: "SAML2", authorization: "RBAC", mfa: false, notes: "APIM admin entry"}
+
+  ecosystem_relations:
+    - {id: "ECO-01", source_system_id: "APP-01", target_system_id: "APP-02", relation_type: "downstream", notes: "OSP mediates peer-app calls"}
+    - {id: "ECO-02", source_system_id: "APP-01", target_system_id: "APP-05", relation_type: "downstream", notes: "SAP CN Function + SLT"}
+    - {id: "ECO-03", source_system_id: "APP-01", target_system_id: "APP-06", relation_type: "downstream", notes: "SAP NA Function + SLT"}
+
+  credentials:
+    - {environment: "private_dc", solution: "Kubernetes Secrets (encrypted at rest)", notes: "DB passwords, Kafka SASL credentials, SAP logon tickets"}
+
+  constraints:
+    - "NA multi-zone discipline: only INF-06 (CMP-13/CMP-14) may mediate cross-application calls; SAP CMP-35 is isolated in INF-08."
+    - "CDC (CMP-16) is the only cross-region data-sync mechanism for order data; no direct cross-region DB replication."
+    - "DB zones INF-03/INF-09 are reachable only from backend services CMP-03 through CMP-10; all DBs are HA groups."
+    - "TLS 1.2+ everywhere; no hardcoded credentials."
+
+  open_items:
+    - {id: "TBD-01", description: "INF-17/INF-20 WAF enablement decision (optional in both regions)", owner: "Security Architecture", blocking: false}
+    - {id: "TBD-02", description: "Cross-region failover RTO/RPO targets", owner: "Program", blocking: true}

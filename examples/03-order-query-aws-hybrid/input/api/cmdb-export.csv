@@ -1,0 +1,22 @@
+app_id,app_name,owner,location,zone,type,scope
+A-XXXX-01,SYS-38,IT Org,dc-us,App Zone,backend,integration-boundary
+A-XXXX-02,SYS-39,IT Org,dc-us,App Zone,backend,integration-boundary
+A-XXXX-03,SYS-40,IT Org,dc-us,App Zone,backend,integration-boundary
+A-XXXX-04,SYS-41,IT Org,dc-us,App Zone,backend,integration-boundary
+A-XXXX-05,SYS-24,IT Org,aws-us,Private subnet (App Zone),backend,full
+A-XXXX-06,SYS-54,IT Org,azure-us,SaaS,saas,integration-boundary
+A-XXXX-07,SYS-55,IT Org,azure-us,SaaS,backend,integration-boundary
+A-XXXX-08,SYS-56,Data Org,azure-us,SaaS,data,integration-boundary
+A-XXXX-09,SYS-57,Data Org,azure-cn-north,EDW,data,integration-boundary
+A-XXXX-10,SYS-42,IT Org,dc-cn-secondary,Intranet,backend,integration-boundary
+A-XXXX-11,SYS-43,IT Org,dc-cn-secondary,Intranet,backend,integration-boundary
+A-XXXX-12,SYS-44,IT Org,dc-cn-secondary,Intranet,backend,integration-boundary
+A-XXXX-13,SYS-45,Data Org,dc-cn-secondary,Intranet,data,integration-boundary
+A-XXXX-14,SYS-46,IT Org,dc-cn-secondary,Intranet,backend,integration-boundary
+A-XXXX-15,SYS-47,IT Org,dc-cn-secondary,Intranet,backend,integration-boundary
+A-XXXX-16,SYS-48,IT Org,dc-cn-primary,Intranet,backend,integration-boundary
+A-XXXX-17,SYS-49,SAP Team,dc-cn-primary,Intranet,erp,black-box
+A-XXXX-18,SYS-50,IT Org,dc-us-na,NA-PROD-INA-K8S,backend,integration-boundary
+A-XXXX-19,SYS-51,IT Org,dc-us-na,NA-PROD-INA-K8S,backend,integration-boundary
+A-XXXX-20,SYS-52,IT Org,dc-us-na,NA-PROD-INA-K8S,backend,integration-boundary
+A-XXXX-21,SYS-53,Data Org,dc-us-na,NA-PROD-INA-DB,data,integration-boundary

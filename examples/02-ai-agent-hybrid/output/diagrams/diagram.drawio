@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="arch-harness" version="24.6.4" type="device">
+  <diagram id="diag-eed01aabe67e" name="Page-1">
+    <mxGraphModel dx="2000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="990" pageHeight="1348" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="hdr-40a15962eb6b" value="&lt;b&gt;Diagram: Data Agent Platform (GDA) - Hybrid Technical Architecture&lt;/b&gt;&lt;br/&gt;ID: DAP-001-TechDiagram-V1.0&lt;br/&gt;Platform: hybrid_cloud" style="text;whiteSpace=wrap;overflow=hidden;rounded=0;fontFamily=Helvetica;fontSize=11;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="40" y="-120" width="600" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="inet-82cfb4283200" value="Internet" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.internet;" parent="1" vertex="1">
+          <mxGeometry x="40" y="80" width="60" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="user-03ee79ded108" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;align=center;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="160" y="70" width="37" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-4317051f9691" value="City A, Province A [CN]&#10;(TBD)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="50" y="140" width="390" height="654" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-b555b36ebde9" value="DMZ - Inbound Path TBD" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-4317051f9691" vertex="1">
+          <mxGeometry x="22" y="66" width="346" height="104" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-f0e4a781419f" value="Internal K8s / App Zone" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-4317051f9691" vertex="1">
+          <mxGeometry x="22" y="188" width="346" height="266" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-03c472390516" value="⚠ SYS-10 Internal K8s Platform" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-f0e4a781419f" vertex="1" tooltip="Runtime: Internal K8s Platform | Classification: Acme Confidential | Notes: Existing hosting boundary for SYS-01, SYS-02, and SYS-03; direct pod internet or cloud egress is denied.">
+          <mxGeometry x="16" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-30e223302c7f" value="⚠ SYS-01 gda-gateway&#10;(N/A - static assets and configuration, nginx; version TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-f0e4a781419f" vertex="1" tooltip="Lang: N/A - static assets and configuration | Framework: nginx; version TBD | Runtime: SYS-10 Internal K8s Platform | Classification: Acme Confidential | Notes: Office-network web entry, dashboard, static hosting, API proxy, and authenticated SSE client.">
+          <mxGeometry x="180" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-aba4dd5412c9" value="⚠ SYS-02 gda-agent-api&#10;(Node.js; version TBD, TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-f0e4a781419f" vertex="1" tooltip="Lang: Node.js; version TBD | Framework: TBD | Runtime: SYS-10 Internal K8s Platform | Classification: Acme Confidential | Notes: Agent API, authenticated SSE streaming, and governed data/model tools.">
+          <mxGeometry x="16" y="114" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-e99d5856a137" value="⚠ SYS-03 gda-scheduler-worker&#10;(Node.js; version TBD, TBD)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-f0e4a781419f" vertex="1" tooltip="Lang: Node.js; version TBD | Framework: TBD | Runtime: SYS-10 Internal K8s Platform | Classification: Acme Confidential | Notes: Background alerts and digest processing.">
+          <mxGeometry x="180" y="114" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-28336aa2a3b7" value="⚠ SYS-05 Outbound gateway&#10;(N/A - configuration, nginx; version TBD)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-f0e4a781419f" vertex="1" tooltip="Lang: N/A - configuration | Framework: nginx; version TBD | Runtime: Rocky Linux 9.8 VM | Classification: Acme Confidential | Notes: Sole controlled private-DC application egress path to Azure; allowlisted destinations only.">
+          <mxGeometry x="16" y="180" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-01857bf70d23" value="SYS-06 ADFS" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;" parent="zone-f0e4a781419f" vertex="1" tooltip="Runtime: Existing private-DC identity service | Notes: Internal SAML 2.0 STS fallback; fallback trigger and role mapping TBD.">
+          <mxGeometry x="180" y="182" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-704eec6ef5ce" value="DB Zone" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;" parent="reg-4317051f9691" vertex="1">
+          <mxGeometry x="22" y="472" width="346" height="142" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-c0e004f1a396" value="⚠ SYS-04 PostgreSQL&#10;(N/A, PostgreSQL; version TBD)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="zone-704eec6ef5ce" vertex="1" tooltip="Lang: N/A | Framework: PostgreSQL; version TBD | Runtime: DB Zone hosts/service model TBD | Classification: Acme Confidential | Notes: App Zone access only; endpoint, HA model, at-rest encryption, backup, RTO, and RPO are TBD.">
+          <mxGeometry x="113" y="48" width="120" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-558e820b7896" value="Azure Global Service [Location TBD]&#10;(Microsoft/TBD)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="510" y="140" width="380" height="236" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-d678ab2b5c02" value="Cloud Identity Service Boundary" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-558e820b7896" vertex="1">
+          <mxGeometry x="22" y="66" width="336" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-cf4c898a176d" value="SYS-07 Microsoft Entra ID" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-d678ab2b5c02" vertex="1" tooltip="Runtime: Microsoft cloud service | Notes: Primary user identity provider; tenant data location and redirect protocol are TBD.">
+          <mxGeometry x="93" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-96515395258e" value="Azure East US, Virginia [US]&#10;(TBD)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="50" y="864" width="390" height="384" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-a18cba960dc7" value="East US Hybrid Connectivity Boundary" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" parent="reg-96515395258e" vertex="1">
+          <mxGeometry x="22" y="66" width="346" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-3158ce120879" value="Private Connectivity Gateway - Type TBD" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-a18cba960dc7" vertex="1" tooltip="Notes: Carrier, routing, firewall, and private DNS implementation are TBD; no public application path.">
+          <mxGeometry x="98" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-7abc25d206de" value="EDW Data Resource Group / Private Subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-96515395258e" vertex="1">
+          <mxGeometry x="22" y="214" width="346" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-0687f89f910e" value="⚠ SYS-08 EDW Databricks" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-7abc25d206de" vertex="1" tooltip="Runtime: Azure Databricks | Classification: Acme Confidential | Notes: Existing governed data source; access limited to approved namespaces with row-level governance. Exact resource group and subnet are TBD.">
+          <mxGeometry x="98" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-78fff71e5da1" value="Azure East US 2, Virginia [US] - Confirmation TBD&#10;(TBD)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="510" y="446" width="380" height="388" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-1110bd0eb0c4" value="East US 2 Hybrid Connectivity Boundary" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" parent="reg-78fff71e5da1" vertex="1">
+          <mxGeometry x="22" y="66" width="336" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-54ff068b39ca" value="Private Connectivity Gateway - Type TBD" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="zone-1110bd0eb0c4" vertex="1" tooltip="Notes: Carrier, routing, firewall, and private DNS implementation are TBD; no public application path.">
+          <mxGeometry x="93" y="48" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-7f44ca9c5c48" value="Model Resource Group / Private Endpoint Subnet" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-78fff71e5da1" vertex="1">
+          <mxGeometry x="22" y="214" width="336" height="134" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-48c14189724d" value="⚠ SYS-09 LLM Gateway" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="zone-7f44ca9c5c48" vertex="1" tooltip="Runtime: Azure private service | Classification: Acme Confidential | Notes: Private-endpoint-only model gateway; no public exposure; tenant policy selects overseas or China model pool.">
+          <mxGeometry x="93" y="48" width="150" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1d86262ad10a" value="HTTPS/443&#10;(SYS-07 Microsoft Entra ID redirect - protocol TBD)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="user-03ee79ded108" target="comp-30e223302c7f" edge="1" tooltip="Tenant and platform administrators only; office network only; inbound publishing, load-balancing, and firewall path TBD.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-610b7c5e9057" value="HTTPS/443 + SSE&#10;(Forwarded SYS-07 user token - format and validation TBD)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-30e223302c7f" target="comp-aba4dd5412c9" edge="1" tooltip="Authenticated per-session stream; authorization must preserve tenant isolation.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-e80738c33773" value="HTTPS/443&#10;(TBD approved internal service authentication)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-30e223302c7f" target="comp-e99d5856a137" edge="1" tooltip="Cross-workload call inside the Internal K8s / App Zone.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-79d63d676a6d" value="PostgreSQL/TCP/5432&#10;(Database username/password from encrypted SYS-10 Kubernetes Secret)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-aba4dd5412c9" target="comp-c0e004f1a396" edge="1" tooltip="App Zone to DB Zone; least-privilege database role.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-109e713653c9" value="PostgreSQL/TCP/5432&#10;(Database username/password from encrypted SYS-10 Kubernetes Secret)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-e99d5856a137" target="comp-c0e004f1a396" edge="1" tooltip="App Zone to DB Zone; least-privilege database role.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-c27ebbfbdbae" value="HTTPS/443&#10;(TBD approved internal service authentication)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-aba4dd5412c9" target="comp-28336aa2a3b7" edge="1" tooltip="Mandatory egress hop; network policy prohibits direct SYS-10 pod cloud or internet egress.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-6945a28e23cb" value="HTTPS/443 over private connectivity - type TBD&#10;(TBD approved SYS-08 service credential and rotation)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-28336aa2a3b7" target="comp-0687f89f910e" edge="1" tooltip="Allowlisted EDW destination; governed namespaces and row-level governance only; China-to-US query payload minimized and logged without payload copies.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-f11246341076" value="HTTPS/443 via private endpoint&#10;(API key - approved delivery, storage, access control, and rotation TBD)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-28336aa2a3b7" target="comp-48c14189724d" edge="1" tooltip="Allowlisted private endpoint; public access disabled; prompt/response redaction, retention, and cross-border approval TBD.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-1a98eacb29cb" value="HTTPS/443 + SAML 2.0&#10;(SAML 2.0 federation)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="comp-30e223302c7f" target="comp-01857bf70d23" edge="1" tooltip="Internal STS fallback; fallback behavior and role mapping TBD.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-ae9541be1f50" value="HTTPS/443 over controlled enterprise egress&#10;(Microsoft Entra ID user authentication - exact protocol TBD)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="user-03ee79ded108" target="comp-cf4c898a176d" edge="1" tooltip="Browser redirect flow; enterprise egress path and tenant data location TBD.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-c8f81cd1da22" value="Private connectivity - type TBD&#10;(Network trust controls TBD)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="reg-4317051f9691" target="reg-96515395258e" edge="1" tooltip="Logical hybrid path for SYS-05 to SYS-08; routing, firewall, private DNS, and carrier controls TBD.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-2940c40ced3c" value="Private connectivity - type TBD&#10;(Network trust controls TBD)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;" parent="1" source="reg-4317051f9691" target="reg-78fff71e5da1" edge="1" tooltip="Logical hybrid path for SYS-05 to the SYS-09 private endpoint; routing, firewall, private DNS, and carrier controls TBD.">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="lgnd-a9e00cb87ff5" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="40" y="1108" width="640" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="ltitle-92fdda24f207" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=14;fontStyle=1;" parent="lgnd-a9e00cb87ff5" vertex="1">
+          <mxGeometry x="0" y="-30" width="100" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-31bf790d0463" value="Internal App (IT Org)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="lgnd-a9e00cb87ff5" vertex="1">
+          <mxGeometry x="0" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-6b4afb9409fc" value="API Gateway / Integration" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" parent="lgnd-a9e00cb87ff5" vertex="1">
+          <mxGeometry x="155" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-3a88eecbef49" value="Database" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;" parent="lgnd-a9e00cb87ff5" vertex="1">
+          <mxGeometry x="310" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-a8763b4531e6" value="Firewall / LB" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;" parent="lgnd-a9e00cb87ff5" vertex="1">
+          <mxGeometry x="465" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-05e39f48de28" value="Identity / Auth" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;" parent="lgnd-a9e00cb87ff5" vertex="1">
+          <mxGeometry x="0" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-6301074db38d" value="Biz Owned" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#8E24AA;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-a9e00cb87ff5" vertex="1">
+          <mxGeometry x="155" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-b8485ef1d239" value="Third Party" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-a9e00cb87ff5" vertex="1">
+          <mxGeometry x="310" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,44 @@
+# config.yaml — example overlay for ai-agent-hybrid
+#
+# Deep-merged on top of the repository-root config.yaml when commands run
+# from this directory. The GDA platform runs its agent runtime in the
+# private DC (three-tier model) and consumes Azure data/LLM services
+# through an explicit outbound gateway.
+
+datacenters:
+  - id: "dc-cn-primary"
+    aliases: ["Primary DC", "CN Primary DC", "主DC"]
+    location: { city: "City A", province: "Province A", country: "CN" }
+    model: "three-tier"
+    zones: ["DMZ", "App Zone", "DB Zone"]
+    region: "APAC-CN"
+    notes: "Hosts SYS-01, SYS-02, SYS-03 in App Zone on SYS-10 and SYS-04 in DB Zone. (See input/systems-registry.md.)"
+
+  - id: "azure-eastus"
+    aliases: ["Azure East US", "East US"]
+    location: { city: "Virginia", state: "VA", country: "US" }
+    model: "vnet-rg"
+    zones: ["rg-edw-row-prod (Databricks)", "rg-gda-prod-eus2"]
+    region: "NA"
+    notes: "Hosts SYS-08. (See input/systems-registry.md.)"
+
+  - id: "azure-eastus2"
+    aliases: ["Azure East US 2", "East US2"]
+    location: { city: "Virginia", state: "VA", country: "US" }
+    model: "vnet-rg"
+    zones: ["PE Subnet (private endpoints)"]
+    region: "NA"
+    notes: "Hosts SYS-09 reachable via private endpoint only. (See input/systems-registry.md.)"
+
+platforms:
+  api_gateway: "GDA Gateway (nginx)"
+  message_bus: "Kafka"
+  k8s_platform: "Internal K8s Platform"
+  integration_platforms:
+    - "GDA Gateway (nginx)"
+    - "Outbound Gateway (nginx)"
+    - "LLM Gateway"
+    - "Kafka"
+  auth_internal: "ADFS"
+  auth_external: "Microsoft Entra ID"
+  authz_platform: "AuthZ Platform"

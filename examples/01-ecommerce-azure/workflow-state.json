@@ -1,0 +1,140 @@
+{
+  "artifacts": {
+    "REQ.md": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "01-ecommerce-azure-REQ.md",
+        "type": "requirements-document",
+        "schema": "text/markdown",
+        "path": "output\\requirements\\REQ.md",
+        "sha256": "365df64819e8e83f05a2f27a7c008795e99591a469aec518104fe8c85cf6cc87",
+        "model_version": null,
+        "producer": "arch-requirements",
+        "produced_at": "2026-09-14T13:41:41+00:00",
+        "input_artifacts": []
+      }
+    },
+    "req.yaml": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "01-ecommerce-azure-req.yaml",
+        "type": "requirements",
+        "schema": "requirements/v1",
+        "path": "output\\requirements\\req.yaml",
+        "sha256": "a842a6cec0eea98cf6430cbea4c6d9831b32fe5a67f8162d107be5bd64785833",
+        "model_version": null,
+        "producer": "arch-requirements",
+        "produced_at": "2026-09-14T13:41:41+00:00",
+        "input_artifacts": []
+      }
+    },
+    "blueprint.yaml": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "01-ecommerce-azure-blueprint.yaml",
+        "type": "technical-deployment-view",
+        "schema": "architecture/v1",
+        "path": "output\\designs\\blueprint.yaml",
+        "sha256": "1283862211998a465051ca298ffa2f341fed61af2599914e2f39df7e1df36e30",
+        "model_version": "openai/gpt-5.6-sol",
+        "producer": "arch-design",
+        "produced_at": "2026-09-14T13:05:20Z",
+        "input_artifacts": [
+          "01-ecommerce-azure-req.yaml",
+          "01-ecommerce-azure-REQ.md"
+        ]
+      }
+    },
+    "diagram.png": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "diagram-png",
+        "type": "technical-deployment-view",
+        "schema": "image/png",
+        "path": "output\\diagrams\\diagram.png",
+        "sha256": "d3e8422e8fcc77a855fd68795ee9b9975ea0feebf978d17a1e0bc5ab0e5e98c8",
+        "model_version": null,
+        "producer": "archharness diagram",
+        "produced_at": "2026-09-14T13:38:58+00:00",
+        "input_artifacts": [
+          "blueprint.yaml"
+        ]
+      }
+    },
+    "diagram.drawio": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "diagram-drawio",
+        "type": "technical-deployment-view",
+        "schema": "application/vnd.jgraph.mxfile",
+        "path": "output\\diagrams\\diagram.drawio",
+        "sha256": "a801b0fb4e705a3cb3395b2b5cdf06bec2bec9779716e137b3837e0dfc12cfb4",
+        "model_version": null,
+        "producer": "archharness diagram",
+        "produced_at": "2026-09-14T13:38:58+00:00",
+        "input_artifacts": [
+          "blueprint.yaml"
+        ]
+      }
+    },
+    "validate_result.json": {
+      "kind": "manifest",
+      "data": {
+        "schema_version": "artifact/v1",
+        "id": "validate-result",
+        "type": "validation-result",
+        "schema": "validation/v1",
+        "path": "output\\validation\\validate_result.json",
+        "sha256": "9556cec4e0853115745dd3c46ba300484b6a0b5fee4204f03ad7ebecc615355c",
+        "model_version": "arch-validate/validation-v1",
+        "producer": "arch-validate",
+        "produced_at": "2026-09-15T00:57:26Z",
+        "input_artifacts": [
+          "diagram-png"
+        ]
+      }
+    },
+    "enforce_result.json": {
+      "kind": "decision",
+      "data": {
+        "schema_version": "enforcement/v1",
+        "decision": "BLOCK",
+        "validation": {
+          "path": "output\\diagrams\\diagram.png",
+          "sha256": "d3e8422e8fcc77a855fd68795ee9b9975ea0feebf978d17a1e0bc5ab0e5e98c8",
+          "ruleset_digest": "108fb1df631d3340c93c32de423f14b61344465f991d9eb39fbec161675ab124"
+        },
+        "policy": {
+          "path": "../../standards/arch-gate-policy.yaml",
+          "digest": "5829fac16d42d2b2c63b728cf9098175b82a23a52045e10dab5cbe13bd7dd97b",
+          "block_threshold": 6.0,
+          "warn_threshold": 8.0,
+          "must_fix_zero_required": true
+        },
+        "evaluation": {
+          "total_score": 4.29,
+          "must_fix": 19,
+          "should_fix": 3,
+          "consider": 1
+        },
+        "reasons": [
+          "must_fix=19 > 0 (must_fix_zero_required)"
+        ],
+        "producer": "archharness/0.7.0",
+        "produced_at": "2026-09-15T01:03:21+00:00"
+      }
+    }
+  },
+  "stages_completed": [
+    "requirements",
+    "design",
+    "draw",
+    "validate",
+    "enforce"
+  ]
+}

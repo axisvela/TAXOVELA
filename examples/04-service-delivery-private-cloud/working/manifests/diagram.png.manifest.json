@@ -1,0 +1,14 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "diagram-png",
+  "type": "technical-deployment-view",
+  "schema": "image/png",
+  "path": "output\\diagrams\\diagram.png",
+  "sha256": "176255d28aa4720497a4fa628f3a92807d6700b5406fca4b5dbaf2aff35d5453",
+  "model_version": null,
+  "producer": "archharness diagram",
+  "produced_at": "2026-09-14T13:39:07+00:00",
+  "input_artifacts": [
+    "blueprint.yaml"
+  ]
+}

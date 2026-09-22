@@ -1,0 +1,10 @@
+﻿schema_version: 1
+project:
+  id: 01-ecommerce-azure
+  name: E-commerce Platform (Azure Multi-Region Hub-Spoke)
+  platform: azure
+  data_classification: confidential
+paths:
+  input: ./input
+  working: ./working
+  output: ./output

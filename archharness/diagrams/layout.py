@@ -319,9 +319,11 @@ def calculate_layout(arch: dict) -> dict:
                     abs_positions[mid] = (abs_zx + cx_r + mx, abs_zy + cy_r + my, mw, mh)
 
     # Fixed virtual nodes
-    abs_positions["internet"]       = (left_x + 10, 60, 70, 44)
-    abs_positions["user"]           = (left_x + 110, 52, 40, 56)
-    abs_positions["office-network"] = (left_x + 180, 60, 90, 44)
+    # Keep virtual-node geometry in sync with generator.py; routers consume
+    # these absolute rectangles when a user or Internet interaction is declared.
+    abs_positions["internet"]       = (40, 80, 60, 40)
+    abs_positions["user"]           = (160, 70, 37, 50)
+    abs_positions["office-network"] = (280, 80, 90, 44)
 
     # ── Canvas size ────────────────────────────────────────────────────────────
     all_x2 = [pos[0] + pos[2] for pos in positions.values() if len(pos) == 4]

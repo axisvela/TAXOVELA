@@ -8,15 +8,16 @@
 
 ---
 
-## 当前 Hard-coded 方案的问题清单
+## 当前 Hard-coded 方案状态（2026-09）
 
-| 问题 | 根因 | 严重程度 |
-|------|------|---------|
-| 组件堆叠（AWS Spoke 5个组件挤一行） | `layout.py` 的行分割算法按像素宽度计算，但边界条件没有全部覆盖 | 中 |
-| 跨 DC 连线穿越容器边框 | `generator.py` 生成的 edge 没有路由 waypoint，draw.io 自动路由会穿框 | 中 |
-| 容器大小计算误差 | bottom-up 高度计算不考虑 zone label 行高和 padding 的叠加 | 低 |
-| 组件形状单调 | 目前六边形/平行四边形/圆柱已实现，但图例形状（如wave/plaque/drop）没有完整映射 | 低 |
-| 无法自适应文本长度 | 组件名称很长时，形状宽度不会自动拉伸 | 低 |
+| 项目 | 状态 | 说明 |
+|------|------|------|
+| 自适应组件尺寸与行分割 | 已完成 | `layout.py` 以最终可用宽度重分行，按标签长度扩展组件并计算容器高度。 |
+| 逻辑组嵌套布局 | 已完成 | 逻辑组成员是实际节点，使用组内相对坐标布局。 |
+| 生命周期颜色 | 已完成 | draw.io、D2、matplotlib 共用 `labels.component_fill()`，状态不再重复打印在节点文本中。 |
+| D2 PNG 输出 | 已完成 | `--png-engine d2` 使用 ELK 自动布局；适合预览和需要避障边线的 PNG。 |
+| draw.io 连线避障与通道路由 | 已完成 | 确定性正交 router 写入显式 waypoint、分散端点约束和跨容器 gutter；通道仅从交互两端容器选择，XML 记录路由策略与 fallback。 |
+| 组件形状覆盖度 | 待评估（P3） | 核心六边形、平行四边形、圆柱、圆形已实现；补充形状须由标准需求驱动。 |
 
 **根本原因**：这些都是 **布局计算** 问题，不是 **内容生成** 问题。
 LLM 擅长的是理解语义和生成内容，不擅长精确坐标计算。
@@ -81,17 +82,29 @@ LLM 擅长的是理解语义和生成内容，不擅长精确坐标计算。
 
 ---
 
-### 方案 D：修复 Hard-coded 方案的具体 Bug（推荐立即做）
+### 方案 D：确定性 draw.io 路由器（推荐下一步）
 
-当前布局问题的实际根因是几个具体的计算 bug，不是架构性缺陷：
+当前的剩余主要问题是 **edge routing**，不是节点或容器的布局计算。应保持 Python 生成 XML 的确定性，并在现有 `layout["abs_positions"]` 基础上为每条边计算路由：
 
-| 问题 | 具体 Fix |
-|------|---------|
-| 组件堆叠 | `layout.py` 的 `_split_into_rows()` 需要考虑 zone padding 的实际可用宽度而非 `MAX_ROW_W` 常量 |
-| 跨 DC 连线穿框 | `generator.py` 的 edge 生成加入 waypoint：在边的 `mxGeometry` 里显式插入中间点，强制走容器外部 |
-| 容器高度误差 | 在 `_region_height()` 里增加 ZONE_LABEL 高度到累计高度 |
+| 层次 | 具体实现 | 价值 |
+|------|----------|------|
+| 端口选择 | 按源、目标的相对方向设置 `exitX/exitY/entryX/entryY`；同侧多条边按序号分配端口偏移。 | 减少边从错误一侧离开节点、降低首段重叠。 |
+| 简单正交路由 | 对同一区域或同一行/列的节点，生成 0–2 个 Manhattan waypoint。 | 可读、稳定，适合绝大多数内部调用。 |
+| 容器外通道路由 | 为跨 zone / region 边预留容器外侧 gutter；使用 `mxGeometry` 的 `Array as="points"` 写入明确坐标。 | 避免线穿越容器内部或边框，并让跨 DC 流量走统一通道。 |
+| 障碍物避让 | 将组件、逻辑组及可选的容器边界转换为矩形障碍物；先用 L 形候选路径，冲突时切换到水平/垂直通道。 | 不引入外部依赖即可解决常见的穿节点问题。 |
+| 冲突收敛 | 为共享通道分配 lane offset；同一 source/target 的反向或并行边使用不同 lane，边标签跟随最长段。 | 减少重叠和不可读标签。 |
+| 回退策略 | 路由失败时保留当前 `orthogonalEdgeStyle` 自动路由，并在测试/诊断中记录原因。 | 保证现有图不会因新路由器失败而无法输出。 |
 
-这些 fix 总计约 30 行代码，没有任何不确定性，完全可测试。
+draw.io XML 的表达方式是保留 `source` / `target`，并在边的 `mxGeometry` 增加：
+
+```xml
+<Array as="points">
+  <mxPoint x="..." y="..."/>
+  <mxPoint x="..." y="..."/>
+</Array>
+```
+
+坐标使用根画布坐标；现有 `abs_positions` 已提供节点的根坐标。不要把 D2 的自动布局结果反向转换成 draw.io：这样会丢失公司样式、嵌套容器和可预测的 XML。
 
 ---
 
@@ -100,20 +113,22 @@ LLM 擅长的是理解语义和生成内容，不擅长精确坐标计算。
 ```
 当前优先级排序：
 
-P0（立即）：修复 hard-coded 方案的 3 个具体布局 bug
-            → 直接改 layout.py + generator.py，不引入 LLM
+P0（已完成）：自适应节点/容器布局、逻辑组嵌套、生命周期颜色、D2 和 PlantUML 输出
 
-P1（下一步）：D2 + PlantUML 生成器已完成
-              → D2 用于 git diff 友好的版本控制
-              → PlantUML 用于 Confluence 内嵌 + draw.io import 桥接
+P1（已完成）：确定性 draw.io edge router
+            → Manhattan waypoint + 容器外 gutter + 失败回退 + 双向边 lane 分流
+            → 保持 YAML 相同则 XML 路由相同，不引入 LLM 或图数据库依赖
 
-P2（探索）：LLM 作为"内容辅助"，不作"坐标计算"
-            具体场景：
-            - 让 LLM 根据 YAML 的 interactions 自动推断 waypoint 路由策略
-            - 让 LLM 审查生成的图，发现漏掉的 interaction（如没有画的 Kafka consumer）
-            - arch-validate 里让 LLM 看 draw.io XML + YAML，做一致性验证
+P2（已完成）：为路由添加可重复的测试与诊断
+            → 断言 waypoint 不落在组件矩形内
+            → 断言跨容器边使用预期 gutter
+            → 在 example 06 和多 DC fixture 上生成 PNG 作视觉回归
 
-P3（不做）：LLM 直接生成 mxGraphModel XML
+P3（已完成）：受限 visibility graph 避障
+            → 仅在 L 形候选路径均与障碍物冲突时，沿组件安全边界选择最短正交路径
+            → 图规模受限于端点和组件边界，仅连接相邻可见节点；超过节点上限时回退外部 gutter，不引入外部依赖或非确定性
+
+P4（不做）：LLM 直接生成 mxGraphModel XML
 ```
 
 ---

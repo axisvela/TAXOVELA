@@ -8,19 +8,32 @@ Usage:
 Or from command line via arch_diagram_gen.py.
 """
 
-import uuid
+from contextvars import ContextVar
+from itertools import count
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
-from . import labels, styles, topology
+from . import labels, routing, styles, topology
 from .layout import calculate_layout, REGION_TITLE_H, REGION_PAD, ZONE_GAP
 
 
 # ── ID helpers ────────────────────────────────────────────────────────────────
 
+_id_sequence: ContextVar = ContextVar("drawio_id_sequence", default=None)
+
+
+def _reset_ids() -> None:
+    """Start a deterministic cell-ID sequence for one generated diagram."""
+    _id_sequence.set(count(1))
+
+
 def _id(prefix: str = "") -> str:
-    """Generate a short unique cell ID."""
-    return f"{prefix}{uuid.uuid4().hex[:12]}"
+    """Generate a stable, per-diagram unique cell ID."""
+    sequence = _id_sequence.get()
+    if sequence is None:
+        sequence = count(1)
+        _id_sequence.set(sequence)
+    return f"{prefix}{next(sequence)}"
 
 
 # ── Style selection helpers ───────────────────────────────────────────────────
@@ -96,13 +109,18 @@ def _make_vertex(parent_el, cell_id, value, style, x, y, w, h, parent_id="1"):
     return cell
 
 
-def _make_edge(parent_el, edge_id, label, style, source_id, target_id, parent_id="1"):
+def _make_edge(parent_el, edge_id, label, style, source_id, target_id, parent_id="1",
+               points: tuple[tuple[int, int], ...] = ()):
     cell = ET.SubElement(parent_el, "mxCell",
         id=edge_id, value=label, style=style,
         parent=parent_id, source=source_id, target=target_id,
         edge="1"
     )
-    ET.SubElement(cell, "mxGeometry", relative="1", **{"as": "geometry"})
+    geometry = ET.SubElement(cell, "mxGeometry", relative="1", **{"as": "geometry"})
+    if points:
+        array = ET.SubElement(geometry, "Array", **{"as": "points"})
+        for x, y in points:
+            ET.SubElement(array, "mxPoint", x=str(x), y=str(y))
     return cell
 
 
@@ -198,6 +216,10 @@ def generate_drawio(arch: dict) -> str:
     Convert an architecture YAML dict to a draw.io XML string.
     Returns the complete XML suitable for saving as a .drawio file.
     """
+    # Stable IDs are important for meaningful source-control diffs.  Cell IDs
+    # need only be unique within one mxGraphModel, not globally unique.
+    _reset_ids()
+
     # Fold interchangeable siblings into logical groups before validating and
     # laying out, so the group box — not each member — carries the edges.
     arch, _groups = topology.prepare(arch)
@@ -367,6 +389,13 @@ def generate_drawio(arch: dict) -> str:
         arch.get("interactions", arch.get("arch", {}).get("interactions", [])),
         boundary_ids,
     )
+    rects, ownership, region_rails_x, zone_rails_y = routing.routing_context(arch, layout)
+    # Only rendered cells are obstacles.  Zone-boundary firewalls are deliberately
+    # implied and therefore must not cause a route around an invisible node.
+    visible_rects = {cid: rect for cid, rect in rects.items() if cid in cell_map}
+    # Opposite-direction and parallel edges share a lane sequence, so they do
+    # not select the same route corridor merely because their direction differs.
+    lane_by_pair: dict[tuple[str, str], int] = {}
 
     for i, interaction in enumerate(interactions):
         src_yaml = interaction.get("from", "")
@@ -382,13 +411,38 @@ def generate_drawio(arch: dict) -> str:
         # Status drives the edge colour: EXISTING blue, NEW/CHANGE red,
         # REMOVE grey, unspecified/TBD blue-grey.
         color = labels.status_color(labels.parse_status(interaction))
-        edge_style = f"{styles.EDGE_SOLID}strokeColor={color};fontColor={color};"
+        pair = tuple(sorted((src_yaml, tgt_yaml)))
+        lane = lane_by_pair.get(pair, 0)
+        lane_by_pair[pair] = lane + 1
+        src_owner = ownership.get(src_yaml)
+        tgt_owner = ownership.get(tgt_yaml)
+        # Crossing regions uses vertical channels outside their containers;
+        # crossing zones within a region uses horizontal channels between zones.
+        route_rails_x, route_rails_y = routing.scoped_rails(
+            src_owner, tgt_owner, region_rails_x, zone_rails_y
+        )
+        edge_route = routing.route(
+            visible_rects[src_yaml], visible_rects[tgt_yaml],
+            [rect for cid, rect in visible_rects.items() if cid not in pair],
+            lane=lane, rails_x=route_rails_x, rails_y=route_rails_y,
+        )
+        edge_style = (
+            f"{styles.EDGE_SOLID}strokeColor={color};fontColor={color};"
+            f"exitX={edge_route.exit_x};exitY={edge_route.exit_y};"
+            f"entryX={edge_route.entry_x};entryY={edge_route.entry_y};"
+            "exitPerimeter=0;entryPerimeter=0;"
+        )
 
         edge_id = _id(f"edge-")
         edge_cell = _make_edge(root, edge_id, label, edge_style,
-            src_cell, tgt_cell
+            src_cell, tgt_cell, points=edge_route.points
         )
         edge_cell.set("parent", "1")
+        # Keep router decisions inspectable in source XML.  These attributes
+        # are harmless mxCell metadata and make a draw.io fallback visible to
+        # CI/tests instead of silently delegating all routing to draw.io.
+        edge_cell.set("routingStrategy", edge_route.strategy)
+        edge_cell.set("routingFallback", str(edge_route.fallback).lower())
 
         if interaction.get("notes"):
             edge_cell.set("tooltip", interaction["notes"])

@@ -1,6 +1,6 @@
 {
   "schema_version": "artifact/v1",
-  "id": "SSOC-NA-001-req-yaml",
+  "id": "SDP-NA-001-req-yaml",
   "type": "requirements",
   "schema": "arch-requirements",
   "path": "../../output/requirements/req.yaml",

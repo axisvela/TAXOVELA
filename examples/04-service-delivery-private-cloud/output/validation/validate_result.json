@@ -2,7 +2,7 @@
   "schema_version": "validation/v1",
   "source": {
     "path": "output\\diagrams\\diagram.png",
-    "sha256": "395e4f3219352ed76a2115710a4006be4d91e20a337ccc1b3cc841365e0696e0",
+    "sha256": "a4b0beb0134d7e4095510b75c0afd0d30f89bba18366c3091d3e3471f01d5173",
     "media_type": "image/png",
     "validated_at": "2026-09-15T00:56:09Z",
     "validator_version": "arch-validate/2.0; archharness/0.7.0",
@@ -168,7 +168,7 @@
         "total_entities": 34,
         "missing_count": 10,
         "deduction_ratio": 0.0735,
-        "detail": "Ten SSOC-to-SAP calls go directly from SYS-07..SYS-11 to SYS-20/SYS-24 rather than through SYS-05 or another approved mediator; ratio includes the 0.25 subcategory weight."
+        "detail": "Ten SDP-to-SAP calls go directly from SYS-07..SYS-11 to SYS-20/SYS-24 rather than through SYS-05 or another approved mediator; ratio includes the 0.25 subcategory weight."
       }
     ],
     "Security_Compliance": [
@@ -342,7 +342,7 @@
       "severity": "high",
       "disposition": "must_fix",
       "dimension": "Interaction_Integration",
-      "subject": "10 direct SSOC-to-SAP interactions",
+      "subject": "10 direct SDP-to-SAP interactions",
       "evidence": "SYS-07..SYS-11 connect directly to SYS-20 and SYS-24 instead of traversing SYS-05 or another approved integration node.",
       "confidence": "high"
     },

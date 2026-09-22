@@ -1,6 +1,6 @@
 # config.yaml — example overlay for service-delivery-private-cloud
 #
-# SSOC spans four private DCs plus Azure-hosted satellite systems, and
+# SDP spans four private DCs plus Azure-hosted satellite systems, and
 # integrates with SAP (RFC), SYS-51, and external 3PL partners.
 # Deep-merged on top of the repository-root config.yaml.
 # (System codes resolve via input/systems-registry.md.)
@@ -44,7 +44,7 @@ datacenters:
     model: "saas"
     zones: ["SaaS apps"]
     region: "NA"
-    notes: "SYS-38, SYS-39, SYS-40 and SYS-41 consuming SSOC APIs. (See input/systems-registry.md.)"
+    notes: "SYS-38, SYS-39, SYS-40 and SYS-41 consuming SDP APIs. (See input/systems-registry.md.)"
 
 platforms:
   api_gateway: "WSO2 API Gateway"

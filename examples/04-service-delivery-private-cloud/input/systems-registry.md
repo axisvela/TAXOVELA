@@ -1,4 +1,4 @@
-# Systems Registry — Service Delivery Platform (SSOC)
+# Systems Registry — Service Delivery Platform (SDP)
 
 Single source of truth for every system / service name in this example.
 

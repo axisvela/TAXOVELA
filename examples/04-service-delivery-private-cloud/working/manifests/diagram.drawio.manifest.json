@@ -4,7 +4,7 @@
   "type": "technical-deployment-view",
   "schema": "application/vnd.jgraph.mxfile",
   "path": "output\\diagrams\\diagram.drawio",
-  "sha256": "ddece931cc1aa3e7f011955bf33c6510b534a11da8ab4dc4d73c6c95a9f04783",
+  "sha256": "7387c7c43c763bc8bd76868491944fc1f7d2f6757651387c1ccfe8a588ef94fb",
   "model_version": null,
   "producer": "archharness diagram",
   "produced_at": "2026-09-14T13:39:07+00:00",

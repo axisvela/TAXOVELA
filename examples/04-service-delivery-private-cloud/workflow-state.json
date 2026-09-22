@@ -4,38 +4,38 @@
       "kind": "manifest",
       "data": {
         "schema_version": "artifact/v1",
-        "id": "SSOC-NA-001-REQ-md",
+        "id": "SDP-NA-001-REQ-md",
         "type": "requirements",
         "schema": "arch-requirements",
         "path": "output\\requirements\\REQ.md",
-        "sha256": "676204c5ccad8434374ab4be90a152028db4af14dd2504e2da76fbe5446708b5"
+        "sha256": "55763a26824d3f3dded8c2fe19087ada4d8ae7943d9662a3f1fc652b31d73774"
       }
     },
     "req.yaml": {
       "kind": "manifest",
       "data": {
         "schema_version": "artifact/v1",
-        "id": "SSOC-NA-001-req-yaml",
+        "id": "SDP-NA-001-req-yaml",
         "type": "requirements",
         "schema": "arch-requirements",
         "path": "output\\requirements\\req.yaml",
-        "sha256": "816c0613f9840f575f79fb666c0ead4b34154698e23f6174a3cb7889d806f2b7"
+        "sha256": "e18edcd8ecfaed2b1f4fc8fb9dd98a5b91395e6ea900054c7c74c16944ea354a"
       }
     },
     "blueprint.yaml": {
       "kind": "manifest",
       "data": {
         "schema_version": "artifact/v1",
-        "id": "SSOC-NA-001-blueprint-yaml",
+        "id": "SDP-NA-001-blueprint-yaml",
         "type": "technical-deployment-view",
         "schema": "arch-schema-reference.yaml",
         "path": "output/designs/blueprint.yaml",
-        "sha256": "d8b31d1cb63f6e5fa9e937d94f7734553b3290fecfd8288b5020bb419e25ea7c",
+        "sha256": "d5bd270610e1a718dc4f984e6fdd106470c3710de552672c23615b00613a7155",
         "model_version": "private-cloud/2.0",
         "producer": "arch-design",
         "produced_at": "2026-09-14T13:07:56Z",
         "input_artifacts": [
-          "SSOC-NA-001-req-yaml"
+          "SDP-NA-001-req-yaml"
         ]
       }
     },
@@ -47,7 +47,7 @@
         "type": "technical-deployment-view",
         "schema": "image/png",
         "path": "output/diagrams/diagram.png",
-        "sha256": "395e4f3219352ed76a2115710a4006be4d91e20a337ccc1b3cc841365e0696e0",
+        "sha256": "a4b0beb0134d7e4095510b75c0afd0d30f89bba18366c3091d3e3471f01d5173",
         "model_version": null,
         "producer": "archharness diagram",
         "produced_at": "2026-09-14T13:39:07+00:00",
@@ -64,7 +64,7 @@
         "type": "technical-deployment-view",
         "schema": "application/vnd.jgraph.mxfile",
         "path": "output/diagrams/diagram.drawio",
-        "sha256": "ddece931cc1aa3e7f011955bf33c6510b534a11da8ab4dc4d73c6c95a9f04783",
+        "sha256": "7387c7c43c763bc8bd76868491944fc1f7d2f6757651387c1ccfe8a588ef94fb",
         "model_version": null,
         "producer": "archharness diagram",
         "produced_at": "2026-09-14T13:39:07+00:00",
@@ -77,11 +77,11 @@
       "kind": "manifest",
       "data": {
         "schema_version": "artifact/v1",
-        "id": "SSOC-NA-001-validate-result",
+        "id": "SDP-NA-001-validate-result",
         "type": "validation-result",
         "schema": "validation/v1",
         "path": "output/validation/validate_result.json",
-        "sha256": "1c7e901fb54577d1a6fdaf0998d030e8c700847e9f1cc336d323c8c381acdba6",
+        "sha256": "97f7f82334912eec8994f9b98fba7fc117e2636be2e6f76c8e93155b5fbc80b7",
         "model_version": "arch-validate/2.0",
         "producer": "arch-validate; archharness/0.7.0",
         "produced_at": "2026-09-15T00:56:09Z",
@@ -97,7 +97,7 @@
         "decision": "BLOCK",
         "validation": {
           "path": "output\\diagrams\\diagram.png",
-          "sha256": "395e4f3219352ed76a2115710a4006be4d91e20a337ccc1b3cc841365e0696e0",
+          "sha256": "a4b0beb0134d7e4095510b75c0afd0d30f89bba18366c3091d3e3471f01d5173",
           "ruleset_digest": "c2b8876f3c6fce43e21aff118d2412bbdcab068df922a1d5faf087c3d4f6283a"
         },
         "policy": {

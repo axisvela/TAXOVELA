@@ -1,4 +1,4 @@
-# Example 4 — Service Delivery Platform (SSOC): Private Cloud Multi-DC
+# Example 4 — Service Delivery Platform (SDP): Private Cloud Multi-DC
 
 Reverse-engineered from a real service-delivery architecture diagram
 (restricted and intentionally not scrubbed). The most complete demonstration
@@ -14,7 +14,7 @@ SYS-05/SYS-06-only integration, SAP RFC, SYS-51 MFT, 3PL EDI/SFTP, and a
 
 ## Scenario
 
-**SSOC** is the service supply-chain operations platform (~40 Java/SpringCloud
+**SDP** is the service supply-chain operations platform (~40 Java/SpringCloud
 microservices) being migrated to serve NA. It runs in the CN
 primary DC and integrates with satellite systems in three other DCs, Azure,
 SAP, and external 3PL partners.

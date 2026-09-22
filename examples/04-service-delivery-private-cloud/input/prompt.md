@@ -1,11 +1,11 @@
-# One-shot prompt — Service Delivery Platform (SSOC)
+# One-shot prompt — Service Delivery Platform (SDP)
 
 > Codes-only prompt. Every system/service is referenced by `SYS-nn`,
 > resolved through `input/systems-registry.md` (include that registry as
 > context when supplying this prompt to an agent). No literal system names
 > appear outside the registry.
 
-Design the technical architecture for **SSOC**, our service supply-chain
+Design the technical architecture for **SDP**, our service supply-chain
 operations platform, as it migrates to serve NA. Private cloud only, four
 DCs, ~40 Java/SpringCloud microservices.
 

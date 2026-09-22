@@ -1,5 +1,5 @@
-# Requirements Document — Service Delivery Platform (SSOC, NA Migration)
-**Version**: 1.0  |  **Project ID**: SSOC-NA-001  |  **Classification**: Acme Confidential
+# Requirements Document — Service Delivery Platform (SDP, NA Migration)
+**Version**: 1.0  |  **Project ID**: SDP-NA-001  |  **Classification**: Acme Confidential
 
 > System codes SYS-01..SYS-52 resolve via `input/systems-registry.md`.
 
@@ -9,7 +9,7 @@
 
 ## 1. Project Overview
 
-SSOC is the service supply-chain operations platform (~40 Java/SpringCloud
+SDP is the service supply-chain operations platform (~40 Java/SpringCloud
 microservices). This program migrates/extends it to serve NA while keeping
 the primary deployment in the CN primary DC. The platform integrates with
 SAP, three satellite DCs, Azure-hosted systems, and external 3PL partners.

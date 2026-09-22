@@ -14,8 +14,8 @@ _template:
 # TODO TBD-011: Privacy/Legal must approve the minimized CN-US transfer dataset and transfer basis.
 # TODO TBD-013: Integration owner must complete migration from Basic Auth to OAuth2 client credentials or obtain risk acceptance.
 arch:
-  id: "SSOC-NA-001-TechDiagram-V1.0"
-  name: "Service Delivery Platform (SSOC) - Private Cloud Multi-DC Technical Architecture"
+  id: "SDP-NA-001-TechDiagram-V1.0"
+  name: "Service Delivery Platform (SDP) - Private Cloud Multi-DC Technical Architecture"
   platform: "hybrid_cloud"
   version: "V1.0"
   author: "ArchHarness"

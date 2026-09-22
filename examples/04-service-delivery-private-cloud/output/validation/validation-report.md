@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---:|
-| Project | Service Delivery Platform (SSOC) |
+| Project | Service Delivery Platform (SDP) |
 | Platform detected | Mixed: private cloud with Azure satellites |
 | Score | **4.32 / 10.00** |
 | Must fix | **22** |
@@ -85,7 +85,7 @@ The main web path follows `Internet -> SYS-52 -> SYS-01 F5 -> SYS-02`, and SYS-0
 
 ### Mediation And Boundaries
 
-WSO2, Kafka, and MFT platform are independent nodes in the CN primary Intranet. Most remote APIs and files use those mediators. The ten direct SSOC-to-SAP flows bypass mediation, while SAP and both 3PL boundary locations remain TBD. The 3PL paths are outbound from WSO2; required inbound termination at F5 is not demonstrated.
+WSO2, Kafka, and MFT platform are independent nodes in the CN primary Intranet. Most remote APIs and files use those mediators. The ten direct SDP-to-SAP flows bypass mediation, while SAP and both 3PL boundary locations remain TBD. The 3PL paths are outbound from WSO2; required inbound termination at F5 is not demonstrated.
 
 ### Authentication And Secrets
 

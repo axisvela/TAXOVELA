@@ -1,5 +1,5 @@
 Place the original reference architecture image here as
-`reference-architecture.png` (the SSOC private-cloud multi-DC diagram).
+`reference-architecture.png` (the SDP private-cloud multi-DC diagram).
 
 This image is intentionally not scrubbed and must be handled as restricted
 input. Do not use it as a source for publishable names.

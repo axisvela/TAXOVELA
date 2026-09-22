@@ -1,9 +1,9 @@
 requirements:
   project:
-    name: "Service Delivery Platform (SSOC), NA Migration"
-    id: "SSOC-NA-001"
+    name: "Service Delivery Platform (SDP), NA Migration"
+    id: "SDP-NA-001"
     scope: "e2e"
-    scope_decision: "Modification of the existing SSOC platform; connected systems are black boxes and only their integration boundaries are in scope."
+    scope_decision: "Modification of the existing SDP platform; connected systems are black boxes and only their integration boundaries are in scope."
     department: "TBD"
     author: "ArchHarness"
     date: "2026-09-14"
@@ -238,12 +238,12 @@ requirements:
     - {id: "TBD-013", description: "Replace or formally risk-accept Basic Auth integrations.", owner: "Security / integration owner", blocking: true}
 
   constraints:
-    - "Private cloud is mandatory for SSOC; Azure systems are existing satellites only."
+    - "Private cloud is mandatory for SDP; Azure systems are existing satellites only."
     - "The primary deployment remains in the CN Primary DC with separate DMZ, Intranet, and DB zones."
     - "All cross-application API calls traverse SYS-05; all event traffic traverses SYS-06; direct application-to-application connections are prohibited."
     - "Managed partner file transfer traverses SYS-51."
     - "SYS-20 through SYS-23 are reachable only by RFC from Intranet and are not exposed to the DMZ."
-    - "The DB Zone is reachable only from SSOC Intranet services, with the stated HA topology."
+    - "The DB Zone is reachable only from SDP Intranet services, with the stated HA topology."
     - "External 3PL and file traffic terminates at SYS-01 in the DMZ and never connects directly to Intranet."
     - "TLS 1.2 or later, or an approved equivalent encrypted transport, is required everywhere."
     - "Credentials are not hardcoded; K8s workload database credentials use Kubernetes Secrets."

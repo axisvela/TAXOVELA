@@ -35,7 +35,7 @@ Every file outside `systems-registry.md` — including `README.md` and
 | 01 | `01-ecommerce-azure` | E-commerce platform network | Azure multi-region Hub-Spoke + ExpressRoute | req/v1 — rebuild pending (source diagram quality is poor) |
 | 02 | `02-ai-agent-hybrid` | Data Agent platform (GDA) | Private DC + Azure hybrid | req/v1 — rebuild pending |
 | 03 | `03-order-query-aws-hybrid` | Order query over EDW data | AWS VPC (3-tier) + 4 private DCs | req/v1 — rebuild pending |
-| 04 | `04-service-delivery-private-cloud` | Service delivery platform (SSOC) | Private cloud, 4 DCs + Azure | req/v1 — rebuild pending |
+| 04 | `04-service-delivery-private-cloud` | Service delivery platform (SDP) | Private cloud, 4 DCs + Azure | req/v1 — rebuild pending |
 | 05 | `05-supply-chain-order-private-cloud` | Supply-chain order platform (OSP) | Private cloud active-active CN+NA | req/v2 authored — diagram pending |
 | 06 | `06-factory-mes-industrial` | **Factory MES (PlantMES)** | Plant edge + central DCs | **req/v2 complete — worked reference** |
 | 07 | `07-finance-core-banking` | Core banking / payments | Private cloud, two-site-three-center | input pending |

@@ -1,11 +1,11 @@
-# Requirements Document - Service Delivery Platform (SSOC), NA Migration
+# Requirements Document - Service Delivery Platform (SDP), NA Migration
 **Version**: 1.0 Draft | **Date**: 2026-09-14 | **Author**: ArchHarness
-**Project ID**: SSOC-NA-001 | **Classification**: Acme Confidential
-**Scope**: E2E modification. SSOC is the modified platform; connected enterprise, SaaS, identity, and partner systems are existing black boxes whose integration boundaries are in scope.
+**Project ID**: SDP-NA-001 | **Classification**: Acme Confidential
+**Scope**: E2E modification. SDP is the modified platform; connected enterprise, SaaS, identity, and partner systems are existing black boxes whose integration boundaries are in scope.
 
 ## 1. Project Overview
 
-SSOC is the service supply-chain operations platform, comprising approximately 40 Java and Spring Cloud microservices. The program extends the existing platform to serve North America while retaining the primary deployment in the CN primary data center and integrating four private data centers, Azure-hosted satellite systems, SAP, and external logistics partners.
+SDP is the service supply-chain operations platform, comprising approximately 40 Java and Spring Cloud microservices. The program extends the existing platform to serve North America while retaining the primary deployment in the CN primary data center and integrating four private data centers, Azure-hosted satellite systems, SAP, and external logistics partners.
 
 All names below are the stable document names defined by `input/systems-registry.md`. The corresponding `SYS-nn` identifiers remain authoritative.
 
@@ -13,9 +13,9 @@ All names below are the stable document names defined by `input/systems-registry
 
 | App | Type | New/Existing | Owner | Scope |
 |-----|------|--------------|-------|-------|
-| SYS-01 F5; SYS-02 Service-Supply-Chain-dmz-nginx-proxy; SYS-03 Service-Supply-Chain-gateway; SYS-04 Service-Supply-Chain-web | SSOC ingress and DMZ tier | Modified | InfraSec / TBD business owner | Full deployment and integration boundary |
-| SYS-05 WSO2; SYS-06 Kafka (primary); SYS-07 Service-Supply-Chain-int-nginx-proxy; SYS-08 Service-Supply-Chain-main; SYS-09 Service-Supply-Chain-websocket; SYS-10 Service-Supply-Chain-* group (10 services); SYS-11 Service-Supply-Chain-* group (22 services) | SSOC integration and application tier | Modified | InfraSec / TBD business owner | Full deployment and integration boundary |
-| SYS-12 MySQL TMS; SYS-13 MySQL Main; SYS-14 MySQL WMS; SYS-15 MySQL MDS; SYS-16 MySQL OMS; SYS-17 Redis HA; SYS-18 RabbitMQ HA; SYS-19 Elasticsearch HA | SSOC persistence tier | Modified | InfraSec / TBD business owner | Full deployment and integration boundary |
+| SYS-01 F5; SYS-02 Service-Supply-Chain-dmz-nginx-proxy; SYS-03 Service-Supply-Chain-gateway; SYS-04 Service-Supply-Chain-web | SDP ingress and DMZ tier | Modified | InfraSec / TBD business owner | Full deployment and integration boundary |
+| SYS-05 WSO2; SYS-06 Kafka (primary); SYS-07 Service-Supply-Chain-int-nginx-proxy; SYS-08 Service-Supply-Chain-main; SYS-09 Service-Supply-Chain-websocket; SYS-10 Service-Supply-Chain-* group (10 services); SYS-11 Service-Supply-Chain-* group (22 services) | SDP integration and application tier | Modified | InfraSec / TBD business owner | Full deployment and integration boundary |
+| SYS-12 MySQL TMS; SYS-13 MySQL Main; SYS-14 MySQL WMS; SYS-15 MySQL MDS; SYS-16 MySQL OMS; SYS-17 Redis HA; SYS-18 RabbitMQ HA; SYS-19 Elasticsearch HA | SDP persistence tier | Modified | InfraSec / TBD business owner | Full deployment and integration boundary |
 | SYS-20 S4; SYS-21 SECC; SYS-22 LSCRM; SYS-23 CECC; SYS-24 S3 | SAP landscape | Existing | TBD | Black-box boundary only |
 | SYS-25 Account-Service; SYS-26 Service-customer-master-data; SYS-27 Serice-Data-serviceE; SYS-28 Price-master-ROW | US satellite applications | Existing | TBD | Black-box boundary only |
 | SYS-29 ADFS; SYS-30 Enterprise ID | Identity services | Existing | InfraSec / TBD | Authentication boundary only |
@@ -172,12 +172,12 @@ SYS-10 members are `rms`, `tms`, `oms`, `wms`, `mds`, `ips`, `autopilot`, `ves`,
 
 ## 11. Architecture Constraints
 
-- Private cloud is mandatory for the SSOC platform; Azure systems are existing satellites only.
-- The primary SSOC deployment remains in the CN Primary DC using separate DMZ, Intranet, and DB zones.
+- Private cloud is mandatory for the SDP platform; Azure systems are existing satellites only.
+- The primary SDP deployment remains in the CN Primary DC using separate DMZ, Intranet, and DB zones.
 - All cross-application API traffic must traverse SYS-05 WSO2; event traffic must traverse SYS-06 Kafka. Direct application-to-application connections are prohibited.
 - Managed partner file transfer must traverse SYS-51 MFT platform.
 - SAP SYS-20 through SYS-23 may be reached only by RFC from the Intranet zone and must not be exposed to the DMZ.
-- The DB Zone is reachable only from SSOC Intranet services, and each persistence service uses the stated HA topology.
+- The DB Zone is reachable only from SDP Intranet services, and each persistence service uses the stated HA topology.
 - External 3PL and file-transfer traffic must terminate at SYS-01 in the DMZ and must never connect directly to the Intranet.
 - TLS 1.2 or later is required for all applicable traffic. Equivalent encrypted transport must be defined for non-TLS protocols.
 - Credentials must not be hardcoded. Workload database credentials are stored in Kubernetes Secrets.

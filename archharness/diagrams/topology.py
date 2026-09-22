@@ -70,6 +70,61 @@ def region_zones(region: dict) -> list:
     return region.get(region_zones_key(region), []) or []
 
 
+RESERVED_NODES = {"internet", "user", "office-network"}
+
+_ZONE_BEARING_KEYS = ("deployment", "subnets", "network_zones")
+
+
+def deployment_of(arch: dict) -> list:
+    """Return the deployment list, accepting both top-level and ``arch:`` nesting."""
+    if not isinstance(arch, dict):
+        return []
+    nested = arch.get("arch")
+    if isinstance(nested, dict) and isinstance(nested.get("deployment"), list):
+        return nested["deployment"]
+    return arch.get("deployment") or []
+
+
+def interactions_of(arch: dict) -> list:
+    """Return the interaction list, accepting both top-level and ``arch:`` nesting."""
+    if not isinstance(arch, dict):
+        return []
+    nested = arch.get("arch")
+    if isinstance(nested, dict) and isinstance(nested.get("interactions"), list):
+        return nested["interactions"]
+    return arch.get("interactions") or []
+
+
+def collect_declared_ids(arch: dict) -> tuple[set[str], list[str]]:
+    """Collect region/zone/component IDs, reporting duplicates once each."""
+    seen: set[str] = set()
+    declared: set[str] = set()
+    duplicates: list[str] = []
+
+    def _add(node_id: str) -> None:
+        if not node_id:
+            return
+        if node_id in seen:
+            if node_id not in duplicates:
+                duplicates.append(node_id)
+        else:
+            seen.add(node_id)
+            declared.add(node_id)
+
+    for region in deployment_of(arch):
+        if not isinstance(region, dict):
+            continue
+        _add(region.get("id", ""))
+        for zone in region_zones(region):
+            if not isinstance(zone, dict):
+                continue
+            _add(zone.get("id", ""))
+            for comp in zone.get("components", []) or []:
+                if isinstance(comp, dict):
+                    _add(comp.get("id", ""))
+    return declared, duplicates
+
+
 def node_has_role(comp: dict, role: str) -> bool:
     """Explicit attribute first, then structural signals, then opt-in patterns."""
     spec = _ROLES.get(role) or {}

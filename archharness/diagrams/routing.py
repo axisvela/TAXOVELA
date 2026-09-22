@@ -290,9 +290,14 @@ def route(src: Rect, tgt: Rect, obstacles: list[Rect], *, lane: int = 0,
 
 
 def routing_context(arch: dict, layout: dict) -> tuple[
-        dict[str, Rect], dict[str, tuple[str, str]],
+        dict[str, Rect], dict[str, Rect], dict[str, tuple[str, str]],
         dict[str, tuple[float, ...]], dict[str, tuple[float, ...]]]:
-    """Build component obstacles, ownership, and container-specific gutters.
+    """Build component obstacles, container geometry, ownership, and gutters.
+
+    Components are returned separately from container rectangles: an
+    interaction may legitimately name a region or zone (for example Azure VNet
+    peering), so containers must be routable endpoints, but they must not be
+    treated as obstacles or every route would be pushed outside every region.
 
     Rails remain scoped to their owning region or zone.  A route between two
     containers can therefore use only its endpoints' outside channels instead
@@ -320,6 +325,7 @@ def routing_context(arch: dict, layout: dict) -> tuple[
                     owner[member.get("id", "")] = (rid, zid)
 
     rects = {cid: Rect(*pos) for cid, pos in absolute.items()}
+    containers = {**region_rects, **zone_rects}
     region_rails_x = {
         rid: (round(rect.x - GUTTER), round(rect.right + GUTTER))
         for rid, rect in region_rects.items()
@@ -328,7 +334,7 @@ def routing_context(arch: dict, layout: dict) -> tuple[
         zid: (round(rect.y - GUTTER), round(rect.bottom + GUTTER))
         for zid, rect in zone_rects.items()
     }
-    return rects, owner, region_rails_x, zone_rails_y
+    return rects, containers, owner, region_rails_x, zone_rails_y
 
 
 def scoped_rails(src_owner: tuple[str, str] | None, tgt_owner: tuple[str, str] | None,

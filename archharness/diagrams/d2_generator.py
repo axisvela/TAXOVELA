@@ -240,8 +240,12 @@ def generate_d2(arch: dict) -> str:
         rid   = _d2id(region["id"])
         rtype = region.get("type", "private_dc")
         zkey  = "network_zones" if rtype == "private_dc" else "subnets"
+        # Containers are addressable endpoints too: an interaction may name a
+        # VNet peering or a DC-to-DC WAN link rather than a component.
+        comp_path[region["id"]] = rid
         for zone in region.get(zkey, []):
             zid = _d2id(zone["id"])
+            comp_path[zone["id"]] = f"{rid}.{zid}"
             for comp in zone.get("components", []):
                 cid = _d2id(comp["id"])
                 comp_path[comp["id"]] = f"{rid}.{zid}.{cid}"

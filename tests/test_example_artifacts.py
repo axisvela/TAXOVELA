@@ -51,6 +51,26 @@ class ExampleArtifactIntegrityTests(unittest.TestCase):
             self.assertIn("OK", output.getvalue(), f"{example.name}: {output.getvalue()}")
         self.assertGreater(checked, 0, "no example registry was checked")
 
+    def test_example_blueprints_still_generate(self):
+        """A shipped example must stay renderable by the current generator."""
+        import yaml
+
+        from archharness.diagrams.d2_generator import generate_d2
+        from archharness.diagrams.generator import generate_drawio
+
+        checked = 0
+        for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):
+            blueprint = example / "output" / "designs" / "blueprint.yaml"
+            if not blueprint.is_file():
+                continue
+            document = yaml.safe_load(blueprint.read_text(encoding="utf-8"))
+            arch = document.get("arch", document)
+            checked += 1
+            with self.subTest(example=example.name):
+                self.assertIn("<mxfile", generate_drawio(arch))
+                self.assertIn("direction:", generate_d2(arch))
+        self.assertGreater(checked, 0, "no example blueprint was rendered")
+
     def test_example_manifests_use_project_relative_paths(self):
         for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):
             state_path = example / "workflow-state.json"

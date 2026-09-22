@@ -166,33 +166,9 @@ def _comp_label(comp: dict) -> str:
 
 # ── Reference integrity ─────────────────────────────────────────────────────
 
-RESERVED_NODES = {"internet", "user", "office-network"}
+RESERVED_NODES = topology.RESERVED_NODES
 
-
-def _collect_declared_ids(arch: dict) -> tuple[set[str], list[str]]:
-    """Collect region/zone/component IDs and report duplicates."""
-    seen: set[str] = set()
-    declared: set[str] = set()
-    duplicates: list[str] = []
-    deployment = arch.get("deployment", arch.get("arch", {}).get("deployment", []))
-
-    def _add(node_id: str) -> None:
-        if not node_id:
-            return
-        if node_id in seen:
-            if node_id not in duplicates:
-                duplicates.append(node_id)
-        else:
-            seen.add(node_id)
-            declared.add(node_id)
-
-    for region in deployment or []:
-        _add(region.get("id", ""))
-        for zone in topology.region_zones(region):
-            _add(zone.get("id", ""))
-            for comp in zone.get("components", []) or []:
-                _add(comp.get("id", ""))
-    return declared, duplicates
+_collect_declared_ids = topology.collect_declared_ids
 
 
 def validate_architecture_refs(arch: dict) -> set[str]:
@@ -395,10 +371,14 @@ def generate_drawio(arch: dict, routing_diagnostics: list[dict] | None = None) -
         arch.get("interactions", arch.get("arch", {}).get("interactions", [])),
         boundary_ids,
     )
-    rects, ownership, region_rails_x, zone_rails_y = routing.routing_context(arch, layout)
+    rects, containers, ownership, region_rails_x, zone_rails_y = routing.routing_context(arch, layout)
     # Only rendered cells are obstacles.  Zone-boundary firewalls are deliberately
     # implied and therefore must not cause a route around an invisible node.
     visible_rects = {cid: rect for cid, rect in rects.items() if cid in cell_map}
+    # Rendered containers (region/zone) can be interaction endpoints - Azure VNet
+    # peering names the VNets - but they must not become obstacles themselves.
+    endpoint_rects = {**{cid: rect for cid, rect in containers.items() if cid in cell_map},
+                      **visible_rects}
     # Opposite-direction and parallel edges share a lane sequence, so they do
     # not select the same route corridor merely because their direction differs.
     lane_by_pair: dict[tuple[str, str], int] = {}
@@ -428,8 +408,14 @@ def generate_drawio(arch: dict, routing_diagnostics: list[dict] | None = None) -
             src_owner, tgt_owner, region_rails_x, zone_rails_y
         )
         route_started = perf_counter_ns()
+        if src_yaml not in endpoint_rects or tgt_yaml not in endpoint_rects:
+            missing = src_yaml if src_yaml not in endpoint_rects else tgt_yaml
+            raise ValueError(
+                f"Interaction endpoint {missing!r} has no rendered geometry; "
+                "declare it as a component, region, or zone of the deployment"
+            )
         edge_route = routing.route(
-            visible_rects[src_yaml], visible_rects[tgt_yaml],
+            endpoint_rects[src_yaml], endpoint_rects[tgt_yaml],
             [rect for cid, rect in visible_rects.items() if cid not in pair],
             lane=lane, rails_x=route_rails_x, rails_y=route_rails_y,
         )

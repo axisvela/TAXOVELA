@@ -88,6 +88,45 @@ class OrthogonalRoutingTests(unittest.TestCase):
         }])
         self.assertGreaterEqual(diagnostics[0]["duration_ns"], 0)
 
+    def test_container_endpoints_are_routable(self):
+        """Azure VNet peering names the VNets, not a component inside them."""
+        arch = {
+            "id": "peering-demo", "name": "Peering Demo",
+            "deployment": [
+                {"id": "vnet-a", "type": "azure_vnet", "name": "VNet A", "subnets": [
+                    {"id": "subnet-a", "type": "private", "components": [
+                        {"id": "app-a", "name": "App A", "type": "BE"}]}]},
+                {"id": "vnet-b", "type": "azure_vnet", "name": "VNet B", "subnets": [
+                    {"id": "subnet-b", "type": "private", "components": [
+                        {"id": "app-b", "name": "App B", "type": "BE"}]}]},
+            ],
+            "interactions": [{"from": "vnet-a", "to": "vnet-b", "protocol": "VNet peering",
+                              "auth": "Azure RBAC"}],
+        }
+
+        diagnostics = []
+        root = ET.fromstring(generate_drawio(arch, diagnostics))
+
+        edges = [cell for cell in root.iter("mxCell") if cell.get("edge") == "1"]
+        self.assertEqual(len(edges), 1)
+        self.assertEqual(diagnostics[0]["source"], "vnet-a")
+        self.assertEqual(diagnostics[0]["target"], "vnet-b")
+
+    def test_unknown_endpoint_geometry_fails_closed(self):
+        arch = {
+            "id": "missing-demo", "name": "Missing Demo",
+            "deployment": [{"id": "dc", "type": "private_dc", "name": "DC",
+                            "network_zones": [{"id": "z", "name": "Z", "components": [
+                                {"id": "a", "name": "A", "type": "BE"}]}]}],
+            "interactions": [{"from": "a", "to": "z", "protocol": "HTTPS", "auth": "mTLS"}],
+        }
+
+        # A zone is a rendered container, so it routes; an undeclared id does not.
+        generate_drawio(arch)
+        arch["interactions"] = [{"from": "a", "to": "ghost", "protocol": "HTTPS", "auth": "mTLS"}]
+        with self.assertRaises(ValueError):
+            generate_drawio(arch)
+
     def test_routing_controls_come_from_diagram_style_standard(self):
         self.assertEqual(ROUTING_POLICY, {
             "gutter": 28, "lane_gap": 14, "max_visibility_nodes": 256,
@@ -236,7 +275,7 @@ class OrthogonalRoutingTests(unittest.TestCase):
                  ]}]},
             ],
         }
-        _rects, _owners, region_rails, _zone_rails = routing_context(arch, calculate_layout(arch))
+        _rects, _containers, _owners, region_rails, _zone_rails = routing_context(arch, calculate_layout(arch))
 
         selected_x, selected_y = scoped_rails(
             ("dc-a", "app-a"), ("dc-b", "app-b"), region_rails, _zone_rails

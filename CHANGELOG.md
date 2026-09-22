@@ -23,6 +23,11 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 - `archharness workflow verify` reports structured artifact findings, and the
   `can` / `status` / `complete` gates re-verify recorded SHA-256 digests before
   a stage may advance.
+- `archharness arch-check` runs deterministic rules on an architecture YAML
+  with stable rule ids and evidence (`A-01` duplicate id, `A-02` undeclared
+  endpoint, `A-03`/`A-04` missing protocol or authentication label, `A-05`
+  self-reference, `A-06` unknown lifecycle status), with `--json` output and a
+  fail-closed exit code.
 - Standard component shapes (pentagon, card, stored_data, double ellipse,
   diamond, document, note, step, pyramid, cube, cloud) render in draw.io, PNG,
   and D2, and load balancers are trapezoids distinct from firewall hexagons.
@@ -43,6 +48,13 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 - The plugin contract kit is skipped rather than failed when a subclass does
   not set `plugin`, so `unittest` and `pytest` agree.
 - `sensitivity: null` no longer breaks draw.io generation.
+- Interactions between containers (Azure VNet peering, DC-to-DC WAN links)
+  render again: the draw.io router resolves region and zone endpoints and
+  fails closed on an endpoint with no rendered geometry, and D2 records
+  container paths. `tests/test_example_artifacts.py` now regenerates every
+  shipped example so this cannot regress silently.
+- The standard's `in_plan` lifecycle status renders its defined green instead
+  of falling back to the unspecified colour.
 - Example workflow records no longer embed machine-specific absolute paths or a
   truncated SHA-256 digest.
 

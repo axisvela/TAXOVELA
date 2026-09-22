@@ -67,6 +67,7 @@ COMPONENT_STATUSES = {
     "NEW":      "newly_created",
     "CHANGED":  "changed",
     "EXISTING": "unchanged",
+    "IN_PLAN":  "in_plan",
     "REMOVE":   "removed",
 }
 
@@ -74,6 +75,7 @@ STATUS_FILL = {
     "NEW":      {"fill": "#D32F2F", "stroke": "#D32F2F", "text": "#FFFFFF"},
     "CHANGED":  {"fill": "#FBC02D", "stroke": "#B58A00", "text": "#000000"},
     "EXISTING": {"fill": "#FFFFFF", "stroke": "#000000", "text": "#000000"},
+    "IN_PLAN":  {"fill": "#66BB6A", "stroke": "#43A047", "text": "#000000"},
     "REMOVE":   {"fill": "#757575", "stroke": "#616161", "text": "#FFFFFF"},
 }
 STATUS_FILL_DEFAULT = STATUS_FILL["EXISTING"]
@@ -91,6 +93,7 @@ _STATUS_ALIASES = {
     "NEWLY_CREATED": "NEW", "NEW": "NEW", "ADDED": "NEW", "PLANNED": "NEW",
     "CHANGED": "CHANGED", "CHANGE": "CHANGED", "MODIFIED": "CHANGED", "UPDATED": "CHANGED",
     "UNCHANGED": "EXISTING", "EXISTING": "EXISTING", "ACTIVE": "EXISTING",
+    "IN_PLAN": "IN_PLAN", "PLANNED": "IN_PLAN", "PLAN": "IN_PLAN", "IN_THE_PLAN": "IN_PLAN",
     "REMOVED": "REMOVE", "REMOVE": "REMOVE", "RETIRED": "REMOVE", "DELETED": "REMOVE",
 }
 

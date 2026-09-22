@@ -76,7 +76,7 @@ machine-testable policy while preserving human architectural judgement.
 
 | Initiative | Deliverable / acceptance criteria |
 |---|---|
-| Static checks on structured models | Implement high-confidence rules against requirements/architecture YAML before image-based review; retain rule IDs and evidence in reports. |
+| Static checks on structured models | Started: `archharness arch-check` runs rules A-01..A-06 on an architecture YAML with rule ids and evidence, and the example governance test regenerates every shipped blueprint. Rule coverage still grows from real review findings. |
 | Evidence-aware validation | Connect validation findings to relevant model fields and rendered diagram elements, including an explicit confidence and false-positive handling path. |
 | Policy profiles | Support versioned policy profiles, documented overrides, and policy-to-standard mappings for different enterprise contexts. |
 | CI integration | Provide documented CI examples that archive artifacts, run validate → enforce deterministically, and fail closed on `BLOCK`. |

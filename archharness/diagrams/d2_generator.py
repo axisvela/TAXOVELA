@@ -209,11 +209,9 @@ def generate_d2(arch: dict) -> str:
     lines = []
 
     # ── Header comment ──────────────────────────────────────────────────────
-    arch_name = arch.get("name", "Architecture")
-    arch_id   = arch.get("id", "")
-    platform  = arch.get("platform", "")
-    lines.append(f"# {arch_name}")
-    lines.append(f"# ID: {arch_id}  |  Platform: {platform}")
+    header_rows = labels.header_fields(arch)
+    lines.append(f"# {header_rows[0][1]}")
+    lines.append("# " + "  |  ".join(f"{label}: {value}" for label, value in header_rows[1:]))
     lines.append("")
 
     # ── D2 direction ────────────────────────────────────────────────────────

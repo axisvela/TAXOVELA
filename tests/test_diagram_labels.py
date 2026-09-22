@@ -9,7 +9,57 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from archharness.diagrams import labels, topology  # noqa: E402
+from archharness.diagrams.d2_generator import generate_d2  # noqa: E402
 from archharness.diagrams.generator import generate_drawio  # noqa: E402
+
+
+class HeaderMetadataTests(unittest.TestCase):
+    """standards/diagram-style.yaml §6 header fields must reach the diagram."""
+
+    def _arch(self) -> dict:
+        return {
+            "id": "order-app-Technical diagram-V1.0",
+            "name": "Order Application",
+            "platform": "private_cloud",
+            "version": "V1.0",
+            "owner_team": "Order Platform",
+            "author": "aaaxxx1-First-Last",
+            "last_modified": "2026-09-22",
+            "deployment": [{"id": "dc", "type": "private_dc", "name": "DC",
+                            "network_zones": [{"id": "app", "name": "App", "components": [
+                                {"id": "api", "name": "API", "type": "BE"},
+                            ]}]}],
+            "interactions": [],
+        }
+
+    def test_header_fields_follow_the_standard_order(self):
+        self.assertEqual(labels.header_fields(self._arch()), [
+            ("Name", "Order Application"),
+            ("ID", "order-app-Technical diagram-V1.0"),
+            ("Platform", "private_cloud"),
+            ("Version", "V1.0"),
+            ("Owner team", "Order Platform"),
+            ("Author", "aaaxxx1-First-Last"),
+            ("Last modified", "2026-09-22"),
+        ])
+
+    def test_drawio_header_carries_the_metadata(self):
+        xml = generate_drawio(self._arch())
+        for expected in ("Diagram: Order Application", "Version: V1.0",
+                         "Owner team: Order Platform", "Author: aaaxxx1-First-Last",
+                         "Last modified: 2026-09-22"):
+            self.assertIn(expected, xml)
+
+    def test_partly_filled_header_omits_empty_fields(self):
+        arch = {"id": "demo", "name": "Demo", "deployment": [], "interactions": []}
+        self.assertEqual(labels.header_fields(arch), [("Name", "Demo"), ("ID", "demo")])
+        self.assertNotIn("Author", generate_drawio(arch))
+
+    def test_d2_header_comment_carries_the_metadata(self):
+        header = generate_d2(self._arch()).splitlines()[:2]
+        self.assertEqual(header[0], "# Order Application")
+        self.assertIn("Version: V1.0", header[1])
+        self.assertIn("Owner team: Order Platform", header[1])
 
 
 class StatusTests(unittest.TestCase):

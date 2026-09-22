@@ -264,19 +264,16 @@ def generate_drawio(arch: dict, routing_diagnostics: list[dict] | None = None) -
     cell_map: dict[str, str] = {}
 
     # ── Header metadata block ─────────────────────────────────────────────────
-    meta = arch.get("arch", arch)
-    arch_id   = meta.get("id", "")
-    arch_name = meta.get("name", "Architecture")
+    header_rows = labels.header_fields(arch)
     header_html = (
-        f"<b>Diagram: {arch_name}</b><br/>"
-        f"ID: {arch_id}<br/>"
-        f"Platform: {meta.get('platform', '')}"
+        f"<b>Diagram: {header_rows[0][1]}</b><br/>"
+        + "<br/>".join(f"{label}: {value}" for label, value in header_rows[1:])
     )
     header_id = _id("hdr-")
     _make_vertex(root, header_id, header_html,
         "text;whiteSpace=wrap;overflow=hidden;rounded=0;"
         "fontFamily=Helvetica;fontSize=11;fillColor=#f5f5f5;strokeColor=#666666;",
-        40, -120, 600, 80
+        40, -120, 600, max(80, 34 + 16 * len(header_rows))
     )
 
     # ── Internet node ─────────────────────────────────────────────────────────

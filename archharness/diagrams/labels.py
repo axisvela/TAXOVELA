@@ -121,6 +121,32 @@ def component_name(comp: dict) -> str:
     return _STATUS_SUFFIX_RE.sub("", str(comp.get("name", comp.get("id", "")))).strip()
 
 
+# ── Diagram header metadata ───────────────────────────────────────────────────
+# standards/diagram-style.yaml §6 requires title, id, author, owner team,
+# version, and last modified. Only the fields the model actually supplies are
+# printed, so a partly filled design never shows an empty label.
+
+_HEADER_DETAIL_FIELDS = (
+    ("version", "Version"),
+    ("owner_team", "Owner team"),
+    ("author", "Author"),
+    ("last_modified", "Last modified"),
+)
+
+
+def header_fields(arch: dict) -> list[tuple[str, str]]:
+    """Return ``(label, value)`` header pairs in the standard's order."""
+    meta = arch.get("arch", arch) if isinstance(arch, dict) else {}
+    if not isinstance(meta, dict):
+        meta = {}
+    fields = [("Name", str(meta.get("name") or "Architecture"))]
+    for key, label in (("id", "ID"), ("platform", "Platform")) + _HEADER_DETAIL_FIELDS:
+        value = meta.get(key)
+        if value:
+            fields.append((label, str(value)))
+    return fields
+
+
 # ── Code taxonomy (standards/diagram-codes.yaml) ──────────────────────────────
 
 # Compact fallback used only when the standard file cannot be read.

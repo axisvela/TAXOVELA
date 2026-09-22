@@ -567,13 +567,14 @@ def render_png(arch: dict, png_path: str, dpi: int = 130):
         _code_block("Auth codes", auth_lines, code_y)
 
     # ── Header ────────────────────────────────────────────────────────────────
-    name     = arch.get("name", "Architecture Diagram")
-    arch_id  = arch.get("id", "")
-    platform = arch.get("platform", "")
-    ax.text(canvas_w/2, 14,
-            f"{name}  |  {arch_id}  |  {platform}",
+    header_rows = labels.header_fields(arch)
+    ax.text(canvas_w/2, 14, header_rows[0][1],
             fontsize=9.5, ha="center", va="top", color="#222222",
             fontweight="bold", zorder=10)
+    detail = "  |  ".join(f"{label}: {value}" for label, value in header_rows[1:])
+    if detail:
+        ax.text(canvas_w/2, 28, detail,
+                fontsize=7.0, ha="center", va="top", color="#555555", zorder=10)
 
     plt.tight_layout(pad=0)
     plt.savefig(png_path, dpi=dpi, bbox_inches="tight",

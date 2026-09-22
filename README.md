@@ -54,6 +54,13 @@ starts. A BLOCK decision stops the pipeline until findings are fixed and
 validation is re-run. Never skip a stage or fabricate predecessor outputs;
 invoke `@arch-workflow status` / `@arch-workflow can <stage>` when in doubt.
 
+## Roadmap
+
+The repository-level priorities for product capability, engineering quality, and
+reference content are maintained in [docs/ROADMAP.md](./docs/ROADMAP.md).
+The detailed draw.io layout and connection-routing plan is maintained in
+[DIAGRAM_GENERATION_ANALYSIS.md](./tools/arch-diagram-gen/DIAGRAM_GENERATION_ANALYSIS.md).
+
 ## Setup
 
 ### 1. Clone

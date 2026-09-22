@@ -3,7 +3,7 @@
 **Result:** BLOCK candidate for the subsequent deterministic enforcement stage  
 **Score:** 6.171 / 10  
 **Must-fix issues:** 11  
-**Validated artifact:** `D:\profile\paper-code\ea-harness\examples\06-factory-mes-industrial\output\diagrams\diagram.png`
+**Validated artifact:** `output\diagrams\diagram.png`
 
 Enforcement was not run. The verdict above is descriptive only; `archharness enforce` remains the authority for the enforcement decision.
 

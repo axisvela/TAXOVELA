@@ -4,7 +4,7 @@
   "type": "technical-deployment-view",
   "schema": "image/png",
   "path": "output/diagrams/diagram-v11.png",
-  "sha256": "9b34179eb507e576d39ba526a48246dddbbf90c9b707edbae0c6d337ebc62ea",
+  "sha256": "9b34179eb507e576d39ba526a48246dddbbfb90c9b707edbae0c6d337ebc62ea",
   "model_version": null,
   "producer": "archharness diagram",
   "produced_at": "2026-09-14T13:39:12+00:00",

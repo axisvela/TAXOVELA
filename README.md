@@ -60,6 +60,8 @@ The repository-level priorities for product capability, engineering quality, and
 reference content are maintained in [docs/ROADMAP.md](./docs/ROADMAP.md).
 The detailed draw.io layout and connection-routing plan is maintained in
 [DIAGRAM_GENERATION_ANALYSIS.md](./tools/arch-diagram-gen/DIAGRAM_GENERATION_ANALYSIS.md).
+Released and unreleased changes, plus the interfaces consumers pin, are listed
+in [CHANGELOG.md](./CHANGELOG.md).
 
 ## Setup
 

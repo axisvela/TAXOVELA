@@ -5,6 +5,8 @@ example's ``workflow-state.json`` against the example tree so a stale or
 mirror-path reference cannot be committed silently.
 """
 
+import contextlib
+import io
 import json
 import pathlib
 import sys
@@ -13,6 +15,7 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from archharness.registry import check_example  # noqa: E402
 from archharness.workflow import check_state_integrity  # noqa: E402
 
 EXAMPLES = ROOT / "examples"
@@ -33,6 +36,20 @@ class ExampleArtifactIntegrityTests(unittest.TestCase):
                 f"{example.name}: {json.dumps(findings, indent=2)}",
             )
         self.assertGreater(checked, 0, "no example workflow state was verified")
+
+    def test_example_registries_stay_consistent(self):
+        """Every example must satisfy the registry's codes-only name policy."""
+        checked = 0
+        for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):
+            if not (example / "input" / "systems-registry.md").is_file():
+                continue
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                errors = check_example(example)
+            checked += 1
+            self.assertEqual(errors, 0, f"{example.name}:\n{output.getvalue()}")
+            self.assertIn("OK", output.getvalue(), f"{example.name}: {output.getvalue()}")
+        self.assertGreater(checked, 0, "no example registry was checked")
 
     def test_example_manifests_use_project_relative_paths(self):
         for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):

@@ -43,7 +43,7 @@ internally consistent and safe to consume.
 |---|---|
 | Artifact integrity | Done: `check_manifest()` reports structured `invalid-manifest` / `missing-file` / `digest-mismatch` findings, `archharness workflow verify [--json]` exposes them, and the `can` / `status` / `complete` gates re-verify required artifacts against their recorded SHA-256 before allowing a stage. `tests/test_example_artifacts.py` guards the shipped examples against portable-path or digest drift. |
 | Packaging and host parity | CI verifies the generated `.agents/skills/` mirror, plugin metadata, package resources, and CLI `doctor` on supported Python versions. |
-| Example governance | Clearly distinguish golden reference artifacts from local workspace output; enforce registry checks and the restricted-source-image policy. |
+| Example governance | Done for the shipped examples: recorded artifact paths are project-relative and hash-verified, `tests/test_example_artifacts.py` enforces manifest integrity plus the registry codes-only name policy in CI, and each example documents that its reference image is unscrubbed and restricted. |
 | Release discipline | Publish a changelog and compatibility notes for standards/schema/skill changes; tag reproducible package releases. |
 
 ### P1 — Diagram quality and reviewability

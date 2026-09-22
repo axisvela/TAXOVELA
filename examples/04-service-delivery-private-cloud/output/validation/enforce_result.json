@@ -3,7 +3,7 @@
   "decision": "BLOCK",
   "validation": {
     "path": "output\\diagrams\\diagram.png",
-    "sha256": "176255d28aa4720497a4fa628f3a92807d6700b5406fca4b5dbaf2aff35d5453",
+    "sha256": "395e4f3219352ed76a2115710a4006be4d91e20a337ccc1b3cc841365e0696e0",
     "ruleset_digest": "c2b8876f3c6fce43e21aff118d2412bbdcab068df922a1d5faf087c3d4f6283a"
   },
   "policy": {

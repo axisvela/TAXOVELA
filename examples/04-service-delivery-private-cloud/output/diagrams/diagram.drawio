@@ -186,16 +186,16 @@
           <mxGeometry x="22" y="66" width="538" height="256" as="geometry"/>
         </mxCell>
         <mxCell id="comp-62" value="⚠ BE group ×3" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=4 4;fillColor=#FAFAFA;strokeColor=#666666;verticalAlign=top;spacingTop=4;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-61" vertex="1" tooltip="Classification: Acme Confidential">
-          <mxGeometry x="75" y="48" width="388" height="174" as="geometry"/>
+          <mxGeometry x="34" y="48" width="470" height="174" as="geometry"/>
         </mxCell>
-        <mxCell id="comp-63" value="⚠ SYS-38 | analytics-a" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-62" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing SaaS black-box API boundary">
-          <mxGeometry x="12" y="36" width="174" height="52" as="geometry"/>
+        <mxCell id="comp-63" value="⚠ SYS-38 | d365-service-delivery-bu1" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-62" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing SaaS black-box API boundary">
+          <mxGeometry x="12" y="36" width="215" height="52" as="geometry"/>
         </mxCell>
-        <mxCell id="comp-64" value="⚠ SYS-39 | analytics-b" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-62" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing SaaS black-box API boundary">
-          <mxGeometry x="202" y="36" width="174" height="52" as="geometry"/>
+        <mxCell id="comp-64" value="⚠ SYS-39 | d365-service-delivery-bu2" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-62" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing SaaS black-box API boundary">
+          <mxGeometry x="243" y="36" width="215" height="52" as="geometry"/>
         </mxCell>
-        <mxCell id="comp-65" value="⚠ SYS-40 | analytics-c" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-62" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing SaaS black-box API boundary">
-          <mxGeometry x="107" y="106" width="174" height="52" as="geometry"/>
+        <mxCell id="comp-65" value="⚠ SYS-40 | d365-service-delivery-bu3" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-62" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing SaaS black-box API boundary">
+          <mxGeometry x="127" y="106" width="215" height="52" as="geometry"/>
         </mxCell>
         <mxCell id="zone-66" value="Application Boundary" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-60" vertex="1">
           <mxGeometry x="22" y="340" width="538" height="134" as="geometry"/>

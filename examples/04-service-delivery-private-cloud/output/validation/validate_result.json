@@ -2,7 +2,7 @@
   "schema_version": "validation/v1",
   "source": {
     "path": "output\\diagrams\\diagram.png",
-    "sha256": "176255d28aa4720497a4fa628f3a92807d6700b5406fca4b5dbaf2aff35d5453",
+    "sha256": "395e4f3219352ed76a2115710a4006be4d91e20a337ccc1b3cc841365e0696e0",
     "media_type": "image/png",
     "validated_at": "2026-09-15T00:56:09Z",
     "validator_version": "arch-validate/2.0; archharness/0.7.0",

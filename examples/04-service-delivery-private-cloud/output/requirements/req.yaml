@@ -49,9 +49,9 @@ requirements:
     - {id: "SYS-35", name: "support-hub", type: "existing", owner: "biz_owned", vendor: ""}
     - {id: "SYS-36", name: "support-portal", type: "existing", owner: "biz_owned", vendor: ""}
     - {id: "SYS-37", name: "support-gateway", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-38", name: "analytics-a", type: "existing", owner: "third_party", vendor: "TBD"}
-    - {id: "SYS-39", name: "analytics-b", type: "existing", owner: "third_party", vendor: "TBD"}
-    - {id: "SYS-40", name: "analytics-c", type: "existing", owner: "third_party", vendor: "TBD"}
+    - {id: "SYS-38", name: "d365-service-delivery-bu1", type: "existing", owner: "third_party", vendor: "TBD"}
+    - {id: "SYS-39", name: "d365-service-delivery-bu2", type: "existing", owner: "third_party", vendor: "TBD"}
+    - {id: "SYS-40", name: "d365-service-delivery-bu3", type: "existing", owner: "third_party", vendor: "TBD"}
     - {id: "SYS-41", name: "edge-cache", type: "existing", owner: "third_party", vendor: "TBD"}
     - {id: "SYS-42", name: "logistics partner A", type: "existing", owner: "third_party", vendor: "logistics partner A"}
     - {id: "SYS-43", name: "logstics-vendor-1", type: "existing", owner: "third_party", vendor: "logstics-vendor-1"}

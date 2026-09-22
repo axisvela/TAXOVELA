@@ -49,9 +49,9 @@ Single source of truth for every system / service name in this example.
 | SYS-35 | Reverse-planning | backend | dc-cn-secondary | support-hub | Codename scrubbed |
 | SYS-36 | Service-Support | backend | dc-cn-support | support-portal | Brand scrubbed |
 | SYS-37 | Service-portal | backend | dc-cn-support | support-gateway | Codename scrubbed |
-| SYS-38 | d365-service-delivery-bu1 | saas | azure | analytics-a | SaaS codename scrubbed |
-| SYS-39 | d365-service-delivery-bu2 | saas | azure | analytics-b | SaaS codename scrubbed |
-| SYS-40 | d365-service-delivery-bu3 | saas | azure | analytics-c | SaaS codename scrubbed |
+| SYS-38 | d365-service-delivery-bu1 | saas | azure | d365-service-delivery-bu1 | SaaS app name kept |
+| SYS-39 | d365-service-delivery-bu2 | saas | azure | d365-service-delivery-bu2 | SaaS app name kept |
+| SYS-40 | d365-service-delivery-bu3 | saas | azure | d365-service-delivery-bu3 | SaaS app name kept |
 | SYS-41 | ecomm-cache | backend | azure | edge-cache | Codename scrubbed |
 | SYS-42 | Aremax | external | Internet 3PL | logistics partner A | Carrier brand scrubbed |
 | SYS-43 | logstics-vendor-1 | external | Internet 3PL | logstics-vendor-1 | Carrier brand scrubbed |

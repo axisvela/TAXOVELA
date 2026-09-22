@@ -320,9 +320,9 @@ arch:
           type: "spoke"
           name: "SaaS Application Boundary"
           components:
-            - {id: "SYS-38", name: "SYS-38 | analytics-a", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
-            - {id: "SYS-39", name: "SYS-39 | analytics-b", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
-            - {id: "SYS-40", name: "SYS-40 | analytics-c", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
+            - {id: "SYS-38", name: "SYS-38 | d365-service-delivery-bu1", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
+            - {id: "SYS-39", name: "SYS-39 | d365-service-delivery-bu2", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
+            - {id: "SYS-40", name: "SYS-40 | d365-service-delivery-bu3", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
         - id: "azure-us-app"
           type: "spoke"
           name: "Application Boundary"

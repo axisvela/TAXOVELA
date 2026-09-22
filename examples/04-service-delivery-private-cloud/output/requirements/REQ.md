@@ -21,7 +21,7 @@ All names below are the stable document names defined by `input/systems-registry
 | SYS-29 ADFS; SYS-30 Enterprise ID | Identity services | Existing | InfraSec / TBD | Authentication boundary only |
 | SYS-31 Reverse-Management-System; SYS-32 procurement-service; SYS-33 lakehouse; SYS-34 Kafka (secondary); SYS-35 support-hub | CN secondary systems | Existing | TBD | Black-box boundary only |
 | SYS-36 support-portal; SYS-37 support-gateway | CN support systems | Existing | TBD | Black-box boundary only |
-| SYS-38 analytics-a; SYS-39 analytics-b; SYS-40 analytics-c; SYS-41 edge-cache | Azure satellite systems | Existing | TBD | Black-box boundary only |
+| SYS-38 d365-service-delivery-bu1; SYS-39 d365-service-delivery-bu2; SYS-40 d365-service-delivery-bu3; SYS-41 edge-cache | Azure satellite systems | Existing | TBD | Black-box boundary only |
 | SYS-42 logistics partner A; SYS-43 logstics-vendor-1; SYS-44 logistics partner B; SYS-45 logistics partner C; SYS-46 logistics partner D; SYS-47 logistics partner E | External 3PL systems | Existing third party | Respective partners | Black-box boundary only |
 | SYS-48 file partner A; SYS-49 file partner B; SYS-50 file partner C | External file-transfer partners | Existing third party | Respective partners | Black-box boundary only |
 | SYS-51 MFT platform | Managed file transfer | Modified integration platform | InfraSec | Integration boundary |
@@ -109,9 +109,9 @@ SYS-10 members are `rms`, `tms`, `oms`, `wms`, `mds`, `ips`, `autopilot`, `ves`,
 | INT-024 | SYS-05 WSO2 | SYS-35 support-hub | HTTPS | 443 | OAuth2 | Exact OAuth2 flow TBD |
 | INT-025 | SYS-05 WSO2 | SYS-36 support-portal | HTTPS | 443 | OAuth2 | Exact OAuth2 flow TBD |
 | INT-026 | SYS-05 WSO2 | SYS-37 support-gateway | HTTPS | 443 | OAuth2 | Exact OAuth2 flow TBD |
-| INT-027 | SYS-05 WSO2 | SYS-38 analytics-a | HTTPS | 443 | OAuth2 | Exact Azure endpoint and OAuth2 flow TBD |
-| INT-028 | SYS-05 WSO2 | SYS-39 analytics-b | HTTPS | 443 | OAuth2 | Exact Azure endpoint and OAuth2 flow TBD |
-| INT-029 | SYS-05 WSO2 | SYS-40 analytics-c | HTTPS | 443 | OAuth2 | Exact Azure endpoint and OAuth2 flow TBD |
+| INT-027 | SYS-05 WSO2 | SYS-38 d365-service-delivery-bu1 | HTTPS | 443 | OAuth2 | Exact Azure endpoint and OAuth2 flow TBD |
+| INT-028 | SYS-05 WSO2 | SYS-39 d365-service-delivery-bu2 | HTTPS | 443 | OAuth2 | Exact Azure endpoint and OAuth2 flow TBD |
+| INT-029 | SYS-05 WSO2 | SYS-40 d365-service-delivery-bu3 | HTTPS | 443 | OAuth2 | Exact Azure endpoint and OAuth2 flow TBD |
 | INT-030 | SYS-06 Kafka (primary) | SYS-41 edge-cache | TCP | 9093 | SASL/SCRAM | Direction and TLS configuration TBD |
 | INT-031 | SYS-05 WSO2 | SYS-42 logistics partner A | HTTPS or TCP/EDI | 443 or TBD | OAuth2 for HTTPS; EDI authentication TBD | Exact protocol selection TBD |
 | INT-032 | SYS-05 WSO2 | SYS-43 logstics-vendor-1 | HTTPS or TCP/EDI | 443 or TBD | OAuth2 for HTTPS; EDI authentication TBD | Exact protocol selection TBD |

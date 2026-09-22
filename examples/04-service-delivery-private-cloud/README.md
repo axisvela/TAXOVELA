@@ -62,6 +62,7 @@ SAP, and external 3PL partners.
 | Reference diagram | original image, intentionally not scrubbed; restricted input only |
 | DC names | mapped to config ids (`dc-cn-primary`, `dc-us`, `dc-cn-secondary`, `dc-cn-support`) |
 | IP addresses | none present / removed |
-| 3PL carriers | SYS-42 through SYS-47 use role names (`logistics partner A`..`E`); carrier brands are scrubbed everywhere except the registry's 参考图原名 column |
-| File-transfer partners | SYS-48 through SYS-50 use role names (`file partner A`..`C`); SYS-51 is the generic `MFT platform` |
+| 3PL carriers | SYS-42..SYS-47 carry role names rather than carrier brands; the brands survive only in the registry's 参考图原名 column |
+| File-transfer partners | SYS-48..SYS-50 carry role names; SYS-51 is the generic managed-file-transfer node |
+| SaaS applications | SYS-38..SYS-40 keep their SaaS application names; only carrier and vendor brands are scrubbed |
 | Generated artwork | `output/diagrams/diagram.*` is regenerated from the scrubbed blueprint; the recorded validation re-binds to that render |

@@ -8,7 +8,7 @@
         "type": "requirements",
         "schema": "arch-requirements",
         "path": "output\\requirements\\REQ.md",
-        "sha256": "24e38f4c2d0aacac0934241ad38214bcedb0b5122c78feed3d4fa62f5ada5307"
+        "sha256": "676204c5ccad8434374ab4be90a152028db4af14dd2504e2da76fbe5446708b5"
       }
     },
     "req.yaml": {
@@ -19,7 +19,7 @@
         "type": "requirements",
         "schema": "arch-requirements",
         "path": "output\\requirements\\req.yaml",
-        "sha256": "4b0f79142de7566f146c1fd1b97ab8231a66bc26b1f75dd9d1b352fcb5dee7f4"
+        "sha256": "816c0613f9840f575f79fb666c0ead4b34154698e23f6174a3cb7889d806f2b7"
       }
     },
     "blueprint.yaml": {
@@ -30,7 +30,7 @@
         "type": "technical-deployment-view",
         "schema": "arch-schema-reference.yaml",
         "path": "output/designs/blueprint.yaml",
-        "sha256": "62f43c1eecc05f7cf4e608430d524d865efeafc6f8e166a5174a10df0088b8ee",
+        "sha256": "d8b31d1cb63f6e5fa9e937d94f7734553b3290fecfd8288b5020bb419e25ea7c",
         "model_version": "private-cloud/2.0",
         "producer": "arch-design",
         "produced_at": "2026-09-14T13:07:56Z",
@@ -47,7 +47,7 @@
         "type": "technical-deployment-view",
         "schema": "image/png",
         "path": "output/diagrams/diagram.png",
-        "sha256": "176255d28aa4720497a4fa628f3a92807d6700b5406fca4b5dbaf2aff35d5453",
+        "sha256": "395e4f3219352ed76a2115710a4006be4d91e20a337ccc1b3cc841365e0696e0",
         "model_version": null,
         "producer": "archharness diagram",
         "produced_at": "2026-09-14T13:39:07+00:00",
@@ -64,7 +64,7 @@
         "type": "technical-deployment-view",
         "schema": "application/vnd.jgraph.mxfile",
         "path": "output/diagrams/diagram.drawio",
-        "sha256": "38375c528c5d53321ca2473c5ec363a4e5c35285a7ccf64d9bfc13c7f2ccd114",
+        "sha256": "ddece931cc1aa3e7f011955bf33c6510b534a11da8ab4dc4d73c6c95a9f04783",
         "model_version": null,
         "producer": "archharness diagram",
         "produced_at": "2026-09-14T13:39:07+00:00",
@@ -81,7 +81,7 @@
         "type": "validation-result",
         "schema": "validation/v1",
         "path": "output/validation/validate_result.json",
-        "sha256": "c92bfe56f7bb07930fa1ac9013db8d7e453989e86d05ffa42678b6a65e44044a",
+        "sha256": "1c7e901fb54577d1a6fdaf0998d030e8c700847e9f1cc336d323c8c381acdba6",
         "model_version": "arch-validate/2.0",
         "producer": "arch-validate; archharness/0.7.0",
         "produced_at": "2026-09-15T00:56:09Z",
@@ -97,7 +97,7 @@
         "decision": "BLOCK",
         "validation": {
           "path": "output\\diagrams\\diagram.png",
-          "sha256": "176255d28aa4720497a4fa628f3a92807d6700b5406fca4b5dbaf2aff35d5453",
+          "sha256": "395e4f3219352ed76a2115710a4006be4d91e20a337ccc1b3cc841365e0696e0",
           "ruleset_digest": "c2b8876f3c6fce43e21aff118d2412bbdcab068df922a1d5faf087c3d4f6283a"
         },
         "policy": {

@@ -40,6 +40,12 @@ lines:
   solid:   { meaning: "物理实体（Physical Component）", usage: "数据中心、VPC/VNET、Subnet、Zone、技术组件" }
   dashed:  { meaning: "虚拟或逻辑实体（Logical Component）", usage: "应用、Resource Group、订阅、逻辑分组" }
 
+# Deterministic draw.io router controls. These values are shared policy.
+routing:
+  gutter: 28
+  lane_gap: 14
+  max_visibility_nodes: 256
+
 arrows:
   solid_arrow:
     symbol: "→"

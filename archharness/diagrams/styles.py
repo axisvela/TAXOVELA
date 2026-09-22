@@ -19,6 +19,20 @@ ZONE_CONTAINER = (
     "fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;"
 )
 
+ZONE_PALETTE = {
+    "dmz": ("#FFF9C4", "#D6B656"),
+    "app_zone": ("#E8F5E9", "#82B366"),
+    "db_zone": ("#E3F2FD", "#6C8EBF"),
+    "public_subnet": ("#FFEBEE", "#E53935"),
+    "private_subnet": ("#E8F5E9", "#82B366"),
+}
+
+
+def zone_container_style(zone_type: str) -> str:
+    """Double-dashed zone frame with the standard security-zone palette."""
+    fill, stroke = ZONE_PALETTE.get(zone_type, ("#F5F5F5", "#888888"))
+    return f"{ZONE_CONTAINER}fillColor={fill};strokeColor={stroke};"
+
 AWS_GROUP = (
     "points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],"
     "[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],"
@@ -102,7 +116,7 @@ FIREWALL_HEXAGON = (
 )
 
 LOAD_BALANCER = (
-    "shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;"
+    "shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;fixedSize=1;"
     + COMPONENT_FONT
 )
 
@@ -158,6 +172,24 @@ DATA_LAKE = (
     "verticalLabelPosition=bottom;verticalAlign=top;html=1;"
     "shape=mxgraph.basic.wave2;dy=0.3;"
 )
+
+# Explicit ``shape`` values from standards/diagram-style.yaml that have a
+# native draw.io equivalent.  The generator consults this catalogue before its
+# type-based defaults, so schema authors can choose a standard shape without
+# inventing a renderer-specific style string.
+STANDARD_SHAPES = {
+    "pentagon": "shape=pentagon;whiteSpace=wrap;html=1;" + COMPONENT_FONT,
+    "card": "shape=card;whiteSpace=wrap;html=1;" + COMPONENT_FONT,
+    "stored_data": "shape=mxgraph.flowchart.stored_data;whiteSpace=wrap;html=1;" + COMPONENT_FONT,
+    "double_ellipse": "shape=doubleEllipse;whiteSpace=wrap;html=1;" + COMPONENT_FONT,
+    "diamond": "shape=rhombus;whiteSpace=wrap;html=1;" + COMPONENT_FONT,
+    "document": "shape=document;whiteSpace=wrap;html=1;" + COMPONENT_FONT,
+    "note": "shape=note;whiteSpace=wrap;html=1;" + COMPONENT_FONT,
+    "step": "shape=mxgraph.flowchart.step;whiteSpace=wrap;html=1;" + COMPONENT_FONT,
+    "pyramid": "shape=mxgraph.basic.pyramid;whiteSpace=wrap;html=1;" + COMPONENT_FONT,
+    "cube": "shape=cube;whiteSpace=wrap;html=1;" + COMPONENT_FONT,
+    "cloud": "shape=cloud;whiteSpace=wrap;html=1;" + COMPONENT_FONT,
+}
 
 # ── Edge styles ───────────────────────────────────────────────────────────────
 

@@ -29,6 +29,7 @@ Exit codes:  0 = success  |  1 = input error  |  2 = write error
 """
 
 import argparse
+import json
 import os
 import sys
 import yaml
@@ -128,6 +129,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="Which renderer produces the PNG (auto: draw.io, then D2, then matplotlib)")
     parser.add_argument("--d2",   default=None, help="Output D2 file (.d2)")
     parser.add_argument("--puml", default=None, help="Output PlantUML file (.puml)")
+    parser.add_argument("--routing-diagnostics", default=None,
+                        help="Output routing diagnostics JSON")
     parser.add_argument("--workspace", default=None, help="ArchHarness workspace root")
     parser.add_argument("--project", default=None, help="Project ID (defaults to workspace default)")
     args = parser.parse_args(argv)
@@ -150,6 +153,8 @@ def main(argv: list[str] | None = None) -> int:
             args.d2 = project_output(args.d2, ".d2")
         if args.puml is not None:
             args.puml = project_output(args.puml, ".puml")
+        if args.routing_diagnostics is not None:
+            args.routing_diagnostics = project_output(args.routing_diagnostics, ".json")
 
     # ── Load YAML ────────────────────────────────────────────────────────────
     if not os.path.exists(args.input):
@@ -166,6 +171,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # ── draw.io ───────────────────────────────────────────────────────────────
     out_path = None
+    routing_diagnostics: list[dict] = []
     if args.output or args.png or not (args.d2 or args.puml):
         from .generator import generate_drawio
         out_path = args.output or (
@@ -173,7 +179,7 @@ def main(argv: list[str] | None = None) -> int:
             if context else os.path.splitext(args.input)[0] + ".drawio"
         )
         try:
-            xml_str = generate_drawio(arch)
+            xml_str = generate_drawio(arch, routing_diagnostics)
         except Exception as e:
             import traceback
             print(f"ERROR: draw.io generation failed: {e}", file=sys.stderr)
@@ -181,6 +187,23 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         try:
             _write(out_path, xml_str, "draw.io")
+        except OSError:
+            return 2
+
+    if args.routing_diagnostics:
+        report = {
+            "schema_version": "routing-diagnostics/v1",
+            "diagram": {"id": arch.get("id", ""), "name": arch.get("name", "")},
+            "summary": {
+                "routes": len(routing_diagnostics),
+                "fallbacks": sum(item["fallback"] for item in routing_diagnostics),
+                "total_duration_ns": sum(item["duration_ns"] for item in routing_diagnostics),
+            },
+            "routes": routing_diagnostics,
+        }
+        try:
+            _write(args.routing_diagnostics, json.dumps(report, ensure_ascii=False, indent=2),
+                   "routing diagnostics")
         except OSError:
             return 2
 

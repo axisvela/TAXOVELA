@@ -11,8 +11,12 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from archharness.diagrams.generator import generate_drawio  # noqa: E402
+from archharness.diagrams.labels import component_fill  # noqa: E402
 from archharness.diagrams.layout import calculate_layout  # noqa: E402
-from archharness.diagrams.routing import Rect, route, routing_context, scoped_rails  # noqa: E402
+from archharness.diagrams.routing import (  # noqa: E402
+    GUTTER, LANE_GAP, MAX_VISIBILITY_NODES, ROUTING_POLICY, Rect, route,
+    routing_context, scoped_rails,
+)
 
 
 class OrthogonalRoutingTests(unittest.TestCase):
@@ -64,7 +68,8 @@ class OrthogonalRoutingTests(unittest.TestCase):
             "interactions": [{"from": "api", "to": "database", "protocol": "JDBC", "auth": "mTLS"}],
         }
 
-        root = ET.fromstring(generate_drawio(arch))
+        diagnostics = []
+        root = ET.fromstring(generate_drawio(arch, diagnostics))
         edges = [cell for cell in root.iter("mxCell") if cell.get("edge") == "1"]
 
         self.assertEqual(len(edges), 1)
@@ -75,6 +80,72 @@ class OrthogonalRoutingTests(unittest.TestCase):
         self.assertIsNotNone(geometry.find("Array[@as='points']"))
         self.assertEqual(edges[0].get("routingStrategy"), "region-gutter")
         self.assertEqual(edges[0].get("routingFallback"), "false")
+        self.assertEqual(diagnostics, [{
+            "source": "api", "target": "database", "lane": 0,
+            "strategy": "region-gutter", "fallback": False,
+            "waypoint_count": 2,
+            "duration_ns": diagnostics[0]["duration_ns"],
+        }])
+        self.assertGreaterEqual(diagnostics[0]["duration_ns"], 0)
+
+    def test_routing_controls_come_from_diagram_style_standard(self):
+        self.assertEqual(ROUTING_POLICY, {
+            "gutter": 28, "lane_gap": 14, "max_visibility_nodes": 256,
+        })
+        self.assertEqual((GUTTER, LANE_GAP, MAX_VISIBILITY_NODES), (28, 14, 256))
+
+    def test_load_balancer_and_firewall_use_distinct_standard_shapes(self):
+        arch = {
+            "id": "shape-demo", "name": "Shape Demo",
+            "deployment": [{"id": "dc", "type": "private_dc", "name": "DC",
+                            "network_zones": [{"id": "app", "name": "App", "components": [
+                                {"id": "load-balancer", "name": "Load Balancer", "type": "LB"},
+                                {"id": "firewall", "name": "Firewall", "type": "SEC", "shape": "hexagon"},
+                            ]}]}],
+            "interactions": [],
+        }
+        xml = generate_drawio(arch)
+
+        self.assertIn("shape=trapezoid;perimeter=trapezoidPerimeter", xml)
+        self.assertIn("shape=hexagon;perimeter=hexagonPerimeter2", xml)
+
+    def test_explicit_standard_shapes_override_component_defaults(self):
+        arch = {
+            "id": "catalogue-demo", "name": "Catalogue Demo",
+            "deployment": [{"id": "dc", "type": "private_dc", "name": "DC",
+                            "network_zones": [{"id": "app", "name": "App", "components": [
+                                {"id": "agent", "name": "Agent", "type": "BE", "shape": "pentagon"},
+                                {"id": "files", "name": "Files", "type": "DB", "shape": "card"},
+                                {"id": "config", "name": "Config", "type": "BE", "shape": "double_ellipse"},
+                                {"id": "pipeline", "name": "Pipeline", "type": "BE", "shape": "step"},
+                            ]}]}],
+            "interactions": [],
+        }
+        xml = generate_drawio(arch)
+
+        for shape in ("shape=pentagon", "shape=card", "shape=doubleEllipse", "shape=mxgraph.flowchart.step"):
+            self.assertIn(shape, xml)
+
+    def test_standard_ownership_colours_override_lifecycle_colours(self):
+        self.assertEqual(component_fill({"status": "NEW"})["fill"], "#D32F2F")
+        self.assertEqual(component_fill({"status": "EXISTING"})["fill"], "#FFFFFF")
+        self.assertEqual(component_fill({"status": "NEW", "owner": "biz_owned"})["fill"], "#8E24AA")
+        self.assertEqual(component_fill({"status": "CHANGED", "owner": "third_party"})["fill"], "#FB8C00")
+
+    def test_private_dc_zones_use_standard_security_palette(self):
+        arch = {
+            "id": "zone-colour-demo", "name": "Zone Colour Demo",
+            "deployment": [{"id": "dc", "type": "private_dc", "name": "DC", "network_zones": [
+                {"id": "dmz", "name": "DMZ", "type": "dmz", "components": []},
+                {"id": "app", "name": "App", "type": "app_zone", "components": []},
+                {"id": "data", "name": "Data", "type": "db_zone", "components": []},
+            ]}], "interactions": [],
+        }
+        xml = generate_drawio(arch)
+
+        for colour in ("fillColor=#FFF9C4;strokeColor=#D6B656", "fillColor=#E8F5E9;strokeColor=#82B366",
+                       "fillColor=#E3F2FD;strokeColor=#6C8EBF"):
+            self.assertIn(colour, xml)
 
     def test_generation_is_byte_deterministic(self):
         arch = {

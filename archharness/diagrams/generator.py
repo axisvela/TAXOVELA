@@ -10,6 +10,7 @@ Or from command line via arch_diagram_gen.py.
 
 from contextvars import ContextVar
 from itertools import count
+from time import perf_counter_ns
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
@@ -46,11 +47,17 @@ def _comp_style(comp: dict, status: str = "unchanged") -> str:
 
     if comp.get("is_group"):
         base = styles.LOGICAL_GROUP
+    elif shape in styles.STANDARD_SHAPES:
+        base = styles.STANDARD_SHAPES[shape]
     elif comp_type == "IP" or shape == "parallelogram":
         base = styles.API_GATEWAY
     elif comp_type == "MQ" or shape == "message_queue":
         base = styles.KAFKA_EVENT_BUS
-    elif comp_type == "LB" or shape in ("hexagon", "trapezoid"):
+    elif shape == "hexagon":
+        # Firewall/security gateways are hexagons; load balancers are trapezoids
+        # per standards/diagram-style.yaml §3.
+        base = styles.FIREWALL_HEXAGON
+    elif comp_type == "LB" or shape == "trapezoid":
         base = styles.LOAD_BALANCER
     elif comp_type == "DB" or shape == "cylinder":
         base = styles.DATABASE_CYLINDER
@@ -211,7 +218,7 @@ def validate_architecture_refs(arch: dict) -> set[str]:
 
 # ── Main generation function ──────────────────────────────────────────────────
 
-def generate_drawio(arch: dict) -> str:
+def generate_drawio(arch: dict, routing_diagnostics: list[dict] | None = None) -> str:
     """
     Convert an architecture YAML dict to a draw.io XML string.
     Returns the complete XML suitable for saving as a .drawio file.
@@ -219,6 +226,8 @@ def generate_drawio(arch: dict) -> str:
     # Stable IDs are important for meaningful source-control diffs.  Cell IDs
     # need only be unique within one mxGraphModel, not globally unique.
     _reset_ids()
+    if routing_diagnostics is not None:
+        routing_diagnostics.clear()
 
     # Fold interchangeable siblings into logical groups before validating and
     # laying out, so the group box — not each member — carries the edges.
@@ -329,7 +338,7 @@ def generate_drawio(arch: dict) -> str:
                 zone_label += "  · FW"   # all in/out traffic passes the zone firewall
 
             if rtype == "private_dc":
-                zone_style = styles.ZONE_CONTAINER
+                zone_style = styles.zone_container_style(zone.get("type", "default"))
             else:
                 zone_style = _subnet_style(zone)
 
@@ -353,7 +362,7 @@ def generate_drawio(arch: dict) -> str:
                 comp_style = _comp_style(comp)
 
                 # Add sensitivity marker to label if restricted
-                sensitivity = comp.get("sensitivity", "")
+                sensitivity = comp.get("sensitivity") or ""
                 if "Restricted" in sensitivity or "Confidential" in sensitivity:
                     comp_label = "⚠ " + comp_label
 
@@ -374,8 +383,8 @@ def generate_drawio(arch: dict) -> str:
                     member_cell_id = _id("comp-")
                     cell_map[mid] = member_cell_id
                     member_label = _comp_label(member)
-                    if "Restricted" in member.get("sensitivity", "") or \
-                            "Confidential" in member.get("sensitivity", ""):
+                    member_sensitivity = member.get("sensitivity") or ""
+                    if "Restricted" in member_sensitivity or "Confidential" in member_sensitivity:
                         member_label = "⚠ " + member_label
                     member_cell = _make_vertex(root, member_cell_id, member_label,
                         _comp_style(member), mx, my, mw, mh)
@@ -421,11 +430,19 @@ def generate_drawio(arch: dict) -> str:
         route_rails_x, route_rails_y = routing.scoped_rails(
             src_owner, tgt_owner, region_rails_x, zone_rails_y
         )
+        route_started = perf_counter_ns()
         edge_route = routing.route(
             visible_rects[src_yaml], visible_rects[tgt_yaml],
             [rect for cid, rect in visible_rects.items() if cid not in pair],
             lane=lane, rails_x=route_rails_x, rails_y=route_rails_y,
         )
+        if routing_diagnostics is not None:
+            routing_diagnostics.append({
+                "source": src_yaml, "target": tgt_yaml, "lane": lane,
+                "strategy": edge_route.strategy, "fallback": edge_route.fallback,
+                "waypoint_count": len(edge_route.points),
+                "duration_ns": perf_counter_ns() - route_started,
+            })
         edge_style = (
             f"{styles.EDGE_SOLID}strokeColor={color};fontColor={color};"
             f"exitX={edge_route.exit_x};exitY={edge_route.exit_y};"

@@ -23,8 +23,8 @@ from . import labels, topology
 
 ZONE_COLORS = {
     "dmz":      {"bg": "#FFF9C4", "border": "#D6B656", "label": "#7A6020"},
-    "app_zone": {"bg": "#E8F5E9", "border": "#5A9E5A", "label": "#2E5E2E"},
-    "db_zone":  {"bg": "#E3F2FD", "border": "#5A7DBF", "label": "#1A3A6A"},
+    "app_zone": {"bg": "#E8F5E9", "border": "#82B366", "label": "#2E5E2E"},
+    "db_zone":  {"bg": "#E3F2FD", "border": "#6C8EBF", "label": "#1A3A6A"},
     "intranet": {"bg": "#EDE7F6", "border": "#8060A0", "label": "#3A1565"},
     "hub":      {"bg": "#FFF8E1", "border": "#E0A020", "label": "#6A4A00"},
     "spoke":    {"bg": "#E8F5E9", "border": "#5A9E5A", "label": "#2E5E2E"},

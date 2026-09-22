@@ -14,9 +14,25 @@ import heapq
 
 from . import topology
 
-GUTTER = 28
-LANE_GAP = 14
-MAX_VISIBILITY_NODES = 256
+
+def _load_policy() -> dict[str, int]:
+    """Load router controls from the shared diagram style standard."""
+    defaults = {"gutter": 28, "lane_gap": 14, "max_visibility_nodes": 256}
+    try:
+        import yaml
+        from ..paths import require_archharness_root
+        raw = yaml.safe_load((require_archharness_root() / "standards" / "diagram-style.yaml").read_text(
+            encoding="utf-8")) or {}
+        configured = raw.get("routing") or {}
+        return {key: int(configured.get(key, value)) for key, value in defaults.items()}
+    except Exception:
+        return defaults
+
+
+ROUTING_POLICY = _load_policy()
+GUTTER = ROUTING_POLICY["gutter"]
+LANE_GAP = ROUTING_POLICY["lane_gap"]
+MAX_VISIBILITY_NODES = ROUTING_POLICY["max_visibility_nodes"]
 
 
 @dataclass(frozen=True)

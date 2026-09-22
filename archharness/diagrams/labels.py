@@ -71,12 +71,16 @@ COMPONENT_STATUSES = {
 }
 
 STATUS_FILL = {
-    "NEW":      {"fill": "#C62828", "stroke": "#8E1F1F", "text": "#FFFFFF"},  # red
-    "CHANGED":  {"fill": "#F9A825", "stroke": "#B07A00", "text": "#000000"},  # yellow
-    "EXISTING": {"fill": "#1565C0", "stroke": "#0D3F7A", "text": "#FFFFFF"},  # blue
-    "REMOVE":   {"fill": "#9E9E9E", "stroke": "#6B6B6B", "text": "#FFFFFF"},  # grey
+    "NEW":      {"fill": "#D32F2F", "stroke": "#D32F2F", "text": "#FFFFFF"},
+    "CHANGED":  {"fill": "#FBC02D", "stroke": "#B58A00", "text": "#000000"},
+    "EXISTING": {"fill": "#FFFFFF", "stroke": "#000000", "text": "#000000"},
+    "REMOVE":   {"fill": "#757575", "stroke": "#616161", "text": "#FFFFFF"},
 }
-STATUS_FILL_DEFAULT = {"fill": "#78909C", "stroke": "#4E616B", "text": "#FFFFFF"}  # blue-grey
+STATUS_FILL_DEFAULT = STATUS_FILL["EXISTING"]
+OWNERSHIP_FILL = {
+    "biz_owned": {"fill": "#8E24AA", "stroke": "#6A1B9A", "text": "#FFFFFF"},
+    "third_party": {"fill": "#FB8C00", "stroke": "#E65100", "text": "#000000"},
+}
 
 # Trailing markers like "CMP-28 | Kafka (NA) | NEW" are redundant with `status:`.
 _STATUS_SUFFIX_RE = re.compile(
@@ -105,7 +109,10 @@ def component_status(comp: dict) -> str | None:
 
 
 def component_fill(comp: dict) -> dict:
-    """Fill/stroke/text colour for a component, from its status."""
+    """Fill/stroke/text colour, with standard ownership colour precedence."""
+    owner = comp.get("owner") or comp.get("owner_type")
+    if owner in OWNERSHIP_FILL:
+        return OWNERSHIP_FILL[owner]
     return STATUS_FILL.get(component_status(comp), STATUS_FILL_DEFAULT)
 
 

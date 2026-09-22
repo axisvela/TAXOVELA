@@ -33,6 +33,13 @@ Then apply these structural rules:
   model **one component with two deployments**, not two components. This is the
   main quality gain over `req/v1` (where `SYS-06` and `SYS-33` were separate
   "applications").
+- **Site-qualified node ids in the diagram** — the requirements model carries one
+  component with two deployments, but a diagram must draw one box per site, and
+  two nodes sharing an id fail the duplicate-id check. Append the site:
+  `CMP-03-CN` / `CMP-03-NA`, both traceable to the single `CMP-03` row. Use this
+  only where the same component is deployed more than once; a component placed in
+  one site keeps its bare code. `output/` is not scanned by the registry check,
+  so a qualified id is a diagram-view convention, never a registry row.
 - **Derived layers** (`deployments`/`flows`/`network_links`/`auth`) are not
   inventory and are not required to be cited by `prompt.md`.
 
@@ -130,6 +137,19 @@ Reflect the entity counts per example and the standards exercised. Leave example
 07/08 as scaffolds until their reference input exists.
 
 ---
+
+## Tracking the work
+
+```bash
+python -m archharness migrate-status          # one line per example
+python -m archharness migrate-status --json   # machine-readable backlog
+```
+
+Each example resolves to `scaffold`, `reqv1`, `reqv2-partial`, or
+`reqv2-complete`, and the example matrix in `examples/README.md` must agree —
+`tests/test_migration_status.py` fails when the table and the measured state
+diverge. Example 05 measures as `reqv2-partial`: its registry and `req.yaml` are
+already req/v2, and the remaining work is the blueprint/diagram id space.
 
 ## Ordering recommendation
 

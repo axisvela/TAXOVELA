@@ -64,7 +64,7 @@ automation rather than a diagram-only representation.
 
 | Initiative | Deliverable / acceptance criteria |
 |---|---|
-| `req/v2` adoption | Migrate or rebuild suitable examples from `req/v1`; each migration has a registry check, requirements validation, and explicit unresolved/TBD items. |
+| `req/v2` adoption | In progress: `archharness migrate-status` measures each example (`scaffold` / `reqv1` / `reqv2-partial` / `reqv2-complete`), the example matrix is verified against it in CI, and the site-qualified diagram id convention is documented. Remaining: rebuild examples 01–04, and finish example 05's blueprint id space. |
 | Traceability | Preserve source references from intake through requirement, blueprint component/interaction, diagram, validation finding, and remediation backlog. |
 | Schema evolution | Version schemas and define migration/compatibility rules before adding required fields; reject ambiguous or unsafe defaults. |
 | Platform patterns | Expand reusable, tested patterns only where standards can specify physical placement, network zones, protocol, identity, secret handling, and data classification. |

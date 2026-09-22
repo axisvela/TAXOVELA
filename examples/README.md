@@ -32,14 +32,19 @@ Every file outside `systems-registry.md` — including `README.md` and
 
 | # | Example | Scenario | Deployment | Status |
 |---|---------|----------|-----------|--------|
-| 01 | `01-ecommerce-azure` | E-commerce platform network | Azure multi-region Hub-Spoke + ExpressRoute | req/v1 — rebuild pending (source diagram quality is poor) |
-| 02 | `02-ai-agent-hybrid` | Data Agent platform (GDA) | Private DC + Azure hybrid | req/v1 — rebuild pending |
-| 03 | `03-order-query-aws-hybrid` | Order query over EDW data | AWS VPC (3-tier) + 4 private DCs | req/v1 — rebuild pending |
-| 04 | `04-service-delivery-private-cloud` | Service delivery platform (SDP) | Private cloud, 4 DCs + Azure | req/v1 — rebuild pending |
-| 05 | `05-supply-chain-order-private-cloud` | Supply-chain order platform (OSP) | Private cloud active-active CN+NA | req/v2 authored — diagram pending |
-| 06 | `06-factory-mes-industrial` | **Factory MES (PlantMES)** | Plant edge + central DCs | **req/v2 complete — worked reference** |
-| 07 | `07-finance-core-banking` | Core banking / payments | Private cloud, two-site-three-center | input pending |
-| 08 | `08-telecom-bss` | Telecom BSS / charging | Hybrid | input pending |
+| 01 | `01-ecommerce-azure` | E-commerce platform network | Azure multi-region Hub-Spoke + ExpressRoute | `reqv1` — rebuild pending (source diagram quality is poor) |
+| 02 | `02-ai-agent-hybrid` | Data Agent platform (GDA) | Private DC + Azure hybrid | `reqv1` — rebuild pending |
+| 03 | `03-order-query-aws-hybrid` | Order query over EDW data | AWS VPC (3-tier) + 4 private DCs | `reqv1` — rebuild pending |
+| 04 | `04-service-delivery-private-cloud` | Service delivery platform (SDP) | Private cloud, 4 DCs + Azure | `reqv1` — rebuild pending |
+| 05 | `05-supply-chain-order-private-cloud` | Supply-chain order platform (OSP) | Private cloud active-active CN+NA | `reqv2-partial` — requirements migrated; blueprint still on legacy ids |
+| 06 | `06-factory-mes-industrial` | **Factory MES (PlantMES)** | Plant edge + central DCs | `reqv2-complete` — worked reference |
+| 07 | `07-finance-core-banking` | Core banking / payments | Private cloud, two-site-three-center | `scaffold` — input pending |
+| 08 | `08-telecom-bss` | Telecom BSS / charging | Hybrid | `scaffold` — input pending |
+
+The Status column starts with a migration token — `scaffold`, `reqv1`,
+`reqv2-partial`, or `reqv2-complete` — measured by
+`python -m archharness migrate-status`. `tests/test_migration_status.py` fails
+when this table and the measured state disagree, so the backlog cannot drift.
 
 Example 06 is the reference for the current model: seven-table registry,
 `req/v2` requirements, a blueprint whose components carry explicit roles, and a

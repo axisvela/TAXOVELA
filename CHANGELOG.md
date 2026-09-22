@@ -23,6 +23,10 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 - `archharness workflow verify` reports structured artifact findings, and the
   `can` / `status` / `complete` gates re-verify recorded SHA-256 digests before
   a stage may advance.
+- `archharness migrate-status` reports each example's req/v2 migration state
+  (`scaffold` / `reqv1` / `reqv2-partial` / `reqv2-complete`) and fails when a
+  migrated example no longer passes its registry or requirements checks. The
+  example matrix in `examples/README.md` is verified against it.
 - `archharness arch-check` runs deterministic rules on an architecture YAML
   with stable rule ids and evidence (`A-01` duplicate id, `A-02` undeclared
   endpoint, `A-03`/`A-04` missing protocol or authentication label, `A-05`

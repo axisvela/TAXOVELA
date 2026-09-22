@@ -128,11 +128,14 @@ class PluginContractTestCase(unittest.TestCase):
     Core upgrade cannot silently break extension discovery.
     """
 
-    __test__ = False  # base kit itself is not a test
+    __test__ = False  # pytest opts the base kit out of collection; see below
     plugin: object = None
 
     def test_plugin_contract(self):
-        self.assertIsNotNone(self.plugin, "contract test must set `plugin`")
+        # unittest's loader ignores ``__test__``, so a subclass-less kit would
+        # otherwise fail the run instead of being skipped.
+        if self.plugin is None:
+            self.skipTest("contract kit base class; set `plugin` in a subclass")
         name = check_compatible(self.plugin)
         self.assertTrue(name)
         self.assertTrue(self.plugin.capabilities)

@@ -16,6 +16,7 @@ from archharness.cli import main as cli_main  # noqa: E402
 from archharness.workflow import (  # noqa: E402
     WorkflowError,
     can_start,
+    check_state_integrity,
     complete_stage,
     enforce_decision,
     load_spec,
@@ -115,6 +116,43 @@ class WorkflowEngineTests(unittest.TestCase):
                 record_artifact({"artifacts": {}, "stages_completed": []},
                                 "req.yaml", manifest, tmp)
 
+    def test_gate_rechecks_manifest_integrity_after_record(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            target = root / "req.yaml"
+            target.write_text("x: 1\n", encoding="utf-8")
+            state = {"artifacts": {}, "stages_completed": []}
+            record_artifact(state, "req.yaml", _manifest(target, root), root)
+            spec = load_spec()
+
+            ok, _, _ = can_start("design", state, spec, root)
+            self.assertTrue(ok)
+
+            target.write_text("tampered\n", encoding="utf-8")
+
+            ok, _, blocked = can_start("design", state, spec, root)
+            self.assertFalse(ok)
+            self.assertIn("integrity", blocked)
+            with self.assertRaises(WorkflowError):
+                complete_stage("design", state, spec, root)
+
+            findings = check_state_integrity(state, root)
+            self.assertEqual([finding["artifact"] for finding in findings], ["req.yaml"])
+            self.assertEqual(findings[0]["reason"], "digest-mismatch")
+
+    def test_integrity_check_reports_deleted_artifact(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            target = root / "req.yaml"
+            target.write_text("x: 1\n", encoding="utf-8")
+            state = {"artifacts": {}, "stages_completed": []}
+            record_artifact(state, "req.yaml", _manifest(target, root), root)
+            target.unlink()
+
+            findings = check_state_integrity(state, root)
+
+            self.assertEqual(findings[0]["reason"], "missing-file")
+
 
 class WorkflowCliTests(unittest.TestCase):
     def test_cli_can_and_complete_flow(self):
@@ -151,6 +189,29 @@ class WorkflowCliTests(unittest.TestCase):
                                 "--workspace", str(root), "--project", "demo")
             self.assertEqual(code, 0, out)
             self.assertIn("design", out)
+
+            code, out = run_cli("workflow", "verify",
+                                "--workspace", str(root), "--project", "demo")
+            self.assertEqual(code, 0, out)
+            self.assertIn("intact", out)
+
+            target.write_text("tampered\n", encoding="utf-8")
+            code, out = run_cli("workflow", "verify",
+                                "--workspace", str(root), "--project", "demo")
+            self.assertEqual(code, 1, out)
+            self.assertIn("digest-mismatch", out)
+
+            code, out = run_cli("workflow", "verify", "--json",
+                                "--workspace", str(root), "--project", "demo")
+            self.assertEqual(code, 1, out)
+            payload = json.loads(out)
+            self.assertFalse(payload["valid"])
+            self.assertEqual(payload["findings"][0]["artifact"], "req.yaml")
+
+            code, out = run_cli("workflow", "can", "design",
+                                "--workspace", str(root), "--project", "demo")
+            self.assertEqual(code, 1, out)
+            self.assertIn("integrity", out)
 
 
 if __name__ == "__main__":

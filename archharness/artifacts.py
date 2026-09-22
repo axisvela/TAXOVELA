@@ -75,3 +75,21 @@ def verify_manifest(manifest: dict, base_dir: str | Path | None = None) -> bool:
     if not path.is_file():
         return False
     return sha256_file(path) == manifest["sha256"]
+
+
+def check_manifest(manifest: dict, base_dir: str | Path | None = None) -> dict:
+    """Return machine-readable evidence for an artifact integrity check."""
+    try:
+        validate_manifest(manifest)
+    except Exception as exc:
+        return {"valid": False, "reason": "invalid-manifest", "detail": str(exc)}
+    path = Path(manifest["path"])
+    if base_dir is not None and not path.is_absolute():
+        path = Path(base_dir) / path
+    if not path.is_file():
+        return {"valid": False, "reason": "missing-file", "path": str(path)}
+    actual = sha256_file(path)
+    if actual != manifest["sha256"]:
+        return {"valid": False, "reason": "digest-mismatch", "path": str(path),
+                "expected_sha256": manifest["sha256"], "actual_sha256": actual}
+    return {"valid": True, "path": str(path), "sha256": actual}

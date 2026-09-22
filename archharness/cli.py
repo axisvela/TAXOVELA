@@ -75,6 +75,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     workflow_sub = workflow.add_subparsers(dest="workflow_command", required=True)
     workflow_sub.add_parser("status", help="Show per-stage readiness")
+    verify_parser = workflow_sub.add_parser(
+        "verify", help="Re-verify recorded manifests and exit 0 if intact")
+    verify_parser.add_argument("--json", action="store_true", dest="as_json",
+                               help="Emit findings as JSON")
     can_parser = workflow_sub.add_parser("can", help="Exit 0 if a stage may start, 1 otherwise")
     can_parser.add_argument("stage", help="Stage id, e.g. design")
     record_parser = workflow_sub.add_parser("record", help="Record a manifest or decision under an artifact name")
@@ -82,8 +86,9 @@ def build_parser() -> argparse.ArgumentParser:
     record_parser.add_argument("--file", required=True, help="artifact/v1 or enforcement/v1 JSON document")
     complete_parser = workflow_sub.add_parser("complete", help="Mark a stage complete after gate checks")
     complete_parser.add_argument("stage", help="Stage id, e.g. design")
-    for sub in (workflow, workflow_sub.choices["status"], workflow_sub.choices["can"],
-                workflow_sub.choices["record"], workflow_sub.choices["complete"]):
+    for sub in (workflow, workflow_sub.choices["status"], workflow_sub.choices["verify"],
+                workflow_sub.choices["can"], workflow_sub.choices["record"],
+                workflow_sub.choices["complete"]):
         sub.add_argument("--workspace", default=None)
         sub.add_argument("--project", default=None)
 
@@ -356,6 +361,11 @@ def _run_sketch(args) -> int:
 
 
 def _workflow_state_path(workspace: str | None, project: str | None) -> Path:
+    return _workflow_context(workspace, project)[0]
+
+
+def _workflow_context(workspace: str | None, project: str | None) -> tuple[Path, Path]:
+    """Return the workflow state path plus the base dir manifest paths resolve against."""
     from .workspace import discover_project, get_project
     from .workflow import STATE_FILENAME
 
@@ -370,8 +380,8 @@ def _workflow_state_path(workspace: str | None, project: str | None) -> Path:
         context = discover_project()
     if context is not None:
         context.ensure_dirs()
-        return context.working_path / STATE_FILENAME
-    return Path.cwd() / STATE_FILENAME
+        return context.working_path / STATE_FILENAME, context.project_root
+    return Path.cwd() / STATE_FILENAME, Path.cwd()
 
 
 def _run_workflow(subcommand: str, args) -> int:
@@ -380,6 +390,7 @@ def _run_workflow(subcommand: str, args) -> int:
     from .workflow import (
         WorkflowError,
         can_start,
+        check_state_integrity,
         complete_stage,
         load_spec,
         load_state,
@@ -393,16 +404,33 @@ def _run_workflow(subcommand: str, args) -> int:
     except WorkflowError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
-    state_path = _workflow_state_path(args.workspace, args.project)
+    state_path, base_dir = _workflow_context(args.workspace, args.project)
     try:
         state = load_state(state_path)
     except WorkflowError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
 
+    if subcommand == "verify":
+        findings = check_state_integrity(state, base_dir)
+        if getattr(args, "as_json", False):
+            print(json.dumps({
+                "schema_version": "workflow-integrity/v1",
+                "state": str(state_path),
+                "base_dir": str(base_dir),
+                "valid": not findings,
+                "findings": findings,
+            }, indent=2))
+        elif findings:
+            print(f"workflow state: {state_path}")
+            for finding in findings:
+                print(f"  ✗ {finding['artifact']}: {finding['reason']} ({finding.get('path', '')})")
+        else:
+            print(f"✓ workflow artifacts intact: {state_path}")
+        return 1 if findings else 0
     if subcommand == "status":
         print(f"workflow state: {state_path}")
-        for row in status_rows(state, spec):
+        for row in status_rows(state, spec, base_dir):
             flag = "done" if row["completed"] else ("ready" if row["ready"] else "blocked")
             print(f"  [{flag:>7}] {row['stage']}")
             if row["missing"]:
@@ -412,7 +440,7 @@ def _run_workflow(subcommand: str, args) -> int:
         return 0
     if subcommand == "can":
         try:
-            ok, missing, blocked = can_start(args.stage, state, spec)
+            ok, missing, blocked = can_start(args.stage, state, spec, base_dir)
         except WorkflowError as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
             return 2
@@ -449,7 +477,7 @@ def _run_workflow(subcommand: str, args) -> int:
         return 0
     if subcommand == "complete":
         try:
-            complete_stage(args.stage, state, spec)
+            complete_stage(args.stage, state, spec, base_dir)
             save_state(state_path, state)
         except WorkflowError as exc:
             print(f"ERROR: {exc}", file=sys.stderr)

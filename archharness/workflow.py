@@ -25,7 +25,7 @@ from pathlib import Path
 
 import yaml
 
-from .artifacts import verify_manifest
+from .artifacts import check_manifest, verify_manifest
 from .schemas import SchemaError, validate_enforcement_result, validate_manifest
 
 STATE_FILENAME = "workflow-state.json"
@@ -115,13 +115,32 @@ def enforce_decision(state: dict) -> str | None:
     return decision if decision in ("PASS", "WARN", "BLOCK") else None
 
 
-def can_start(stage_id: str, state: dict, spec: dict | None = None) -> tuple[bool, list[str], str | None]:
+def check_state_integrity(state: dict, base_dir: str | Path | None = None) -> list[dict]:
+    """Re-verify every recorded manifest against the files currently on disk.
+
+    A manifest is hash-verified when it is recorded, but the file can later be
+    edited or deleted. Workflow gating uses this to fail closed on stale or
+    tampered artifacts instead of trusting the recorded name alone.
+    """
+    findings: list[dict] = []
+    for name, entry in (state.get("artifacts") or {}).items():
+        if not isinstance(entry, dict) or entry.get("kind") != "manifest":
+            continue
+        result = check_manifest(entry.get("data", {}), base_dir)
+        if not result["valid"]:
+            findings.append({"artifact": name, **result})
+    return findings
+
+
+def can_start(stage_id: str, state: dict, spec: dict | None = None,
+              base_dir: str | Path | None = None) -> tuple[bool, list[str], str | None]:
     """Check whether a stage may start.
 
     Returns (ok, missing, blocked_reason). ``missing`` lists required
     artifacts with neither a manifest nor a decision recorded (shipped
     resources such as arch-gate-policy.yaml resolve automatically).
-    ``blocked_reason`` is set when the enforce gate halts the stage.
+    ``blocked_reason`` is set when the enforce gate halts the stage or when a
+    required artifact no longer matches its recorded hash.
     """
     spec = spec or load_spec()
     stage = find_stage(spec, stage_id)
@@ -130,6 +149,16 @@ def can_start(stage_id: str, state: dict, spec: dict | None = None) -> tuple[boo
                if name not in recorded and not _resource_satisfies(name)]
     if missing:
         return False, missing, None
+    if base_dir is not None:
+        for name in stage.get("requires", []) or []:
+            entry = recorded.get(name)
+            if isinstance(entry, dict) and entry.get("kind") == "manifest":
+                result = check_manifest(entry.get("data", {}), base_dir)
+                if not result["valid"]:
+                    return False, [], (
+                        f"artifact {name!r} failed integrity check "
+                        f"({result['reason']})"
+                    )
     if stage_id in GATED_STAGES:
         decision = enforce_decision(state)
         if decision is None:
@@ -171,11 +200,12 @@ def record_artifact(state: dict, name: str, doc: dict, base_dir: str | Path | No
     return state
 
 
-def complete_stage(stage_id: str, state: dict, spec: dict | None = None) -> dict:
+def complete_stage(stage_id: str, state: dict, spec: dict | None = None,
+                   base_dir: str | Path | None = None) -> dict:
     """Mark a stage complete after verifying it may start. Returns state."""
     spec = spec or load_spec()
     find_stage(spec, stage_id)  # raises on unknown stage
-    ok, missing, blocked = can_start(stage_id, state, spec)
+    ok, missing, blocked = can_start(stage_id, state, spec, base_dir)
     if not ok:
         detail = f"missing: {', '.join(missing)}" if missing else blocked
         raise WorkflowError(f"stage {stage_id!r} may not complete ({detail})")
@@ -185,12 +215,13 @@ def complete_stage(stage_id: str, state: dict, spec: dict | None = None) -> dict
     return state
 
 
-def status_rows(state: dict, spec: dict | None = None) -> list[dict]:
+def status_rows(state: dict, spec: dict | None = None,
+                base_dir: str | Path | None = None) -> list[dict]:
     """Return per-stage readiness rows for display."""
     spec = spec or load_spec()
     rows = []
     for stage_id in stage_ids(spec):
-        ok, missing, blocked = can_start(stage_id, state, spec)
+        ok, missing, blocked = can_start(stage_id, state, spec, base_dir)
         rows.append({
             "stage": stage_id,
             "completed": stage_id in state.get("stages_completed", []),

@@ -10,7 +10,7 @@ import yaml
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from archharness.artifacts import make_manifest, verify_manifest  # noqa: E402
+from archharness.artifacts import check_manifest, make_manifest, verify_manifest  # noqa: E402
 from archharness.schemas import (  # noqa: E402
     SCHEMA_IDS,
     SchemaError,
@@ -285,9 +285,11 @@ class ArtifactManifestTests(unittest.TestCase):
             self.assertEqual(len(manifest["sha256"]), 64)
             self.assertEqual(manifest["path"], "req.yaml")
             self.assertTrue(verify_manifest(manifest, tmp))
+            self.assertTrue(check_manifest(manifest, tmp)["valid"])
 
             target.write_text("tampered\n", encoding="utf-8")
             self.assertFalse(verify_manifest(manifest, tmp))
+            self.assertEqual(check_manifest(manifest, tmp)["reason"], "digest-mismatch")
 
 
 if __name__ == "__main__":

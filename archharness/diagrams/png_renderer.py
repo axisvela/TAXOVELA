@@ -88,6 +88,123 @@ def _draw_rect(ax, x, y, w, h, fc, ec, lw=1.0, dashed=False, z=3):
         facecolor=fc, edgecolor=ec, linewidth=lw, linestyle=ls, zorder=z)
     ax.add_patch(p)
 
+def _draw_polygon(ax, pts, fc, ec, lw=1.0, z=4):
+    ax.add_patch(Polygon(pts, closed=True, facecolor=fc, edgecolor=ec,
+                         linewidth=lw, zorder=z))
+
+
+def _draw_trapezoid(ax, x, y, w, h, fc, ec, lw=1.0, z=4):
+    inset = w * 0.18
+    _draw_polygon(ax, [(x + inset, y), (x + w - inset, y),
+                       (x + w, y + h), (x, y + h)], fc, ec, lw, z)
+
+
+def _draw_pentagon(ax, x, y, w, h, fc, ec, lw=1.0, z=4):
+    _draw_polygon(ax, [(x + w / 2, y), (x + w, y + h * 0.38),
+                       (x + w * 0.80, y + h), (x + w * 0.20, y + h),
+                       (x, y + h * 0.38)], fc, ec, lw, z)
+
+
+def _draw_card(ax, x, y, w, h, fc, ec, lw=1.0, z=4):
+    cut = w * 0.22
+    _draw_polygon(ax, [(x, y), (x + w - cut, y), (x + w, y + cut),
+                       (x + w, y + h), (x, y + h)], fc, ec, lw, z)
+    ax.add_patch(mpatches.Polygon(
+        [(x + w - cut, y), (x + w - cut, y + cut), (x + w, y + cut)],
+        closed=False, facecolor="none", edgecolor=ec, linewidth=lw * 0.7, zorder=z + 1))
+
+
+def _draw_stored_data(ax, x, y, w, h, fc, ec, lw=1.0, z=4):
+    ax.add_patch(FancyBboxPatch(
+        (x, y), w, h, boxstyle=f"round,pad=0,rounding_size={max(6, h * 0.22)}",
+        facecolor=fc, edgecolor=ec, linewidth=lw, zorder=z))
+
+
+def _draw_double_ellipse(ax, x, y, w, h, fc, ec, lw=1.0, z=4):
+    ax.add_patch(mpatches.Ellipse((x + w / 2, y + h / 2), w, h,
+                                  facecolor=fc, edgecolor=ec, linewidth=lw, zorder=z))
+    ax.add_patch(mpatches.Ellipse((x + w / 2, y + h / 2), max(w - 12, 6), max(h - 8, 6),
+                                  facecolor="none", edgecolor=ec, linewidth=lw * 0.7,
+                                  zorder=z + 1))
+
+
+def _draw_rhombus(ax, x, y, w, h, fc, ec, lw=1.0, z=4):
+    _draw_polygon(ax, [(x + w / 2, y), (x + w, y + h / 2),
+                       (x + w / 2, y + h), (x, y + h / 2)], fc, ec, lw, z)
+
+
+def _draw_document(ax, x, y, w, h, fc, ec, lw=1.0, z=4):
+    wave = h * 0.16
+    bottom = [(x + t * w, y + h - wave * math.sin(math.pi * t))
+              for t in np.linspace(1, 0, 20)]
+    _draw_polygon(ax, [(x, y), (x + w, y)] + bottom, fc, ec, lw, z)
+
+
+def _draw_note(ax, x, y, w, h, fc, ec, lw=1.0, z=4):
+    cut = min(w, h) * 0.28
+    _draw_polygon(ax, [(x, y), (x + w - cut, y), (x + w, y + cut),
+                       (x + w, y + h), (x, y + h)], fc, ec, lw, z)
+    ax.add_patch(mpatches.Polygon(
+        [(x + w - cut, y), (x + w - cut, y + cut), (x + w, y + cut)],
+        closed=True, facecolor="none", edgecolor=ec, linewidth=lw * 0.7, zorder=z + 1))
+
+
+def _draw_step(ax, x, y, w, h, fc, ec, lw=1.0, z=4):
+    notch = w * 0.16
+    _draw_polygon(ax, [(x + notch, y), (x + w, y), (x + w, y + h),
+                       (x + notch, y + h), (x, y + h / 2)], fc, ec, lw, z)
+
+
+def _draw_pyramid(ax, x, y, w, h, fc, ec, lw=1.0, z=4):
+    _draw_polygon(ax, [(x + w / 2, y), (x + w, y + h), (x, y + h)], fc, ec, lw, z)
+    ax.add_patch(mpatches.Polygon(
+        [(x + w / 2, y), (x + w * 0.62, y + h), (x + w * 0.38, y + h)],
+        closed=True, facecolor="none", edgecolor=ec, linewidth=lw * 0.7, zorder=z + 1))
+
+
+def _draw_cube(ax, x, y, w, h, fc, ec, lw=1.0, z=4):
+    depth = min(w, h) * 0.28
+    front = [(x, y + depth), (x + w - depth, y + depth),
+             (x + w - depth, y + h), (x, y + h)]
+    top = [(x, y + depth), (x + depth, y),
+           (x + w, y), (x + w - depth, y + depth)]
+    side = [(x + w - depth, y + depth), (x + w, y),
+            (x + w, y + h - depth), (x + w - depth, y + h)]
+    for pts in (front, top, side):
+        ax.add_patch(Polygon(pts, closed=True, facecolor=fc, edgecolor=ec,
+                             linewidth=lw, zorder=z))
+
+
+def _draw_cloud(ax, x, y, w, h, fc, ec, lw=1.0, z=4):
+    blobs = [(0.30, 0.58, 0.34, 0.40), (0.52, 0.44, 0.40, 0.46),
+             (0.74, 0.58, 0.32, 0.38), (0.42, 0.72, 0.30, 0.34),
+             (0.64, 0.72, 0.28, 0.32)]
+    for cxr, cyr, wr, hr in blobs:
+        ax.add_patch(mpatches.Ellipse((x + cxr * w, y + cyr * h), wr * w, hr * h,
+                                      facecolor=fc, edgecolor=ec, linewidth=lw, zorder=z))
+    # Second pass hides the internal arcs so only the outer silhouette shows.
+    for cxr, cyr, wr, hr in blobs:
+        ax.add_patch(mpatches.Ellipse((x + cxr * w, y + cyr * h),
+                                      wr * w * 0.94, hr * h * 0.94,
+                                      facecolor=fc, edgecolor="none", zorder=z + 1))
+
+
+# Standard ``shape`` values (standards/diagram-style.yaml) with a PNG equivalent.
+PNG_STANDARD_SHAPES = {
+    "pentagon": _draw_pentagon,
+    "card": _draw_card,
+    "stored_data": _draw_stored_data,
+    "double_ellipse": _draw_double_ellipse,
+    "diamond": _draw_rhombus,
+    "document": _draw_document,
+    "note": _draw_note,
+    "step": _draw_step,
+    "pyramid": _draw_pyramid,
+    "cube": _draw_cube,
+    "cloud": _draw_cloud,
+}
+
+
 def _comp_colors(comp: dict) -> tuple:
     ctype = comp.get("type", "BE")
     otype = comp.get("owner_type", "")
@@ -117,8 +234,15 @@ def _draw_component(ax, comp, ax_, ay, w, h):
                     color="#666666", style="italic", zorder=7, clip_on=True)
         return
 
-    if ctype == "LB" or shape == "hexagon":
+    # Explicit standard shapes win over the type defaults, matching the
+    # draw.io generator's precedence.
+    if shape in PNG_STANDARD_SHAPES:
+        PNG_STANDARD_SHAPES[shape](ax, ax_, ay, w, h, fc, ec)
+    elif shape == "hexagon":
+        # Firewall/security gateways are hexagons; load balancers are trapezoids.
         _draw_hexagon(ax, ax_+w/2, ay+h/2, w, h, fc, ec)
+    elif ctype == "LB" or shape == "trapezoid":
+        _draw_trapezoid(ax, ax_, ay, w, h, fc, ec)
     elif ctype == "IP" or shape == "parallelogram":
         _draw_parallelogram(ax, ax_, ay, w, h, fc, ec)
     elif ctype == "MQ" or shape == "message_queue":

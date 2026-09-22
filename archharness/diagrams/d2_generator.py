@@ -11,7 +11,9 @@ Usage:
     d2 --layout=elk output.d2 output.svg   # elk layout for deep nesting
 
 D2 shape mapping (closest approximation to Company shape spec):
-    LB / hexagon         → shape: hexagon
+    firewalls (hexagon)  → shape: hexagon
+    LB / trapezoid       → rectangle (D2 has no trapezoid)
+    standard shapes      → see _D2_STANDARD_SHAPES
     IP / parallelogram   → shape: parallelogram
     MQ / message_queue   → shape: queue
     DB / cylinder        → shape: cylinder    (D2 native)
@@ -22,6 +24,9 @@ D2 shape mapping (closest approximation to Company shape spec):
     BE (default)         → shape: rectangle  + dashed border
     SEC / circle         → shape: oval
     bastion              → shape: diamond
+
+Shapes without a D2 equivalent (pentagon, cube, pyramid) fall back to the
+default rectangle rather than to a misleading approximation.
 """
 
 import re
@@ -83,11 +88,31 @@ def _d2id(raw: str) -> str:
 
 
 # ── Shape selector ────────────────────────────────────────────────────────────
+#
+# Standard shapes mapped to the closest shape this D2 release supports. Shapes
+# with no equivalent (pentagon, cube, pyramid) stay D2's default rectangle.
+
+_D2_STANDARD_SHAPES = {
+    "card": "page",
+    "stored_data": "stored_data",
+    "double_ellipse": "oval",
+    "diamond": "diamond",
+    "document": "document",
+    "note": "callout",
+    "step": "step",
+    "cloud": "cloud",
+}
+
 
 def _d2_shape(comp: dict) -> Optional[str]:
     ctype = comp.get("type", "BE")
     shape = comp.get("shape", "")
-    if ctype == "LB" or shape == "hexagon":        return "hexagon"
+    if shape in _D2_STANDARD_SHAPES:               return _D2_STANDARD_SHAPES[shape]
+    if shape == "hexagon":                         return "hexagon"
+    if ctype == "LB" or shape == "trapezoid":
+        # D2 has no trapezoid; a plain rectangle keeps the load balancer from
+        # being confused with the firewall hexagon.
+        return None
     if ctype == "IP" or shape == "parallelogram":  return "parallelogram"
     if ctype == "MQ" or shape == "message_queue":  return "queue"
     if ctype == "DB" or shape == "cylinder":       return "cylinder"

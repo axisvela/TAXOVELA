@@ -66,7 +66,7 @@ SAP landscape (`CMP-33`/`CMP-34` in APP-05, `CMP-35` in APP-06).
 | Artifact | What it is |
 |---|---|
 | `output/diagrams/diagram.drawio` / `.png` | Artwork the recorded validation and enforcement decision were produced from, on the earlier `SYS-nn` id space. |
-| `output/diagrams/diagram-v2.drawio` / `.png` | Rendered from the migrated blueprint, where every node carries its typed code. |
+| `output/diagrams/diagram-v2.drawio` / `.d2` / `.png` | Rendered from the migrated blueprint, where every node carries its typed code. The D2 file is the text, ELK-layout-friendly companion for review and diffing. |
 
 The blueprint was migrated to the req/v2 id space after the recorded
 validation: components folded onto a single `CMP-nn` row across both sites

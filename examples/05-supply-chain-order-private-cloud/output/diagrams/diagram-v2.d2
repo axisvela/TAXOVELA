@@ -1,0 +1,823 @@
+# Supply-Chain Order Platform (OSP) - Active-Active CN and NA Technical Architecture
+# ID: OSP-001-TechDiagram-V1.0  |  Platform: hybrid_cloud  |  Version: V1.0  |  Owner team: Supply Chain IT  |  Author: Architecture Team  |  Last modified: 2026-09-14
+
+direction: right
+
+internet: Internet {
+  shape: cloud
+  style {
+    fill: "#E8E8E8"
+  }
+}
+
+dc_cn_primary: "City A, Province A [CN] [InfraSec]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  cn_intranet: "Intranet" {
+    style {
+      fill: "#F3E5F5"
+      stroke: "#7B1FA2"
+      stroke-dash: 6
+    }
+
+    INF_16: "⚠ INF-16 | F5\nn/a, f5 · PM" {
+      shape: hexagon
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    INF_17: "⚠ INF-17 | WAF\nn/a, enterprise waf · PM" {
+      shape: hexagon
+      style {
+            fill: "#66BB6A"
+            stroke: "#43A047"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    INF_18: "⚠ INF-18 | Edge router\nn/a, edge router · HW" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_01_CN: "⚠ CMP-01-CN | scop-cn-web\nn/a, nginx · Private DC web tier" {
+      shape: rectangle
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+  cn_app_zone: "App Zone" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    CMP_02_CN: "⚠ CMP-02-CN | Spring Cloud Gateway\njava, spring cloud gateway · K8s" {
+      shape: parallelogram
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_03_CN: "⚠ CMP-03-CN | Order Creation\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_04_CN: "⚠ CMP-04-CN | Order\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_05_CN: "⚠ CMP-05-CN | Data Distribution\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_06_CN: "⚠ CMP-06-CN | Master Data\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_07_CN: "⚠ CMP-07-CN | Order Inquiry\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_08_CN: "⚠ CMP-08-CN | Basic Operation\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_09_CN: "⚠ CMP-09-CN | Logging\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_10_CN: "⚠ CMP-10-CN | etc.\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_11: "⚠ CMP-11 | APIM\nn/a, apim · Integration platform" {
+      shape: parallelogram
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_12: "⚠ CMP-12 | WSO2\nn/a, wso2 api gateway · Integration platform" {
+      shape: parallelogram
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_13_CN: "⚠ CMP-13-CN | APIH\nn/a, apih · Integration platform" {
+      shape: parallelogram
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_14_CN: "⚠ CMP-14-CN | Kafka\nn/a, kafka · Messaging platform" {
+      shape: queue
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_15_CN: "⚠ CMP-15-CN | RabbitMQ\nn/a, rabbitmq · Messaging platform" {
+      shape: queue
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_16_CN: "⚠ CMP-16-CN | Debezium\njava, debezium · K8s" {
+      shape: parallelogram
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_33: "⚠ CMP-33 | ECC-CN\nn/a, sap ecc function and slt · Existing ERP platform" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_34: "⚠ CMP-34 | S4-CN\nn/a, sap s/4 function and slt · Existing ERP platform" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_25: "⚠ CMP-25 | eComm-order-platform\nn/a, existing application · CN private platform" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_26: "⚠ CMP-26 | SOS(sales order service)-PRC\nn/a, existing application · CN private platform" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_27: "⚠ CMP-27 | CFOS(customer order fullfillment service)-PRC\nn/a, existing application · CN private platform" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_28: "⚠ CMP-28 | CFOS(customer order fullfillment service)-AP\nn/a, existing application · CN private platform" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_29: "⚠ CMP-29 | SSCS(Service supply chain service)-AP\nn/a, existing application · CN private platform" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+  cn_db_zone: "DB Zone" {
+    style {
+      fill: "#E3F2FD"
+      stroke: "#1565C0"
+      stroke-dash: 6
+    }
+
+    CMP_17_CN: "⚠ CMP-17-CN | Elasticsearch HA\nn/a, elasticsearch ha · HA data platform" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_18_CN: "⚠ CMP-18-CN | Redis HA\nn/a, redis ha · HA data platform" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_19: "⚠ CMP-19 | MySQL HA\nn/a, mysql ha · HA data platform" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_20_CN: "⚠ CMP-20-CN | PostgreSQL HA\nn/a, postgresql ha · HA data platform" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_21_CN: "⚠ CMP-21-CN | SQLServer HA\nn/a, sql server ha · HA data platform" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+  }
+
+}
+
+dc_us: "City C, State X [US] [InfraSec]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  na_prod_ina_earth: "NA-PROD-INA-EARTH" {
+    style {
+      fill: "#F3E5F5"
+      stroke: "#7B1FA2"
+      stroke-dash: 6
+    }
+
+    INF_19: "⚠ INF-19 | F5\nn/a, f5 · PM" {
+      shape: hexagon
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    INF_20: "⚠ INF-20 | WAF\nn/a, enterprise waf · PM" {
+      shape: hexagon
+      style {
+            fill: "#66BB6A"
+            stroke: "#43A047"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    INF_21: "⚠ INF-21 | Edge router\nn/a, edge router · HW" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+  }
+
+  na_prod_ina_k8s: "NA-PROD-INA-K8S" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    CMP_01_NA: "⚠ CMP-01-NA | osp-na-web\nn/a, nginx · K8s" {
+      shape: rectangle
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_02_NA: "⚠ CMP-02-NA | Spring Cloud Gateway\njava, spring cloud gateway · K8s" {
+      shape: parallelogram
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_03_NA: "⚠ CMP-03-NA | Order Creation\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_04_NA: "⚠ CMP-04-NA | Order\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_05_NA: "⚠ CMP-05-NA | Data Distribution\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_06_NA: "⚠ CMP-06-NA | Master Data\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_07_NA: "⚠ CMP-07-NA | Order Inquiry\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_08_NA: "⚠ CMP-08-NA | Basic Operation\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_09_NA: "⚠ CMP-09-NA | Logging\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_10_NA: "⚠ CMP-10-NA | etc.\njava, spring · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_22: "⚠ CMP-22 | ERPS（ERP service）\nn/a, existing application · K8s" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_23: "⚠ CMP-23 | LGS(logistics gateway service)-NA\nn/a, existing application · K8s" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_24: "⚠ CMP-24 | IBS(Installbase service)\nn/a, existing application · K8s" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+  na_prod_ina_integration: "NA-PROD-INA-INTEGRATION" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    CMP_13_NA: "⚠ CMP-13-NA | APIH\nn/a, apih · Integration platform" {
+      shape: parallelogram
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_14_NA: "⚠ CMP-14-NA | Kafka\nn/a, kafka · Messaging platform" {
+      shape: queue
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+  }
+
+  na_prod_ina_sap: "NA-PROD-INA-SAP" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    CMP_35: "⚠ CMP-35 | S4-NA\nn/a, sap s/4 function and slt · Existing ERP platform" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+  na_prod_ina_server: "NA-PROD-INA-SERVER" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    CMP_15_NA: "⚠ CMP-15-NA | RabbitMQ\nn/a, rabbitmq · Messaging platform" {
+      shape: queue
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_16_NA: "⚠ CMP-16-NA | Debezium\njava, debezium · Server platform" {
+      shape: parallelogram
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+  }
+
+  na_prod_ina_db: "NA-PROD-INA-DB" {
+    style {
+      fill: "#E3F2FD"
+      stroke: "#1565C0"
+      stroke-dash: 6
+    }
+
+    CMP_17_NA: "⚠ CMP-17-NA | Elasticsearch HA\nn/a, elasticsearch ha · HA data platform" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_18_NA: "⚠ CMP-18-NA | Redis HA\nn/a, redis ha · HA data platform" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_20_NA: "⚠ CMP-20-NA | PostgreSQL HA\nn/a, postgresql ha · HA data platform" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_21_NA: "⚠ CMP-21-NA | SQLServer HA\nn/a, sql server ha · HA data platform" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+  }
+
+}
+
+dc_us_identity: "City C, State X [US] [InfraSec]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  identity_app_zone: "App Zone" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    INF_22: "⚠ INF-22 | ADFS\nn/a, adfs · Existing identity platform" {
+      shape: oval
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+  }
+
+}
+
+aws_us: "AWS US East, N. Virginia [US] [Third Party]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#232F3E"
+    stroke-width: 2
+  }
+
+  aws_us_private_app: "Private subnet (APP)" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_30: "⚠ CMP-30 | SOS(sales order service)-ROW\nn/a, existing application · AWS private application subnet" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+}
+
+azure_us: "Azure US [US] [Third Party]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#0078D4"
+    stroke-width: 2
+  }
+
+  azure_us_app_zone: "APP Zone" {
+    style {
+      fill: "#E8F5E9"
+      stroke: "#2E7D32"
+      stroke-dash: 6
+    }
+
+    CMP_31: "⚠ CMP-31 | edge-cache\nn/a, existing azure application · Azure application platform" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_32: "⚠ CMP-32 | D365\nn/a, dynamics: 365 · Microsoft SaaS" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+}
+
+# ── Interactions ──────────────────────────────────────
+
+dc_cn_primary.cn_intranet.INF_16 -> dc_cn_primary.cn_intranet.INF_17: "P-HTTPS"
+dc_cn_primary.cn_intranet.INF_17 -> dc_cn_primary.cn_intranet.INF_18: "P-HTTPS"
+dc_cn_primary.cn_intranet.INF_18 -> dc_cn_primary.cn_intranet.CMP_01_CN: "P-HTTPS"
+dc_cn_primary.cn_intranet.CMP_01_CN -> dc_us_identity.identity_app_zone.INF_22: "P-HTTPS\n(AU-T3)"
+dc_cn_primary.cn_intranet.CMP_01_CN -> dc_cn_primary.cn_app_zone.CMP_02_CN: "P-HTTPS\n(AU-T3+T4)"
+dc_us.na_prod_ina_earth.INF_19 -> dc_us.na_prod_ina_earth.INF_20: "P-HTTPS"
+dc_us.na_prod_ina_earth.INF_20 -> dc_us.na_prod_ina_earth.INF_21: "P-HTTPS"
+dc_us.na_prod_ina_earth.INF_21 -> dc_us.na_prod_ina_k8s.CMP_01_NA: "P-HTTPS"
+dc_us.na_prod_ina_k8s.CMP_01_NA -> dc_us_identity.identity_app_zone.INF_22: "P-HTTPS\n(AU-T3)"
+dc_us.na_prod_ina_k8s.CMP_01_NA -> dc_us.na_prod_ina_k8s.CMP_02_NA: "P-HTTPS\n(AU-T3+T4)"
+dc_cn_primary.cn_app_zone.CMP_02_CN -> dc_cn_primary.cn_app_zone.CMP_03_CN: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_02_CN -> dc_cn_primary.cn_app_zone.CMP_04_CN: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_02_CN -> dc_cn_primary.cn_app_zone.CMP_05_CN: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_02_CN -> dc_cn_primary.cn_app_zone.CMP_06_CN: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_02_CN -> dc_cn_primary.cn_app_zone.CMP_07_CN: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_02_CN -> dc_cn_primary.cn_app_zone.CMP_08_CN: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_02_CN -> dc_cn_primary.cn_app_zone.CMP_09_CN: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_02_CN -> dc_cn_primary.cn_app_zone.CMP_10_CN: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_02_NA -> dc_us.na_prod_ina_k8s.CMP_03_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_02_NA -> dc_us.na_prod_ina_k8s.CMP_04_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_02_NA -> dc_us.na_prod_ina_k8s.CMP_05_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_02_NA -> dc_us.na_prod_ina_k8s.CMP_06_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_02_NA -> dc_us.na_prod_ina_k8s.CMP_07_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_02_NA -> dc_us.na_prod_ina_k8s.CMP_08_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_02_NA -> dc_us.na_prod_ina_k8s.CMP_09_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_02_NA -> dc_us.na_prod_ina_k8s.CMP_10_NA: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_03_CN -> dc_cn_primary.cn_app_zone.CMP_13_CN: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_04_CN -> dc_cn_primary.cn_app_zone.CMP_13_CN: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_05_CN -> dc_cn_primary.cn_app_zone.CMP_11: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_06_CN -> dc_cn_primary.cn_app_zone.CMP_12: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_07_CN -> dc_cn_primary.cn_app_zone.CMP_13_CN: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_08_CN -> dc_cn_primary.cn_app_zone.CMP_12: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_09_CN -> dc_cn_primary.cn_app_zone.CMP_11: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_10_CN -> dc_cn_primary.cn_app_zone.CMP_13_CN: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_03_CN -> dc_cn_primary.cn_app_zone.CMP_14_CN: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.cn_app_zone.CMP_04_CN -> dc_cn_primary.cn_app_zone.CMP_14_CN: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.cn_app_zone.CMP_05_CN -> dc_cn_primary.cn_app_zone.CMP_14_CN: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.cn_app_zone.CMP_06_CN -> dc_cn_primary.cn_app_zone.CMP_14_CN: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.cn_app_zone.CMP_07_CN -> dc_cn_primary.cn_app_zone.CMP_14_CN: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.cn_app_zone.CMP_08_CN -> dc_cn_primary.cn_app_zone.CMP_14_CN: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.cn_app_zone.CMP_09_CN -> dc_cn_primary.cn_app_zone.CMP_14_CN: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.cn_app_zone.CMP_10_CN -> dc_cn_primary.cn_app_zone.CMP_14_CN: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_k8s.CMP_03_NA -> dc_us.na_prod_ina_integration.CMP_13_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_04_NA -> dc_us.na_prod_ina_integration.CMP_13_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_05_NA -> dc_us.na_prod_ina_integration.CMP_13_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_06_NA -> dc_us.na_prod_ina_integration.CMP_13_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_07_NA -> dc_us.na_prod_ina_integration.CMP_13_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_08_NA -> dc_us.na_prod_ina_integration.CMP_13_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_09_NA -> dc_us.na_prod_ina_integration.CMP_13_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_10_NA -> dc_us.na_prod_ina_integration.CMP_13_NA: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_k8s.CMP_03_NA -> dc_us.na_prod_ina_integration.CMP_14_NA: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_k8s.CMP_04_NA -> dc_us.na_prod_ina_integration.CMP_14_NA: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_k8s.CMP_05_NA -> dc_us.na_prod_ina_integration.CMP_14_NA: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_k8s.CMP_06_NA -> dc_us.na_prod_ina_integration.CMP_14_NA: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_k8s.CMP_07_NA -> dc_us.na_prod_ina_integration.CMP_14_NA: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_k8s.CMP_08_NA -> dc_us.na_prod_ina_integration.CMP_14_NA: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_k8s.CMP_09_NA -> dc_us.na_prod_ina_integration.CMP_14_NA: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_k8s.CMP_10_NA -> dc_us.na_prod_ina_integration.CMP_14_NA: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.cn_app_zone.CMP_03_CN -> dc_cn_primary.cn_app_zone.CMP_33: "P-RFC\n(AU-K1)"
+dc_cn_primary.cn_app_zone.CMP_04_CN -> dc_cn_primary.cn_app_zone.CMP_34: "P-RFC\n(AU-K1)"
+dc_cn_primary.cn_app_zone.CMP_06_CN -> dc_cn_primary.cn_app_zone.CMP_34: "P-RFC\n(AU-K1)"
+dc_us.na_prod_ina_k8s.CMP_03_NA -> dc_us.na_prod_ina_sap.CMP_35: "P-RFC\n(AU-K1)"
+dc_us.na_prod_ina_k8s.CMP_04_NA -> dc_us.na_prod_ina_sap.CMP_35: "P-RFC\n(AU-K1)"
+dc_us.na_prod_ina_k8s.CMP_06_NA -> dc_us.na_prod_ina_sap.CMP_35: "P-RFC\n(AU-K1)"
+dc_cn_primary.cn_app_zone.CMP_34 -> dc_cn_primary.cn_app_zone.CMP_16_CN: "P-RFC\n(AU-P4)"
+dc_cn_primary.cn_app_zone.CMP_16_CN -> dc_cn_primary.cn_app_zone.CMP_15_CN: "P-AMQPS" { style { stroke-dash: 4 } }
+dc_cn_primary.cn_app_zone.CMP_15_CN -> dc_cn_primary.cn_app_zone.CMP_14_CN: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_sap.CMP_35 -> dc_us.na_prod_ina_server.CMP_16_NA: "P-RFC\n(AU-P4)"
+dc_us.na_prod_ina_server.CMP_16_NA -> dc_us.na_prod_ina_server.CMP_15_NA: "P-AMQPS" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_server.CMP_15_NA -> dc_us.na_prod_ina_integration.CMP_14_NA: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.cn_app_zone.CMP_14_CN -> dc_us.na_prod_ina_integration.CMP_14_NA: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_integration.CMP_14_NA -> dc_cn_primary.cn_app_zone.CMP_14_CN: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.cn_app_zone.CMP_03_CN -> dc_cn_primary.cn_db_zone.CMP_19: "P-JDBC"
+dc_cn_primary.cn_app_zone.CMP_04_CN -> dc_cn_primary.cn_db_zone.CMP_19: "P-JDBC"
+dc_cn_primary.cn_app_zone.CMP_05_CN -> dc_cn_primary.cn_db_zone.CMP_21_CN: "P-JDBC"
+dc_cn_primary.cn_app_zone.CMP_06_CN -> dc_cn_primary.cn_db_zone.CMP_18_CN: "P-RESP\n(AU-Z1)"
+dc_cn_primary.cn_app_zone.CMP_06_CN -> dc_cn_primary.cn_db_zone.CMP_20_CN: "P-JDBC"
+dc_cn_primary.cn_app_zone.CMP_07_CN -> dc_cn_primary.cn_db_zone.CMP_17_CN: "P-HTTPS"
+dc_cn_primary.cn_app_zone.CMP_07_CN -> dc_cn_primary.cn_db_zone.CMP_20_CN: "P-JDBC"
+dc_cn_primary.cn_app_zone.CMP_08_CN -> dc_cn_primary.cn_db_zone.CMP_21_CN: "P-JDBC"
+dc_cn_primary.cn_app_zone.CMP_09_CN -> dc_cn_primary.cn_db_zone.CMP_17_CN: "P-HTTPS"
+dc_cn_primary.cn_app_zone.CMP_10_CN -> dc_cn_primary.cn_db_zone.CMP_20_CN: "P-JDBC"
+dc_us.na_prod_ina_k8s.CMP_03_NA -> dc_us.na_prod_ina_db.CMP_20_NA: "P-JDBC"
+dc_us.na_prod_ina_k8s.CMP_04_NA -> dc_us.na_prod_ina_db.CMP_20_NA: "P-JDBC"
+dc_us.na_prod_ina_k8s.CMP_05_NA -> dc_us.na_prod_ina_db.CMP_21_NA: "P-JDBC"
+dc_us.na_prod_ina_k8s.CMP_06_NA -> dc_us.na_prod_ina_db.CMP_18_NA: "P-RESP\n(AU-Z1)"
+dc_us.na_prod_ina_k8s.CMP_06_NA -> dc_us.na_prod_ina_db.CMP_20_NA: "P-JDBC"
+dc_us.na_prod_ina_k8s.CMP_07_NA -> dc_us.na_prod_ina_db.CMP_17_NA: "P-HTTPS"
+dc_us.na_prod_ina_k8s.CMP_07_NA -> dc_us.na_prod_ina_db.CMP_20_NA: "P-JDBC"
+dc_us.na_prod_ina_k8s.CMP_08_NA -> dc_us.na_prod_ina_db.CMP_21_NA: "P-JDBC"
+dc_us.na_prod_ina_k8s.CMP_09_NA -> dc_us.na_prod_ina_db.CMP_17_NA: "P-HTTPS"
+dc_us.na_prod_ina_k8s.CMP_10_NA -> dc_us.na_prod_ina_db.CMP_20_NA: "P-JDBC"
+dc_cn_primary.cn_app_zone.CMP_11 -> dc_cn_primary.cn_app_zone.CMP_25: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_12 -> dc_cn_primary.cn_app_zone.CMP_26: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_13_CN -> dc_cn_primary.cn_app_zone.CMP_27: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_13_CN -> dc_cn_primary.cn_app_zone.CMP_28: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.cn_app_zone.CMP_14_CN -> dc_cn_primary.cn_app_zone.CMP_29: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_integration.CMP_14_NA -> aws_us.aws_us_private_app.CMP_30: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_us.na_prod_ina_integration.CMP_13_NA -> azure_us.azure_us_app_zone.CMP_31: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_integration.CMP_13_NA -> azure_us.azure_us_app_zone.CMP_32: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_integration.CMP_13_NA -> dc_us.na_prod_ina_k8s.CMP_22: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_integration.CMP_13_NA -> dc_us.na_prod_ina_k8s.CMP_23: "P-HTTPS\n(AU-T1)"
+dc_us.na_prod_ina_integration.CMP_13_NA -> dc_us.na_prod_ina_k8s.CMP_24: "P-HTTPS\n(AU-T1)"
+
+# ── Security declarations ─────────────────────────
+# Key Management [private_dc]: K8s Secrets encrypted at rest with platform KMS; external vault synchronization; automated rotation; no hardcoded credentials
+# Key Management [aws]: Peer-owned AWS KMS and Secrets Manager; short-lived credentials at the integration boundary
+# Key Management [azure]: Peer-owned Azure Key Vault and managed identity; short-lived credentials at the integration boundary
+# User Auth (Internal): INF-22 | ADFS / SAML 2.0 over TLS 1.3 with MFA and signed assertions
+# User Auth (External): Not applicable - employee-only platform / No external-user entry point

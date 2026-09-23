@@ -24,19 +24,34 @@ from archharness.schemas import validate_final_req_v2  # noqa: E402
 ARCH = {
     "arch": {
         "id": "demo-v1", "name": "Demo Platform", "platform": "private_cloud",
-        "deployment": [{
-            "id": "dc-a", "type": "private_dc", "name": "DC A",
-            "location": "Primary DC, City A [CN]", "owner": "InfraSec",
-            "network_zones": [{
-                "id": "app", "type": "app_zone", "name": "App Zone",
-                "components": [
-                    {"id": "api", "name": "api | Gateway", "type": "IP",
-                     "component_role": "api_gateway", "sensitivity": "Acme Confidential"},
-                    {"id": "db", "name": "db | PostgreSQL", "type": "DB",
-                     "component_role": "database", "encryption_at_rest": "AES-256"},
+        "deployment": [
+            {
+                "id": "dc-a", "type": "private_dc", "name": "DC A",
+                "location": "Primary DC, City A [CN]", "owner": "InfraSec",
+                "role": "production",
+                "network_zones": [
+                    {
+                        "id": "app", "type": "app_zone", "name": "App Zone",
+                        "components": [
+                            {"id": "api", "name": "api | Gateway", "type": "IP",
+                             "component_role": "api_gateway",
+                             "sensitivity": "Acme Confidential",
+                             "runtime": "Internal K8s Platform"},
+                            {"id": "db", "name": "db | PostgreSQL", "type": "DB",
+                             "component_role": "database", "encryption_at_rest": "AES-256"},
+                        ],
+                    },
+                    {"id": "intra", "type": "intranet", "name": "Intranet", "components": []},
                 ],
-            }],
-        }],
+            },
+            {
+                "id": "dc-b", "type": "private_dc", "name": "DC B",
+                "location": "Secondary DC, City B [CN]",
+                "network_zones": [
+                    {"id": "intra-b", "type": "intranet", "name": "Intranet", "components": []},
+                ],
+            },
+        ],
         "interactions": [
             {"from": "internet", "to": "api", "protocol": "HTTPS", "auth": "OAuth2.0"},
             {"from": "api", "to": "db", "protocol": "PostgreSQL", "auth": "UserPassword"},
@@ -81,6 +96,49 @@ class DiagramToRequirementsTests(unittest.TestCase):
             {(flow["source_component_id"], flow["target_component_id"]) for flow in flows},
             {("internet", "CMP-01"), ("CMP-01", "CMP-02")},
         )
+
+    def test_deployments_are_extracted_per_component(self):
+        partial = self._read(ARCH)
+
+        self.assertEqual(len(partial.deployments), 2)
+        gateway = partial.deployments[0]
+        self.assertEqual(gateway.component.value, "api | Gateway")
+        self.assertEqual(gateway.environment.value, "production")
+        self.assertEqual(gateway.deployment_type.value, "private_cloud")
+        self.assertEqual(gateway.infra.value, "App Zone")
+        self.assertEqual(gateway.runtime_type.value, "container")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "partial.yaml"
+            path.write_text(partial_req_to_yaml(partial), encoding="utf-8")
+            merged_yaml, _report, _gaps = merge_partial_reqs([str(path)])
+
+        deployments = yaml.safe_load(merged_yaml)["requirements"]["deployments"]
+        self.assertEqual(len(deployments), 2)
+        self.assertEqual(deployments[0]["component_id"], "CMP-01")
+        self.assertEqual(deployments[0]["infra_id"], "INF-02")
+        self.assertEqual(deployments[0]["environment"], "prod")
+
+    def test_repeated_zone_labels_are_disambiguated(self):
+        partial = self._read(ARCH)
+        names = [infra.name.value for infra in partial.infra]
+
+        self.assertIn("Intranet (dc-a)", names)
+        self.assertIn("Intranet (dc-b)", names)
+        self.assertEqual(len(names), len(set(names)), "infra names must be unique")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "partial.yaml"
+            path.write_text(partial_req_to_yaml(partial), encoding="utf-8")
+            merged_yaml, _report, _gaps = merge_partial_reqs([str(path)])
+
+        infra = yaml.safe_load(merged_yaml)["requirements"]["infra"]
+        # Every zone resolves to its own DC rather than being displaced.
+        zones = {row["name"]: row.get("parent_id") for row in infra
+                 if row.get("node_kind") == "network_zone"}
+        self.assertEqual(zones["Intranet (dc-a)"], "INF-01")
+        self.assertEqual(zones["Intranet (dc-b)"], "INF-04")
+        self.assertEqual(len(infra), 5)
 
     def test_key_store_labels_are_normalised_to_the_contract(self):
         partial = self._read(ARCH)

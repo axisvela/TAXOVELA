@@ -55,6 +55,11 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Fixed
 
+- Reading an architecture YAML back into requirements now also derives the
+  deployment layer (one row per component, with its zone resolved as the infra
+  node) and disambiguates labels the merger keys by name, so repeated zones
+  ("Intranet", "DB Zone") and shared partner locations no longer displace one
+  another or lose their parent DC.
 - Reading an architecture YAML back into requirements works again: the reader
   emitted flow endpoints as diagram ids while the model references entities by
   name, so the merge dropped every flow of a complete model. Key-store labels

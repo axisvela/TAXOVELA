@@ -30,8 +30,8 @@ from pathlib import Path
 import yaml
 
 from .normalizer import (
-    PartialReq, PartialSystem, PartialInfra, PartialComponent, PartialFlow,
-    Confidence, fv, partial_req_to_yaml, v2_json_to_partial,
+    PartialReq, PartialSystem, PartialInfra, PartialComponent, PartialDeployment,
+    PartialFlow, Confidence, fv, partial_req_to_yaml, v2_json_to_partial,
 )
 
 
@@ -101,6 +101,31 @@ def _primary_system(req: PartialReq, hint: str, src: str) -> str:
         system.type = fv("existing", Confidence.LOW, src, "Inferred from diagram")
         req.systems.append(system)
     return name
+
+
+def _runtime_type(runtime: str) -> str | None:
+    """Classify a free-text runtime into the contract's runtime enum."""
+    text = (runtime or "").lower()
+    if any(token in text for token in ("k8s", "kubernetes", "container", "pod", "docker")):
+        return "container"
+    if any(token in text for token in ("serverless", "lambda", "function")):
+        return "serverless"
+    if any(token in text for token in ("vm", "virtual machine", "instance")):
+        return "vm"
+    if any(token in text for token in ("physical", "appliance", "bare metal", "host")):
+        return "physical"
+    return None
+
+
+def _deployment_type(region_type: str) -> tuple[str, str]:
+    """Return the (deployment_type, location_type) pair for a region type."""
+    if region_type == "private_dc":
+        return "private_cloud", "data_center"
+    if region_type in ("aws_vpc", "azure_vnet"):
+        return "public_cloud", "public_cloud_region"
+    if region_type == "saas":
+        return "saas", "saas"
+    return "third_party", "saas"
 
 
 def _zone_infra(label: str, parent: str, src: str, zone_count: int) -> PartialInfra:
@@ -359,10 +384,43 @@ def parse_arch_yaml(data: dict, source_file: str) -> PartialReq:
     # name, so endpoints are translated through the label each component was
     # emitted with (virtual nodes such as ``internet`` pass through unchanged).
     label_by_id: dict[str, str] = {}
+    # The merger keys entities by name, so repeated labels would displace one
+    # another: zones repeat across DCs ("Intranet", "DB Zone"), and two partner
+    # boundaries can share one location string. A repeated label is qualified
+    # with its region id. Parent references use the same emitted name, so a
+    # zone resolves to the DC row rather than to a cleaned variant of it.
+    regions = list(arch.get("deployment", []))
 
-    for region in arch.get("deployment", []):
+    def zkey_of(region: dict) -> str:
+        return "network_zones" if region.get("type", "private_dc") == "private_dc" else "subnets"
+
+    region_labels = [str(region.get("location", region.get("id", ""))) for region in regions]
+    region_names = {}
+    for region in regions:
         rid = region.get("id", "")
-        location = region.get("location", rid)
+        label = str(region.get("location", rid))
+        if not rid:
+            rid = f"loc_{len(region_names) + 1}"
+        if region_labels.count(label) > 1:
+            label = f"{label} ({rid})"
+        region_names[region.get("id", rid)] = label
+
+    zone_labels = [
+        _clean_label(zone.get("name", zone.get("id", "")))
+        for region in regions for zone in region.get(zkey_of(region), [])
+    ]
+    ambiguous_zones = {label for label in zone_labels if zone_labels.count(label) > 1}
+
+    def zone_label(zone: dict, region: dict) -> str:
+        label = _clean_label(zone.get("name", zone.get("id", "")))
+        rid = region.get("id", "")
+        if label and label in ambiguous_zones and rid:
+            return f"{label} ({rid})"
+        return label
+
+    for region in regions:
+        rid = region.get("id", "")
+        location = region_names.get(rid, region.get("location", rid))
         infra = PartialInfra(id=rid or f"loc_{len(req.infra) + 1}")
         infra.name = fv(location, Confidence.HIGH, SRC)
         region_type = region.get("type", "private_dc")
@@ -379,13 +437,27 @@ def parse_arch_yaml(data: dict, source_file: str) -> PartialReq:
             infra.country = fv(loc.group(1), Confidence.HIGH, SRC)
         req.infra.append(infra)
 
-        zkey = "network_zones" if region_type == "private_dc" else "subnets"
-        for zone in region.get(zkey, []):
-            zone_name = _clean_label(zone.get("name", zone.get("id", "")))
+        deployment_type, location_type = _deployment_type(region_type)
+        for zone in region.get(zkey_of(region), []):
+            zone_name = zone_label(zone, region)
             if zone_name:
-                req.infra.append(_zone_infra(zone_name, _clean_label(location), SRC,
-                                             len(req.infra) + 1))
+                req.infra.append(_zone_infra(zone_name, location, SRC, len(req.infra) + 1))
             for comp in zone.get("components", []):
+                deployment = PartialDeployment(id=f"deployment_{len(req.deployments) + 1}")
+                deployment.component = fv(comp.get("name", ""), Confidence.HIGH, SRC)
+                deployment.environment = fv(region.get("role") or "prod", Confidence.MEDIUM, SRC)
+                deployment.deployment_type = fv(deployment_type, Confidence.HIGH, SRC)
+                deployment.location_type = fv(location_type, Confidence.HIGH, SRC)
+                if zone_name:
+                    deployment.infra = fv(zone_name, Confidence.MEDIUM, SRC)
+                runtime = comp.get("runtime")
+                if runtime:
+                    deployment.runtime_detail = fv(runtime, Confidence.HIGH, SRC)
+                    canonical = _runtime_type(runtime)
+                    if canonical:
+                        deployment.runtime_type = fv(canonical, Confidence.MEDIUM, SRC)
+                req.deployments.append(deployment)
+
                 pc = PartialComponent(id=comp.get("id", ""))
                 pc.system = fv(system_name, Confidence.HIGH, SRC)
                 pc.name = fv(comp.get("name", ""), Confidence.HIGH, SRC)

@@ -238,6 +238,7 @@ install the Python package, initialise the workspace, and run `doctor`.
 | `python -m archharness diagram -i arch.yaml` | Run the diagram generator (draw.io/PNG/D2/PlantUML) |
 | `python -m archharness diagram -i arch.yaml --routing-diagnostics routes.json` | Also record per-edge routing strategy, lane, and fallback |
 | `python -m archharness arch-check -i blueprint.yaml [--json]` | Deterministic rules on an architecture model (A-01…A-06) |
+| `python -m archharness trace-check -r req.yaml -b blueprint.yaml` | Verify a req/v2 inventory traces to typed blueprint nodes |
 | `python -m archharness req --doc brief.md` | Run the requirements readers + merger |
 | `python -m archharness req-validate req.yaml` | Cross-field validation of a `req/v2` document (rules V1–V7) |
 | `python -m archharness validate-yaml config.yaml` | YAML syntax gate (CI fail-closed check) |

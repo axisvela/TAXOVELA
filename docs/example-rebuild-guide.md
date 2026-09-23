@@ -38,7 +38,9 @@ Then apply these structural rules:
   two nodes sharing an id fail the duplicate-id check. Append the site:
   `CMP-03-CN` / `CMP-03-NA`, both traceable to the single `CMP-03` row. Use this
   only where the same component is deployed more than once; a component placed in
-  one site keeps its bare code. `output/` is not scanned by the registry check,
+  one site keeps its bare code. `CN` maps to req/v2 country `CN`; `NA` is a
+  business-site suffix and maps to deployments in `US`, `CA`, or `MX`.
+  `output/` is not scanned by the registry check,
   so a qualified id is a diagram-view convention, never a registry row.
 - **Derived layers** (`deployments`/`flows`/`network_links`/`auth`) are not
   inventory and are not required to be cited by `prompt.md`.
@@ -95,10 +97,15 @@ inline `auth_method` enum.
 ```bash
 python tools/registry_check.py examples/<id>          # registry ↔ docs consistency
 python -m archharness req-validate examples/<id>/output/requirements/req.yaml
+python -m archharness trace-check \
+    -r examples/<id>/output/requirements/req.yaml \
+    -b examples/<id>/output/designs/blueprint.yaml
 python -m pytest -q                                    # no regressions
 ```
 
-Both must be clean. `req-validate` runs schema + rules V1–V7.
+All three must be clean. `req-validate` runs schema + rules V1–V7;
+`trace-check` verifies that typed blueprint nodes resolve to req/v2 inventory
+and that CN/NA site-qualified component nodes have matching deployments.
 
 Alternatively regenerate the merged document from the readers:
 

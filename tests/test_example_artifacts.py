@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT))
 
 from archharness.arch_check import SEVERITY_ERROR, check_architecture  # noqa: E402
 from archharness.registry import check_example  # noqa: E402
+from archharness.trace_check import check_traceability  # noqa: E402
 from archharness.workflow import check_state_integrity  # noqa: E402
 
 EXAMPLES = ROOT / "examples"
@@ -90,6 +91,25 @@ class ExampleArtifactIntegrityTests(unittest.TestCase):
             checked += 1
             self.assertEqual(errors, [], f"{example.name}: {json.dumps(errors, indent=2)}")
         self.assertGreater(checked, 0, "no example blueprint was checked")
+
+    def test_reqv2_examples_trace_to_their_blueprints(self):
+        """Typed nodes (including CN/NA view suffixes) resolve back to req/v2."""
+        import yaml
+
+        checked = 0
+        for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):
+            req_yaml = example / "output" / "requirements" / "req.yaml"
+            blueprint = example / "output" / "designs" / "blueprint.yaml"
+            if not req_yaml.is_file() or not blueprint.is_file():
+                continue
+            requirements = yaml.safe_load(req_yaml.read_text(encoding="utf-8"))
+            if requirements.get("schema_version") != "req/v2":
+                continue
+            model = yaml.safe_load(blueprint.read_text(encoding="utf-8"))
+            checked += 1
+            findings = check_traceability(requirements, model)
+            self.assertEqual(findings, [], f"{example.name}: {json.dumps(findings, indent=2)}")
+        self.assertGreater(checked, 0, "no req/v2 example trace was checked")
 
     def test_example_manifests_use_project_relative_paths(self):
         for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):

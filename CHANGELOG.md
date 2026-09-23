@@ -27,6 +27,9 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
   (`scaffold` / `reqv1` / `reqv2-partial` / `reqv2-complete`) and fails when a
   migrated example no longer passes its registry or requirements checks. The
   example matrix in `examples/README.md` is verified against it.
+- `archharness trace-check -r req.yaml -b blueprint.yaml` verifies req/v2
+  inventory references in a typed blueprint, including the documented CN/NA
+  site suffix for components deployed at more than one site.
 - `archharness arch-check` runs deterministic rules on an architecture YAML
   with stable rule ids and evidence (`A-01` duplicate id, `A-02` undeclared
   endpoint, `A-03`/`A-04` missing protocol or authentication label, `A-05`

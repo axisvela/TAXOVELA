@@ -15,6 +15,7 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from archharness.arch_check import SEVERITY_ERROR, check_architecture  # noqa: E402
 from archharness.registry import check_example  # noqa: E402
 from archharness.workflow import check_state_integrity  # noqa: E402
 
@@ -70,6 +71,25 @@ class ExampleArtifactIntegrityTests(unittest.TestCase):
                 self.assertIn("<mxfile", generate_drawio(arch))
                 self.assertIn("direction:", generate_d2(arch))
         self.assertGreater(checked, 0, "no example blueprint was rendered")
+
+    def test_example_blueprints_pass_static_architecture_checks(self):
+        """Shipped models clear the deterministic checks before image review."""
+        import yaml
+
+        checked = 0
+        for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):
+            blueprint = example / "output" / "designs" / "blueprint.yaml"
+            if not blueprint.is_file():
+                continue
+            document = yaml.safe_load(blueprint.read_text(encoding="utf-8"))
+            arch = document.get("arch", document)
+            errors = [
+                finding for finding in check_architecture(arch)
+                if finding["severity"] == SEVERITY_ERROR
+            ]
+            checked += 1
+            self.assertEqual(errors, [], f"{example.name}: {json.dumps(errors, indent=2)}")
+        self.assertGreater(checked, 0, "no example blueprint was checked")
 
     def test_example_manifests_use_project_relative_paths(self):
         for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):

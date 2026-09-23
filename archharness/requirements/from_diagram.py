@@ -355,6 +355,10 @@ def parse_arch_yaml(data: dict, source_file: str) -> PartialReq:
         req.project_id = fv(arch["id"], Confidence.HIGH, SRC)
 
     system_name = _primary_system(req, arch.get("name") or Path(source_file).stem, SRC)
+    # Interactions address nodes by diagram id; the model references entities by
+    # name, so endpoints are translated through the label each component was
+    # emitted with (virtual nodes such as ``internet`` pass through unchanged).
+    label_by_id: dict[str, str] = {}
 
     for region in arch.get("deployment", []):
         rid = region.get("id", "")
@@ -394,12 +398,15 @@ def parse_arch_yaml(data: dict, source_file: str) -> PartialReq:
                     pc.sensitivity = fv(comp["sensitivity"], Confidence.HIGH, SRC)
                 if comp.get("encryption_at_rest"):
                     pc.encryption_at_rest = fv(comp["encryption_at_rest"], Confidence.HIGH, SRC)
+                label_by_id[comp.get("id", "")] = comp.get("name", "")
                 req.components.append(pc)
 
     for i, iact in enumerate(arch.get("interactions", [])):
         flow = PartialFlow(id=f"flow_{i + 1}")
-        flow.source = fv(iact.get("from", ""), Confidence.HIGH, SRC)
-        flow.target = fv(iact.get("to", ""), Confidence.HIGH, SRC)
+        source = iact.get("from", "")
+        target = iact.get("to", "")
+        flow.source = fv(label_by_id.get(source, source), Confidence.HIGH, SRC)
+        flow.target = fv(label_by_id.get(target, target), Confidence.HIGH, SRC)
         if iact.get("protocol"):
             flow.protocol = fv(iact["protocol"], Confidence.HIGH, SRC)
         auth = iact.get("auth", "")

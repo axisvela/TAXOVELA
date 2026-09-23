@@ -55,6 +55,12 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Fixed
 
+- Reading an architecture YAML back into requirements works again: the reader
+  emitted flow endpoints as diagram ids while the model references entities by
+  name, so the merge dropped every flow of a complete model. Key-store labels
+  outside the contract enum (`partner_keys`) are now recorded as `other` and
+  reported as a gap instead of failing the merge, and the merge no longer
+  leaks its internal `_source` provenance key into `req/v2` credentials.
 - The plugin contract kit is skipped rather than failed when a subclass does
   not set `plugin`, so `unittest` and `pytest` agree.
 - `sensitivity: null` no longer breaks draw.io generation.

@@ -46,6 +46,16 @@ NODE_KINDS = {
 INFRA_TYPES = {"private_cloud", "public_cloud", "saas", "third_party", "office", "factory", "lab"}
 NETWORK_TYPES = {"office_network", "factory_network", "lab_network", "prod_network", "dmz"}
 ENVIRONMENTS = {"dev", "test", "staging", "prod", "dr"}
+
+# Where secrets live. A model may label the store by the party that owns it
+# (for example ``partner_keys``); the contract only knows these five, so an
+# unrecognised label is reported and folded onto ``other``.
+CREDENTIAL_ENVIRONMENTS = {"azure", "aws", "private_dc", "saas", "other"}
+_CREDENTIAL_ENV_ALIASES = {
+    "on_prem": "private_dc", "onprem": "private_dc", "datacenter": "private_dc",
+    "data_center": "private_dc", "private_cloud": "private_dc",
+    "public_cloud": "aws", "cloud": "other",
+}
 DEPLOYMENT_TYPES = {"private_cloud", "public_cloud", "public_cloud_paas", "saas", "third_party"}
 LOCATION_TYPES = {"data_center", "public_cloud_region", "saas"}
 RUNTIME_TYPES = {"vm", "container", "physical", "serverless"}
@@ -346,10 +356,35 @@ def _enum(field_value, table: dict, allowed: set) -> str | None:
     return _alias(_value_of(field_value), table, allowed)
 
 
+def _credential_rows(credentials, unresolved: list[str]) -> list[dict]:
+    """Normalise credential rows to the contract's environment enum.
+
+    A reader may name the key store by owner (``partner_keys``); the req/v2
+    schema accepts only azure / aws / private_dc / saas / other, so an
+    unmapped label folds onto ``other`` and is reported as a gap instead of
+    failing the merge.
+    """
+    rows: list[dict] = []
+    for credential in credentials or []:
+        if not isinstance(credential, dict):
+            continue
+        label = _plain(credential.get("environment"))
+        environment = _alias(label, _CREDENTIAL_ENV_ALIASES, CREDENTIAL_ENVIRONMENTS)
+        if environment is None:
+            unresolved.append(
+                f"credential environment '{label or '?'}' is not in the model — "
+                "recorded as 'other'")
+            environment = "other"
+        rows.append({**credential, "environment": environment})
+    return rows
+
+
 def _build_final(merged: dict, project: dict, credentials, constraints,
                  open_items) -> tuple[dict, list[str]]:
     """Resolve references, assign typed IDs and build the req/v2 document."""
     unresolved: list[str] = []
+
+    credentials = _credential_rows(credentials, unresolved)
 
     infra_map: dict[str, str] = {}
     system_map: dict[str, str] = {}
@@ -766,6 +801,16 @@ def _partial_req_from_dict(raw: dict, source_path: str) -> PartialReq:
     return req
 
 
+def _public_entry(entry: dict) -> dict:
+    """Drop merge-internal provenance keys from a free-form entry.
+
+    Readers tag credentials and open items with ``_source`` / ``_confidence``
+    so a merge can explain where a row came from. Those keys are not part of
+    the req/v2 contract, and ``credential`` rejects additional properties.
+    """
+    return {key: value for key, value in entry.items() if not key.startswith("_")}
+
+
 def _deduplicate(items: list) -> list:
     """Deduplicate YAML-compatible values while retaining first-seen order."""
     deduplicated = []
@@ -813,9 +858,9 @@ def merge_partial_reqs(partial_files: list[str]) -> tuple[str, str, dict]:
             [_ensure_fv(r.data_classification) for r in all_reqs])),
     }
 
-    all_creds = _deduplicate([c for r in all_reqs for c in r.credentials])
+    all_creds = _deduplicate([_public_entry(c) for r in all_reqs for c in r.credentials])
     all_constraints = list(dict.fromkeys(c for r in all_reqs for c in r.constraints))
-    all_open = _deduplicate([o for r in all_reqs for o in r.open_items])
+    all_open = _deduplicate([_public_entry(o) for r in all_reqs for o in r.open_items])
 
     doc, unresolved = _build_final(merged, project, all_creds, all_constraints, all_open)
     validate_final_req_v2(doc)

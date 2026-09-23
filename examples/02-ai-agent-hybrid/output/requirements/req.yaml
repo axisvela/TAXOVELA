@@ -1,390 +1,73 @@
+# req.yaml — Data Agent Platform (GDA), req/v2
+# Generated from input/systems-registry.md + input/documents/requirements.md
+
+schema_version: req/v2
+
 requirements:
   project:
     name: "Data Agent Platform (GDA)"
     id: "DAP-001"
     scope: "e2e"
     department: "TBD"
-    author: "TBD"
-    date: "2026-09-14"
-    target_go_live: "TBD"
-    business_purpose: "Internal data-agent platform for governed natural-language data questions, streamed agent responses, alerts, and digests."
     data_classification: "Acme Confidential"
-    scope_decision: "SYS-01 through SYS-05 are new and modeled in full; existing SYS-06 through SYS-10 are black boxes at their integration boundaries."
 
-  applications:
-    - id: "SYS-01"
-      name: "gda-gateway"
-      type: "new"
-      owner: "TBD"
-      vendor: ""
-    - id: "SYS-02"
-      name: "gda-agent-api"
-      type: "new"
-      owner: "TBD"
-      vendor: ""
-    - id: "SYS-03"
-      name: "gda-scheduler-worker"
-      type: "new"
-      owner: "TBD"
-      vendor: ""
-    - id: "SYS-04"
-      name: "PostgreSQL"
-      type: "new"
-      owner: "TBD"
-      vendor: ""
-    - id: "SYS-05"
-      name: "Outbound gateway"
-      type: "new"
-      owner: "TBD"
-      vendor: ""
-    - id: "SYS-06"
-      name: "ADFS"
-      type: "existing"
-      owner: "TBD"
-      vendor: ""
-    - id: "SYS-07"
-      name: "Microsoft Entra ID"
-      type: "existing"
-      owner: "third_party"
-      vendor: "Microsoft"
-    - id: "SYS-08"
-      name: "EDW Databricks"
-      type: "existing"
-      owner: "TBD"
-      vendor: "TBD"
-    - id: "SYS-09"
-      name: "LLM Gateway"
-      type: "existing"
-      owner: "TBD"
-      vendor: "TBD"
-    - id: "SYS-10"
-      name: "Internal K8s Platform"
-      type: "existing"
-      owner: "TBD"
-      vendor: ""
+  infra:
+    - {id: "INF-01", name: "dc-cn-primary", node_kind: "data_center", infra_type: "private_cloud", network_type: "prod_network", country: "CN", status: "active"}
+    - {id: "INF-02", name: "dc-cn-primary App Zone", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-01", country: "CN", status: "active"}
+    - {id: "INF-03", name: "dc-cn-primary DB Zone", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-01", country: "CN", status: "active"}
+    - {id: "INF-04", name: "dc-cn-primary DMZ", node_kind: "network_zone", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-01", country: "CN", status: "active"}
+    - {id: "INF-05", name: "ADFS", node_kind: "identity_provider", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-01", country: "CN", vendor: "Microsoft", status: "active"}
+    - {id: "INF-06", name: "Azure Global Identity boundary", node_kind: "saas", infra_type: "saas", network_type: "prod_network", country: "TBD", vendor: "Microsoft", status: "active"}
+    - {id: "INF-07", name: "Microsoft Entra ID", node_kind: "identity_provider", infra_type: "saas", network_type: "prod_network", parent_id: "INF-06", country: "TBD", vendor: "Microsoft", status: "active"}
+    - {id: "INF-08", name: "azure-eastus", node_kind: "iaas_vpc_vnet", infra_type: "public_cloud", network_type: "prod_network", country: "US", vendor: "Microsoft Azure", status: "active"}
+    - {id: "INF-09", name: "azure-eastus2", node_kind: "iaas_vpc_vnet", infra_type: "public_cloud", network_type: "prod_network", country: "US", vendor: "Microsoft Azure", status: "planned"}
+    - {id: "INF-10", name: "Office Network", node_kind: "office_network", infra_type: "office", network_type: "office_network", country: "CN", status: "active"}
 
-  deployment:
-    - app_id: "SYS-01"
-      country: "China"
-      dc_or_region: "dc-cn-primary"
-      platform: "private_dc"
-      zone_subnet: "App Zone on SYS-10"
-      infrastructure_owner: "TBD"
-    - app_id: "SYS-02"
-      country: "China"
-      dc_or_region: "dc-cn-primary"
-      platform: "private_dc"
-      zone_subnet: "App Zone on SYS-10"
-      infrastructure_owner: "TBD"
-    - app_id: "SYS-03"
-      country: "China"
-      dc_or_region: "dc-cn-primary"
-      platform: "private_dc"
-      zone_subnet: "App Zone on SYS-10"
-      infrastructure_owner: "TBD"
-    - app_id: "SYS-04"
-      country: "China"
-      dc_or_region: "dc-cn-primary"
-      platform: "private_dc"
-      zone_subnet: "DB Zone; VIP and physical hosts TBD"
-      infrastructure_owner: "TBD"
-    - app_id: "SYS-05"
-      country: "China"
-      dc_or_region: "dc-cn-primary"
-      platform: "private_dc"
-      zone_subnet: "App Zone; Rocky Linux 9.8 VM"
-      infrastructure_owner: "TBD"
-    - app_id: "SYS-06"
-      country: "China"
-      dc_or_region: "dc-cn-primary"
-      platform: "private_dc"
-      zone_subnet: "App Zone"
-      infrastructure_owner: "TBD"
-    - app_id: "SYS-07"
-      country: "TBD"
-      dc_or_region: "Azure global service"
-      platform: "saas"
-      zone_subnet: "Cloud identity zone; tenant data location TBD"
-      infrastructure_owner: "Microsoft/TBD"
-    - app_id: "SYS-08"
-      country: "United States"
-      dc_or_region: "Azure East US (azure-eastus)"
-      platform: "azure"
-      zone_subnet: "Data resource group and private subnet; exact names TBD"
-      infrastructure_owner: "TBD"
-    - app_id: "SYS-09"
-      country: "United States"
-      dc_or_region: "Azure East US 2 (azure-eastus2); confirmation TBD"
-      platform: "azure"
-      zone_subnet: "Model resource group and private endpoint subnet; exact resource group TBD"
-      infrastructure_owner: "TBD"
-    - app_id: "SYS-10"
-      country: "China"
-      dc_or_region: "dc-cn-primary"
-      platform: "private_dc"
-      zone_subnet: "App Zone"
-      infrastructure_owner: "TBD"
+  systems:
+    - {id: "APP-01", name: "Data Agent Platform (GDA)", type: "new", owner: "org_it", data_classification: "Acme Confidential"}
+    - {id: "APP-02", name: "Magellan EDW Data", type: "existing", owner: "org_it", vendor: "Databricks"}
+    - {id: "APP-03", name: "LLM Gateway (overseas / China pool)", type: "existing", owner: "org_it"}
 
   components:
-    - id: "SYS-01"
-      app_id: "SYS-01"
-      name: "gda-gateway"
-      type: "FE"
-      language: "N/A - static assets and configuration"
-      framework: "nginx; version TBD"
-      runtime: "SYS-10 Internal K8s Platform"
-      sensitivity: "Acme Confidential"
-    - id: "SYS-02"
-      app_id: "SYS-02"
-      name: "gda-agent-api"
-      type: "BE"
-      language: "Node.js; version TBD"
-      framework: "TBD"
-      runtime: "SYS-10 Internal K8s Platform"
-      sensitivity: "Acme Confidential"
-    - id: "SYS-03"
-      app_id: "SYS-03"
-      name: "gda-scheduler-worker"
-      type: "BE"
-      language: "Node.js; version TBD"
-      framework: "TBD"
-      runtime: "SYS-10 Internal K8s Platform"
-      sensitivity: "Acme Confidential"
-    - id: "SYS-04"
-      app_id: "SYS-04"
-      name: "PostgreSQL"
-      type: "DB"
-      language: "N/A"
-      framework: "PostgreSQL; version TBD"
-      runtime: "DB Zone hosts/service model TBD"
-      sensitivity: "Acme Confidential"
-    - id: "SYS-05"
-      app_id: "SYS-05"
-      name: "Outbound gateway"
-      type: "IP"
-      language: "N/A - configuration"
-      framework: "nginx; version TBD"
-      runtime: "Rocky Linux 9.8 VM"
-      sensitivity: "Acme Confidential"
+    - {id: "CMP-01", system_id: "APP-01", subsystem: "web", name: "GDA Gateway + Dashboard UI", kind: "component", layer: "fe", component_role: "web_frontend", status: "active"}
+    - {id: "CMP-02", system_id: "APP-01", subsystem: "agent", name: "GDA Agent API, SSE, Agent Tools", kind: "service", layer: "be", component_role: "ai_agent", status: "active"}
+    - {id: "CMP-03", system_id: "APP-01", subsystem: "ops", name: "GDA Scheduler Worker", kind: "service", layer: "be", component_role: "backend_service", status: "active"}
+    - {id: "CMP-04", system_id: "APP-01", subsystem: "db", name: "PostgreSQL", kind: "component", layer: "db", component_role: "database", encryption_at_rest: "TBD", status: "active"}
+    - {id: "CMP-05", system_id: "APP-01", subsystem: "egress", name: "Outbound gateway", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-06", system_id: "APP-02", name: "Magellan EDW boundary", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-07", system_id: "APP-03", name: "LLM Gateway boundary", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
 
-  network_connections:
-    - from_location: "Office network"
-      to_location: "dc-cn-primary App Zone"
-      type: "TBD internal enterprise network path"
-      encrypted: true
-      encryption_method: "TLS 1.2+"
-    - from_location: "dc-cn-primary App Zone"
-      to_location: "dc-cn-primary DB Zone"
-      type: "Internal cross-zone connection"
-      encrypted: true
-      encryption_method: "TLS 1.2+; PostgreSQL TLS mode TBD"
-    - from_location: "dc-cn-primary via SYS-05"
-      to_location: "Azure East US"
-      type: "TBD private connectivity"
-      encrypted: true
-      encryption_method: "TLS 1.2+"
-    - from_location: "dc-cn-primary via SYS-05"
-      to_location: "Azure East US 2 private endpoint"
-      type: "TBD private connectivity"
-      encrypted: true
-      encryption_method: "TLS 1.2+"
-    - from_location: "Office browser"
-      to_location: "SYS-07 Microsoft Entra ID"
-      type: "HTTPS over controlled enterprise egress; exact path TBD"
-      encrypted: true
-      encryption_method: "TLS 1.2+"
+  deployments:
+    - {id: "DEP-01", component_id: "CMP-01", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", runtime_detail: "Internal K8s", instance_count: 2, status: "planned"}
+    - {id: "DEP-02", component_id: "CMP-02", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", runtime_detail: "Internal K8s", instance_count: 2, status: "planned"}
+    - {id: "DEP-03", component_id: "CMP-03", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "container", runtime_detail: "Internal K8s", instance_count: 1, status: "planned"}
+    - {id: "DEP-04", component_id: "CMP-04", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-03", runtime_type: "vm", runtime_detail: "HA model, endpoint, and encryption TBD", instance_count: 1, status: "planned"}
+    - {id: "DEP-05", component_id: "CMP-05", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-02", runtime_type: "vm", runtime_detail: "Rocky Linux 9.8", instance_count: 1, status: "planned"}
+    - {id: "DEP-06", component_id: "CMP-06", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-08", runtime_type: "serverless", status: "active"}
+    - {id: "DEP-07", component_id: "CMP-07", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-09", runtime_type: "serverless", status: "planned"}
 
-  interactions:
-    - id: "INT-01"
-      from_component: "Office browser"
-      to_component: "SYS-01 gda-gateway"
-      protocol: "HTTPS"
-      port: "443"
-      auth_method: "SYS-07 Microsoft Entra ID redirect; exact protocol TBD"
-      notes: "Tenant and platform administrators; office network only."
-    - id: "INT-02"
-      from_component: "SYS-01 gda-gateway"
-      to_component: "SYS-02 gda-agent-api"
-      protocol: "HTTPS with authenticated SSE response stream"
-      port: "443"
-      auth_method: "Forwarded SYS-07 user token; token format and validation TBD"
-      notes: "Cross-workload call inside App Zone."
-    - id: "INT-03"
-      from_component: "SYS-01 gda-gateway"
-      to_component: "SYS-03 gda-scheduler-worker"
-      protocol: "HTTPS"
-      port: "443"
-      auth_method: "TBD internal service authentication"
-      notes: "Cross-workload call inside App Zone."
-    - id: "INT-04"
-      from_component: "SYS-02 gda-agent-api"
-      to_component: "SYS-04 PostgreSQL"
-      protocol: "PostgreSQL over TCP with TLS 1.2+"
-      port: "5432"
-      auth_method: "Database username/password from encrypted SYS-10 K8s Secret"
-      notes: "App Zone to DB Zone."
-    - id: "INT-05"
-      from_component: "SYS-03 gda-scheduler-worker"
-      to_component: "SYS-04 PostgreSQL"
-      protocol: "PostgreSQL over TCP with TLS 1.2+"
-      port: "5432"
-      auth_method: "Database username/password from encrypted SYS-10 K8s Secret"
-      notes: "App Zone to DB Zone."
-    - id: "INT-06"
-      from_component: "SYS-02 gda-agent-api"
-      to_component: "SYS-05 Outbound gateway"
-      protocol: "HTTPS"
-      port: "443"
-      auth_method: "TBD internal service authentication"
-      notes: "Mandatory egress hop; direct pod cloud/internet egress prohibited."
-    - id: "INT-07"
-      from_component: "SYS-05 Outbound gateway"
-      to_component: "SYS-08 EDW Databricks"
-      protocol: "HTTPS"
-      port: "443"
-      auth_method: "TBD service credential and rotation"
-      notes: "Governed namespaces and row-level governance only."
-    - id: "INT-08"
-      from_component: "SYS-05 Outbound gateway"
-      to_component: "SYS-09 LLM Gateway"
-      protocol: "HTTPS via private endpoint"
-      port: "443"
-      auth_method: "API key; secure delivery to SYS-05 and rotation TBD"
-      notes: "Policy selects overseas or China model pool per tenant."
-    - id: "INT-09"
-      from_component: "SYS-01 gda-gateway"
-      to_component: "SYS-06 ADFS"
-      protocol: "HTTPS / SAML 2.0"
-      port: "443"
-      auth_method: "SAML 2.0 federation"
-      notes: "Internal STS fallback."
+  flows:
+    - {id: "FLOW-01", source_component_id: "internet", target_component_id: "CMP-01", protocol: "HTTPS", port: "443", auth_method: "none", encryption: "TLS1.2", cross_border: false, via: ["INF-04"], notes: "office network only; inbound path TBD; user auth = AUTH-01"}
+    - {id: "FLOW-02", source_component_id: "CMP-01", target_component_id: "CMP-02", protocol: "HTTPS_SSE", port: "443", auth_method: "none", encryption: "TLS1.2", cross_border: false, notes: "forwarded user token; tenant isolation preserved"}
+    - {id: "FLOW-03", source_component_id: "CMP-01", target_component_id: "CMP-03", protocol: "HTTPS", port: "443", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.2", cross_border: false, notes: "mechanism TBD; platform default assumed"}
+    - {id: "FLOW-04", source_component_id: "CMP-02", target_component_id: "CMP-04", protocol: "PostgreSQL", port: "5432", auth_method: "UserPassword", encryption: "TLS1.2", cross_border: false, notes: "credentials in K8s Secret; least privilege"}
+    - {id: "FLOW-05", source_component_id: "CMP-03", target_component_id: "CMP-04", protocol: "PostgreSQL", port: "5432", auth_method: "UserPassword", encryption: "TLS1.2", cross_border: false, notes: "credentials in K8s Secret; least privilege"}
+    - {id: "FLOW-06", source_component_id: "CMP-02", target_component_id: "CMP-05", protocol: "HTTPS", port: "443", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.2", cross_border: false, notes: "mandatory egress hop; mechanism TBD"}
+    - {id: "FLOW-07", source_component_id: "CMP-05", target_component_id: "CMP-06", protocol: "HTTPS", port: "443", auth_method: "mTLS", encryption: "TLS1.2", cross_border: true, cross_border_basis: "Legal and compliance approval TBD; governed namespaces only, payload minimized", via: ["INF-08"], notes: "read-only governed data access"}
+    - {id: "FLOW-08", source_component_id: "CMP-05", target_component_id: "CMP-07", protocol: "HTTPS", port: "443", auth_method: "ApiKey", encryption: "TLS1.2", cross_border: true, cross_border_basis: "Legal and compliance approval TBD; prompt and response payload control", via: ["INF-09"], notes: "private endpoint only; no public exposure"}
 
-  user_auth:
-    - entry_point: "SYS-01 gda-gateway - primary"
-      user_roles:
-        - "Tenant administrator"
-        - "Platform administrator"
-      auth_server: "SYS-07 Microsoft Entra ID"
-      auth_protocol: "TBD redirect-based federated sign-in"
-      authorization: "TBD"
-      auth_platform: "TBD"
-    - entry_point: "SYS-01 gda-gateway - fallback"
-      user_roles:
-        - "Tenant administrator"
-        - "Platform administrator"
-      auth_server: "SYS-06 ADFS"
-      auth_protocol: "SAML 2.0"
-      authorization: "TBD"
-      auth_platform: "TBD"
+  network_links:
+    - {id: "LNK-01", source_infra_id: "INF-01", target_infra_id: "INF-08", method: "vpn", encrypted: true, encryption_method: "TLS 1.2+ application encryption over the private path", managed_by: "TBD", redundancy: "primary", notes: "private connectivity type TBD; carrier, routing, DNS, and firewall controls open"}
+    - {id: "LNK-02", source_infra_id: "INF-01", target_infra_id: "INF-09", method: "vpn", encrypted: true, encryption_method: "TLS 1.2+ application encryption over the private path", managed_by: "TBD", redundancy: "primary", notes: "private connectivity type TBD; carrier, routing, DNS, and firewall controls open"}
 
-  credentials:
-    - environment: "private_dc"
-      solution: "SYS-10 Kubernetes Secrets encrypted at rest"
-      notes: "Stores SYS-04 database credentials and model API keys. Encryption provider, RBAC, injection method, and rotation TBD. Hardcoded credentials prohibited."
-    - environment: "private_dc"
-      solution: "TBD approved secret delivery/store for SYS-05 Rocky Linux VM"
-      notes: "Secure delivery of the SYS-09 API key from its declared source or an approved VM secret store is TBD."
-    - environment: "azure"
-      solution: "TBD"
-      notes: "SYS-08 client credential type and any Azure-side key-vault ownership are TBD."
-
-  data_encryption:
-    - component: "SYS-04 PostgreSQL"
-      at_rest: "TBD"
-      at_rest_method: "TBD approved database and backup encryption"
-      in_transit: true
-      in_transit_protocol: "TLS 1.2+; PostgreSQL TLS enforcement TBD"
-      cross_border: false
-      cross_border_compliance: "China data-residency requirement; detailed standard TBD"
-    - component: "SYS-10 Kubernetes Secrets"
-      at_rest: true
-      at_rest_method: "Encrypted at rest; implementation TBD"
-      in_transit: true
-      in_transit_protocol: "TLS 1.2+ for credential-consuming calls"
-      cross_border: false
-      cross_border_compliance: "Acme Confidential controls; detailed standard TBD"
-    - component: "SYS-02 through SYS-05 to SYS-08 query flow"
-      at_rest: "TBD"
-      at_rest_method: "Source and target platform controls TBD"
-      in_transit: true
-      in_transit_protocol: "TLS 1.2+"
-      cross_border: true
-      cross_border_compliance: "China-to-US governed query payloads; legal basis and minimization controls TBD"
-    - component: "SYS-02 through SYS-05 to SYS-09 model flow"
-      at_rest: "TBD"
-      at_rest_method: "Source and target platform controls TBD"
-      in_transit: true
-      in_transit_protocol: "TLS 1.2+"
-      cross_border: true
-      cross_border_compliance: "China-to-US controlled prompt/response payloads; legal basis, redaction, and retention TBD"
+  auth:
+    - {id: "AUTH-01", subject: "user", applies_to: "CMP-01", auth_server: "INF-07", protocol: "OIDC", authorization: "RBAC", mfa: true, user_roles: "platform administrator; tenant administrator", notes: "primary sign-in path; exact protocol and tenant claim mapping TBD"}
+    - {id: "AUTH-02", subject: "user", applies_to: "CMP-01", auth_server: "INF-05", protocol: "SAML2", authorization: "RBAC", mfa: true, user_roles: "platform administrator; tenant administrator", notes: "internal STS fallback; trigger and role mapping TBD"}
 
   open_items:
-    - id: "TBD-01"
-      description: "Confirm SYS-04 VIP/service endpoint and physical hosting model without placing addresses in this document."
-      owner: "TBD"
-      blocking: false
-    - id: "TBD-02"
-      description: "Confirm SYS-09 production region as Azure East US 2 and identify the model resource group."
-      owner: "TBD"
-      blocking: false
-    - id: "TBD-03"
-      description: "Define the SYS-09 China-pool model list and tenant pool-selection policy details."
-      owner: "TBD"
-      blocking: false
-    - id: "TBD-04"
-      description: "Identify owning department, application owners, infrastructure owners, author, and go-live date."
-      owner: "TBD"
-      blocking: false
-    - id: "TBD-05"
-      description: "Confirm SYS-07 sign-in protocol, token format, authorization mechanism/platform, role mapping, and fallback behavior."
-      owner: "Security/IAM owner TBD"
-      blocking: false
-    - id: "TBD-06"
-      description: "Select exact service-to-service authentication for INT-03 and INT-06."
-      owner: "Security owner TBD"
-      blocking: false
-    - id: "TBD-07"
-      description: "Select the SYS-08 service credential mechanism and rotation policy."
-      owner: "Data platform owner TBD"
-      blocking: false
-    - id: "TBD-08"
-      description: "Confirm private connectivity, routing, private DNS, firewall, and proxy implementation between the DC and both Azure regions."
-      owner: "Network owner TBD"
-      blocking: false
-    - id: "TBD-09"
-      description: "Confirm SYS-04 encryption at rest, PostgreSQL TLS enforcement, certificate trust, backup encryption, and recovery requirements."
-      owner: "Database owner TBD"
-      blocking: false
-    - id: "TBD-10"
-      description: "Define secure SYS-09 API-key delivery to SYS-05, storage, access control, and rotation."
-      owner: "Security owner TBD"
-      blocking: false
-    - id: "TBD-11"
-      description: "Approve legal/compliance basis, minimization, redaction, logging, and retention controls for China-to-US query and model payloads."
-      owner: "Compliance owner TBD"
-      blocking: false
-    - id: "TBD-12"
-      description: "Confirm product versions, Node.js frameworks, K8s deployment details, availability targets, capacity, monitoring, backup, RTO, and RPO."
-      owner: "Platform owner TBD"
-      blocking: false
-    - id: "TBD-13"
-      description: "Confirm exact SYS-08 resource group/private subnet and SYS-07 tenant data location."
-      owner: "Cloud owner TBD"
-      blocking: false
-    - id: "TBD-14"
-      description: "Confirm inbound publishing/load-balancing and firewall path from the office network to SYS-01."
-      owner: "Network owner TBD"
-      blocking: false
-
-  architecture_constraints:
-    - "The new agent runtime and SYS-04 data remain in China at dc-cn-primary."
-    - "SYS-01, SYS-02, and SYS-03 run in the App Zone on SYS-10."
-    - "SYS-04 is in the DB Zone and is reachable only from the App Zone on TCP 5432."
-    - "SYS-05 is the only private-DC path to Azure; direct SYS-10 pod internet or cloud egress is prohibited."
-    - "SYS-09 is private-endpoint-only and has no public exposure."
-    - "All traffic uses TLS 1.2 or later, and every diagram interaction shows direction, protocol, port, and authentication."
-    - "SYS-08 access is limited to governed namespaces with row-level governance."
-    - "SYS-09 model-pool selection is policy-driven per tenant."
-    - "Acme Confidential payloads remain on controlled paths; telemetry must not create uncontrolled copies."
-    - "Secrets are encrypted at rest, least-privilege, rotated, and never hardcoded."
-    - "No IP address or CIDR is part of this requirements baseline; unresolved addressing is TBD."
+    - {id: "TBD-01", blocking: true, text: "Confirm office-to-CMP-01 publishing, load-balancing, and firewall path."}
+    - {id: "TBD-02", blocking: true, text: "Confirm private connectivity (LNK-01/LNK-02) carrier, routing, private DNS, and firewall controls."}
+    - {id: "TBD-03", blocking: true, text: "Confirm Entra sign-in protocol, token validation, tenant authorization, and ADFS fallback behaviour."}
+    - {id: "TBD-04", blocking: true, text: "Confirm service authentication for FLOW-03 and FLOW-06, and credential lifecycle for CMP-06 and CMP-07."}
+    - {id: "TBD-05", blocking: true, text: "Confirm PostgreSQL encryption at rest, certificate trust, backup protection, RTO, and RPO."}
+    - {id: "TBD-06", blocking: true, text: "Approve cross-border minimization, redaction, logging, retention, and legal basis."}

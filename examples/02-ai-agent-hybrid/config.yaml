@@ -12,7 +12,7 @@ datacenters:
     model: "three-tier"
     zones: ["DMZ", "App Zone", "DB Zone"]
     region: "APAC-CN"
-    notes: "Hosts SYS-01, SYS-02, SYS-03 in App Zone on SYS-10 and SYS-04 in DB Zone. (See input/systems-registry.md.)"
+    notes: "Hosts CMP-01, CMP-02, CMP-03 in App Zone on Internal K8s and CMP-04 in DB Zone. (See input/systems-registry.md.)"
 
   - id: "azure-eastus"
     aliases: ["Azure East US", "East US"]
@@ -20,7 +20,7 @@ datacenters:
     model: "vnet-rg"
     zones: ["rg-edw-row-prod (Databricks)", "rg-gda-prod-eus2"]
     region: "NA"
-    notes: "Hosts SYS-08. (See input/systems-registry.md.)"
+    notes: "Hosts CMP-06. (See input/systems-registry.md.)"
 
   - id: "azure-eastus2"
     aliases: ["Azure East US 2", "East US2"]
@@ -28,7 +28,7 @@ datacenters:
     model: "vnet-rg"
     zones: ["PE Subnet (private endpoints)"]
     region: "NA"
-    notes: "Hosts SYS-09 reachable via private endpoint only. (See input/systems-registry.md.)"
+    notes: "Hosts CMP-07 reachable via private endpoint only. (See input/systems-registry.md.)"
 
 platforms:
   api_gateway: "GDA Gateway (nginx)"

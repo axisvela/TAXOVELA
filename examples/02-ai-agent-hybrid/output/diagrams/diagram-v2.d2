@@ -1,0 +1,235 @@
+# Data Agent Platform (GDA) - Hybrid Technical Architecture
+# ID: DAP-001-TechDiagram-V1.0  |  Platform: hybrid_cloud  |  Version: V1.0  |  Owner team: TBD  |  Author: TBD  |  Last modified: 2026-09-14
+
+direction: right
+
+internet: Internet {
+  shape: cloud
+  style {
+    fill: "#E8E8E8"
+  }
+}
+
+dc_cn_primary: "City A, Province A [CN] [TBD]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  dc_cn_primary_dmz: "DMZ - Inbound Path TBD" {
+    style {
+      fill: "#FFFDE7"
+      stroke: "#F9A825"
+      stroke-dash: 6
+    }
+
+  }
+
+  dc_cn_primary_app_zone: "Internal K8s / App Zone" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    CMP_01: "⚠ CMP-01 gda-gateway\nn/a - static assets and configuration, nginx; version · K8s" {
+      shape: rectangle
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_02: "⚠ CMP-02 gda-agent-api\nnode.js; version · K8s" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_03: "⚠ CMP-03 gda-scheduler-worker\nnode.js; version · K8s" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_05: "⚠ CMP-05 Outbound gateway\nn/a - configuration, nginx; version · VM" {
+      shape: parallelogram
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            bold: true
+          }
+    }
+    INF_05: "INF-05 ADFS\nExisting private-DC identity service" {
+      shape: oval
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+  }
+
+  dc_cn_primary_db_zone: "DB Zone" {
+    style {
+      fill: "#E3F2FD"
+      stroke: "#1565C0"
+      stroke-dash: 6
+    }
+
+    CMP_04: "⚠ CMP-04 PostgreSQL\nn/a, postgresql; version · DB Zone hosts/service model TBD" {
+      shape: cylinder
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            bold: true
+          }
+    }
+  }
+
+}
+
+azure_global_identity: "Azure Global Service [Location TBD] [Microsoft/TBD]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#0078D4"
+    stroke-width: 2
+  }
+
+  azure_global_identity_zone: "Cloud Identity Service Boundary" {
+    style {
+      fill: "#E8F5E9"
+      stroke: "#2E7D32"
+      stroke-dash: 6
+    }
+
+    INF_07: "INF-07 Microsoft Entra ID\nMicrosoft cloud service" {
+      shape: oval
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+          }
+    }
+  }
+
+}
+
+azure_eastus: "Azure East US, Virginia [US] [TBD]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#0078D4"
+    stroke-width: 2
+  }
+
+  azure_eastus_hub: "East US Hybrid Connectivity Boundary" {
+    style {
+      fill: "#FFF8E1"
+      stroke: "#E65100"
+      stroke-dash: 6
+    }
+
+    azure_eastus_private_connectivity: "Private Connectivity Gateway - Type TBD" {
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+  }
+
+  azure_eastus_edw_spoke: "EDW Data Resource Group / Private Subnet" {
+    style {
+      fill: "#E8F5E9"
+      stroke: "#2E7D32"
+      stroke-dash: 6
+    }
+
+    CMP_06: "⚠ CMP-06 EDW Databricks\nAzure Databricks" {
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+  }
+
+}
+
+azure_eastus2: "Azure East US 2, Virginia [US] - Confirmation TBD [TBD]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#0078D4"
+    stroke-width: 2
+  }
+
+  azure_eastus2_hub: "East US 2 Hybrid Connectivity Boundary" {
+    style {
+      fill: "#FFF8E1"
+      stroke: "#E65100"
+      stroke-dash: 6
+    }
+
+    azure_eastus2_private_connectivity: "Private Connectivity Gateway - Type TBD" {
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+  }
+
+  azure_eastus2_private_endpoint: "Model Resource Group / Private Endpoint Subnet" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_07: "⚠ CMP-07 LLM Gateway\nAzure private service" {
+      shape: parallelogram
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+  }
+
+}
+
+# ── Interactions ──────────────────────────────────────
+
+user -> dc_cn_primary.dc_cn_primary_app_zone.CMP_01: "P-HTTPS"
+dc_cn_primary.dc_cn_primary_app_zone.CMP_01 -> dc_cn_primary.dc_cn_primary_app_zone.CMP_02: "P-HTTPS"
+dc_cn_primary.dc_cn_primary_app_zone.CMP_01 -> dc_cn_primary.dc_cn_primary_app_zone.CMP_03: "P-HTTPS\n(AU-X2)"
+dc_cn_primary.dc_cn_primary_app_zone.CMP_02 -> dc_cn_primary.dc_cn_primary_db_zone.CMP_04: "P-TCP"
+dc_cn_primary.dc_cn_primary_app_zone.CMP_03 -> dc_cn_primary.dc_cn_primary_db_zone.CMP_04: "P-TCP"
+dc_cn_primary.dc_cn_primary_app_zone.CMP_02 -> dc_cn_primary.dc_cn_primary_app_zone.CMP_05: "P-HTTPS\n(AU-X2)"
+dc_cn_primary.dc_cn_primary_app_zone.CMP_05 -> azure_eastus.azure_eastus_edw_spoke.CMP_06: "P-HTTPS"
+dc_cn_primary.dc_cn_primary_app_zone.CMP_05 -> azure_eastus2.azure_eastus2_private_endpoint.CMP_07: "P-HTTPS\n(AU-P3)"
+dc_cn_primary.dc_cn_primary_app_zone.CMP_01 -> dc_cn_primary.dc_cn_primary_app_zone.INF_05: "P-HTTPS\n(AU-T3)"
+user -> azure_global_identity.azure_global_identity_zone.INF_07: "P-HTTPS"
+dc_cn_primary -> azure_eastus: "P-PRIVATE"
+dc_cn_primary -> azure_eastus2: "P-PRIVATE"
+
+# ── Security declarations ─────────────────────────
+# Key Management [private_dc]: Internal K8s Kubernetes Secrets encrypted at rest for pod credentials; approved CMP-05 VM secret delivery/store TBD; least-privilege RBAC, injection, and rotation required; no hardcoded secrets
+# Key Management [azure]: Provider-side controls remain outside the integration boundary; CMP-06 credential mechanism and any Azure Key Vault ownership are TBD
+# User Auth (Internal): INF-05 ADFS / SAML 2.0 fallback
+# User Auth (External): INF-07 Microsoft Entra ID / Redirect-based federated sign-in - exact protocol TBD

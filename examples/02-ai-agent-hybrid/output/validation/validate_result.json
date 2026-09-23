@@ -47,7 +47,7 @@
       "severity": "critical",
       "disposition": "must_fix",
       "dimension": "Security_Compliance",
-      "subject": "Internet/office ingress to SYS-01",
+      "subject": "Internet/office ingress to CMP-01",
       "evidence": "The visible DMZ is empty and labelled 'Inbound Path TBD'; no F5, firewall, WAF, or load balancer is shown before the Internal K8s/App Zone.",
       "confidence": "high"
     },
@@ -87,8 +87,8 @@
       "severity": "high",
       "disposition": "must_fix",
       "dimension": "Cloud_Network_Completeness",
-      "subject": "SYS-05 outbound and hybrid controls",
-      "evidence": "SYS-05 is a visible egress gateway, but carrier, routing, firewall inspection, allow-list enforcement point, and private DNS implementation remain TBD.",
+      "subject": "CMP-05 outbound and hybrid controls",
+      "evidence": "CMP-05 is a visible egress gateway, but carrier, routing, firewall inspection, allow-list enforcement point, and private DNS implementation remain TBD.",
       "confidence": "high"
     },
     {
@@ -107,8 +107,8 @@
       "severity": "high",
       "disposition": "must_fix",
       "dimension": "Cloud_Network_Completeness",
-      "subject": "SYS-08 and SYS-09 Azure PaaS access",
-      "evidence": "SYS-09 is labelled as private-endpoint based, but centralized Private DNS and public-access disablement are not shown; SYS-08 is only in a 'Private Subnet' boundary with its exact private endpoint TBD.",
+      "subject": "CMP-06 and CMP-07 Azure PaaS access",
+      "evidence": "CMP-07 is labelled as private-endpoint based, but centralized Private DNS and public-access disablement are not shown; CMP-06 is only in a 'Private Subnet' boundary with its exact private endpoint TBD.",
       "confidence": "high"
     },
     {
@@ -118,7 +118,7 @@
       "disposition": "must_fix",
       "dimension": "Security_Compliance",
       "subject": "INT-03, INT-06, and INT-07 service authentication",
-      "evidence": "The diagram explicitly labels internal service authentication and the SYS-08 service credential/rotation as TBD.",
+      "evidence": "The diagram explicitly labels internal service authentication and the CMP-06 service credential/rotation as TBD.",
       "confidence": "high"
     },
     {
@@ -148,7 +148,7 @@
       "disposition": "must_fix",
       "dimension": "Security_Compliance",
       "subject": "Hybrid credential and key protection",
-      "evidence": "No Azure Key Vault or Managed Identity is shown. SYS-05 secret storage, SYS-08 credentials, and SYS-09 API-key delivery/storage/access/rotation remain TBD.",
+      "evidence": "No Azure Key Vault or Managed Identity is shown. CMP-05 secret storage, CMP-06 credentials, and CMP-07 API-key delivery/storage/access/rotation remain TBD.",
       "confidence": "high"
     },
     {
@@ -177,7 +177,7 @@
       "severity": "critical",
       "disposition": "must_fix",
       "dimension": "Security_Compliance",
-      "subject": "CN-to-US SYS-08 and SYS-09 data flows",
+      "subject": "CN-to-US CMP-06 and CMP-07 data flows",
       "evidence": "The cross-border arrows do not state payload data classification or an approved legal/compliance basis; minimization, redaction, logging, retention, and approval remain TBD.",
       "confidence": "high"
     },
@@ -207,8 +207,8 @@
       "severity": "medium",
       "disposition": "must_fix",
       "dimension": "Technical_Component_Completeness",
-      "subject": "SYS-01, SYS-02, SYS-03, and SYS-05 technology stacks",
-      "evidence": "Framework or product versions remain TBD; SYS-02 and SYS-03 have no resolved framework, preventing a definitive vulnerability-management scope.",
+      "subject": "CMP-01, CMP-02, CMP-03, and CMP-05 technology stacks",
+      "evidence": "Framework or product versions remain TBD; CMP-02 and CMP-03 have no resolved framework, preventing a definitive vulnerability-management scope.",
       "confidence": "high"
     },
     {
@@ -217,7 +217,7 @@
       "severity": "medium",
       "disposition": "must_fix",
       "dimension": "Technical_Component_Completeness",
-      "subject": "SYS-04 and hybrid connectivity gateways",
+      "subject": "CMP-04 and hybrid connectivity gateways",
       "evidence": "The PostgreSQL host/service model and both private-connectivity gateway implementations are TBD, leaving runtime and patch ownership unresolved.",
       "confidence": "high"
     },
@@ -227,7 +227,7 @@
       "severity": "medium",
       "disposition": "should_fix",
       "dimension": "Security_Compliance",
-      "subject": "SYS-04 PostgreSQL and backups",
+      "subject": "CMP-04 PostgreSQL and backups",
       "evidence": "At-rest encryption, key ownership, backup protection, and TLS certificate trust/enforcement are not identified.",
       "confidence": "high"
     },

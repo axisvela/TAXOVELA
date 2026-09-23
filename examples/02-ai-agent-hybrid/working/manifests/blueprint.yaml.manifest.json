@@ -4,7 +4,7 @@
   "type": "technical-deployment-view",
   "schema": "architecture/v1",
   "path": "output\\designs\\blueprint.yaml",
-  "sha256": "cb4625a35c164fcd5be1fa1f7486e7cbdbd92543a6e89d804325d095a4e1d6d7",
+  "sha256": "645cb931895ea36766548fba9ca4e967bf711be18ce4bd791434fc670bbd1b79",
   "model_version": "V1.0",
   "producer": "arch-design",
   "produced_at": "2026-09-14T13:06:02+00:00",

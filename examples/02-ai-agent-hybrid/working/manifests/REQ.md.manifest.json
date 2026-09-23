@@ -4,7 +4,7 @@
   "type": "requirements_document",
   "schema": "requirements/v1",
   "path": "output\\requirements\\REQ.md",
-  "sha256": "5cfdfde442e723639885025ac33dc0b8e2ba59f528e76b6fa0900d200fdda65a",
+  "sha256": "ca9566727375e7c67df7fbb93fbdb40334ee2d11fed0cd880994c11f4c78b744",
   "model_version": null,
   "producer": "arch-requirements",
   "produced_at": "2026-09-14T11:23:29+00:00",

@@ -46,6 +46,9 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
   produces byte-identical XML.
 - Examples 01–05 and 07–08 ship with the repository; example 04 carries role
   names for carriers and vendors and the platform acronym is `SDP`.
+- Example 05 joins example 06 as a fully migrated reference: its blueprint nodes
+  carry the req/v2 typed codes, with `CMP-nn-CN` / `CMP-nn-NA` for a component
+  deployed in both sites, and its v2 diagram is rendered from that blueprint.
 
 ### Fixed
 

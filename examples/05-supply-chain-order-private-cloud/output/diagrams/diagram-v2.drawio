@@ -1,0 +1,922 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="arch-harness" version="24.6.4" type="device">
+  <diagram id="diag-1" name="Page-1">
+    <mxGraphModel dx="2000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1336" pageHeight="3362" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="hdr-2" value="&lt;b&gt;Diagram: Supply-Chain Order Platform (OSP) - Active-Active CN and NA Technical Architecture&lt;/b&gt;&lt;br/&gt;ID: OSP-001-TechDiagram-V1.0&lt;br/&gt;Platform: hybrid_cloud&lt;br/&gt;Version: V1.0&lt;br/&gt;Owner team: Supply Chain IT&lt;br/&gt;Author: Architecture Team&lt;br/&gt;Last modified: 2026-09-14" style="text;whiteSpace=wrap;overflow=hidden;rounded=0;fontFamily=Helvetica;fontSize=11;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="40" y="-120" width="600" height="146" as="geometry"/>
+        </mxCell>
+        <mxCell id="inet-3" value="Internet" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.internet;" parent="1" vertex="1">
+          <mxGeometry x="40" y="80" width="60" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="user-4" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;align=center;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="160" y="70" width="37" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-5" value="City A, Province A [CN]&#10;(InfraSec)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="50" y="140" width="570" height="2064" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-6" value="Intranet" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#F5F5F5;strokeColor=#888888;" parent="reg-5" vertex="1">
+          <mxGeometry x="22" y="66" width="526" height="212" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-7" value="⚠ INF-16 | F5&#10;n/a, f5 · PM" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-6" vertex="1" tooltip="Lang: N/A | Framework: F5 | Runtime: Network appliance | Classification: Company Confidential | Notes: CN ingress load balancer">
+          <mxGeometry x="96" y="48" width="114" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-8" value="⚠ INF-17 | WAF&#10;n/a, enterprise waf · PM" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#66BB6A;strokeColor=#43A047;fontColor=#000000;" parent="zone-6" vertex="1" tooltip="Lang: N/A | Framework: Enterprise WAF | Runtime: Security appliance | Classification: Company Confidential | Notes: Optional CN WAF; enable after security-owner decision">
+          <mxGeometry x="226" y="48" width="203" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-9" value="⚠ INF-18 | Edge router&#10;n/a, edge router · HW" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-6" vertex="1" tooltip="Lang: N/A | Framework: Edge router | Runtime: Network platform | Classification: Company Confidential | Notes: CN edge routing boundary">
+          <mxGeometry x="34" y="126" width="181" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-10" value="⚠ CMP-01-CN | scop-cn-web&#10;n/a, nginx · Private DC web tier" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-6" vertex="1" tooltip="Lang: N/A | Framework: Nginx | Runtime: Private DC web tier | Classification: Company Confidential | Notes: CN employee web tier">
+          <mxGeometry x="231" y="126" width="260" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-11" value="App Zone" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#E8F5E9;strokeColor=#82B366;" parent="reg-5" vertex="1">
+          <mxGeometry x="22" y="296" width="526" height="1236" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-12" value="⚠ CMP-02-CN | Spring Cloud Gateway&#10;java, spring cloud gateway · K8s" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: Java | Framework: Spring Cloud Gateway | Runtime: Internal K8s Platform | Classification: Company Confidential | Notes: CN application gateway">
+          <mxGeometry x="16" y="48" width="260" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-13" value="⚠ CMP-03-CN | Order Creation&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="292" y="50" width="218" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-14" value="⚠ CMP-04-CN | Order&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="33" y="122" width="203" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-15" value="⚠ CMP-05-CN | Data Distribution&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="252" y="122" width="240" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-16" value="⚠ CMP-06-CN | Master Data&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="51" y="192" width="196" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-17" value="⚠ CMP-07-CN | Order Inquiry&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="263" y="192" width="211" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-18" value="⚠ CMP-08-CN | Basic Operation&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="59" y="262" width="225" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-19" value="⚠ CMP-09-CN | Logging&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="300" y="262" width="166" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-20" value="⚠ CMP-10-CN | etc.&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="45" y="334" width="159" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-21" value="⚠ CMP-11 | APIM&#10;n/a, apim · Integration platform" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: N/A | Framework: APIM | Runtime: Integration platform | Classification: Company Confidential | Notes: CN API management boundary">
+          <mxGeometry x="220" y="332" width="260" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-22" value="⚠ CMP-12 | WSO2&#10;n/a, wso2 api gateway · Integration platform" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: N/A | Framework: WSO2 API Gateway | Runtime: Integration platform | Classification: Company Confidential | Notes: CN API gateway boundary">
+          <mxGeometry x="133" y="406" width="260" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-23" value="⚠ CMP-13-CN | APIH&#10;n/a, apih · Integration platform" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: N/A | Framework: APIH | Runtime: Integration platform | Classification: Company Confidential | Notes: CN API mediation boundary">
+          <mxGeometry x="133" y="480" width="260" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-24" value="⚠ CMP-14-CN | Kafka&#10;n/a, kafka · Messaging platform" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: N/A | Framework: Kafka | Runtime: Messaging platform | Classification: Company Confidential | Notes: CN event and CDC publication bus">
+          <mxGeometry x="135" y="554" width="255" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-25" value="⚠ CMP-15-CN | RabbitMQ&#10;n/a, rabbitmq · Messaging platform" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: N/A | Framework: RabbitMQ | Runtime: Messaging platform | Classification: Company Confidential | Notes: CN CDC staging bus">
+          <mxGeometry x="38" y="628" width="260" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-26" value="⚠ CMP-16-CN | Debezium&#10;java, debezium · K8s" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: Java | Framework: Debezium | Runtime: Internal K8s Platform | Classification: Company Confidential | Notes: CN CDC connector; no direct cross-region database replication">
+          <mxGeometry x="314" y="628" width="174" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-27" value="⚠ CMP-33 | ECC-CN&#10;n/a, sap ecc function and slt · Existing ERP platform" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: N/A | Framework: SAP ECC Function and SLT | Runtime: Existing ERP platform | Classification: Company Confidential">
+          <mxGeometry x="133" y="702" width="260" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-28" value="⚠ CMP-34 | S4-CN&#10;n/a, sap s/4 function and slt · Existing ERP platform" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="zone-11" vertex="1" tooltip="Lang: N/A | Framework: SAP S/4 Function and SLT | Runtime: Existing ERP platform | Classification: Company Confidential">
+          <mxGeometry x="133" y="772" width="260" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-29" value="⚠ CMP-25 | eComm-order-platform&#10;n/a, existing application · CN private platform" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="zone-11" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: CN private platform | Classification: Company Confidential">
+          <mxGeometry x="133" y="842" width="260" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-30" value="⚠ CMP-26 | SOS(sales order service)-PRC&#10;n/a, existing application · CN private platform" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="zone-11" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: CN private platform | Classification: Company Confidential">
+          <mxGeometry x="133" y="912" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-31" value="⚠ CMP-27 | CFOS(customer order fullfillment service)-PRC&#10;n/a, existing application · CN private platform" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="zone-11" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: CN private platform | Classification: Company Confidential">
+          <mxGeometry x="133" y="989" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-32" value="⚠ CMP-28 | CFOS(customer order fullfillment service)-AP&#10;n/a, existing application · CN private platform" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="zone-11" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: CN private platform | Classification: Company Confidential">
+          <mxGeometry x="133" y="1066" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-33" value="⚠ CMP-29 | SSCS(Service supply chain service)-AP&#10;n/a, existing application · CN private platform" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="zone-11" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: CN private platform | Classification: Company Confidential">
+          <mxGeometry x="133" y="1143" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-34" value="DB Zone" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#E3F2FD;strokeColor=#6C8EBF;" parent="reg-5" vertex="1">
+          <mxGeometry x="22" y="1550" width="526" height="474" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-35" value="⚠ CMP-17-CN | Elasticsearch HA&#10;n/a, elasticsearch ha · HA data platform" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-34" vertex="1" tooltip="Lang: N/A | Framework: Elasticsearch HA | Runtime: HA data platform | Classification: Company Confidential | Notes: Encrypted search index">
+          <mxGeometry x="133" y="48" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-36" value="⚠ CMP-18-CN | Redis HA&#10;n/a, redis ha · HA data platform" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-34" vertex="1" tooltip="Lang: N/A | Framework: Redis HA | Runtime: HA data platform | Classification: Company Confidential | Notes: Encrypted cache persistence">
+          <mxGeometry x="133" y="130" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-37" value="⚠ CMP-19 | MySQL HA&#10;n/a, mysql ha · HA data platform" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-34" vertex="1" tooltip="Lang: N/A | Framework: MySQL HA | Runtime: HA data platform | Classification: Company Confidential | Notes: CN-only relational group; AES-256 at rest">
+          <mxGeometry x="133" y="212" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-38" value="⚠ CMP-20-CN | PostgreSQL HA&#10;n/a, postgresql ha · HA data platform" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-34" vertex="1" tooltip="Lang: N/A | Framework: PostgreSQL HA | Runtime: HA data platform | Classification: Company Confidential | Notes: AES-256 at rest">
+          <mxGeometry x="133" y="294" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-39" value="⚠ CMP-21-CN | SQLServer HA&#10;n/a, sql server ha · HA data platform" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-34" vertex="1" tooltip="Lang: N/A | Framework: SQL Server HA | Runtime: HA data platform | Classification: Company Confidential | Notes: TDE AES-256 at rest">
+          <mxGeometry x="133" y="376" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-40" value="City C, State X [US]&#10;(InfraSec)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="690" y="140" width="546" height="1982" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-41" value="NA-PROD-INA-EARTH" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#F5F5F5;strokeColor=#888888;" parent="reg-40" vertex="1">
+          <mxGeometry x="22" y="66" width="502" height="212" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-42" value="⚠ INF-19 | F5&#10;n/a, f5 · PM" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-41" vertex="1" tooltip="Lang: N/A | Framework: F5 | Runtime: Network appliance | Classification: Company Confidential | Notes: NA ingress load balancer">
+          <mxGeometry x="84" y="48" width="114" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-43" value="⚠ INF-20 | WAF&#10;n/a, enterprise waf · PM" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#66BB6A;strokeColor=#43A047;fontColor=#000000;" parent="zone-41" vertex="1" tooltip="Lang: N/A | Framework: Enterprise WAF | Runtime: Security appliance | Classification: Company Confidential | Notes: Optional NA WAF; enable after security-owner decision">
+          <mxGeometry x="214" y="48" width="203" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-44" value="⚠ INF-21 | Edge router&#10;n/a, edge router · HW" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-41" vertex="1" tooltip="Lang: N/A | Framework: Edge router | Runtime: Network platform | Classification: Company Confidential | Notes: NA edge routing boundary">
+          <mxGeometry x="160" y="126" width="181" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-45" value="NA-PROD-INA-K8S" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#E8F5E9;strokeColor=#82B366;" parent="reg-40" vertex="1">
+          <mxGeometry x="22" y="296" width="502" height="624" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-46" value="⚠ CMP-01-NA | osp-na-web&#10;n/a, nginx · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-45" vertex="1" tooltip="Lang: N/A | Framework: Nginx | Runtime: Internal K8s Platform | Classification: Company Confidential | Notes: NA employee web tier">
+          <mxGeometry x="19" y="50" width="188" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-47" value="⚠ CMP-02-NA | Spring Cloud Gateway&#10;java, spring cloud gateway · K8s" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-45" vertex="1" tooltip="Lang: Java | Framework: Spring Cloud Gateway | Runtime: Internal K8s Platform | Classification: Company Confidential | Notes: NA application gateway">
+          <mxGeometry x="223" y="48" width="260" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-48" value="⚠ CMP-03-NA | Order Creation&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-45" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="32" y="122" width="218" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-49" value="⚠ CMP-04-NA | Order&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-45" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="266" y="122" width="203" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-50" value="⚠ CMP-05-NA | Data Distribution&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-45" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="25" y="192" width="240" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-51" value="⚠ CMP-06-NA | Master Data&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-45" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="281" y="192" width="196" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-52" value="⚠ CMP-07-NA | Order Inquiry&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-45" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="25" y="262" width="211" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-53" value="⚠ CMP-08-NA | Basic Operation&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-45" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="252" y="262" width="225" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-54" value="⚠ CMP-09-NA | Logging&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-45" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="80" y="332" width="166" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-55" value="⚠ CMP-10-NA | etc.&#10;java, spring · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-45" vertex="1" tooltip="Lang: Java | Framework: Spring | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="262" y="332" width="159" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-56" value="⚠ BE group ×3&#10;n/a, existing application · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=4 4;fillColor=#FAFAFA;strokeColor=#666666;verticalAlign=top;spacingTop=4;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-45" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="16" y="402" width="470" height="188" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-57" value="⚠ CMP-22 | ERPS（ERP service）&#10;n/a, existing application · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-56" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="12" y="39" width="215" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-58" value="⚠ CMP-23 | LGS(logistics gateway service)-NA&#10;n/a, existing application · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-56" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="243" y="36" width="215" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-59" value="⚠ CMP-24 | IBS(Installbase service)&#10;n/a, existing application · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-56" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: Internal K8s Platform | Classification: Company Confidential">
+          <mxGeometry x="127" y="113" width="215" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-60" value="NA-PROD-INA-INTEGRATION" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#E8F5E9;strokeColor=#82B366;" parent="reg-40" vertex="1">
+          <mxGeometry x="22" y="938" width="502" height="212" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-61" value="⚠ CMP-13-NA | APIH&#10;n/a, apih · Integration platform" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-60" vertex="1" tooltip="Lang: N/A | Framework: APIH | Runtime: Integration platform | Classification: Company Confidential | Notes: Sole NA cross-application API mediator">
+          <mxGeometry x="121" y="48" width="260" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-62" value="⚠ CMP-14-NA | Kafka&#10;n/a, kafka · Messaging platform" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-60" vertex="1" tooltip="Lang: N/A | Framework: Kafka | Runtime: Messaging platform | Classification: Company Confidential | Notes: Sole NA cross-application event mediator">
+          <mxGeometry x="123" y="122" width="255" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-63" value="NA-PROD-INA-SAP" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#E8F5E9;strokeColor=#82B366;" parent="reg-40" vertex="1">
+          <mxGeometry x="22" y="1168" width="502" height="134" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-64" value="⚠ CMP-35 | S4-NA&#10;n/a, sap s/4 function and slt · Existing ERP platform" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="zone-63" vertex="1" tooltip="Lang: N/A | Framework: SAP S/4 Function and SLT | Runtime: Existing ERP platform | Classification: Company Confidential">
+          <mxGeometry x="121" y="48" width="260" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-65" value="NA-PROD-INA-SERVER" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#E8F5E9;strokeColor=#82B366;" parent="reg-40" vertex="1">
+          <mxGeometry x="22" y="1320" width="502" height="212" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-66" value="⚠ CMP-15-NA | RabbitMQ&#10;n/a, rabbitmq · Messaging platform" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-65" vertex="1" tooltip="Lang: N/A | Framework: RabbitMQ | Runtime: Messaging platform | Classification: Company Confidential | Notes: NA CDC staging bus">
+          <mxGeometry x="121" y="48" width="260" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-67" value="⚠ CMP-16-NA | Debezium&#10;java, debezium · Server platform" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-65" vertex="1" tooltip="Lang: Java | Framework: Debezium | Runtime: Server platform | Classification: Company Confidential | Notes: NA CDC connector; no direct cross-region database replication">
+          <mxGeometry x="121" y="122" width="260" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-68" value="NA-PROD-INA-DB" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#E3F2FD;strokeColor=#6C8EBF;" parent="reg-40" vertex="1">
+          <mxGeometry x="22" y="1550" width="502" height="392" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-69" value="⚠ CMP-17-NA | Elasticsearch HA&#10;n/a, elasticsearch ha · HA data platform" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-68" vertex="1" tooltip="Lang: N/A | Framework: Elasticsearch HA | Runtime: HA data platform | Classification: Company Confidential | Notes: Encrypted search index">
+          <mxGeometry x="121" y="48" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-70" value="⚠ CMP-18-NA | Redis HA&#10;n/a, redis ha · HA data platform" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-68" vertex="1" tooltip="Lang: N/A | Framework: Redis HA | Runtime: HA data platform | Classification: Company Confidential | Notes: Encrypted cache persistence">
+          <mxGeometry x="121" y="130" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-71" value="⚠ CMP-20-NA | PostgreSQL HA&#10;n/a, postgresql ha · HA data platform" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-68" vertex="1" tooltip="Lang: N/A | Framework: PostgreSQL HA | Runtime: HA data platform | Classification: Company Confidential | Notes: AES-256 at rest">
+          <mxGeometry x="121" y="212" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-72" value="⚠ CMP-21-NA | SQLServer HA&#10;n/a, sql server ha · HA data platform" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-68" vertex="1" tooltip="Lang: N/A | Framework: SQL Server HA | Runtime: HA data platform | Classification: Company Confidential | Notes: TDE AES-256 at rest">
+          <mxGeometry x="121" y="294" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-73" value="City C, State X [US]&#10;(InfraSec)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="690" y="2192" width="546" height="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-74" value="App Zone" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#E8F5E9;strokeColor=#82B366;" parent="reg-73" vertex="1">
+          <mxGeometry x="22" y="66" width="502" height="134" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-75" value="⚠ INF-22 | ADFS&#10;n/a, adfs · Existing identity platform" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-74" vertex="1" tooltip="Lang: N/A | Framework: ADFS | Runtime: Existing identity platform | Classification: Company Confidential | Notes: Employee SSO with MFA policy enforcement">
+          <mxGeometry x="121" y="48" width="260" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-76" value="AWS US East, N. Virginia [US]&#10;(Third Party)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="50" y="2274" width="570" height="247" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-77" value="Private subnet (APP)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-76" vertex="1">
+          <mxGeometry x="22" y="66" width="526" height="141" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-78" value="⚠ CMP-30 | SOS(sales order service)-ROW&#10;n/a, existing application · AWS private application subnet" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="zone-77" vertex="1" tooltip="Lang: N/A | Framework: Existing application | Runtime: AWS private application subnet | Classification: Company Confidential | Notes: AWS US event consumer">
+          <mxGeometry x="133" y="48" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-79" value="Azure US [US]&#10;(Third Party)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="690" y="2502" width="546" height="310" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-80" value="APP Zone" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-79" vertex="1">
+          <mxGeometry x="22" y="66" width="502" height="204" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-81" value="⚠ CMP-31 | edge-cache&#10;n/a, existing azure application · Azure application platform" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="zone-80" vertex="1" tooltip="Lang: N/A | Framework: Existing Azure application | Runtime: Azure application platform | Classification: Company Confidential">
+          <mxGeometry x="121" y="48" width="260" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-82" value="⚠ CMP-32 | D365&#10;n/a, dynamics: 365 · Microsoft SaaS" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="zone-80" vertex="1" tooltip="Lang: N/A | Framework: Dynamics 365 | Runtime: Microsoft SaaS | Classification: Company Confidential">
+          <mxGeometry x="121" y="118" width="260" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-83" value="P-HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-7" target="comp-8" edge="1" routingStrategy="direct-horizontal" routingFallback="false" tooltip="CN optional WAF inspection">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-84" value="P-HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-8" target="comp-9" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-85" value="P-HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-9" target="comp-10" edge="1" routingStrategy="direct-horizontal" routingFallback="false">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-86" value="P-HTTPS&#10;(AU-T3)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-10" target="comp-75" edge="1" routingStrategy="region-gutter" routingFallback="false" tooltip="CN employee SSO">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="648" y="358"/>
+              <mxPoint x="648" y="2332"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-87" value="P-HTTPS&#10;(AU-T3+T4)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-10" target="comp-12" edge="1" routingStrategy="zone-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="433" y="408"/>
+              <mxPoint x="218" y="408"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-88" value="P-HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-42" target="comp-43" edge="1" routingStrategy="direct-horizontal" routingFallback="false" tooltip="NA optional WAF inspection">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-89" value="P-HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-43" target="comp-44" edge="1" routingStrategy="midpoint-x" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="995" y="284"/>
+              <mxPoint x="995" y="358"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-90" value="P-HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-44" target="comp-46" edge="1" routingStrategy="zone-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="962" y="408"/>
+              <mxPoint x="825" y="408"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-91" value="P-HTTPS&#10;(AU-T3)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-46" target="comp-75" edge="1" routingStrategy="region-gutter" routingFallback="false" tooltip="NA employee SSO">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="662" y="512"/>
+              <mxPoint x="662" y="2332"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-92" value="P-HTTPS&#10;(AU-T3+T4)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-46" target="comp-47" edge="1" routingStrategy="direct-horizontal" routingFallback="false">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-93" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-12" target="comp-13" edge="1" routingStrategy="direct-horizontal" routingFallback="false">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-94" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-12" target="comp-14" edge="1" routingStrategy="midpoint-x" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="212" y="512"/>
+              <mxPoint x="212" y="584"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-95" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-12" target="comp-15" edge="1" routingStrategy="midpoint-x" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="331" y="512"/>
+              <mxPoint x="331" y="584"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-96" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-12" target="comp-16" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="512"/>
+              <mxPoint x="-2" y="654"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-97" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-12" target="comp-17" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-98" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-12" target="comp-18" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="512"/>
+              <mxPoint x="-2" y="724"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-99" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-12" target="comp-19" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-100" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-12" target="comp-20" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="512"/>
+              <mxPoint x="-2" y="796"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-101" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-47" target="comp-48" edge="1" routingStrategy="midpoint-x" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="959" y="512"/>
+              <mxPoint x="959" y="584"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-102" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-47" target="comp-49" edge="1" routingStrategy="midpoint-x" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1072" y="512"/>
+              <mxPoint x="1072" y="584"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-103" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-47" target="comp-50" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-104" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-47" target="comp-51" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="512"/>
+              <mxPoint x="1240" y="654"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-105" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-47" target="comp-52" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-106" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-47" target="comp-53" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="512"/>
+              <mxPoint x="1240" y="724"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-107" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-47" target="comp-54" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-108" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-47" target="comp-55" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="512"/>
+              <mxPoint x="1240" y="794"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-109" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-13" target="comp-23" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-110" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-14" target="comp-23" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="584"/>
+              <mxPoint x="-2" y="944"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-111" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-15" target="comp-21" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-112" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-16" target="comp-22" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="654"/>
+              <mxPoint x="-2" y="870"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-113" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-17" target="comp-23" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-114" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-18" target="comp-22" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="724"/>
+              <mxPoint x="-2" y="870"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-115" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-19" target="comp-21" edge="1" routingStrategy="midpoint-x" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="438" y="724"/>
+              <mxPoint x="438" y="796"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-116" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-20" target="comp-23" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="796"/>
+              <mxPoint x="-2" y="944"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-117" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-13" target="comp-24" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-118" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-14" target="comp-24" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="584"/>
+              <mxPoint x="-2" y="1018"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-119" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-15" target="comp-24" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-120" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-16" target="comp-24" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="654"/>
+              <mxPoint x="-2" y="1018"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-121" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-17" target="comp-24" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-122" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-18" target="comp-24" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="724"/>
+              <mxPoint x="-2" y="1018"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-123" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-19" target="comp-24" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-124" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-20" target="comp-24" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="796"/>
+              <mxPoint x="-2" y="1018"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-125" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-48" target="comp-61" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-126" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-49" target="comp-61" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="584"/>
+              <mxPoint x="1240" y="1154"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-127" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-50" target="comp-61" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-128" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-51" target="comp-61" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="654"/>
+              <mxPoint x="1240" y="1154"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-129" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-52" target="comp-61" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-130" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-53" target="comp-61" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="724"/>
+              <mxPoint x="1240" y="1154"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-131" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-54" target="comp-61" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-132" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-55" target="comp-61" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="794"/>
+              <mxPoint x="1240" y="1154"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-133" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-48" target="comp-62" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-134" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-49" target="comp-62" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="584"/>
+              <mxPoint x="1240" y="1228"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-135" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-50" target="comp-62" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-136" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-51" target="comp-62" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="654"/>
+              <mxPoint x="1240" y="1228"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-137" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-52" target="comp-62" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-138" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-53" target="comp-62" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="724"/>
+              <mxPoint x="1240" y="1228"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-139" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-54" target="comp-62" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-140" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-55" target="comp-62" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="794"/>
+              <mxPoint x="1240" y="1228"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-141" value="P-RFC&#10;(AU-K1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-13" target="comp-27" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-142" value="P-RFC&#10;(AU-K1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-14" target="comp-28" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="584"/>
+              <mxPoint x="-2" y="1234"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-143" value="P-RFC&#10;(AU-K1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-16" target="comp-28" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="654"/>
+              <mxPoint x="-2" y="1234"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-144" value="P-RFC&#10;(AU-K1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-48" target="comp-64" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-145" value="P-RFC&#10;(AU-K1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-49" target="comp-64" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="584"/>
+              <mxPoint x="1240" y="1382"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-146" value="P-RFC&#10;(AU-K1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-51" target="comp-64" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="654"/>
+              <mxPoint x="1240" y="1382"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-147" value="P-RFC&#10;(AU-P4)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-28" target="comp-26" edge="1" routingStrategy="drawio-fallback" routingFallback="true" tooltip="CN SLT change feed">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-148" value="P-AMQPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-26" target="comp-25" edge="1" routingStrategy="direct-horizontal" routingFallback="false">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-149" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-25" target="comp-24" edge="1" routingStrategy="midpoint-x" routingFallback="false" tooltip="CN CDC publication">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="287" y="1092"/>
+              <mxPoint x="287" y="1018"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-150" value="P-RFC&#10;(AU-P4)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-64" target="comp-67" edge="1" routingStrategy="outer-right" routingFallback="false" tooltip="NA SLT change feed">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="1382"/>
+              <mxPoint x="1240" y="1610"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-151" value="P-AMQPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-67" target="comp-66" edge="1" routingStrategy="direct-vertical" routingFallback="false">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-152" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-66" target="comp-62" edge="1" routingStrategy="outer-right" routingFallback="false" tooltip="NA CDC publication">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="1536"/>
+              <mxPoint x="1240" y="1228"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-153" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-24" target="comp-62" edge="1" routingStrategy="region-gutter" routingFallback="false" tooltip="CN-to-NA minimized order events; no database replication">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="648" y="1018"/>
+              <mxPoint x="648" y="1228"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-154" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.62;entryX=1.0;entryY=0.62;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-62" target="comp-24" edge="1" routingStrategy="region-gutter" routingFallback="false" tooltip="NA-to-CN minimized order events; no database replication">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="662" y="1228"/>
+              <mxPoint x="662" y="1018"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-155" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-13" target="comp-37" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-156" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-14" target="comp-37" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="584"/>
+              <mxPoint x="-2" y="1934"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-157" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-15" target="comp-39" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-158" value="P-RESP&#10;(AU-Z1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-16" target="comp-36" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="654"/>
+              <mxPoint x="-2" y="1852"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-159" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-16" target="comp-38" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="654"/>
+              <mxPoint x="-2" y="2016"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-160" value="P-HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-17" target="comp-35" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-161" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-17" target="comp-38" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-162" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-18" target="comp-39" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="724"/>
+              <mxPoint x="-2" y="2098"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-163" value="P-HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-19" target="comp-35" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-164" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-20" target="comp-38" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="796"/>
+              <mxPoint x="-2" y="2016"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-165" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-48" target="comp-71" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-166" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-49" target="comp-71" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="584"/>
+              <mxPoint x="1240" y="1934"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-167" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-50" target="comp-72" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-168" value="P-RESP&#10;(AU-Z1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-51" target="comp-70" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="654"/>
+              <mxPoint x="1240" y="1852"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-169" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-51" target="comp-71" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="654"/>
+              <mxPoint x="1240" y="1934"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-170" value="P-HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-52" target="comp-69" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-171" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-52" target="comp-71" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-172" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-53" target="comp-72" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="724"/>
+              <mxPoint x="1240" y="2016"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-173" value="P-HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-54" target="comp-69" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-174" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-55" target="comp-71" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="794"/>
+              <mxPoint x="1240" y="1934"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-175" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-21" target="comp-29" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-176" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-22" target="comp-30" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="870"/>
+              <mxPoint x="-2" y="1378"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-177" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-23" target="comp-31" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="944"/>
+              <mxPoint x="-2" y="1454"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-178" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-23" target="comp-32" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="944"/>
+              <mxPoint x="-2" y="1532"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-179" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-33" target="comp-24" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="1608"/>
+              <mxPoint x="-2" y="1018"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-180" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-78" target="comp-62" edge="1" routingStrategy="region-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="648" y="2418"/>
+              <mxPoint x="648" y="1228"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-181" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-61" target="comp-81" edge="1" routingStrategy="region-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="662" y="1154"/>
+              <mxPoint x="662" y="2642"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-182" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-61" target="comp-82" edge="1" routingStrategy="region-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="662" y="1154"/>
+              <mxPoint x="662" y="2712"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-183" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-61" target="comp-56" edge="1" routingStrategy="direct-vertical" routingFallback="false">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="lgnd-184" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="40" y="2842" width="640" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="ltitle-185" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=14;fontStyle=1;" parent="lgnd-184" vertex="1">
+          <mxGeometry x="0" y="-30" width="100" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-186" value="Internal App (IT Org)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;" parent="lgnd-184" vertex="1">
+          <mxGeometry x="0" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-187" value="API Gateway / Integration" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;" parent="lgnd-184" vertex="1">
+          <mxGeometry x="155" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-188" value="Database" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;" parent="lgnd-184" vertex="1">
+          <mxGeometry x="310" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-189" value="Firewall / LB" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;" parent="lgnd-184" vertex="1">
+          <mxGeometry x="465" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-190" value="Identity / Auth" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;fontFamily=Helvetica;fontSize=14;" parent="lgnd-184" vertex="1">
+          <mxGeometry x="0" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-191" value="Biz Owned" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#8E24AA;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-184" vertex="1">
+          <mxGeometry x="155" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-192" value="Third Party" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-184" vertex="1">
+          <mxGeometry x="310" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-title-193" value="Protocol codes" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3054" width="240" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-194" value="P-HTTPS HTTPS" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3076" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-195" value="P-KAFKA Kafka" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3090" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-196" value="P-RFC SAP RFC" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3104" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-197" value="P-AMQPS" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3118" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-198" value="P-JDBC JDBC" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3132" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-199" value="P-RESP" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3146" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-title-200" value="Auth codes" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3174" width="240" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-201" value="N0 [None] No service authentication" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3196" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-202" value="T3 [Token / federation] SAML 2.0 assertion" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3210" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-203" value="T4 [Token / federation] Session token / cookie" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3224" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-204" value="T1 [Token / federation] OAuth2 client credentials" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3238" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-205" value="S1 [SASL] SASL/SCRAM" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3252" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-206" value="K1 [Kerberos / OS] Kerberos / logon ticket" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3266" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-207" value="P4 [Password / credential] Service account / secret" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3280" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-208" value="Z1 [Authorization] Topic ACL / least privilege" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3294" width="560" height="14" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

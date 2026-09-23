@@ -156,7 +156,7 @@ already req/v2, and the remaining work is the blueprint/diagram id space.
 | Example | Effort | Note |
 |---|---|---|
 | 06 factory-mes | done | validated reference |
-| 05 supply-chain | high | symmetric CN/NA; requires the one-component-two-deployments decision |
+| 05 supply-chain | done | migrated; v2 diagram awaits re-validation |
 | 03 order-query-aws | medium | AWS standard + EDW |
 | 02 ai-agent-hybrid | medium | private DC + Azure hybrid |
 | 04 service-delivery | medium | private-cloud full coverage |

@@ -18,47 +18,47 @@ arch:
           type: "intranet"
           name: "Intranet"
           components:
-            - {id: "SYS-01", name: "SYS-01 | F5", type: "LB", shape: "hexagon", language: "N/A", framework: "F5", runtime: "Network appliance", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN ingress load balancer"}
-            - {id: "SYS-02", name: "SYS-02 | WAF", type: "LB", shape: "hexagon", language: "N/A", framework: "Enterprise WAF", runtime: "Security appliance", sensitivity: "Company Confidential", owner_type: "org_it", status: "in_plan", notes: "Optional CN WAF; enable after security-owner decision"}
-            - {id: "SYS-03", name: "SYS-03 | Edge router", type: "NW", language: "N/A", framework: "Edge router", runtime: "Network platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN edge routing boundary"}
-            - {id: "SYS-04", name: "SYS-04 | scop-cn-web", type: "FE", language: "N/A", framework: "Nginx", runtime: "Private DC web tier", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN employee web tier"}
+            - {id: "INF-16", name: "INF-16 | F5", type: "LB", shape: "hexagon", language: "N/A", framework: "F5", runtime: "Network appliance", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN ingress load balancer"}
+            - {id: "INF-17", name: "INF-17 | WAF", type: "LB", shape: "hexagon", language: "N/A", framework: "Enterprise WAF", runtime: "Security appliance", sensitivity: "Company Confidential", owner_type: "org_it", status: "in_plan", notes: "Optional CN WAF; enable after security-owner decision"}
+            - {id: "INF-18", name: "INF-18 | Edge router", type: "NW", language: "N/A", framework: "Edge router", runtime: "Network platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN edge routing boundary"}
+            - {id: "CMP-01-CN", name: "CMP-01-CN | scop-cn-web", type: "FE", language: "N/A", framework: "Nginx", runtime: "Private DC web tier", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN employee web tier"}
 
         - id: "cn-app-zone"
           type: "app_zone"
           name: "App Zone"
           components:
-            - {id: "SYS-05", name: "SYS-05 | Spring Cloud Gateway", type: "IP", shape: "parallelogram", language: "Java", framework: "Spring Cloud Gateway", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN application gateway"}
-            - {id: "SYS-06", name: "SYS-06 | Order Creation", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-07", name: "SYS-07 | Order Change", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-08", name: "SYS-08 | Data Distribution", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-09", name: "SYS-09 | Master Data", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-10", name: "SYS-10 | Order Inquiry", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-11", name: "SYS-11 | Basic Operation", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-12", name: "SYS-12 | Logging", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-13", name: "SYS-13 | etc.", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-14", name: "SYS-14 | APIM", type: "IP", shape: "parallelogram", language: "N/A", framework: "APIM", runtime: "Integration platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "unchanged", notes: "CN API management boundary"}
-            - {id: "SYS-15", name: "SYS-15 | WSO2", type: "IP", shape: "parallelogram", language: "N/A", framework: "WSO2 API Gateway", runtime: "Integration platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "unchanged", notes: "CN API gateway boundary"}
-            - {id: "SYS-16", name: "SYS-16 | APIH", type: "IP", shape: "parallelogram", language: "N/A", framework: "APIH", runtime: "Integration platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "unchanged", notes: "CN API mediation boundary"}
-            - {id: "SYS-17", name: "SYS-17 | Kafka", type: "MQ", shape: "message_queue", language: "N/A", framework: "Kafka", runtime: "Messaging platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN event and CDC publication bus"}
-            - {id: "SYS-18", name: "SYS-18 | RabbitMQ", type: "MQ", shape: "message_queue", language: "N/A", framework: "RabbitMQ", runtime: "Messaging platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN CDC staging bus"}
-            - {id: "SYS-19", name: "SYS-19 | Debezium", type: "IP", shape: "parallelogram", language: "Java", framework: "Debezium", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN CDC connector; no direct cross-region database replication"}
-            - {id: "SYS-20", name: "SYS-20 | ECC-CN", type: "API", language: "N/A", framework: "SAP ECC Function and SLT", runtime: "Existing ERP platform", sensitivity: "Company Confidential", owner: "third_party", owner_type: "third_party", status: "unchanged"}
-            - {id: "SYS-21", name: "SYS-21 | S4-CN", type: "API", language: "N/A", framework: "SAP S/4 Function and SLT", runtime: "Existing ERP platform", sensitivity: "Company Confidential", owner: "third_party", owner_type: "third_party", status: "unchanged"}
-            - {id: "SYS-50", name: "SYS-50 | eComm-order-platform", type: "BE", language: "N/A", framework: "Existing application", runtime: "CN private platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
-            - {id: "SYS-51", name: "SYS-51 | SOS(sales order service)-PRC", type: "BE", language: "N/A", framework: "Existing application", runtime: "CN private platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
-            - {id: "SYS-52", name: "SYS-52 | CFOS(customer order fullfillment service)-PRC", type: "BE", language: "N/A", framework: "Existing application", runtime: "CN private platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
-            - {id: "SYS-53", name: "SYS-53 | CFOS(customer order fullfillment service)-AP", type: "BE", language: "N/A", framework: "Existing application", runtime: "CN private platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
-            - {id: "SYS-54", name: "SYS-54 | SSCS(Service supply chain service)-AP", type: "BE", language: "N/A", framework: "Existing application", runtime: "CN private platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
+            - {id: "CMP-02-CN", name: "CMP-02-CN | Spring Cloud Gateway", type: "IP", shape: "parallelogram", language: "Java", framework: "Spring Cloud Gateway", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN application gateway"}
+            - {id: "CMP-03-CN", name: "CMP-03-CN | Order Creation", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-04-CN", name: "CMP-04-CN | Order Change", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-05-CN", name: "CMP-05-CN | Data Distribution", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-06-CN", name: "CMP-06-CN | Master Data", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-07-CN", name: "CMP-07-CN | Order Inquiry", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-08-CN", name: "CMP-08-CN | Basic Operation", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-09-CN", name: "CMP-09-CN | Logging", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-10-CN", name: "CMP-10-CN | etc.", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-11", name: "CMP-11 | APIM", type: "IP", shape: "parallelogram", language: "N/A", framework: "APIM", runtime: "Integration platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "unchanged", notes: "CN API management boundary"}
+            - {id: "CMP-12", name: "CMP-12 | WSO2", type: "IP", shape: "parallelogram", language: "N/A", framework: "WSO2 API Gateway", runtime: "Integration platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "unchanged", notes: "CN API gateway boundary"}
+            - {id: "CMP-13-CN", name: "CMP-13-CN | APIH", type: "IP", shape: "parallelogram", language: "N/A", framework: "APIH", runtime: "Integration platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "unchanged", notes: "CN API mediation boundary"}
+            - {id: "CMP-14-CN", name: "CMP-14-CN | Kafka", type: "MQ", shape: "message_queue", language: "N/A", framework: "Kafka", runtime: "Messaging platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN event and CDC publication bus"}
+            - {id: "CMP-15-CN", name: "CMP-15-CN | RabbitMQ", type: "MQ", shape: "message_queue", language: "N/A", framework: "RabbitMQ", runtime: "Messaging platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN CDC staging bus"}
+            - {id: "CMP-16-CN", name: "CMP-16-CN | Debezium", type: "IP", shape: "parallelogram", language: "Java", framework: "Debezium", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN CDC connector; no direct cross-region database replication"}
+            - {id: "CMP-33", name: "CMP-33 | ECC-CN", type: "API", language: "N/A", framework: "SAP ECC Function and SLT", runtime: "Existing ERP platform", sensitivity: "Company Confidential", owner: "third_party", owner_type: "third_party", status: "unchanged"}
+            - {id: "CMP-34", name: "CMP-34 | S4-CN", type: "API", language: "N/A", framework: "SAP S/4 Function and SLT", runtime: "Existing ERP platform", sensitivity: "Company Confidential", owner: "third_party", owner_type: "third_party", status: "unchanged"}
+            - {id: "CMP-25", name: "CMP-25 | eComm-order-platform", type: "BE", language: "N/A", framework: "Existing application", runtime: "CN private platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
+            - {id: "CMP-26", name: "CMP-26 | SOS(sales order service)-PRC", type: "BE", language: "N/A", framework: "Existing application", runtime: "CN private platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
+            - {id: "CMP-27", name: "CMP-27 | CFOS(customer order fullfillment service)-PRC", type: "BE", language: "N/A", framework: "Existing application", runtime: "CN private platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
+            - {id: "CMP-28", name: "CMP-28 | CFOS(customer order fullfillment service)-AP", type: "BE", language: "N/A", framework: "Existing application", runtime: "CN private platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
+            - {id: "CMP-29", name: "CMP-29 | SSCS(Service supply chain service)-AP", type: "BE", language: "N/A", framework: "Existing application", runtime: "CN private platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
 
         - id: "cn-db-zone"
           type: "db_zone"
           name: "DB Zone"
           components:
-            - {id: "SYS-22", name: "SYS-22 | Elasticsearch HA", type: "DB", shape: "cylinder", language: "N/A", framework: "Elasticsearch HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "Encrypted search index"}
-            - {id: "SYS-23", name: "SYS-23 | Redis HA", type: "DB", shape: "cylinder", language: "N/A", framework: "Redis HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "Encrypted cache persistence"}
-            - {id: "SYS-24", name: "SYS-24 | MySQL HA", type: "DB", shape: "cylinder", language: "N/A", framework: "MySQL HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN-only relational group; AES-256 at rest"}
-            - {id: "SYS-25", name: "SYS-25 | PostgreSQL HA", type: "DB", shape: "cylinder", language: "N/A", framework: "PostgreSQL HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "AES-256 at rest"}
-            - {id: "SYS-26", name: "SYS-26 | SQLServer HA", type: "DB", shape: "cylinder", language: "N/A", framework: "SQL Server HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "TDE AES-256 at rest"}
+            - {id: "CMP-17-CN", name: "CMP-17-CN | Elasticsearch HA", type: "DB", shape: "cylinder", language: "N/A", framework: "Elasticsearch HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "Encrypted search index"}
+            - {id: "CMP-18-CN", name: "CMP-18-CN | Redis HA", type: "DB", shape: "cylinder", language: "N/A", framework: "Redis HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "Encrypted cache persistence"}
+            - {id: "CMP-19", name: "CMP-19 | MySQL HA", type: "DB", shape: "cylinder", language: "N/A", framework: "MySQL HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "CN-only relational group; AES-256 at rest"}
+            - {id: "CMP-20-CN", name: "CMP-20-CN | PostgreSQL HA", type: "DB", shape: "cylinder", language: "N/A", framework: "PostgreSQL HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "AES-256 at rest"}
+            - {id: "CMP-21-CN", name: "CMP-21-CN | SQLServer HA", type: "DB", shape: "cylinder", language: "N/A", framework: "SQL Server HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "TDE AES-256 at rest"}
 
     - id: "dc-us"
       type: "private_dc"
@@ -70,56 +70,56 @@ arch:
           type: "intranet"
           name: "NA-PROD-INA-EARTH"
           components:
-            - {id: "SYS-28", name: "SYS-28 | F5", type: "LB", shape: "hexagon", language: "N/A", framework: "F5", runtime: "Network appliance", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "NA ingress load balancer"}
-            - {id: "SYS-29", name: "SYS-29 | WAF", type: "LB", shape: "hexagon", language: "N/A", framework: "Enterprise WAF", runtime: "Security appliance", sensitivity: "Company Confidential", owner_type: "org_it", status: "in_plan", notes: "Optional NA WAF; enable after security-owner decision"}
-            - {id: "SYS-30", name: "SYS-30 | Edge router", type: "NW", language: "N/A", framework: "Edge router", runtime: "Network platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "NA edge routing boundary"}
+            - {id: "INF-19", name: "INF-19 | F5", type: "LB", shape: "hexagon", language: "N/A", framework: "F5", runtime: "Network appliance", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "NA ingress load balancer"}
+            - {id: "INF-20", name: "INF-20 | WAF", type: "LB", shape: "hexagon", language: "N/A", framework: "Enterprise WAF", runtime: "Security appliance", sensitivity: "Company Confidential", owner_type: "org_it", status: "in_plan", notes: "Optional NA WAF; enable after security-owner decision"}
+            - {id: "INF-21", name: "INF-21 | Edge router", type: "NW", language: "N/A", framework: "Edge router", runtime: "Network platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "NA edge routing boundary"}
 
         - id: "na-prod-ina-k8s"
           type: "app_zone"
           name: "NA-PROD-INA-K8S"
           components:
-            - {id: "SYS-31", name: "SYS-31 | osp-na-web", type: "FE", language: "N/A", framework: "Nginx", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "NA employee web tier"}
-            - {id: "SYS-32", name: "SYS-32 | Spring Cloud Gateway", type: "IP", shape: "parallelogram", language: "Java", framework: "Spring Cloud Gateway", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "NA application gateway"}
-            - {id: "SYS-33", name: "SYS-33 | Order Creation", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-34", name: "SYS-34 | Order Change", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-35", name: "SYS-35 | Data Distribution", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-36", name: "SYS-36 | Master Data", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-37", name: "SYS-37 | Order Inquiry", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-38", name: "SYS-38 | Basic Operation", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-39", name: "SYS-39 | Logging", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-40", name: "SYS-40 | etc.", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
-            - {id: "SYS-58", name: "SYS-58 | ERPS（ERP service）", type: "BE", language: "N/A", framework: "Existing application", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
-            - {id: "SYS-59", name: "SYS-59 | LGS(logistics gateway service)-NA", type: "BE", language: "N/A", framework: "Existing application", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
-            - {id: "SYS-60", name: "SYS-60 | IBS(Installbase service)", type: "BE", language: "N/A", framework: "Existing application", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
+            - {id: "CMP-01-NA", name: "CMP-01-NA | osp-na-web", type: "FE", language: "N/A", framework: "Nginx", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "NA employee web tier"}
+            - {id: "CMP-02-NA", name: "CMP-02-NA | Spring Cloud Gateway", type: "IP", shape: "parallelogram", language: "Java", framework: "Spring Cloud Gateway", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "NA application gateway"}
+            - {id: "CMP-03-NA", name: "CMP-03-NA | Order Creation", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-04-NA", name: "CMP-04-NA | Order Change", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-05-NA", name: "CMP-05-NA | Data Distribution", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-06-NA", name: "CMP-06-NA | Master Data", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-07-NA", name: "CMP-07-NA | Order Inquiry", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-08-NA", name: "CMP-08-NA | Basic Operation", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-09-NA", name: "CMP-09-NA | Logging", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-10-NA", name: "CMP-10-NA | etc.", type: "BE", language: "Java", framework: "Spring", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed"}
+            - {id: "CMP-22", name: "CMP-22 | ERPS（ERP service）", type: "BE", language: "N/A", framework: "Existing application", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
+            - {id: "CMP-23", name: "CMP-23 | LGS(logistics gateway service)-NA", type: "BE", language: "N/A", framework: "Existing application", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
+            - {id: "CMP-24", name: "CMP-24 | IBS(Installbase service)", type: "BE", language: "N/A", framework: "Existing application", runtime: "Internal K8s Platform", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "unchanged"}
 
         - id: "na-prod-ina-integration"
           type: "app_zone"
           name: "NA-PROD-INA-INTEGRATION"
           components:
-            - {id: "SYS-41", name: "SYS-41 | APIH", type: "IP", shape: "parallelogram", language: "N/A", framework: "APIH", runtime: "Integration platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "unchanged", notes: "Sole NA cross-application API mediator"}
-            - {id: "SYS-42", name: "SYS-42 | Kafka", type: "MQ", shape: "message_queue", language: "N/A", framework: "Kafka", runtime: "Messaging platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "Sole NA cross-application event mediator"}
+            - {id: "CMP-13-NA", name: "CMP-13-NA | APIH", type: "IP", shape: "parallelogram", language: "N/A", framework: "APIH", runtime: "Integration platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "unchanged", notes: "Sole NA cross-application API mediator"}
+            - {id: "CMP-14-NA", name: "CMP-14-NA | Kafka", type: "MQ", shape: "message_queue", language: "N/A", framework: "Kafka", runtime: "Messaging platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "Sole NA cross-application event mediator"}
 
         - id: "na-prod-ina-sap"
           type: "app_zone"
           name: "NA-PROD-INA-SAP"
           components:
-            - {id: "SYS-45", name: "SYS-45 | S4-NA", type: "API", language: "N/A", framework: "SAP S/4 Function and SLT", runtime: "Existing ERP platform", sensitivity: "Company Confidential", owner: "third_party", owner_type: "third_party", status: "unchanged"}
+            - {id: "CMP-35", name: "CMP-35 | S4-NA", type: "API", language: "N/A", framework: "SAP S/4 Function and SLT", runtime: "Existing ERP platform", sensitivity: "Company Confidential", owner: "third_party", owner_type: "third_party", status: "unchanged"}
 
         - id: "na-prod-ina-server"
           type: "app_zone"
           name: "NA-PROD-INA-SERVER"
           components:
-            - {id: "SYS-43", name: "SYS-43 | RabbitMQ", type: "MQ", shape: "message_queue", language: "N/A", framework: "RabbitMQ", runtime: "Messaging platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "NA CDC staging bus"}
-            - {id: "SYS-44", name: "SYS-44 | Debezium", type: "IP", shape: "parallelogram", language: "Java", framework: "Debezium", runtime: "Server platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "NA CDC connector; no direct cross-region database replication"}
+            - {id: "CMP-15-NA", name: "CMP-15-NA | RabbitMQ", type: "MQ", shape: "message_queue", language: "N/A", framework: "RabbitMQ", runtime: "Messaging platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "NA CDC staging bus"}
+            - {id: "CMP-16-NA", name: "CMP-16-NA | Debezium", type: "IP", shape: "parallelogram", language: "Java", framework: "Debezium", runtime: "Server platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "NA CDC connector; no direct cross-region database replication"}
 
         - id: "na-prod-ina-db"
           type: "db_zone"
           name: "NA-PROD-INA-DB"
           components:
-            - {id: "SYS-46", name: "SYS-46 | Elasticsearch HA", type: "DB", shape: "cylinder", language: "N/A", framework: "Elasticsearch HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "Encrypted search index"}
-            - {id: "SYS-47", name: "SYS-47 | Redis HA", type: "DB", shape: "cylinder", language: "N/A", framework: "Redis HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "Encrypted cache persistence"}
-            - {id: "SYS-48", name: "SYS-48 | PostgreSQL HA", type: "DB", shape: "cylinder", language: "N/A", framework: "PostgreSQL HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "AES-256 at rest"}
-            - {id: "SYS-49", name: "SYS-49 | SQLServer HA", type: "DB", shape: "cylinder", language: "N/A", framework: "SQL Server HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "TDE AES-256 at rest"}
+            - {id: "CMP-17-NA", name: "CMP-17-NA | Elasticsearch HA", type: "DB", shape: "cylinder", language: "N/A", framework: "Elasticsearch HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "Encrypted search index"}
+            - {id: "CMP-18-NA", name: "CMP-18-NA | Redis HA", type: "DB", shape: "cylinder", language: "N/A", framework: "Redis HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "Encrypted cache persistence"}
+            - {id: "CMP-20-NA", name: "CMP-20-NA | PostgreSQL HA", type: "DB", shape: "cylinder", language: "N/A", framework: "PostgreSQL HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "AES-256 at rest"}
+            - {id: "CMP-21-NA", name: "CMP-21-NA | SQLServer HA", type: "DB", shape: "cylinder", language: "N/A", framework: "SQL Server HA", runtime: "HA data platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "changed", notes: "TDE AES-256 at rest"}
 
     - id: "dc-us-identity"
       type: "private_dc"
@@ -131,7 +131,7 @@ arch:
           type: "app_zone"
           name: "App Zone"
           components:
-            - {id: "SYS-27", name: "SYS-27 | ADFS", type: "SEC", shape: "circle", language: "N/A", framework: "ADFS", runtime: "Existing identity platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "unchanged", notes: "Employee SSO with MFA policy enforcement"}
+            - {id: "INF-22", name: "INF-22 | ADFS", type: "SEC", shape: "circle", language: "N/A", framework: "ADFS", runtime: "Existing identity platform", sensitivity: "Company Confidential", owner_type: "org_it", status: "unchanged", notes: "Employee SSO with MFA policy enforcement"}
 
     - id: "aws-us"
       type: "aws_vpc"
@@ -143,7 +143,7 @@ arch:
           type: "private"
           name: "Private subnet (APP)"
           components:
-            - {id: "SYS-55", name: "SYS-55 | SOS(sales order service)-ROW", type: "BE", language: "N/A", framework: "Existing application", runtime: "AWS private application subnet", sensitivity: "Company Confidential", owner: "third_party", owner_type: "third_party", status: "unchanged", notes: "AWS US event consumer"}
+            - {id: "CMP-30", name: "CMP-30 | SOS(sales order service)-ROW", type: "BE", language: "N/A", framework: "Existing application", runtime: "AWS private application subnet", sensitivity: "Company Confidential", owner: "third_party", owner_type: "third_party", status: "unchanged", notes: "AWS US event consumer"}
 
     - id: "azure-us"
       type: "azure_vnet"
@@ -155,128 +155,128 @@ arch:
           type: "spoke"
           name: "APP Zone"
           components:
-            - {id: "SYS-56", name: "SYS-56 | edge-cache", type: "BE", language: "N/A", framework: "Existing Azure application", runtime: "Azure application platform", sensitivity: "Company Confidential", owner: "third_party", owner_type: "third_party", status: "unchanged"}
-            - {id: "SYS-57", name: "SYS-57 | D365", type: "BE", shape: "cloud_rect", language: "N/A", framework: "Dynamics 365", runtime: "Microsoft SaaS", sensitivity: "Company Confidential", owner: "third_party", owner_type: "third_party", status: "unchanged"}
+            - {id: "CMP-31", name: "CMP-31 | edge-cache", type: "BE", language: "N/A", framework: "Existing Azure application", runtime: "Azure application platform", sensitivity: "Company Confidential", owner: "third_party", owner_type: "third_party", status: "unchanged"}
+            - {id: "CMP-32", name: "CMP-32 | D365", type: "BE", shape: "cloud_rect", language: "N/A", framework: "Dynamics 365", runtime: "Microsoft SaaS", sensitivity: "Company Confidential", owner: "third_party", owner_type: "third_party", status: "unchanged"}
 
   interactions:
     # Employee ingress and SSO; optional WAFs remain explicitly visible in each symmetric path.
-    - {from: "SYS-01", to: "SYS-02", protocol: "HTTPS", auth: "Mutual TLS", encryption: "TLS 1.3", notes: "CN optional WAF inspection"}
-    - {from: "SYS-02", to: "SYS-03", protocol: "HTTPS", auth: "Mutual TLS", encryption: "TLS 1.3"}
-    - {from: "SYS-03", to: "SYS-04", protocol: "HTTPS", auth: "Mutual TLS", encryption: "TLS 1.3"}
-    - {from: "SYS-04", to: "SYS-27", protocol: "HTTPS/SAML 2.0", auth: "SAML 2.0", encryption: "TLS 1.3", notes: "CN employee SSO"}
-    - {from: "SYS-04", to: "SYS-05", protocol: "HTTPS", auth: "SAML bearer session token", encryption: "TLS 1.3"}
-    - {from: "SYS-28", to: "SYS-29", protocol: "HTTPS", auth: "Mutual TLS", encryption: "TLS 1.3", notes: "NA optional WAF inspection"}
-    - {from: "SYS-29", to: "SYS-30", protocol: "HTTPS", auth: "Mutual TLS", encryption: "TLS 1.3"}
-    - {from: "SYS-30", to: "SYS-31", protocol: "HTTPS", auth: "Mutual TLS", encryption: "TLS 1.3"}
-    - {from: "SYS-31", to: "SYS-27", protocol: "HTTPS/SAML 2.0", auth: "SAML 2.0", encryption: "TLS 1.3", notes: "NA employee SSO"}
-    - {from: "SYS-31", to: "SYS-32", protocol: "HTTPS", auth: "SAML bearer session token", encryption: "TLS 1.3"}
+    - {from: "INF-16", to: "INF-17", protocol: "HTTPS", auth: "Mutual TLS", encryption: "TLS 1.3", notes: "CN optional WAF inspection"}
+    - {from: "INF-17", to: "INF-18", protocol: "HTTPS", auth: "Mutual TLS", encryption: "TLS 1.3"}
+    - {from: "INF-18", to: "CMP-01-CN", protocol: "HTTPS", auth: "Mutual TLS", encryption: "TLS 1.3"}
+    - {from: "CMP-01-CN", to: "INF-22", protocol: "HTTPS/SAML 2.0", auth: "SAML 2.0", encryption: "TLS 1.3", notes: "CN employee SSO"}
+    - {from: "CMP-01-CN", to: "CMP-02-CN", protocol: "HTTPS", auth: "SAML bearer session token", encryption: "TLS 1.3"}
+    - {from: "INF-19", to: "INF-20", protocol: "HTTPS", auth: "Mutual TLS", encryption: "TLS 1.3", notes: "NA optional WAF inspection"}
+    - {from: "INF-20", to: "INF-21", protocol: "HTTPS", auth: "Mutual TLS", encryption: "TLS 1.3"}
+    - {from: "INF-21", to: "CMP-01-NA", protocol: "HTTPS", auth: "Mutual TLS", encryption: "TLS 1.3"}
+    - {from: "CMP-01-NA", to: "INF-22", protocol: "HTTPS/SAML 2.0", auth: "SAML 2.0", encryption: "TLS 1.3", notes: "NA employee SSO"}
+    - {from: "CMP-01-NA", to: "CMP-02-NA", protocol: "HTTPS", auth: "SAML bearer session token", encryption: "TLS 1.3"}
 
     # Regional application-gateway fan-out.
-    - {from: "SYS-05", to: "SYS-06", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-05", to: "SYS-07", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-05", to: "SYS-08", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-05", to: "SYS-09", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-05", to: "SYS-10", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-05", to: "SYS-11", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-05", to: "SYS-12", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-05", to: "SYS-13", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-32", to: "SYS-33", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-32", to: "SYS-34", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-32", to: "SYS-35", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-32", to: "SYS-36", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-32", to: "SYS-37", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-32", to: "SYS-38", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-32", to: "SYS-39", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-32", to: "SYS-40", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-CN", to: "CMP-03-CN", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-CN", to: "CMP-04-CN", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-CN", to: "CMP-05-CN", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-CN", to: "CMP-06-CN", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-CN", to: "CMP-07-CN", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-CN", to: "CMP-08-CN", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-CN", to: "CMP-09-CN", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-CN", to: "CMP-10-CN", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-NA", to: "CMP-03-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-NA", to: "CMP-04-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-NA", to: "CMP-05-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-NA", to: "CMP-06-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-NA", to: "CMP-07-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-NA", to: "CMP-08-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-NA", to: "CMP-09-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-02-NA", to: "CMP-10-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
 
     # CN cross-application mediation and regional events.
-    - {from: "SYS-06", to: "SYS-16", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-07", to: "SYS-16", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-08", to: "SYS-14", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-09", to: "SYS-15", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-16", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-11", to: "SYS-15", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-12", to: "SYS-14", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-13", to: "SYS-16", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-06", to: "SYS-17", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-07", to: "SYS-17", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-08", to: "SYS-17", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-09", to: "SYS-17", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-17", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-11", to: "SYS-17", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-12", to: "SYS-17", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-13", to: "SYS-17", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-03-CN", to: "CMP-13-CN", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-04-CN", to: "CMP-13-CN", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-05-CN", to: "CMP-11", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-06-CN", to: "CMP-12", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-07-CN", to: "CMP-13-CN", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-08-CN", to: "CMP-12", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-09-CN", to: "CMP-11", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-10-CN", to: "CMP-13-CN", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-03-CN", to: "CMP-14-CN", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-04-CN", to: "CMP-14-CN", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-05-CN", to: "CMP-14-CN", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-06-CN", to: "CMP-14-CN", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-07-CN", to: "CMP-14-CN", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-08-CN", to: "CMP-14-CN", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-09-CN", to: "CMP-14-CN", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-10-CN", to: "CMP-14-CN", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
 
-    # NA cross-application mediation is restricted to SYS-41 and SYS-42.
-    - {from: "SYS-33", to: "SYS-41", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-34", to: "SYS-41", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-35", to: "SYS-41", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-36", to: "SYS-41", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-37", to: "SYS-41", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-38", to: "SYS-41", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-39", to: "SYS-41", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-40", to: "SYS-41", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-33", to: "SYS-42", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-34", to: "SYS-42", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-35", to: "SYS-42", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-36", to: "SYS-42", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-37", to: "SYS-42", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-38", to: "SYS-42", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-39", to: "SYS-42", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-40", to: "SYS-42", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    # NA cross-application mediation is restricted to CMP-13-NA and CMP-14-NA.
+    - {from: "CMP-03-NA", to: "CMP-13-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-04-NA", to: "CMP-13-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-05-NA", to: "CMP-13-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-06-NA", to: "CMP-13-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-07-NA", to: "CMP-13-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-08-NA", to: "CMP-13-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-09-NA", to: "CMP-13-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-10-NA", to: "CMP-13-NA", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-03-NA", to: "CMP-14-NA", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-04-NA", to: "CMP-14-NA", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-05-NA", to: "CMP-14-NA", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-06-NA", to: "CMP-14-NA", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-07-NA", to: "CMP-14-NA", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-08-NA", to: "CMP-14-NA", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-09-NA", to: "CMP-14-NA", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-10-NA", to: "CMP-14-NA", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
 
     # SAP function calls and CDC pipelines.
-    - {from: "SYS-06", to: "SYS-20", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SNC with AES-256"}
-    - {from: "SYS-07", to: "SYS-21", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SNC with AES-256"}
-    - {from: "SYS-09", to: "SYS-21", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SNC with AES-256"}
-    - {from: "SYS-33", to: "SYS-45", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SNC with AES-256"}
-    - {from: "SYS-34", to: "SYS-45", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SNC with AES-256"}
-    - {from: "SYS-36", to: "SYS-45", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SNC with AES-256"}
-    - {from: "SYS-21", to: "SYS-19", protocol: "RFC/SNC", auth: "SAP technical user from K8s Secrets", encryption: "SNC with AES-256", notes: "CN SLT change feed"}
-    - {from: "SYS-19", to: "SYS-18", protocol: "AMQPS", auth: "Username/password from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-18", to: "SYS-17", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3", notes: "CN CDC publication"}
-    - {from: "SYS-45", to: "SYS-44", protocol: "RFC/SNC", auth: "SAP technical user from K8s Secrets", encryption: "SNC with AES-256", notes: "NA SLT change feed"}
-    - {from: "SYS-44", to: "SYS-43", protocol: "AMQPS", auth: "Username/password from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-43", to: "SYS-42", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3", notes: "NA CDC publication"}
-    - {from: "SYS-17", to: "SYS-42", protocol: "Kafka", auth: "Mutual TLS and SASL/SCRAM-SHA-512", encryption: "TLS 1.3 over approved enterprise WAN", notes: "CN-to-NA minimized order events; no database replication"}
-    - {from: "SYS-42", to: "SYS-17", protocol: "Kafka", auth: "Mutual TLS and SASL/SCRAM-SHA-512", encryption: "TLS 1.3 over approved enterprise WAN", notes: "NA-to-CN minimized order events; no database replication"}
+    - {from: "CMP-03-CN", to: "CMP-33", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SNC with AES-256"}
+    - {from: "CMP-04-CN", to: "CMP-34", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SNC with AES-256"}
+    - {from: "CMP-06-CN", to: "CMP-34", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SNC with AES-256"}
+    - {from: "CMP-03-NA", to: "CMP-35", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SNC with AES-256"}
+    - {from: "CMP-04-NA", to: "CMP-35", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SNC with AES-256"}
+    - {from: "CMP-06-NA", to: "CMP-35", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SNC with AES-256"}
+    - {from: "CMP-34", to: "CMP-16-CN", protocol: "RFC/SNC", auth: "SAP technical user from K8s Secrets", encryption: "SNC with AES-256", notes: "CN SLT change feed"}
+    - {from: "CMP-16-CN", to: "CMP-15-CN", protocol: "AMQPS", auth: "Username/password from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-15-CN", to: "CMP-14-CN", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3", notes: "CN CDC publication"}
+    - {from: "CMP-35", to: "CMP-16-NA", protocol: "RFC/SNC", auth: "SAP technical user from K8s Secrets", encryption: "SNC with AES-256", notes: "NA SLT change feed"}
+    - {from: "CMP-16-NA", to: "CMP-15-NA", protocol: "AMQPS", auth: "Username/password from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-15-NA", to: "CMP-14-NA", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3", notes: "NA CDC publication"}
+    - {from: "CMP-14-CN", to: "CMP-14-NA", protocol: "Kafka", auth: "Mutual TLS and SASL/SCRAM-SHA-512", encryption: "TLS 1.3 over approved enterprise WAN", notes: "CN-to-NA minimized order events; no database replication"}
+    - {from: "CMP-14-NA", to: "CMP-14-CN", protocol: "Kafka", auth: "Mutual TLS and SASL/SCRAM-SHA-512", encryption: "TLS 1.3 over approved enterprise WAN", notes: "NA-to-CN minimized order events; no database replication"}
 
     # CN data access; only CN regional backends originate DB-zone traffic.
-    - {from: "SYS-06", to: "SYS-24", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-07", to: "SYS-24", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-08", to: "SYS-26", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-09", to: "SYS-23", protocol: "RESP/TLS", auth: "ACL credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-09", to: "SYS-25", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-22", protocol: "HTTPS", auth: "Service credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-25", protocol: "JDBC", auth: "Read-only database role from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-11", to: "SYS-26", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-12", to: "SYS-22", protocol: "HTTPS", auth: "Service credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-13", to: "SYS-25", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-03-CN", to: "CMP-19", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-04-CN", to: "CMP-19", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-05-CN", to: "CMP-21-CN", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-06-CN", to: "CMP-18-CN", protocol: "RESP/TLS", auth: "ACL credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-06-CN", to: "CMP-20-CN", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-07-CN", to: "CMP-17-CN", protocol: "HTTPS", auth: "Service credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-07-CN", to: "CMP-20-CN", protocol: "JDBC", auth: "Read-only database role from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-08-CN", to: "CMP-21-CN", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-09-CN", to: "CMP-17-CN", protocol: "HTTPS", auth: "Service credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-10-CN", to: "CMP-20-CN", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
 
     # NA data access mirrors CN where products exist; NA intentionally has no MySQL group.
-    - {from: "SYS-33", to: "SYS-48", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-34", to: "SYS-48", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-35", to: "SYS-49", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-36", to: "SYS-47", protocol: "RESP/TLS", auth: "ACL credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-36", to: "SYS-48", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-37", to: "SYS-46", protocol: "HTTPS", auth: "Service credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-37", to: "SYS-48", protocol: "JDBC", auth: "Read-only database role from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-38", to: "SYS-49", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-39", to: "SYS-46", protocol: "HTTPS", auth: "Service credential from K8s Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-40", to: "SYS-48", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-03-NA", to: "CMP-20-NA", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-04-NA", to: "CMP-20-NA", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-05-NA", to: "CMP-21-NA", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-06-NA", to: "CMP-18-NA", protocol: "RESP/TLS", auth: "ACL credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-06-NA", to: "CMP-20-NA", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-07-NA", to: "CMP-17-NA", protocol: "HTTPS", auth: "Service credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-07-NA", to: "CMP-20-NA", protocol: "JDBC", auth: "Read-only database role from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-08-NA", to: "CMP-21-NA", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-09-NA", to: "CMP-17-NA", protocol: "HTTPS", auth: "Service credential from K8s Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-10-NA", to: "CMP-20-NA", protocol: "JDBC", auth: "Database role credential from K8s Secrets", encryption: "TLS 1.3"}
 
     # Explicit peer mappings; every cross-application call traverses the regional integration boundary.
-    - {from: "SYS-14", to: "SYS-50", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-15", to: "SYS-51", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-16", to: "SYS-52", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-16", to: "SYS-53", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-17", to: "SYS-54", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
-    - {from: "SYS-42", to: "SYS-55", protocol: "Kafka", auth: "Mutual TLS and SASL/SCRAM-SHA-512", encryption: "TLS 1.3 over approved cloud connectivity"}
-    - {from: "SYS-41", to: "SYS-56", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3 over approved cloud connectivity"}
-    - {from: "SYS-41", to: "SYS-57", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3 over approved cloud connectivity"}
-    - {from: "SYS-41", to: "SYS-58", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-41", to: "SYS-59", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-41", to: "SYS-60", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-11", to: "CMP-25", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-12", to: "CMP-26", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-13-CN", to: "CMP-27", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-13-CN", to: "CMP-28", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-14-CN", to: "CMP-29", protocol: "Kafka", auth: "SASL/SCRAM-SHA-512", encryption: "TLS 1.3"}
+    - {from: "CMP-14-NA", to: "CMP-30", protocol: "Kafka", auth: "Mutual TLS and SASL/SCRAM-SHA-512", encryption: "TLS 1.3 over approved cloud connectivity"}
+    - {from: "CMP-13-NA", to: "CMP-31", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3 over approved cloud connectivity"}
+    - {from: "CMP-13-NA", to: "CMP-32", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3 over approved cloud connectivity"}
+    - {from: "CMP-13-NA", to: "CMP-22", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-13-NA", to: "CMP-23", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-13-NA", to: "CMP-24", protocol: "HTTPS", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.3"}
 
   security:
     key_management:
@@ -284,7 +284,7 @@ arch:
       aws: "Peer-owned AWS KMS and Secrets Manager; short-lived credentials at the integration boundary"
       azure: "Peer-owned Azure Key Vault and managed identity; short-lived credentials at the integration boundary"
     user_auth_internal:
-      server: "SYS-27 | ADFS"
+      server: "INF-22 | ADFS"
       protocol: "SAML 2.0 over TLS 1.3 with MFA and signed assertions"
     user_auth_external:
       server: "Not applicable - employee-only platform"
@@ -303,10 +303,10 @@ arch:
     data_protection:
       in_transit: "TLS 1.3 on all application, messaging, database, identity, and cloud-peer paths; SAP RFC uses SNC with AES-256"
       at_rest: "AES-256 or platform-equivalent encryption for databases, search, cache persistence, message logs, backups, and K8s Secrets"
-      cross_border: "Only minimized order events traverse CN and NA through SYS-17 and SYS-42; no direct database replication; approved legal basis and retention policy required"
+      cross_border: "Only minimized order events traverse CN and NA through CMP-14-CN and CMP-14-NA; no direct database replication; approved legal basis and retention policy required"
     network_security:
       segmentation: "Default deny between ingress, K8s/application, integration, SAP, server, DB, identity, AWS, and Azure zones; permit only declared flows"
-      egress: "Cloud egress is allow-listed through SYS-41 or SYS-42; CN peer egress is allow-listed through SYS-14, SYS-15, SYS-16, or SYS-17"
+      egress: "Cloud egress is allow-listed through CMP-13-NA or CMP-14-NA; CN peer egress is allow-listed through CMP-11, CMP-12, CMP-13-CN, or CMP-14-CN"
       inspection: "F5 ingress and optional WAF policy are symmetric across CN and NA; enterprise firewalls enforce inter-zone and cross-region policy"
     audit_monitoring:
       controls: "Centralized immutable audit logs, authentication events, API-gateway decisions, Kafka/RabbitMQ security events, database audit records, and privileged-session monitoring"

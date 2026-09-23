@@ -36,7 +36,7 @@ Every file outside `systems-registry.md` — including `README.md` and
 | 02 | `02-ai-agent-hybrid` | Data Agent platform (GDA) | Private DC + Azure hybrid | `reqv1` — rebuild pending |
 | 03 | `03-order-query-aws-hybrid` | Order query over EDW data | AWS VPC (3-tier) + 4 private DCs | `reqv1` — rebuild pending |
 | 04 | `04-service-delivery-private-cloud` | Service delivery platform (SDP) | Private cloud, 4 DCs + Azure | `reqv1` — rebuild pending |
-| 05 | `05-supply-chain-order-private-cloud` | Supply-chain order platform (OSP) | Private cloud active-active CN+NA | `reqv2-partial` — requirements migrated; blueprint still on legacy ids |
+| 05 | `05-supply-chain-order-private-cloud` | Supply-chain order platform (OSP) | Private cloud active-active CN+NA | `reqv2-complete` — blueprint migrated to typed ids; v2 diagram awaits re-validation |
 | 06 | `06-factory-mes-industrial` | **Factory MES (PlantMES)** | Plant edge + central DCs | `reqv2-complete` — worked reference |
 | 07 | `07-finance-core-banking` | Core banking / payments | Private cloud, two-site-three-center | `scaffold` — input pending |
 | 08 | `08-telecom-bss` | Telecom BSS / charging | Hybrid | `scaffold` — input pending |

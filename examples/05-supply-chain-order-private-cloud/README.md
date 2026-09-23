@@ -60,3 +60,17 @@ SAP landscape (`CMP-33`/`CMP-34` in APP-05, `CMP-35` in APP-06).
 | `input/documents/requirements.md` | Typed-code structured requirements. |
 | `input/diagrams/reference-architecture.png` | Original reference image; intentionally not scrubbed and restricted input. |
 | IP addresses | None present in the maintained documents. |
+
+## Diagram artwork
+
+| Artifact | What it is |
+|---|---|
+| `output/diagrams/diagram.drawio` / `.png` | Artwork the recorded validation and enforcement decision were produced from, on the earlier `SYS-nn` id space. |
+| `output/diagrams/diagram-v2.drawio` / `.png` | Rendered from the migrated blueprint, where every node carries its typed code. |
+
+The blueprint was migrated to the req/v2 id space after the recorded
+validation: components folded onto a single `CMP-nn` row across both sites
+carry a site suffix (`CMP-03-CN`, `CMP-03-NA`), while single-site components
+keep the bare code. The topology is unchanged, so the recorded findings still
+apply, but promoting v2 means re-running validate → enforce against it and
+re-recording `diagram.png` in the workflow state.

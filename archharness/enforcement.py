@@ -19,6 +19,9 @@ from .schemas import SchemaError, validate, validate_validation_result
 
 DECISIONS = ("PASS", "WARN", "BLOCK")
 
+#: The profile that ``enforcement_bounds`` itself represents.
+DEFAULT_PROFILE = "baseline"
+
 
 class PolicyError(ValueError):
     """Raised when the gate policy is missing or malformed."""
@@ -29,8 +32,59 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def load_policy(path: str | Path) -> tuple[dict, str]:
-    """Load a gate policy file. Returns (bounds, hex digest of file bytes)."""
+def _normalise_bounds(bounds: object, label: str) -> dict:
+    """Validate one set of enforcement bounds and normalise its types."""
+    if not isinstance(bounds, dict):
+        raise PolicyError(f"{label} must be a mapping")
+    for key in ("block_threshold", "warn_threshold", "must_fix_zero_required"):
+        if key not in bounds:
+            raise PolicyError(f"{label} missing {key!r}")
+    try:
+        block = float(bounds["block_threshold"])
+        warn = float(bounds["warn_threshold"])
+        must_fix_zero = bool(bounds["must_fix_zero_required"])
+    except (TypeError, ValueError) as exc:
+        raise PolicyError(f"{label} has invalid types: {exc}") from exc
+    if not block <= warn:
+        raise PolicyError(
+            f"{label} requires block_threshold <= warn_threshold, got {block} > {warn}"
+        )
+    return {"block_threshold": block, "warn_threshold": warn,
+            "must_fix_zero_required": must_fix_zero}
+
+
+def resolve_bounds(doc: dict, profile: str | None = None) -> tuple[dict, str]:
+    """Resolve the bounds for a named profile against the baseline.
+
+    ``enforcement_bounds`` is the baseline. A profile may tighten it freely; a
+    looser profile has to say so with ``allow_looser: true`` and a rationale, so
+    a gate can never be quietly relaxed.
+    """
+    baseline = _normalise_bounds(doc.get("enforcement_bounds"), "enforcement_bounds")
+    profiles = doc.get("profiles") or {}
+    name = profile or doc.get("default_profile") or DEFAULT_PROFILE
+    if name == DEFAULT_PROFILE:
+        return baseline, DEFAULT_PROFILE
+    if name not in profiles:
+        available = ", ".join([DEFAULT_PROFILE, *sorted(profiles)])
+        raise PolicyError(f"unknown policy profile {name!r} (available: {available})")
+    entry = profiles[name]
+    selected = _normalise_bounds(entry, f"profiles.{name}")
+    looser = (
+        selected["block_threshold"] < baseline["block_threshold"]
+        or selected["warn_threshold"] < baseline["warn_threshold"]
+        or (baseline["must_fix_zero_required"] and not selected["must_fix_zero_required"])
+    )
+    if looser and not (isinstance(entry, dict) and entry.get("allow_looser")):
+        raise PolicyError(
+            f"profile {name!r} is looser than the baseline; declare "
+            "allow_looser: true and a rationale"
+        )
+    return selected, name
+
+
+def load_policy(path: str | Path, profile: str | None = None) -> tuple[dict, str, str]:
+    """Load a gate policy file. Returns (bounds, digest, resolved profile name)."""
     policy_path = Path(path)
     try:
         raw = policy_path.read_bytes()
@@ -42,24 +96,8 @@ def load_policy(path: str | Path) -> tuple[dict, str]:
         raise PolicyError(f"invalid policy YAML {policy_path}: {exc}") from exc
     if not isinstance(doc, dict):
         raise PolicyError(f"policy root must be a mapping: {policy_path}")
-    bounds = doc.get("enforcement_bounds")
-    if not isinstance(bounds, dict):
-        raise PolicyError(f"policy missing enforcement_bounds: {policy_path}")
-    for key in ("block_threshold", "warn_threshold", "must_fix_zero_required"):
-        if key not in bounds:
-            raise PolicyError(f"policy enforcement_bounds missing {key!r}: {policy_path}")
-    try:
-        block = float(bounds["block_threshold"])
-        warn = float(bounds["warn_threshold"])
-        must_fix_zero = bool(bounds["must_fix_zero_required"])
-    except (TypeError, ValueError) as exc:
-        raise PolicyError(f"policy bounds have invalid types: {exc}") from exc
-    if not block <= warn:
-        raise PolicyError(
-            f"policy requires block_threshold <= warn_threshold, got {block} > {warn}"
-        )
-    return {"block_threshold": block, "warn_threshold": warn,
-            "must_fix_zero_required": must_fix_zero}, sha256_bytes(raw)
+    bounds, name = resolve_bounds(doc, profile)
+    return bounds, sha256_bytes(raw), name
 
 
 def load_validation(path: str | Path) -> dict:
@@ -131,11 +169,15 @@ def evaluate_gate(validation: dict, bounds: dict) -> dict:
     }
 
 
-def evaluate_files(validation_path: str | Path, policy_path: str | Path) -> dict:
+def evaluate_files(validation_path: str | Path, policy_path: str | Path,
+                   profile: str | None = None) -> dict:
     """Load files, evaluate the gate, and bind policy provenance."""
     validation = load_validation(validation_path)
-    bounds, digest = load_policy(policy_path)
+    bounds, digest, resolved = load_policy(policy_path, profile)
     decision = evaluate_gate(validation, bounds)
+    # The decision records which profile gated the artifact, so a later reader
+    # can tell a production gate from a proof-of-concept one.
+    decision["policy"]["profile"] = resolved
     decision["policy"]["path"] = str(policy_path)
     decision["policy"]["digest"] = digest
     validate(decision, "enforcement/v1")

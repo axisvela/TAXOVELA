@@ -13,7 +13,7 @@ effective_date: "2026-04-02"
 enforcement_bounds:
   block_threshold: 6.0           # Grade C 以下 block
   warn_threshold: 8.0            # 8.0 以下 warn
-  must_fix_zero_required: true   # 任何 must_fix 存在则 block
+  must_fix_zero_required: true   # 任何 must_fix 存在�?block
   # EXAMPLE overlay (organization-owned, override via policy pack):
   override_conditions:
     approvers: ["architecture-committee"]
@@ -21,6 +21,31 @@ enforcement_bounds:
     ticket_system: "Jira"
     max_override_validity_days: 5
     override_scope: "single-PR-only"  # 不可继承到下一个PR
+
+# ──────────────────────────────────────────────────────────────────────────
+# Policy profiles
+#
+# enforcement_bounds is the baseline every artifact is gated against by
+# default. A profile overlays it for a named context, and the enforcement
+# decision records which profile applied. A profile may tighten the baseline
+# freely; a looser profile must declare `allow_looser: true` and a rationale, so
+# a gate cannot be relaxed by accident or in silence.
+# ──────────────────────────────────────────────────────────────────────────
+default_profile: baseline
+
+profiles:
+  production:
+    rationale: "Customer-facing production changes carry the highest exposure."
+    block_threshold: 7.0
+    warn_threshold: 8.5
+    must_fix_zero_required: true
+
+  poc:
+    rationale: "Time-boxed proof of concept; the design is expected to be re-validated before any production build."
+    allow_looser: true
+    block_threshold: 4.0
+    warn_threshold: 6.5
+    must_fix_zero_required: true
 
 meta_control_scope:
   # EXAMPLE overlay (organization-owned, override via policy pack):

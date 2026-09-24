@@ -62,6 +62,8 @@ def build_parser() -> argparse.ArgumentParser:
     enforce.add_argument("--validation", required=True, help="validation/v1 result file (JSON or YAML)")
     enforce.add_argument("--policy", default=None, help="Gate policy file (default: standards/arch-gate-policy.yaml)")
     enforce.add_argument("--output", default=None, help="Write enforcement/v1 decision JSON here")
+    enforce.add_argument("--profile", default=None,
+                         help="Named policy profile (default: the policy's default_profile)")
 
     req_validate = commands.add_parser(
         "req-validate", help="Validate a req/v2 requirements document (cross-field rules)"
@@ -200,7 +202,8 @@ def _print_doctor(workspace: str | None = None, project: str | None = None) -> i
     return 0
 
 
-def _run_enforce(validation: str, policy: str | None, output: str | None) -> int:
+def _run_enforce(validation: str, policy: str | None, output: str | None,
+                 profile: str | None = None) -> int:
     """Evaluate the gate policy. Returns 0 (PASS/WARN), 1 (BLOCK), 2 (error)."""
     import json
 
@@ -215,11 +218,11 @@ def _run_enforce(validation: str, policy: str | None, output: str | None) -> int
             return 2
         policy = str(root / "standards" / "arch-gate-policy.yaml")
     try:
-        decision = evaluate_files(validation, policy)
+        decision = evaluate_files(validation, policy, profile)
     except (SchemaError, PolicyError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
-    print(f"decision: {decision['decision']}")
+    print(f"decision: {decision['decision']} (profile {decision['policy']['profile']})")
     for reason in decision["reasons"]:
         print(f"  - {reason}")
     if output:
@@ -523,7 +526,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "doctor":
             return _print_doctor(args.workspace, args.project)
         elif args.command == "enforce":
-            return _run_enforce(args.validation, args.policy, args.output)
+            return _run_enforce(args.validation, args.policy, args.output, args.profile)
         elif args.command == "req-validate":
             from .requirements.validator import main as validate_main
             return validate_main([args.path, *(["--json"] if args.as_json else [])])

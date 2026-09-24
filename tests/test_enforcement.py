@@ -18,6 +18,7 @@ from archharness.enforcement import (  # noqa: E402
     PolicyError,
     evaluate_files,
     evaluate_gate,
+    load_policy,
 )
 from archharness.schemas import SchemaError, validate_enforcement_result  # noqa: E402
 
@@ -100,6 +101,96 @@ class GateDecisionTests(unittest.TestCase):
             policy.write_text("enforcement_bounds: {block_threshold: 8.0}\n", encoding="utf-8")
             with self.assertRaises(PolicyError):
                 evaluate_files(validation, policy)
+
+
+class PolicyProfileTests(unittest.TestCase):
+    def _policy_file(self, directory: str, document: str) -> str:
+        path = pathlib.Path(directory) / "policy.yaml"
+        path.write_text(document, encoding="utf-8")
+        return str(path)
+
+    def _validation(self, directory: str, score: float, must_fix: int = 0) -> str:
+        doc = _validation_doc(score, must_fix)
+        path = pathlib.Path(directory) / "validation.json"
+        path.write_text(json.dumps(doc), encoding="utf-8")
+        return str(path)
+
+    def test_profile_tightens_the_baseline_and_is_recorded(self):
+        policy_doc = (
+            "enforcement_bounds:\n"
+            "  block_threshold: 6.0\n  warn_threshold: 8.0\n  must_fix_zero_required: true\n"
+            "default_profile: baseline\n"
+            "profiles:\n"
+            "  production:\n"
+            "    rationale: stricter\n"
+            "    block_threshold: 7.0\n    warn_threshold: 8.5\n    must_fix_zero_required: true\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            policy = self._policy_file(tmp, policy_doc)
+            validation = self._validation(tmp, score=6.5)
+
+            baseline = evaluate_files(validation, policy)
+            self.assertEqual(baseline["decision"], "WARN")
+            self.assertEqual(baseline["policy"]["profile"], "baseline")
+
+            strict = evaluate_files(validation, policy, "production")
+            self.assertEqual(strict["decision"], "BLOCK")
+            self.assertEqual(strict["policy"]["profile"], "production")
+
+    def test_looser_profile_requires_an_explicit_allowance(self):
+        policy_doc = (
+            "enforcement_bounds:\n"
+            "  block_threshold: 6.0\n  warn_threshold: 8.0\n  must_fix_zero_required: true\n"
+            "profiles:\n"
+            "  poc:\n"
+            "    block_threshold: 4.0\n    warn_threshold: 6.5\n    must_fix_zero_required: true\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            policy = self._policy_file(tmp, policy_doc)
+            validation = self._validation(tmp, score=5.0)
+
+            with self.assertRaises(PolicyError) as ctx:
+                evaluate_files(validation, policy, "poc")
+            self.assertIn("allow_looser", str(ctx.exception))
+
+    def test_declared_looser_profile_applies(self):
+        policy_doc = (
+            "enforcement_bounds:\n"
+            "  block_threshold: 6.0\n  warn_threshold: 8.0\n  must_fix_zero_required: true\n"
+            "profiles:\n"
+            "  poc:\n"
+            "    rationale: time-boxed\n    allow_looser: true\n"
+            "    block_threshold: 4.0\n    warn_threshold: 6.5\n    must_fix_zero_required: true\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            policy = self._policy_file(tmp, policy_doc)
+            validation = self._validation(tmp, score=5.0)
+
+            decision = evaluate_files(validation, policy, "poc")
+
+            self.assertEqual(decision["decision"], "WARN")
+            self.assertEqual(decision["policy"]["profile"], "poc")
+
+    def test_unknown_profile_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            policy = self._policy_file(
+                tmp,
+                "enforcement_bounds:\n  block_threshold: 6.0\n  warn_threshold: 8.0\n"
+                "  must_fix_zero_required: true\n")
+            validation = self._validation(tmp, score=9.0)
+
+            with self.assertRaises(PolicyError):
+                evaluate_files(validation, policy, "nope")
+
+    def test_shipped_policy_declares_its_profiles(self):
+        policy = ROOT / "standards" / "arch-gate-policy.yaml"
+        bounds, _digest, profile = load_policy(policy)
+        self.assertEqual(profile, "baseline")
+        self.assertEqual(bounds["block_threshold"], 6.0)
+
+        strict, _digest, profile = load_policy(policy, "production")
+        self.assertEqual(profile, "production")
+        self.assertGreater(strict["block_threshold"], bounds["block_threshold"])
 
 
 class EnforceCliTests(unittest.TestCase):

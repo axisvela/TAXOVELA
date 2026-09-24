@@ -66,6 +66,13 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
   links, and entry authentication. The v2 diagram is versioned separately so
   historic validation and enforcement remain bound to the original diagram.
 
+- Gate policy profiles: `standards/arch-gate-policy.yaml` can declare named
+  profiles over the baseline (`production`, `poc`) and `archharness enforce
+  --profile <name>` selects one. The decision records which profile gated the
+  artifact. A profile may tighten the baseline freely; a looser one must
+  declare `allow_looser: true` with a rationale, so a gate cannot be relaxed
+  silently.
+
 ### Fixed
 
 - Reading an architecture YAML back into requirements now also derives the

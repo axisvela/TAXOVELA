@@ -64,7 +64,7 @@ automation rather than a diagram-only representation.
 
 | Initiative | Deliverable / acceptance criteria |
 |---|---|
-| `req/v2` adoption | In progress: `archharness migrate-status` measures each example (`scaffold` / `reqv1` / `reqv2-partial` / `reqv2-complete`) and the example matrix is verified against it in CI. Examples 05 and 06 are complete references; the site-qualified diagram id convention is documented. Remaining: rebuild examples 01–04. |
+| `req/v2` adoption | Done for every example with source input: examples 01–06 measure `reqv2-complete`; 07–08 remain scaffolds awaiting input. `archharness migrate-status` and the example matrix are verified in CI, and the site-qualified diagram id convention is documented. |
 | Traceability | Started: `trace-check` joins req/v2 inventory to typed blueprint nodes and verifies CN/NA site-qualified nodes have a matching deployment. Remaining: carry the same evidence through diagrams, validation findings, and remediation backlog. |
 | Schema evolution | Version schemas and define migration/compatibility rules before adding required fields; reject ambiguous or unsafe defaults. |
 | Platform patterns | Expand reusable, tested patterns only where standards can specify physical placement, network zones, protocol, identity, secret handling, and data classification. |

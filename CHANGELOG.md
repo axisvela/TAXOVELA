@@ -66,6 +66,10 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
   links, and entry authentication. The v2 diagram is versioned separately so
   historic validation and enforcement remain bound to the original diagram.
 
+- `docs/first-run.md` walks a new team from a fresh checkout to a gated diagram:
+  install and diagnose, scaffold a project, fill the registry, gather
+  requirements, design, draw, validate, gate, and remediate — with a symptom →
+  command → fix table for the common failures.
 - `archharness init-project` scaffolds startable inputs: a seven-table registry
   with one placeholder row per table, a coded `prompt.md` that cites them, and a
   README quick start covering requirements → design → diagram → validate →

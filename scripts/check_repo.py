@@ -135,7 +135,9 @@ def check_no_placeholder_or_local_paths() -> None:
         ROOT / "AGENTS.md",
         ROOT / "CLAUDE.md",
         ROOT / "ARCHITECTURE.md",
+        ROOT / "CHANGELOG.md",
         ROOT / "config.yaml",
+        *sorted((ROOT / "docs").glob("*.md")),
     ]
     for path in scan_files:
         if not path.is_file():

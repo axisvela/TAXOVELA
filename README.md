@@ -66,7 +66,9 @@ reference content are maintained in [docs/ROADMAP.md](./docs/ROADMAP.md).
 The detailed draw.io layout and connection-routing plan is maintained in
 [DIAGRAM_GENERATION_ANALYSIS.md](./tools/arch-diagram-gen/DIAGRAM_GENERATION_ANALYSIS.md).
 Released and unreleased changes, plus the interfaces consumers pin, are listed
-in [CHANGELOG.md](./CHANGELOG.md).
+in [CHANGELOG.md](./CHANGELOG.md). A step-by-step walkthrough from a fresh
+checkout to a gated diagram, with the diagnosis for each common failure, is in
+[docs/first-run.md](./docs/first-run.md).
 
 ## Setup
 

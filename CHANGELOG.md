@@ -57,9 +57,15 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 - Reading an architecture YAML back into requirements now also derives the
   deployment layer (one row per component, with its zone resolved as the infra
-  node) and disambiguates labels the merger keys by name, so repeated zones
-  ("Intranet", "DB Zone") and shared partner locations no longer displace one
-  another or lose their parent DC.
+  node), the WAN/peering links that connect containers, and one authentication
+  declaration per identity provider, anchored to the ingress component rather
+  than to the network appliance in front of it. It also disambiguates labels
+  the merger keys by name, so repeated zones ("Intranet", "DB Zone") and shared
+  partner locations no longer displace one another or lose their parent DC.
+- Two identity providers serving one entry point (an internal STS and an
+  external IdP) are recorded as two declarations instead of being reconciled
+  into one, and an identity server that cannot be resolved is reported rather
+  than written into the model as a bare name.
 - Reading an architecture YAML back into requirements works again: the reader
   emitted flow endpoints as diagram ids while the model references entities by
   name, so the merge dropped every flow of a complete model. Key-store labels

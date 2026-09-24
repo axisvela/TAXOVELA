@@ -39,6 +39,7 @@ ARCH = {
                              "runtime": "Internal K8s Platform"},
                             {"id": "db", "name": "db | PostgreSQL", "type": "DB",
                              "component_role": "database", "encryption_at_rest": "AES-256"},
+                            {"id": "idp", "name": "idp | Directory", "type": "SEC"},
                         ],
                     },
                     {"id": "intra", "type": "intranet", "name": "Intranet", "components": []},
@@ -55,10 +56,13 @@ ARCH = {
         "interactions": [
             {"from": "internet", "to": "api", "protocol": "HTTPS", "auth": "OAuth2.0"},
             {"from": "api", "to": "db", "protocol": "PostgreSQL", "auth": "UserPassword"},
+            {"from": "dc-a", "to": "dc-b", "protocol": "MPLS with IPsec"},
         ],
         "security": {
             "key_management": {"private_dc": "Enterprise vault", "partner_keys": "Short-lived SSH"},
-            "user_auth_internal": {"server": "ADFS", "protocol": "SAML 2.0"},
+            "user_auth_internal": {"server": "idp | Directory", "protocol": "SAML 2.0"},
+            "user_auth_external": {"server": "api | Gateway",
+                                   "protocol": "OIDC / OAuth2.0 Authorization Code"},
         },
     },
 }
@@ -74,7 +78,7 @@ class DiagramToRequirementsTests(unittest.TestCase):
         partial = self._read(ARCH)
 
         labels = {component.name.value for component in partial.components}
-        self.assertEqual(labels, {"api | Gateway", "db | PostgreSQL"})
+        self.assertEqual(labels, {"api | Gateway", "db | PostgreSQL", "idp | Directory"})
         endpoints = {flow.source.value for flow in partial.flows}
         endpoints |= {flow.target.value for flow in partial.flows}
         self.assertIn("api | Gateway", endpoints)
@@ -100,7 +104,7 @@ class DiagramToRequirementsTests(unittest.TestCase):
     def test_deployments_are_extracted_per_component(self):
         partial = self._read(ARCH)
 
-        self.assertEqual(len(partial.deployments), 2)
+        self.assertEqual(len(partial.deployments), 3)
         gateway = partial.deployments[0]
         self.assertEqual(gateway.component.value, "api | Gateway")
         self.assertEqual(gateway.environment.value, "production")
@@ -114,7 +118,7 @@ class DiagramToRequirementsTests(unittest.TestCase):
             merged_yaml, _report, _gaps = merge_partial_reqs([str(path)])
 
         deployments = yaml.safe_load(merged_yaml)["requirements"]["deployments"]
-        self.assertEqual(len(deployments), 2)
+        self.assertEqual(len(deployments), 3)
         self.assertEqual(deployments[0]["component_id"], "CMP-01")
         self.assertEqual(deployments[0]["infra_id"], "INF-02")
         self.assertEqual(deployments[0]["environment"], "prod")
@@ -139,6 +143,48 @@ class DiagramToRequirementsTests(unittest.TestCase):
         self.assertEqual(zones["Intranet (dc-a)"], "INF-01")
         self.assertEqual(zones["Intranet (dc-b)"], "INF-04")
         self.assertEqual(len(infra), 5)
+
+    def test_container_interactions_become_network_links(self):
+        partial = self._read(ARCH)
+
+        self.assertEqual(len(partial.network_links), 1)
+        link = partial.network_links[0]
+        self.assertEqual(link.source_infra.value, "Primary DC, City A [CN]")
+        self.assertEqual(link.target_infra.value, "Secondary DC, City B [CN]")
+        self.assertEqual(link.method.value, "mpls")
+        # A link is not a component flow.
+        self.assertEqual(len(partial.flows), 2)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "partial.yaml"
+            path.write_text(partial_req_to_yaml(partial), encoding="utf-8")
+            merged_yaml, _report, _gaps = merge_partial_reqs([str(path)])
+
+        links = yaml.safe_load(merged_yaml)["requirements"]["network_links"]
+        self.assertEqual(len(links), 1)
+        self.assertEqual(links[0]["source_infra_id"], "INF-01")
+        self.assertEqual(links[0]["target_infra_id"], "INF-04")
+        self.assertEqual(links[0]["method"], "mpls")
+
+    def test_auth_declarations_anchor_to_the_ingress_component(self):
+        partial = self._read(ARCH)
+
+        self.assertEqual(len(partial.auth), 2)
+        protocols = {row.protocol.value for row in partial.auth}
+        self.assertEqual(protocols, {"SAML2", "OIDC"})
+        for row in partial.auth:
+            self.assertEqual(row.applies_to.value, "api | Gateway")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "partial.yaml"
+            path.write_text(partial_req_to_yaml(partial), encoding="utf-8")
+            merged_yaml, _report, _gaps = merge_partial_reqs([str(path)])
+
+        auth = yaml.safe_load(merged_yaml)["requirements"]["auth"]
+        # Two providers on one entry point are two declarations, not a conflict.
+        self.assertEqual(len(auth), 2)
+        self.assertEqual({row["applies_to"] for row in auth}, {"CMP-01"})
+        self.assertEqual({row["auth_server"] for row in auth}, {"CMP-01", "CMP-03"})
 
     def test_key_store_labels_are_normalised_to_the_contract(self):
         partial = self._read(ARCH)

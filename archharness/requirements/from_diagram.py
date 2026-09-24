@@ -31,7 +31,8 @@ import yaml
 
 from .normalizer import (
     PartialReq, PartialSystem, PartialInfra, PartialComponent, PartialDeployment,
-    PartialFlow, Confidence, fv, partial_req_to_yaml, v2_json_to_partial,
+    PartialAuth, PartialFlow, PartialNetworkLink,
+    Confidence, fv, partial_req_to_yaml, v2_json_to_partial,
 )
 
 
@@ -114,6 +115,51 @@ def _runtime_type(runtime: str) -> str | None:
         return "vm"
     if any(token in text for token in ("physical", "appliance", "bare metal", "host")):
         return "physical"
+    return None
+
+
+_EXTERNAL_SOURCES = {"internet", "user", "office-network"}
+
+_LINK_METHOD_TOKENS = (
+    ("mpls", "mpls"),
+    ("expressroute", "expressroute"),
+    ("express route", "expressroute"),
+    ("direct connect", "direct_connect"),
+    ("vnet peering", "vnet_peering"),
+    ("vpc peering", "vpc_peering"),
+    ("peering", "vnet_peering"),
+    ("sd-wan", "sdwan"),
+    ("sdwan", "sdwan"),
+    ("ipsec", "vpn"),
+    ("vpn", "vpn"),
+    ("leased line", "leased_line"),
+    ("private line", "leased_line"),
+    ("internet", "internet"),
+)
+
+_AUTH_PROTOCOL_TOKENS = (
+    ("saml", "SAML2"),
+    ("openid connect", "OIDC"),
+    ("oidc", "OIDC"),
+    ("authorization code", "OAuth2_AuthCode"),
+    ("client credentials", "OAuth2_ClientCredentials"),
+    ("oauth2", "OAuth2_AuthCode"),
+    ("oauth 2", "OAuth2_AuthCode"),
+    ("kerberos", "Kerberos"),
+    ("api key", "ApiKey"),
+    ("apikey", "ApiKey"),
+    ("active directory", "Kerberos"),
+    ("password", "Basic"),
+    ("basic", "Basic"),
+)
+
+
+def _keyword_token(text: str, table: tuple[tuple[str, str], ...]) -> str | None:
+    """Return the enum token whose keyword appears first in a free-text field."""
+    haystack = (text or "").lower()
+    for token, value in table:
+        if token in haystack:
+            return value
     return None
 
 
@@ -418,6 +464,11 @@ def parse_arch_yaml(data: dict, source_file: str) -> PartialReq:
             return f"{label} ({rid})"
         return label
 
+    # Container ids map to the infra names they were emitted with, so an
+    # interaction between two containers becomes a network link rather than a
+    # flow with a component-only reference.
+    container_names: dict[str, str] = {}
+
     for region in regions:
         rid = region.get("id", "")
         location = region_names.get(rid, region.get("location", rid))
@@ -436,12 +487,14 @@ def parse_arch_yaml(data: dict, source_file: str) -> PartialReq:
         if loc:
             infra.country = fv(loc.group(1), Confidence.HIGH, SRC)
         req.infra.append(infra)
+        container_names[rid] = location
 
         deployment_type, location_type = _deployment_type(region_type)
         for zone in region.get(zkey_of(region), []):
             zone_name = zone_label(zone, region)
             if zone_name:
                 req.infra.append(_zone_infra(zone_name, location, SRC, len(req.infra) + 1))
+                container_names[zone.get("id", "")] = zone_name
             for comp in zone.get("components", []):
                 deployment = PartialDeployment(id=f"deployment_{len(req.deployments) + 1}")
                 deployment.component = fv(comp.get("name", ""), Confidence.HIGH, SRC)
@@ -473,10 +526,58 @@ def parse_arch_yaml(data: dict, source_file: str) -> PartialReq:
                 label_by_id[comp.get("id", "")] = comp.get("name", "")
                 req.components.append(pc)
 
+    # Authentication applies to the application tier that terminates ingress,
+    # not to the network appliance in front of it, so the ingress chain is
+    # walked past firewalls, load balancers, and security nodes.
+    appliance_types = {"NW", "LB", "SEC"}
+    reachable: dict[str, list[str]] = {}
+    for iact in arch.get("interactions", []):
+        reachable.setdefault(iact.get("from", ""), []).append(iact.get("to", ""))
+
+    def _is_appliance(component_id: str) -> bool:
+        for component in (
+            comp
+            for region in regions for zone in region.get(zkey_of(region), [])
+            for comp in zone.get("components", []) or []
+        ):
+            if component.get("id") == component_id:
+                return component.get("type") in appliance_types
+        return False
+
+    entry_points: list[str] = []
+    pending = [target for source in _EXTERNAL_SOURCES for target in reachable.get(source, [])]
+    seen: set[str] = set()
+    while pending and not entry_points:
+        next_hop: list[str] = []
+        for node in pending:
+            if node in seen:
+                continue
+            seen.add(node)
+            if node in label_by_id and not _is_appliance(node):
+                entry_points.append(label_by_id[node])
+            else:
+                next_hop.extend(reachable.get(node, []))
+        pending = next_hop
+
     for i, iact in enumerate(arch.get("interactions", [])):
-        flow = PartialFlow(id=f"flow_{i + 1}")
         source = iact.get("from", "")
         target = iact.get("to", "")
+        if source in container_names and target in container_names:
+            # Both ends are hosting/network nodes: this is a WAN or peering
+            # link, not a component flow.
+            protocol = str(iact.get("protocol") or "")
+            link = PartialNetworkLink(id=f"link_{len(req.network_links) + 1}")
+            link.source_infra = fv(container_names[source], Confidence.MEDIUM, SRC)
+            link.target_infra = fv(container_names[target], Confidence.MEDIUM, SRC)
+            method = _keyword_token(protocol, _LINK_METHOD_TOKENS)
+            if method:
+                link.method = fv(method, Confidence.MEDIUM, SRC)
+            if protocol:
+                link.encryption_method = fv(protocol, Confidence.LOW, SRC)
+            req.network_links.append(link)
+            continue
+
+        flow = PartialFlow(id=f"flow_{i + 1}")
         flow.source = fv(label_by_id.get(source, source), Confidence.HIGH, SRC)
         flow.target = fv(label_by_id.get(target, target), Confidence.HIGH, SRC)
         if iact.get("protocol"):
@@ -492,19 +593,24 @@ def parse_arch_yaml(data: dict, source_file: str) -> PartialReq:
     for env, solution in (sec.get("key_management") or {}).items():
         req.credentials.append({"environment": env, "solution": solution,
                                 "_source": SRC, "_confidence": "high"})
-    if sec.get("user_auth_internal"):
-        ua = sec["user_auth_internal"]
-        entry = ua.get("entry_point") or system_name
-        from .normalizer import PartialAuth
-        auth = PartialAuth(id="auth_1")
+    for index, key in enumerate(("user_auth_internal", "user_auth_external"), start=1):
+        declaration = sec.get(key)
+        if not declaration:
+            continue
+        auth = PartialAuth(id=f"auth_{index}")
         auth.subject = fv("user", Confidence.HIGH, SRC)
-        auth.applies_to = fv(entry, Confidence.MEDIUM, SRC)
-        if ua.get("server"):
-            auth.auth_server = fv(ua["server"], Confidence.HIGH, SRC)
-        if ua.get("protocol"):
-            auth.protocol = fv(ua["protocol"], Confidence.HIGH, SRC)
-        if ua.get("authorization"):
-            auth.authorization = fv(ua["authorization"], Confidence.HIGH, SRC)
+        # Authentication applies to the ingress component; without one in the
+        # diagram the row cannot be anchored and is left for the interview.
+        entry = declaration.get("entry_point") or (entry_points[0] if entry_points else None)
+        if entry:
+            auth.applies_to = fv(entry, Confidence.MEDIUM, SRC)
+        if declaration.get("server"):
+            auth.auth_server = fv(declaration["server"], Confidence.HIGH, SRC)
+        protocol = _keyword_token(str(declaration.get("protocol") or ""), _AUTH_PROTOCOL_TOKENS)
+        if protocol:
+            auth.protocol = fv(protocol, Confidence.MEDIUM, SRC)
+        if declaration.get("authorization"):
+            auth.authorization = fv(declaration["authorization"], Confidence.HIGH, SRC)
         req.auth.append(auth)
 
     req.no_coverage.extend(["department", "project_scope"])

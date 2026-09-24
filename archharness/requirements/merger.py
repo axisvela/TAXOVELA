@@ -248,7 +248,11 @@ def _key_of(entity, aspect: str) -> str:
         ends = sorted([_normalize_name(val("source_infra")), _normalize_name(val("target_infra"))])
         return f"{ends[0]}--{ends[1]}|{val('method').lower()}"
     if aspect == "auth":
-        return f"{_normalize_name(val('applies_to'))}|{val('subject').lower()}"
+        # One entry point can be served by several identity providers (an
+        # internal STS and an external IdP); the server is part of the identity
+        # of the declaration, not a field to reconcile.
+        return (f"{_normalize_name(val('applies_to'))}|{val('subject').lower()}"
+                f"|{_normalize_name(val('auth_server'))}")
     if aspect == "stack":
         return f"{_normalize_name(val('component'))}|{val('component_name').lower()}|{val('version')}"
     if aspect == "ecosystem":
@@ -578,11 +582,15 @@ def _build_final(merged: dict, project: dict, credentials, constraints,
             unresolved.append(f"auth '{_plain(entity.applies_to)}': entry point or protocol "
                               f"unresolved — row dropped")
             continue
+        auth_server = _ref_id(entity.auth_server, {**infra_map, **component_map})
+        if _plain(entity.auth_server) and not auth_server:
+            unresolved.append(f"auth '{_plain(entity.applies_to)}': server "
+                              f"'{_plain(entity.auth_server)}' unresolved")
         auth_out.append(_drop_none({
             "id": f"AUTH-{index:02d}",
             "subject": _alias(_plain(entity.subject), {}, AUTH_SUBJECTS) or "user",
             "applies_to": applies_to,
-            "auth_server": _ref_id(entity.auth_server, infra_map) or _plain(entity.auth_server),
+            "auth_server": auth_server,
             "protocol": protocol,
             "authorization": _enum(entity.authorization, _AUTHORIZATION_ALIASES, AUTHORIZATIONS),
             "authorization_platform": _plain(entity.authorization_platform),

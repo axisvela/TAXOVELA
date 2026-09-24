@@ -25,7 +25,8 @@ from .workspace import (
 )
 
 PASSTHROUGH_COMMANDS = ("arch-check", "backlog", "diagram", "migrate-status",
-                        "req", "trace-check", "validate-check", "validate-yaml")
+                        "req", "schema-check", "trace-check", "validate-check",
+                        "validate-yaml")
 
 
 def build_parser() -> argparse.ArgumentParser:

@@ -8,7 +8,14 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ## Unreleased
 
-Nothing yet.
+### Added
+
+- `archharness schema-check --baseline <ref|dir>` classifies a schema change as
+  breaking, additive, or cosmetic. Contracts are versioned by identity, so a
+  breaking change (`req/v3`) must ship as a new id: removing a property, making
+  one required, narrowing an enum, or changing a type under an existing id now
+  fails the check instead of relying on reviewer memory. `--strict` also
+  rejects additive changes.
 
 ## v0.8.0 — 2026-09-24
 

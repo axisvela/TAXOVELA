@@ -8,6 +8,10 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ## Unreleased
 
+Nothing yet.
+
+## v0.8.0 — 2026-09-24
+
 ### Added
 
 - `req/v2` requirements model with one table per entity kind (`INF-`, `APP-`,

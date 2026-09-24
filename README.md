@@ -68,7 +68,9 @@ The detailed draw.io layout and connection-routing plan is maintained in
 Released and unreleased changes, plus the interfaces consumers pin, are listed
 in [CHANGELOG.md](./CHANGELOG.md). A step-by-step walkthrough from a fresh
 checkout to a gated diagram, with the diagnosis for each common failure, is in
-[docs/first-run.md](./docs/first-run.md).
+[docs/first-run.md](./docs/first-run.md); the recipe for running the gate on
+every pull request, with the evidence archived, is in
+[docs/ci-pipeline.md](./docs/ci-pipeline.md).
 
 ## Setup
 

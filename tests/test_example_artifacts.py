@@ -16,6 +16,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from archharness.arch_check import SEVERITY_ERROR, check_architecture  # noqa: E402
+from archharness.enforcement import evaluate_files  # noqa: E402
 from archharness.registry import check_example  # noqa: E402
 from archharness.trace_check import check_traceability  # noqa: E402
 from archharness.workflow import check_state_integrity  # noqa: E402
@@ -156,6 +157,27 @@ class ExampleArtifactIntegrityTests(unittest.TestCase):
             checked += 1
             self.assertEqual(errors, [], f"{example.name}: {json.dumps(errors, indent=2)}")
         self.assertGreater(checked, 0, "no example validation result was checked")
+
+    def test_recorded_enforcement_decisions_replay(self):
+        """The gate must reproduce a recorded decision from the same inputs."""
+        policy = ROOT / "standards" / "arch-gate-policy.yaml"
+        checked = 0
+        for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):
+            validation = example / "output" / "validation" / "validate_result.json"
+            recorded_path = example / "output" / "validation" / "enforce_result.json"
+            if not validation.is_file() or not recorded_path.is_file():
+                continue
+            recorded = json.loads(recorded_path.read_text(encoding="utf-8"))
+            profile = (recorded.get("policy") or {}).get("profile")
+            checked += 1
+            with self.subTest(example=example.name):
+                decision = evaluate_files(validation, policy, profile)
+                self.assertEqual(decision["decision"], recorded["decision"],
+                                 f"{example.name}: decision changed")
+                self.assertEqual(decision["reasons"], recorded["reasons"],
+                                 f"{example.name}: reasons changed")
+
+        self.assertGreater(checked, 0, "no recorded decision was replayed")
 
     def test_example_manifests_use_project_relative_paths(self):
         for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):

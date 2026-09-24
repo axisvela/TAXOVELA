@@ -10,6 +10,15 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Added
 
+- `docs/ci-pipeline.md` is a copy-pasteable workflow that runs doctor,
+  `req-validate`, `arch-check`, `trace-check`, `schema-check`, `validate-check`,
+  `backlog`, and the `enforce` gate on every pull request, archiving the
+  decision and the rendered diagram with `if: always()`. Determinism is
+  enforced on this repository's own records:
+  `tests/test_example_artifacts.py` replays every recorded `enforcement/v1`
+  decision and fails when the current policy and validation no longer produce
+  it. CI also publishes the reference examples' gate evidence as an artifact.
+
 - `archharness schema-check --baseline <ref|dir>` classifies a schema change as
   breaking, additive, or cosmetic. Contracts are versioned by identity, so a
   breaking change (`req/v3`) must ship as a new id: removing a property, making

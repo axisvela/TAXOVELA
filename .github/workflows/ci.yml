@@ -65,6 +65,19 @@ jobs:
             echo "baseline ${baseline} is unavailable in this clone; skipping"
           fi
 
+      # The reference examples carry recorded gate decisions; publish them with
+      # the build so a reviewer can see the evidence the gate acted on.
+      # docs/ci-pipeline.md shows the same pattern for a project.
+      - name: Archive the recorded gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-evidence
+          path: |
+            examples/*/output/validation/*.json
+            examples/*/output/validation/*.md
+          retention-days: 30
+
   smoke:
     runs-on: ubuntu-latest
     steps:

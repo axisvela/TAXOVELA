@@ -28,7 +28,11 @@ jobs:
   repo-checks:
     runs-on: ubuntu-latest
     steps:
+      # The schema compatibility check compares against the base revision, so
+      # the clone cannot be shallow.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -48,6 +52,18 @@ jobs:
 
       - name: Validate standards, schemas, and config YAML
         run: python tools/yaml_validate.py config.yaml standards/*.yaml schemas/*.json
+
+      # Contracts are versioned by identity: a breaking change must ship as a
+      # new schema id, not mutate one consumers pinned.
+      - name: Verify schema compatibility against the base revision
+        run: |
+          baseline="${{ github.event.pull_request.base.sha }}"
+          if [ -z "$baseline" ]; then baseline="HEAD^"; fi
+          if git rev-parse --verify --quiet "${baseline}^{commit}" >/dev/null; then
+            python -m archharness schema-check --baseline "$baseline"
+          else
+            echo "baseline ${baseline} is unavailable in this clone; skipping"
+          fi
 
   smoke:
     runs-on: ubuntu-latest

@@ -15,7 +15,8 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
   breaking change (`req/v3`) must ship as a new id: removing a property, making
   one required, narrowing an enum, or changing a type under an existing id now
   fails the check instead of relying on reviewer memory. `--strict` also
-  rejects additive changes.
+  rejects additive changes. CI runs it against the pull request's base
+  revision on a full clone, so a breaking change cannot merge silently.
 
 ## v0.8.0 — 2026-09-24
 

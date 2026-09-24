@@ -130,6 +130,19 @@ class SchemaCheckCliTests(unittest.TestCase):
         self.assertIn("component.encryption_at_rest was added", output)
         self.assertIn("no breaking schema change", output)
 
+    def test_ci_runs_the_compatibility_check_on_a_full_clone(self):
+        """A shallow clone cannot resolve a baseline, so CI must fetch history."""
+        import yaml
+
+        workflow = yaml.safe_load(
+            (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8"))
+        steps = workflow["jobs"]["repo-checks"]["steps"]
+        names = [step.get("name") or step.get("uses") for step in steps]
+
+        self.assertIn("Verify schema compatibility against the base revision", names)
+        checkout = next(step for step in steps if step.get("uses") == "actions/checkout@v4")
+        self.assertEqual(checkout.get("with"), {"fetch-depth": 0})
+
     def test_strict_mode_rejects_additive_changes(self):
         with tempfile.TemporaryDirectory() as tmp:
             baseline_dir = pathlib.Path(tmp)

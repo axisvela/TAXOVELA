@@ -1,0 +1,12 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "diagram-v2-d2",
+  "type": "technical-deployment-view",
+  "schema": "text/d2",
+  "path": "output\\diagrams\\diagram-v2.d2",
+  "sha256": "57bd445b441c5c9b3e0ab46e7fbc3ef8e6b52d51d77091ffddd57cbdefd69d56",
+  "model_version": null,
+  "producer": "archharness diagram",
+  "produced_at": "2026-09-24T00:00:00+00:00",
+  "input_artifacts": ["blueprint.yaml"]
+}

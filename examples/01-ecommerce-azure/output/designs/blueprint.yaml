@@ -1,541 +1,156 @@
+_design:
+  stage: design
+  project_id: ECOM-AZ-001
+  requirements_source: output/requirements/req.yaml
+  registry_source: input/systems-registry.md
+  templates: [azure-hub-spoke]
+  decisions:
+    - {decision: "Appliance policy", choice: "INF-06/08 firewalls and INF-10 WAF are L4 infra", rationale: "Security devices are not components."}
+    - {decision: "Runtime policy", choice: "AKS only appears as deployment runtime", rationale: "Kubernetes is not an inventory node."}
+    - {decision: "Carrier policy", choice: "Dedicated circuits and backup WAN are LNK rows", rationale: "Carrier paths are links, not nodes."}
 arch:
-  id: "01-ecommerce-azure-TechDiagram-V1.0"
-  name: "E-commerce Platform - Azure Multi-Region Hub-Spoke Architecture"
-  platform: "azure"
-  version: "V1.0"
-  author: "TBD"
-  owner_team: "TBD"
-  last_modified: "2026-09-14"
-
+  id: ECOM-AZ-001-TechDiagram-V2.0
+  name: E-commerce Platform - Azure Multi-Region Hub-Spoke Architecture
+  platform: azure
+  version: V2.0
+  author: OpenCode
+  owner_team: TBD
+  last_modified: 2026-09-24
   deployment:
-    - id: "sys-01"
-      type: "azure_vnet"
-      role: "production"
-      location: "Azure East US, Virginia [US]"
-      owner: "InfraSec"
+    - id: INF-01
+      type: azure_vnet
+      role: production
+      location: Azure East US [US]
+      owner: InfraSec
       subnets:
-        - id: "eastus-azure-firewall-subnet"
-          type: "hub"
-          name: "SYS-01 vnet-ecom-coreservice-eus - AzureFirewallSubnet"
+        - id: eus-firewall-zone
+          type: hub
+          name: East US inspection
           components:
-            - id: "sys-06"
-              name: "SYS-06 | Azure Firewall (EastUS)"
-              type: "LB"
-              shape: "hexagon"
-              runtime: "Azure managed service"
-              sensitivity: "Acme Confidential"
-              owner_type: "org_it"
-              status: "newly_created"
-              notes: "Central inspection for East US spoke egress, east-west, hybrid, and inter-region traffic; UDR forced tunneling prevents firewall bypass."
-        - id: "eastus-gateway-subnet"
-          type: "hub"
-          name: "SYS-01 vnet-ecom-coreservice-eus - GatewaySubnet"
-          components:
-            - id: "sys-07"
-              name: "SYS-07 | ExpressRoute gateway (EastUS)"
-              type: "NW"
-              runtime: "Azure managed service"
-              sensitivity: "Acme Confidential"
-              owner_type: "org_it"
-              status: "newly_created"
-              notes: "Zone-redundant hub gateway for the two dedicated ExpressRoute circuits and encrypted backup paths."
-            - id: "sys-22"
-              name: "SYS-22 | Carrier A ExpressRoute"
-              type: "NW"
-              owner_type: "third_party"
-              status: "unchanged"
-              notes: "Primary US dedicated circuit; IPsec overlay provides payload encryption."
-            - id: "sys-23"
-              name: "SYS-23 | Carrier B ExpressRoute"
-              type: "NW"
-              owner_type: "third_party"
-              status: "unchanged"
-              notes: "Secondary US dedicated circuit on a different carrier; IPsec overlay provides payload encryption."
-            - id: "sys-24"
-              name: "SYS-24 | MPLS"
-              type: "NW"
-              owner_type: "third_party"
-              status: "unchanged"
-              notes: "Backup US WAN path with IPsec overlay."
-            - id: "sys-25"
-              name: "SYS-25 | Internet VPN"
-              type: "NW"
-              owner_type: "third_party"
-              status: "unchanged"
-              notes: "Backup US site-to-site VPN using IKEv2 and IPsec."
-
-    - id: "sys-02"
-      type: "azure_vnet"
-      role: "production"
-      location: "Azure East US, Virginia [US]"
-      owner: "Business IT"
+            - {id: INF-06, name: "INF-06 East US firewall", type: SEC, shape: hexagon, runtime: "Azure managed service", owner_type: org_it, status: newly_created}
+            - {id: INF-07, name: "INF-07 East US hybrid gateway", type: NW, runtime: "Azure managed service", owner_type: org_it, status: newly_created}
+    - id: INF-02
+      type: azure_vnet
+      role: production
+      location: Azure East US [US]
+      owner: Business IT
       subnets:
-        - id: "eastus-bu-dmz-subnet"
-          type: "public"
-          name: "SYS-02 vnet-ecom-bu-eus - DMZ / Application Gateway subnet"
+        - id: INF-10
+          type: public
+          name: East US ingress
           components:
-            - id: "sys-10"
-              name: "SYS-10 | Application Gateway"
-              type: "LB"
-              shape: "hexagon"
-              runtime: "Azure Application Gateway WAF v2"
-              sensitivity: "Acme Confidential"
-              owner_type: "org_it"
-              status: "newly_created"
-              notes: "Only public application ingress; WAF prevention mode with managed OWASP rules and end-to-end TLS."
-        - id: "eastus-bu-aks-subnet"
-          type: "private"
-          name: "SYS-02 vnet-ecom-bu-eus - AKS subnet"
+            - {id: INF-10-WAF, name: "INF-10 Application Gateway WAF", type: SEC, shape: hexagon, runtime: "Azure Application Gateway WAF v2", owner_type: org_it, status: newly_created}
+        - id: INF-11
+          type: private
+          name: East US business runtime
           components:
-            - id: "sys-11"
-              name: "SYS-11 | AKS (BU)"
-              type: "BE"
-              runtime: "AKS"
-              sensitivity: "Acme Confidential"
-              owner_type: "biz_owned"
-              status: "newly_created"
-              notes: "Private AKS cluster; workload identity enabled; application language and framework remain TBD."
-        - id: "eastus-bu-application-subnet"
-          type: "private"
-          name: "SYS-02 vnet-ecom-bu-eus - Application subnet"
+            - {id: CMP-01, name: "CMP-01 US container workload", type: BE, runtime: AKS, owner_type: biz_owned, status: newly_created}
+        - id: INF-12
+          type: private
+          name: East US business application
           components:
-            - id: "sys-12"
-              name: "SYS-12 | App VMs"
-              type: "BE"
-              runtime: "Azure VMs"
-              sensitivity: "Acme Confidential"
-              owner_type: "biz_owned"
-              status: "newly_created"
-              notes: "Private application servers; language, framework, and versions remain TBD."
-        - id: "eastus-bu-database-subnet"
-          type: "private"
-          name: "SYS-02 vnet-ecom-bu-eus - Database subnet"
+            - {id: CMP-02, name: "CMP-02 US VM application", type: BE, runtime: "Azure VMs", owner_type: biz_owned, status: newly_created}
+        - id: INF-13
+          type: private
+          name: East US business database
           components:
-            - id: "sys-13"
-              name: "SYS-13 | DB (BU)"
-              type: "DB"
-              shape: "cylinder"
-              sensitivity: "Acme Confidential"
-              owner_type: "biz_owned"
-              status: "newly_created"
-              notes: "Private database endpoint; database engine and Azure hosting model remain TBD; encryption at rest is mandatory."
-
-    - id: "sys-03"
-      type: "azure_vnet"
-      role: "production"
-      location: "Azure East US, Virginia [US]"
-      owner: "InfraSec"
+            - {id: CMP-03, name: "CMP-03 US database", type: DB, shape: cylinder, owner_type: biz_owned, status: newly_created}
+    - id: INF-03
+      type: azure_vnet
+      role: production
+      location: Azure East US [US]
+      owner: InfraSec
       subnets:
-        - id: "eastus-common-aks-subnet"
-          type: "spoke"
-          name: "SYS-03 vnet-ecom-common-eus - Common AKS subnet"
+        - id: INF-14
+          type: private
+          name: East US shared runtime
           components:
-            - id: "sys-14"
-              name: "SYS-14 | Common AKS"
-              type: "BE"
-              runtime: "AKS"
-              sensitivity: "Acme Confidential"
-              owner_type: "org_it"
-              status: "newly_created"
-              notes: "Private shared-services AKS cluster with workload identity; application stack remains TBD."
-        - id: "eastus-shared-backend-subnet"
-          type: "private"
-          name: "SYS-03 vnet-ecom-common-eus - Shared-backend subnet"
+            - {id: CMP-04, name: "CMP-04 shared container workload", type: BE, runtime: AKS, owner_type: org_it, status: newly_created}
+        - id: INF-15
+          type: private
+          name: East US shared services
           components:
-            - id: "sys-15"
-              name: "SYS-15 | Shared services"
-              type: "BE"
-              sensitivity: "Acme Confidential"
-              owner_type: "org_it"
-              status: "newly_created"
-              notes: "Private shared backend; interfaces and runtime remain TBD."
-        - id: "eastus-private-endpoint-subnet"
-          type: "private"
-          name: "SYS-03 vnet-ecom-common-eus - Private-endpoint subnet"
+            - {id: CMP-05, name: "CMP-05 shared services", type: BE, owner_type: org_it, status: newly_created}
+        - id: INF-16
+          type: private
+          name: East US storage endpoint
           components:
-            - id: "sys-16"
-              name: "SYS-16 | Storage"
-              type: "DS"
-              shape: "cloud_rect"
-              runtime: "Azure managed service with private endpoint"
-              sensitivity: "Acme Confidential"
-              owner_type: "org_it"
-              status: "newly_created"
-              notes: "Private endpoint only; public network access disabled; storage service and SKU remain TBD."
-
-    - id: "sys-04"
-      type: "azure_vnet"
-      role: "production"
-      location: "Azure Japan East, Tokyo [JP]"
-      owner: "InfraSec"
+            - {id: CMP-06, name: "CMP-06 object storage", type: DS, shape: cloud_rect, runtime: "Azure private endpoint", owner_type: org_it, status: newly_created}
+    - id: INF-04
+      type: azure_vnet
+      role: production
+      location: Azure Japan East [JP]
+      owner: InfraSec
       subnets:
-        - id: "japaneast-azure-firewall-subnet"
-          type: "hub"
-          name: "SYS-04 vnet-ecom-coreservice-ap - AzureFirewallSubnet"
+        - id: jpe-firewall-zone
+          type: hub
+          name: Japan East inspection
           components:
-            - id: "sys-08"
-              name: "SYS-08 | Azure Firewall (JapanEast)"
-              type: "LB"
-              shape: "hexagon"
-              runtime: "Azure managed service"
-              sensitivity: "Acme Confidential"
-              owner_type: "org_it"
-              status: "newly_created"
-              notes: "Central inspection for Japan East spoke egress, hybrid, and inter-region traffic; UDR forced tunneling prevents firewall bypass."
-        - id: "japaneast-gateway-subnet"
-          type: "hub"
-          name: "SYS-04 vnet-ecom-coreservice-ap - GatewaySubnet"
-          components:
-            - id: "sys-09"
-              name: "SYS-09 | ExpressRoute gateway (JapanEast)"
-              type: "NW"
-              runtime: "Azure managed service"
-              sensitivity: "Acme Confidential"
-              owner_type: "org_it"
-              status: "newly_created"
-              notes: "Zone-redundant hub gateway for the Japan dedicated ExpressRoute circuit."
-            - id: "sys-26"
-              name: "SYS-26 | Carrier C ExpressRoute"
-              type: "NW"
-              owner_type: "third_party"
-              status: "unchanged"
-              notes: "Primary Japan dedicated circuit; IPsec overlay provides payload encryption; second circuit remains an open item."
-
-    - id: "sys-05"
-      type: "azure_vnet"
-      role: "production"
-      location: "Azure Japan East, Tokyo [JP]"
-      owner: "Business IT"
+            - {id: INF-08, name: "INF-08 Japan East firewall", type: SEC, shape: hexagon, runtime: "Azure managed service", owner_type: org_it, status: newly_created}
+            - {id: INF-09, name: "INF-09 Japan East hybrid gateway", type: NW, runtime: "Azure managed service", owner_type: org_it, status: newly_created}
+    - id: INF-05
+      type: azure_vnet
+      role: production
+      location: Azure Japan East [JP]
+      owner: Business IT
       subnets:
-        - id: "japaneast-ap-dmz-subnet"
-          type: "public"
-          name: "SYS-05 vnet-ecom-ap-prod - DMZ subnet"
-          components: []
-        - id: "japaneast-ap-aks-subnet"
-          type: "private"
-          name: "SYS-05 vnet-ecom-ap-prod - AKS subnet"
+        - id: INF-17
+          type: private
+          name: Japan East runtime
           components:
-            - id: "sys-17"
-              name: "SYS-17 | AKS (AP)"
-              type: "BE"
-              runtime: "AKS"
-              sensitivity: "Acme Confidential"
-              owner_type: "biz_owned"
-              status: "newly_created"
-              notes: "Private AKS cluster routable from SYS-21 through SYS-26 and SYS-08; workload identity enabled; application stack remains TBD."
-        - id: "japaneast-ap-application-subnet"
-          type: "private"
-          name: "SYS-05 vnet-ecom-ap-prod - Application subnet"
+            - {id: CMP-07, name: "CMP-07 AP container workload", type: BE, runtime: AKS, owner_type: biz_owned, status: newly_created}
+        - id: INF-18
+          type: private
+          name: Japan East application
           components:
-            - id: "sys-18"
-              name: "SYS-18 | App (AP)"
-              type: "BE"
-              sensitivity: "Acme Confidential"
-              owner_type: "biz_owned"
-              status: "newly_created"
-              notes: "Private AP application tier; runtime, language, framework, and versions remain TBD."
-        - id: "japaneast-ap-database-subnet"
-          type: "private"
-          name: "SYS-05 vnet-ecom-ap-prod - Database subnet"
+            - {id: CMP-08, name: "CMP-08 AP VM application", type: BE, runtime: "Azure VMs", owner_type: biz_owned, status: newly_created}
+        - id: INF-19
+          type: private
+          name: Japan East database
           components:
-            - id: "sys-19"
-              name: "SYS-19 | DB (AP)"
-              type: "DB"
-              shape: "cylinder"
-              sensitivity: "Acme Confidential"
-              owner_type: "biz_owned"
-              status: "newly_created"
-              notes: "Private database endpoint; database engine and Azure hosting model remain TBD; encryption at rest is mandatory."
-
-    - id: "us-hq-dc"
-      type: "private_dc"
-      role: "production"
-      location: "US HQ DC, City C, State X [US]"
-      owner: "InfraSec"
+            - {id: CMP-09, name: "CMP-09 AP database", type: DB, shape: cylinder, owner_type: biz_owned, status: newly_created}
+    - id: INF-20
+      type: private_dc
+      role: production
+      location: US corporate DC [US]
+      owner: Corporate IT
       network_zones:
-        - id: "us-hq-dc-dmz"
-          type: "dmz"
-          name: "PROD-DMZ-SERVER"
-          components: []
-        - id: "us-hq-dc-integration"
-          type: "app_zone"
-          name: "PROD-INA-INTEGRATION"
+        - id: us-boundary-zone
+          type: app_zone
+          name: US integration boundary
           components:
-            - id: "sys-20"
-              name: "SYS-20 | US HQ DC systems"
-              type: "BE"
-              sensitivity: "Acme Confidential"
-              owner_type: "org_it"
-              status: "unchanged"
-              notes: "Existing corporate systems treated as a black-box boundary; exact internal placement and interfaces remain TBD."
-        - id: "us-hq-dc-database"
-          type: "db_zone"
-          name: "PROD-INA-DB"
-          components: []
-
-    - id: "japan-dc"
-      type: "private_dc"
-      role: "production"
-      location: "Japan DC, Osaka [JP]"
-      owner: "InfraSec"
+            - {id: CMP-10, name: "CMP-10 US corporate boundary", type: IP, shape: parallelogram, owner_type: org_it, status: unchanged}
+    - id: INF-21
+      type: private_dc
+      role: production
+      location: Japan corporate DC [JP]
+      owner: Corporate IT
       network_zones:
-        - id: "japan-dc-dmz"
-          type: "dmz"
-          name: "DMZ"
-          components: []
-        - id: "japan-dc-intranet"
-          type: "intranet"
-          name: "Intranet"
+        - id: jp-boundary-zone
+          type: app_zone
+          name: Japan integration boundary
           components:
-            - id: "sys-21"
-              name: "SYS-21 | Japan DC systems"
-              type: "BE"
-              sensitivity: "Acme Confidential"
-              owner_type: "org_it"
-              status: "unchanged"
-              notes: "Existing local systems treated as a black-box boundary; exact internal placement and interfaces remain TBD."
-
+            - {id: CMP-11, name: "CMP-11 Japan corporate boundary", type: IP, shape: parallelogram, owner_type: org_it, status: unchanged}
   interactions:
-    - from: "internet"
-      to: "sys-10"
-      protocol: "HTTPS/TLS 1.3"
-      auth: "OIDC/OAuth2.0 Authorization Code with PKCE"
-      encryption: "TLS 1.3"
-      notes: "External customers authenticate with Microsoft Entra ID; all public traffic passes through Application Gateway WAF v2."
-    - from: "sys-10"
-      to: "sys-11"
-      protocol: "HTTPS/TLS 1.3"
-      auth: "mTLS"
-      encryption: "TLS 1.3"
-      notes: "Primary WAF-protected route to the East US AKS workload."
-    - from: "sys-10"
-      to: "sys-12"
-      protocol: "HTTPS/TLS 1.3"
-      auth: "mTLS"
-      encryption: "TLS 1.3"
-      notes: "WAF-protected route to the East US VM application tier."
-    - from: "sys-11"
-      to: "sys-13"
-      protocol: "TCP/TLS 1.3"
-      auth: "Microsoft Entra workload identity"
-      encryption: "TLS 1.3"
-      notes: "Final database-native protocol and port depend on the selected database engine."
-    - from: "sys-12"
-      to: "sys-13"
-      protocol: "TCP/TLS 1.3"
-      auth: "Microsoft Entra managed identity"
-      encryption: "TLS 1.3"
-      notes: "Final database-native protocol and port depend on the selected database engine."
-    - from: "sys-11"
-      to: "sys-15"
-      protocol: "HTTPS/TLS 1.3"
-      auth: "OAuth2.0 Client Credentials + mTLS"
-      encryption: "TLS 1.3"
-      notes: "East-west route hairpins through SYS-06; direct spoke-to-spoke firewall bypass is prohibited."
-    - from: "sys-12"
-      to: "sys-15"
-      protocol: "HTTPS/TLS 1.3"
-      auth: "OAuth2.0 Client Credentials + mTLS"
-      encryption: "TLS 1.3"
-      notes: "East-west route hairpins through SYS-06; direct spoke-to-spoke firewall bypass is prohibited."
-    - from: "sys-14"
-      to: "sys-15"
-      protocol: "HTTPS/TLS 1.3"
-      auth: "OAuth2.0 Client Credentials + mTLS"
-      encryption: "TLS 1.3"
-      notes: "Shared-services internal API access."
-    - from: "sys-11"
-      to: "sys-16"
-      protocol: "HTTPS/TLS 1.3"
-      auth: "Microsoft Entra workload identity"
-      encryption: "TLS 1.3"
-      notes: "Storage access through private endpoint only."
-    - from: "sys-12"
-      to: "sys-16"
-      protocol: "HTTPS/TLS 1.3"
-      auth: "Microsoft Entra managed identity"
-      encryption: "TLS 1.3"
-      notes: "Storage access through private endpoint only."
-    - from: "sys-14"
-      to: "sys-16"
-      protocol: "HTTPS/TLS 1.3"
-      auth: "Microsoft Entra workload identity"
-      encryption: "TLS 1.3"
-      notes: "Storage access through private endpoint only."
-    - from: "sys-15"
-      to: "sys-16"
-      protocol: "HTTPS/TLS 1.3"
-      auth: "Microsoft Entra managed identity"
-      encryption: "TLS 1.3"
-      notes: "Storage access through private endpoint only."
-    - from: "sys-17"
-      to: "sys-19"
-      protocol: "TCP/TLS 1.3"
-      auth: "Microsoft Entra workload identity"
-      encryption: "TLS 1.3"
-      notes: "Final database-native protocol and port depend on the selected database engine."
-    - from: "sys-18"
-      to: "sys-19"
-      protocol: "TCP/TLS 1.3"
-      auth: "Microsoft Entra managed identity"
-      encryption: "TLS 1.3"
-      notes: "Final database-native protocol and port depend on the selected database engine."
-    - from: "sys-02"
-      to: "sys-06"
-      protocol: "VNet peering + UDR"
-      auth: "Azure RBAC + NSG policy"
-      encryption: "Azure backbone; application TLS 1.3"
-      notes: "All East US BU spoke egress and east-west traffic is forced through the hub firewall."
-    - from: "sys-06"
-      to: "sys-02"
-      protocol: "VNet peering"
-      auth: "Azure Firewall policy + NSG policy"
-      encryption: "Azure backbone; application TLS 1.3"
-      notes: "Inspected return path to the BU spoke."
-    - from: "sys-03"
-      to: "sys-06"
-      protocol: "VNet peering + UDR"
-      auth: "Azure RBAC + NSG policy"
-      encryption: "Azure backbone; application TLS 1.3"
-      notes: "All East US common-spoke egress and east-west traffic is forced through the hub firewall."
-    - from: "sys-06"
-      to: "sys-03"
-      protocol: "VNet peering"
-      auth: "Azure Firewall policy + NSG policy"
-      encryption: "Azure backbone; application TLS 1.3"
-      notes: "Inspected return path to the common spoke; no direct SYS-02-to-SYS-03 peering route is used."
-    - from: "sys-05"
-      to: "sys-08"
-      protocol: "VNet peering + UDR"
-      auth: "Azure RBAC + NSG policy"
-      encryption: "Azure backbone; application TLS 1.3"
-      notes: "All Japan East spoke egress and hybrid traffic is forced through the hub firewall."
-    - from: "sys-08"
-      to: "sys-05"
-      protocol: "VNet peering"
-      auth: "Azure Firewall policy + NSG policy"
-      encryption: "Azure backbone; application TLS 1.3"
-      notes: "Inspected return path to the AP spoke."
-    - from: "sys-20"
-      to: "sys-22"
-      protocol: "ExpressRoute private peering + IPsec"
-      auth: "IKEv2 certificate authentication"
-      encryption: "IPsec AES-256-GCM"
-      notes: "Primary US hybrid path."
-    - from: "sys-22"
-      to: "sys-07"
-      protocol: "ExpressRoute private peering + IPsec"
-      auth: "IKEv2 certificate authentication"
-      encryption: "IPsec AES-256-GCM"
-      notes: "Carrier A primary circuit terminates at the East US ExpressRoute gateway."
-    - from: "sys-20"
-      to: "sys-23"
-      protocol: "ExpressRoute private peering + IPsec"
-      auth: "IKEv2 certificate authentication"
-      encryption: "IPsec AES-256-GCM"
-      notes: "Secondary US hybrid path on a different carrier."
-    - from: "sys-23"
-      to: "sys-07"
-      protocol: "ExpressRoute private peering + IPsec"
-      auth: "IKEv2 certificate authentication"
-      encryption: "IPsec AES-256-GCM"
-      notes: "Carrier B secondary circuit terminates at the East US ExpressRoute gateway."
-    - from: "sys-20"
-      to: "sys-24"
-      protocol: "MPLS + IPsec"
-      auth: "IKEv2 certificate authentication"
-      encryption: "IPsec AES-256-GCM"
-      notes: "Backup US WAN path."
-    - from: "sys-24"
-      to: "sys-07"
-      protocol: "MPLS + IPsec"
-      auth: "IKEv2 certificate authentication"
-      encryption: "IPsec AES-256-GCM"
-      notes: "Backup MPLS path terminates through the East US hub gateway."
-    - from: "sys-20"
-      to: "sys-25"
-      protocol: "Site-to-site VPN"
-      auth: "IKEv2 certificate authentication"
-      encryption: "IPsec AES-256-GCM"
-      notes: "Internet VPN backup path."
-    - from: "sys-25"
-      to: "sys-07"
-      protocol: "Site-to-site VPN"
-      auth: "IKEv2 certificate authentication"
-      encryption: "IPsec AES-256-GCM"
-      notes: "Internet VPN terminates at the East US hub gateway."
-    - from: "sys-07"
-      to: "sys-06"
-      protocol: "Hub routed transit"
-      auth: "Azure Firewall policy"
-      encryption: "Application TLS 1.3"
-      notes: "Hybrid traffic is inspected before reaching East US workloads."
-    - from: "sys-06"
-      to: "sys-15"
-      protocol: "HTTPS/TLS 1.3"
-      auth: "mTLS + OAuth2.0 Client Credentials"
-      encryption: "TLS 1.3"
-      notes: "Resolved target for US HQ integration; application contract remains to be finalized."
-    - from: "sys-21"
-      to: "sys-26"
-      protocol: "ExpressRoute private peering + IPsec"
-      auth: "IKEv2 certificate authentication"
-      encryption: "IPsec AES-256-GCM"
-      notes: "Primary Japan hybrid path."
-    - from: "sys-26"
-      to: "sys-09"
-      protocol: "ExpressRoute private peering + IPsec"
-      auth: "IKEv2 certificate authentication"
-      encryption: "IPsec AES-256-GCM"
-      notes: "Carrier C circuit terminates at the Japan East ExpressRoute gateway."
-    - from: "sys-09"
-      to: "sys-08"
-      protocol: "Hub routed transit"
-      auth: "Azure Firewall policy"
-      encryption: "Application TLS 1.3"
-      notes: "Japan hybrid traffic is inspected before reaching the AP spoke."
-    - from: "sys-08"
-      to: "sys-17"
-      protocol: "HTTPS/TLS 1.3"
-      auth: "mTLS + OAuth2.0 Client Credentials"
-      encryption: "TLS 1.3"
-      notes: "Inspected SYS-21 access to SYS-17 through the dedicated circuit and hub-spoke path."
-    - from: "sys-06"
-      to: "sys-08"
-      protocol: "Global VNet peering"
-      auth: "Azure RBAC + Azure Firewall policy"
-      encryption: "Application TLS 1.3"
-      notes: "Approved inter-region application traffic only; no database replication is assumed."
-    - from: "sys-08"
-      to: "sys-06"
-      protocol: "Global VNet peering"
-      auth: "Azure RBAC + Azure Firewall policy"
-      encryption: "Application TLS 1.3"
-      notes: "Inspected return path for approved inter-region application traffic."
-
-  # TODO TBD-06: Finalize every application interface, initiator, provider, native protocol, and port.
-  # TODO TBD-07: Confirm customer and administrator identity roles and authorization mappings.
-  # TODO TBD-08: Confirm key ownership, rotation periods, and operational recovery controls.
-  # TODO TBD-09: Confirm transport encryption support with every carrier and selected data service.
-  # TODO TBD-12: Confirm PII/payment-data scope, retention, backup, and compliance obligations.
-  # TODO TBD-13: Verify through code and configuration review that no credentials are hardcoded.
+    - {from: internet, to: INF-10-WAF, protocol: "HTTPS; 443", auth: OIDC, encryption: TLS1.3, notes: "AUTH-01 customer entry"}
+    - {from: INF-10-WAF, to: CMP-01, protocol: "HTTPS; 443", auth: OAuth2_AuthorizationCode, encryption: TLS1.3, notes: "WAF-protected AKS route"}
+    - {from: INF-10-WAF, to: CMP-02, protocol: "HTTPS; 443", auth: OAuth2_AuthorizationCode, encryption: TLS1.3, notes: "WAF-protected VM route"}
+    - {from: CMP-01, to: INF-06, protocol: "TCP; TBD", auth: ManagedIdentity, encryption: TLS1.3, notes: "FLOW-03 inspection"}
+    - {from: INF-06, to: CMP-03, protocol: "TCP; TBD", auth: ManagedIdentity, encryption: TLS1.3, notes: "US database"}
+    - {from: CMP-02, to: CMP-03, protocol: "TCP; TBD", auth: ManagedIdentity, encryption: TLS1.3, notes: "US database"}
+    - {from: CMP-01, to: CMP-05, protocol: "HTTPS; 443", auth: OAuth2_ClientCredentials, encryption: TLS1.3, notes: "FLOW-05 via INF-06"}
+    - {from: CMP-04, to: CMP-05, protocol: "HTTPS; 443", auth: OAuth2_ClientCredentials, encryption: TLS1.3, notes: "Shared service"}
+    - {from: CMP-05, to: CMP-06, protocol: "HTTPS; 443", auth: ManagedIdentity, encryption: TLS1.3, notes: "Private endpoint"}
+    - {from: CMP-07, to: INF-08, protocol: "TCP; TBD", auth: ManagedIdentity, encryption: TLS1.3, notes: "FLOW-08 inspection"}
+    - {from: INF-08, to: CMP-09, protocol: "TCP; TBD", auth: ManagedIdentity, encryption: TLS1.3, notes: "AP database"}
+    - {from: CMP-08, to: CMP-09, protocol: "TCP; TBD", auth: ManagedIdentity, encryption: TLS1.3, notes: "AP database"}
+    - {from: CMP-10, to: INF-07, protocol: ExpressRoute, auth: "IKEv2 certificate", encryption: "IPsec AES-256", notes: "LNK-04 through LNK-07"}
+    - {from: INF-07, to: INF-06, protocol: "Hub transit", auth: "Firewall policy", encryption: TLS1.3, notes: "Inspected US hybrid route"}
+    - {from: INF-06, to: CMP-05, protocol: "HTTPS; 443", auth: OAuth2_ClientCredentials, encryption: TLS1.3, notes: "FLOW-10"}
+    - {from: CMP-11, to: INF-09, protocol: ExpressRoute, auth: "IKEv2 certificate", encryption: "IPsec AES-256", notes: LNK-08}
+    - {from: INF-09, to: INF-08, protocol: "Hub transit", auth: "Firewall policy", encryption: TLS1.3, notes: "Inspected Japan hybrid route"}
+    - {from: INF-08, to: CMP-07, protocol: "HTTPS; 443", auth: OAuth2_ClientCredentials, encryption: TLS1.3, notes: FLOW-11}
   security:
-    key_management:
-      azure: "Regional Azure Key Vault instances with private endpoints, managed identities, RBAC, soft-delete, purge protection, CMK support, and automated rotation"
-      private_dc: "Existing enterprise secret stores; credentials exchanged only at the black-box system boundaries and never embedded in code or diagrams"
-    user_auth_internal:
-      server: "ADFS"
-      protocol: "SAML 2.0"
-    user_auth_external:
-      server: "Microsoft Entra ID"
-      protocol: "OIDC/OAuth2.0 Authorization Code with PKCE"
-    authorization:
-      platform: "AuthZ Platform and Azure RBAC"
-      enforcement: "Application Gateway WAF, application APIs, Kubernetes RBAC, managed identities, NSGs, and Azure Firewall policy"
-    bastion:
-      unified: "Azure Bastion Standard with Microsoft Entra ID and just-in-time privileged access; no public SSH or RDP"
-      access_path: "Corporate office network -> privileged access workstation -> Azure Bastion -> private workloads"
-    data_protection:
-      in_transit: "TLS 1.3 for application flows; mTLS for service boundaries; IPsec AES-256-GCM overlays for ExpressRoute, MPLS, and VPN paths"
-      at_rest: "Azure platform encryption with customer-managed keys where required for Acme Confidential data; database TDE and encrypted disks/storage"
-      cross_border: "No database replication or unrestricted data transfer between US and Japan is assumed; approved inter-region application traffic is firewall-inspected and TLS-protected"
+    key_management: {azure: "Azure Key Vault and managed identities; no hardcoded credentials"}
+    authorization: {platform: "Azure RBAC", enforcement: "Managed identity and firewall policy"}
+    data_protection: {in_transit: "TLS 1.3 on application traffic; IPsec on hybrid paths", at_rest: "Azure platform encryption; database configuration TBD"}

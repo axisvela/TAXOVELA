@@ -1,56 +1,22 @@
-# Example 1 — E-commerce Platform (Azure Multi-Region Hub-Spoke)
+# Example 1 - E-commerce Platform (Azure Multi-Region Hub-Spoke)
 
-Reverse-engineered from a real e-commerce network architecture diagram.
-Demonstrates the **Azure Hub-Spoke standard** across two regions plus hybrid
-connectivity to on-prem DCs.
+Req/v2 migration of a two-region Azure hub-spoke deployment with hybrid corporate integration.
 
-> **Name policy:** `input/systems-registry.md` is the only file that contains literal entity names. Every other file — `input/prompt.md`, `input/documents/requirements.md`, `README.md`, `config.yaml` — references `SYS-nn` codes only. The original reference diagram is intentionally not scrubbed and is restricted input.
+## Model
 
-## Scenario
+`input/systems-registry.md` is the only literal-name registry. Other documents use typed identifiers: INF-01 through INF-21, APP-01 through APP-04, CMP-01 through CMP-11, DEP-01 through DEP-11, FLOW-01 through FLOW-11, LNK-01 through LNK-08, and AUTH-01.
 
-An e-commerce platform runs on Azure in **EastUS** (primary)
-and **JapanEast** (AP), each region following the hub-spoke pattern:
+Network and security appliances are INF nodes. Kubernetes is runtime detail on DEP rows. Dedicated circuits, MPLS, VPN, and peering are LNK rows. Existing corporate systems are APP black boxes with CMP integration boundaries.
 
-- **EastUS**
-  - Hub SYS-01 — firewall instance SYS-06, hybrid gateway SYS-07
-  - Spoke SYS-02 — SYS-10 / DMZ / SYS-11 / SYS-12 / SYS-13,
-    all egress forced through SYS-06 via UDR
-  - Spoke SYS-03 — SYS-15, SYS-14, SYS-16
-  - Full-mesh VNet peering between hub and spokes
-- **JapanEast** — same pattern: hub SYS-04 (SYS-08 + SYS-09) +
-  spoke SYS-05 (SYS-17 / DMZ / SYS-18 / SYS-19)
-- **Hybrid** — SYS-22 + SYS-23 for SYS-01 to SYS-20 with SYS-24
-  and SYS-25 as backup; SYS-26 for SYS-04 to SYS-21
+## Artifacts
 
-## What it demonstrates
+- `diagram.drawio` / `diagram.png` and validation artifacts are frozen v1 history.
+- `diagram-v2.drawio`, `diagram-v2.d2`, `diagram-v2.png`, and its preview are regenerated from the typed blueprint.
 
-| Pipeline stage | Highlight |
-|---|---|
-| arch-validate | azure-standard Hub-Spoke checks, forced-tunnel UDR to firewall, peering completeness |
-| accuracy-rules | Subnet segments per VNet, DC locations, dedicated-circuit redundancy |
-| arch-design | Reproducing hub-spoke + hybrid from a requirements doc |
-
-## Inputs
-
-- ★ `input/systems-registry.md` — code-to-name registry (single source of truth)
-- `input/prompt.md` — human-maintained readable one-shot prompt (Path A)
-- `input/documents/requirements.md` — structured requirements (Path B)
-- `input/diagrams/reference-architecture.png` — original reference diagram
-  (intentionally not scrubbed; restricted input)
-  *(place the provided image here)*
-
-## Run
+## Verify
 
 ```bash
-cd examples/01-ecommerce-azure
-archharness req --from-doc input/documents/requirements.md
-# → arch-design → arch-diagram → arch-validate ...
+python ../../tools/registry_check.py .
+python -m archharness req-validate output/requirements/req.yaml
+python -m archharness trace-check -r output/requirements/req.yaml -b output/designs/blueprint.yaml
 ```
-
-## Name policy
-
-| Category | Handling |
-|---|---|
-| Human-readable names | Maintain and manually scrub in `input/prompt.md`, then update registry `文档用名` |
-| Reference diagram | Preserve the original image without scrubbing; treat it as restricted input |
-| Addresses | Omitted from prompts and documentation |

@@ -42,6 +42,11 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Changed
 
+- Example 01 is migrated to req/v2. Its registry separates Azure topology and
+  security appliances (`INF`), black-box systems (`APP`), workload artifacts
+  (`CMP`), runtime deployments, component flows, and carrier/peering links;
+  Kubernetes remains deployment runtime detail. A versioned v2 draw.io/D2/PNG
+  view is added while historic validation and enforcement stay bound to v1.
 - Component colours, zone palettes, shapes, and router controls come from
   `standards/diagram-style.yaml` instead of renderer-local constants;
   ownership colours take precedence over lifecycle colours.

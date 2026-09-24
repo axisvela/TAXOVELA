@@ -1,0 +1,353 @@
+# E-commerce Platform - Azure Multi-Region Hub-Spoke Architecture
+# ID: ECOM-AZ-001-TechDiagram-V2.0  |  Platform: azure  |  Version: V2.0  |  Owner team: TBD  |  Author: OpenCode  |  Last modified: 2026-09-24
+
+direction: right
+
+internet: Internet {
+  shape: cloud
+  style {
+    fill: "#E8E8E8"
+  }
+}
+
+INF_01: "Azure East US [US] [InfraSec]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#0078D4"
+    stroke-width: 2
+  }
+
+  eus_firewall_zone: "East US inspection" {
+    style {
+      fill: "#FFF8E1"
+      stroke: "#E65100"
+      stroke-dash: 6
+    }
+
+    INF_06: "INF-06 East US firewall\nAzure managed service" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    INF_07: "INF-07 East US hybrid gateway\nAzure managed service" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+  }
+
+}
+
+INF_02: "Azure East US [US] [Business IT]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#0078D4"
+    stroke-width: 2
+  }
+
+  INF_10: "East US ingress" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    INF_10_WAF: "INF-10 Application Gateway WAF\nAzure Application Gateway WAF v2" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+  }
+
+  INF_11: "East US business runtime" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_01: "CMP-01 US container workload\nK8s" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+          }
+    }
+  }
+
+  INF_12: "East US business application" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_02: "CMP-02 US VM application\nAzure VMs" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+          }
+    }
+  }
+
+  INF_13: "East US business database" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_03: "CMP-03 US database" {
+      shape: cylinder
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+          }
+    }
+  }
+
+}
+
+INF_03: "Azure East US [US] [InfraSec]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#0078D4"
+    stroke-width: 2
+  }
+
+  INF_14: "East US shared runtime" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_04: "CMP-04 shared container workload\nK8s" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+          }
+    }
+  }
+
+  INF_15: "East US shared services" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_05: "CMP-05 shared services" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+          }
+    }
+  }
+
+  INF_16: "East US storage endpoint" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_06: "CMP-06 object storage\nAzure private endpoint" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+  }
+
+}
+
+INF_04: "Azure Japan East [JP] [InfraSec]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#0078D4"
+    stroke-width: 2
+  }
+
+  jpe_firewall_zone: "Japan East inspection" {
+    style {
+      fill: "#FFF8E1"
+      stroke: "#E65100"
+      stroke-dash: 6
+    }
+
+    INF_08: "INF-08 Japan East firewall\nAzure managed service" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    INF_09: "INF-09 Japan East hybrid gateway\nAzure managed service" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+  }
+
+}
+
+INF_05: "Azure Japan East [JP] [Business IT]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#0078D4"
+    stroke-width: 2
+  }
+
+  INF_17: "Japan East runtime" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_07: "CMP-07 AP container workload\nK8s" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+          }
+    }
+  }
+
+  INF_18: "Japan East application" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_08: "CMP-08 AP VM application\nAzure VMs" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+          }
+    }
+  }
+
+  INF_19: "Japan East database" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_09: "CMP-09 AP database" {
+      shape: cylinder
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+          }
+    }
+  }
+
+}
+
+INF_20: "US corporate DC [US] [Corporate IT]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  us_boundary_zone: "US integration boundary" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    CMP_10: "CMP-10 US corporate boundary" {
+      shape: parallelogram
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+  }
+
+}
+
+INF_21: "Japan corporate DC [JP] [Corporate IT]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  jp_boundary_zone: "Japan integration boundary" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    CMP_11: "CMP-11 Japan corporate boundary" {
+      shape: parallelogram
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+  }
+
+}
+
+# ── Interactions ──────────────────────────────────────
+
+internet -> INF_02.INF_10.INF_10_WAF: "P-HTTPS\n(AU-T2)"
+INF_02.INF_10.INF_10_WAF -> INF_02.INF_11.CMP_01: "P-HTTPS"
+INF_02.INF_10.INF_10_WAF -> INF_02.INF_12.CMP_02: "P-HTTPS"
+INF_02.INF_11.CMP_01 -> INF_01.eus_firewall_zone.INF_06: "P-TCP\n(AU-I2)"
+INF_01.eus_firewall_zone.INF_06 -> INF_02.INF_13.CMP_03: "P-TCP\n(AU-I2)"
+INF_02.INF_12.CMP_02 -> INF_02.INF_13.CMP_03: "P-TCP\n(AU-I2)"
+INF_02.INF_11.CMP_01 -> INF_03.INF_15.CMP_05: "P-HTTPS\n(AU-T1)"
+INF_03.INF_14.CMP_04 -> INF_03.INF_15.CMP_05: "P-HTTPS\n(AU-T1)"
+INF_03.INF_15.CMP_05 -> INF_03.INF_16.CMP_06: "P-HTTPS\n(AU-I2)"
+INF_05.INF_17.CMP_07 -> INF_04.jpe_firewall_zone.INF_08: "P-TCP\n(AU-I2)"
+INF_04.jpe_firewall_zone.INF_08 -> INF_05.INF_19.CMP_09: "P-TCP\n(AU-I2)"
+INF_05.INF_18.CMP_08 -> INF_05.INF_19.CMP_09: "P-TCP\n(AU-I2)"
+INF_20.us_boundary_zone.CMP_10 -> INF_01.eus_firewall_zone.INF_07: "P-EXPRESSROUTE"
+INF_01.eus_firewall_zone.INF_07 -> INF_01.eus_firewall_zone.INF_06: "P-HUB"
+INF_01.eus_firewall_zone.INF_06 -> INF_03.INF_15.CMP_05: "P-HTTPS\n(AU-T1)"
+INF_21.jp_boundary_zone.CMP_11 -> INF_04.jpe_firewall_zone.INF_09: "P-EXPRESSROUTE"
+INF_04.jpe_firewall_zone.INF_09 -> INF_04.jpe_firewall_zone.INF_08: "P-HUB"
+INF_04.jpe_firewall_zone.INF_08 -> INF_05.INF_17.CMP_07: "P-HTTPS\n(AU-T1)"
+
+# ── Security declarations ─────────────────────────
+# Key Management [azure]: Azure Key Vault and managed identities; no hardcoded credentials

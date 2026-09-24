@@ -2,7 +2,8 @@
 
 Procedure for migrating one `examples/<id>/` project from the flat `SYS-nn`
 registry to the req/v2 entity model. Worked references: `06-factory-mes-industrial`
-(done, validated) and `05-supply-chain-order-private-cloud`.
+(done, validated), `05-supply-chain-order-private-cloud`, and
+`01-ecommerce-azure` (Azure appliance/runtime/link classification).
 
 The judgement is human; the rewriting and checking are mechanical.
 
@@ -167,5 +168,5 @@ the remaining rebuild.
 | 02 ai-agent-hybrid | done | migrated; v2 diagram awaits re-validation |
 | 04 service-delivery | done | migrated; 208 registry rows, v2 diagram awaits re-validation |
 | 03 order-query-aws | medium | AWS standard + EDW |
-| 01 ecommerce-azure | low value | source diagram quality is poor; rebuild last or drop |
+| 01 ecommerce-azure | done | req/v2 rebuild; v2 diagram is rendered and historic validation remains v1-bound |
 | 07/08 | blocked | awaiting reference input |

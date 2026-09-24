@@ -19,7 +19,7 @@ datacenters:
       - "Spoke-BU-vNet"
       - "Spoke-Common-vNet"
     region: "NA"
-    notes: "Primary region. SYS-01 carries SYS-06 + SYS-07; SYS-02 and SYS-03 peered. (See input/systems-registry.md.)"
+    notes: "Primary region. INF-01 carries INF-06 + INF-07; INF-02 and INF-03 are peered. (See input/systems-registry.md.)"
 
   - id: "azure-japaneast"
     aliases: ["Azure JapanEast", "JapanEast", "AP-Prod"]
@@ -29,7 +29,7 @@ datacenters:
       - "Hub-vNet (CoreService-AP)"
       - "Spoke-AP-vNet"
     region: "APAC-JP"
-    notes: "AP region. SYS-04 carries SYS-08 + SYS-09; SYS-05 peered to hub. (See input/systems-registry.md.)"
+    notes: "AP region. INF-04 carries INF-08 + INF-09; INF-05 is peered to the hub. (See input/systems-registry.md.)"
 
   - id: "dc-us"
     aliases: ["US HQ DC", "US East DC"]
@@ -37,7 +37,7 @@ datacenters:
     model: "multi-zone"
     zones: ["PROD-DMZ-SERVER", "PROD-INA-INTEGRATION", "PROD-INA-DB"]
     region: "NA"
-    notes: "SYS-20 attached to SYS-01 via SYS-22 + SYS-23 with SYS-24 and SYS-25 as backup. (See input/systems-registry.md.)"
+    notes: "INF-20 attaches to INF-01 via LNK-04 + LNK-05 with LNK-06 and LNK-07 as backup. (See input/systems-registry.md.)"
 
   - id: "dc-jp"
     aliases: ["Japan DC", "JP DC"]
@@ -45,7 +45,7 @@ datacenters:
     model: "two-tier"
     zones: ["DMZ", "Intranet"]
     region: "APAC-JP"
-    notes: "SYS-21 attached to SYS-04 via SYS-26. (See input/systems-registry.md.)"
+    notes: "INF-21 attaches to INF-04 via LNK-08. (See input/systems-registry.md.)"
 
 # ──────────────────────────────────────────────────────────
 # Platform names used by this example

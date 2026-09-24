@@ -4,14 +4,14 @@
       "kind": "manifest",
       "data": {
         "schema_version": "artifact/v1",
-        "id": "01-ecommerce-azure-REQ.md",
-        "type": "requirements-document",
-        "schema": "text/markdown",
+        "id": "REQ.md",
+        "type": "requirements_document",
+        "schema": "requirements/v2",
         "path": "output\\requirements\\REQ.md",
-        "sha256": "365df64819e8e83f05a2f27a7c008795e99591a469aec518104fe8c85cf6cc87",
+        "sha256": "3ccba352f42e37b7c29d9588ea0539f6c236ed8e4b04687563ab7c55ad020299",
         "model_version": null,
         "producer": "arch-requirements",
-        "produced_at": "2026-09-14T13:41:41+00:00",
+        "produced_at": "2026-09-24T00:00:00+00:00",
         "input_artifacts": []
       }
     },
@@ -19,14 +19,14 @@
       "kind": "manifest",
       "data": {
         "schema_version": "artifact/v1",
-        "id": "01-ecommerce-azure-req.yaml",
+        "id": "req.yaml",
         "type": "requirements",
-        "schema": "requirements/v1",
+        "schema": "requirements/v2",
         "path": "output\\requirements\\req.yaml",
-        "sha256": "a842a6cec0eea98cf6430cbea4c6d9831b32fe5a67f8162d107be5bd64785833",
+        "sha256": "f0812cf1ac16eaaaec6a90761a8a14b294cf8aa08ce85ac61d34fb43e7e365bf",
         "model_version": null,
         "producer": "arch-requirements",
-        "produced_at": "2026-09-14T13:41:41+00:00",
+        "produced_at": "2026-09-24T00:00:00+00:00",
         "input_artifacts": []
       }
     },
@@ -34,17 +34,17 @@
       "kind": "manifest",
       "data": {
         "schema_version": "artifact/v1",
-        "id": "01-ecommerce-azure-blueprint.yaml",
+        "id": "blueprint.yaml",
         "type": "technical-deployment-view",
         "schema": "architecture/v1",
         "path": "output\\designs\\blueprint.yaml",
-        "sha256": "853aede8db16881f3b8d375ed4b2fabd1d5eb829740936d10c795cff8ca6814b",
-        "model_version": "openai/gpt-5.6-sol",
+        "sha256": "6cd8628f69e985dd56a465cd731e94688b0ea2b37ad6e460cc8a1fc479e08216",
+        "model_version": "openai/gpt-5.6-terra",
         "producer": "arch-design",
-        "produced_at": "2026-09-14T13:05:20Z",
+        "produced_at": "2026-09-24T00:00:00+00:00",
         "input_artifacts": [
-          "01-ecommerce-azure-req.yaml",
-          "01-ecommerce-azure-REQ.md"
+          "req.yaml",
+          "REQ.md"
         ]
       }
     },

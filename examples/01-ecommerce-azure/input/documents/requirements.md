@@ -1,80 +1,27 @@
-# Requirements Document — E-commerce Platform (Azure Multi-Region)
-**Version**: 1.0  |  **Project ID**: ECOM-AZ-001  |  **Classification**: Acme Confidential
+# Requirements Document - E-commerce Platform (Azure Multi-Region)
+**Version**: 2.0 | **Project ID**: ECOM-AZ-001 | **Classification**: Acme Confidential
 
-> Resolve SYS-nn codes via `input/systems-registry.md`.
+> Resolve typed codes via `input/systems-registry.md`.
 
-**Scope**: Network & hosting architecture (textual names scrubbed; reference image unchanged)
+## Scope
 
----
+This req/v2 migration covers APP-01 through APP-04, INF-01 through INF-21, and CMP-01 through CMP-11. The workload uses two regional hub-spoke deployments with existing corporate boundaries at INF-20 and INF-21.
 
-## 1. Project Overview
+## Topology
 
-E-commerce platform serving US and AP markets, hosted entirely on Azure with
-hybrid connectivity to two on-prem data centers. The US business unit runs in
-EastUS; the AP e-commerce platform runs in JapanEast. Both regions
-follow the corporate hub-spoke network standard with centralized firewall
-egress and dedicated-circuit hybrid attach.
+INF-01/INF-02/INF-03 form the East US hub and spokes. INF-04/INF-05 form the Japan hub and spoke. INF-06 and INF-08 are mandatory inspection points; route tables force spoke egress and spoke-to-spoke traffic through them. INF-10 is public WAF ingress. INF-07 and INF-09 are hybrid gateways.
 
-## 2. Network Locations
+## Workloads
 
-| Location | Type | Region | Purpose |
-|----------|------|--------|---------|
-| Azure EastUS | Cloud region | NA | Primary e-commerce workload |
-| Azure JapanEast | Cloud region | APAC-JP | AP e-commerce platform |
-| SYS-20 | On-prem | NA | Corporate systems, hybrid attach |
-| SYS-21 | On-prem | APAC-JP | Local systems, hybrid attach |
+CMP-01 through CMP-06 run in East US; CMP-07 through CMP-09 run in Japan. DEP-01, DEP-04, and DEP-07 use Kubernetes solely as a runtime type. CMP-10 and CMP-11 are black-box integration boundaries for APP-03 and APP-04.
 
-## 3. Azure EastUS — VNets and Subnets
+## Connectivity And Security
 
-| VNet | Role | Subnets |
-|------|------|---------|
-| SYS-01 | Hub | SYS-06, SYS-07 |
-| SYS-02 | Spoke (BU) | SYS-10, DMZ, SYS-11, SYS-12, SYS-13 |
-| SYS-03 | Spoke (shared) | SYS-15, SYS-14, SYS-16 |
+LNK-04 and LNK-05 provide dual-carrier dedicated connectivity to INF-20; LNK-06 and LNK-07 are backup paths. LNK-08 connects INF-04 and INF-21. FLOW-01 through FLOW-11 declare application communication and mandatory appliance hops. AUTH-01 controls customer entry. CMP-06 is private-endpoint only; all flows use TLS.
 
-- Route tables on every SYS-02 / SYS-03 subnet — default route goes to the
-  hub firewall instance SYS-06 (forced tunnel).
-- VNet peering: SYS-01 to SYS-02, SYS-01 to SYS-03, SYS-02 to SYS-03.
-
-## 4. Azure JapanEast — VNets and Subnets
-
-| VNet | Role | Subnets |
-|------|------|---------|
-| SYS-04 | Hub | SYS-08, SYS-09 |
-| SYS-05 | Spoke | SYS-17, DMZ, SYS-18, SYS-19 |
-
-- Route tables on every SYS-05 subnet — default route goes to the hub
-  firewall instance SYS-08.
-- Workload-cluster subnet SYS-17 is routable from on-prem via dedicated circuit.
-
-## 5. Hybrid Connectivity
-
-| Path | Type | Notes |
-|------|------|-------|
-| SYS-01 to SYS-20 | SYS-22 | Primary dedicated circuit |
-| SYS-01 to SYS-20 | SYS-23 | Secondary carrier dedicated circuit |
-| SYS-01 to SYS-20 | SYS-24 + SYS-25 | Backup paths |
-| SYS-04 to SYS-21 | SYS-26 | Primary dedicated circuit |
-| Reference RTT SYS-01 to SYS-20 | — | Baseline measurement ~4 ms |
-
-## 6. Security & Traffic Rules
-
-- All spoke egress and spoke-to-spoke traffic hairpins through the hub
-  firewall instances SYS-06 and SYS-08; no bypass routes.
-- Ingress subnet SYS-10 hosts the public ingress (WAF-enabled).
-- The storage service (SYS-16) is reachable only via its private endpoint.
-- Authentication: internal admins via the internal IdP; Azure control plane
-  via the external IdP (RBAC).
-
-## 7. Constraints
-
-- Hub-spoke only; no direct spoke-to-spoke peering without firewall inspection.
-- Dual-carrier dedicated circuits are mandatory for the US path (SYS-22 + SYS-23).
-- Data classification Acme Confidential; encryption in transit everywhere.
-
-## 8. Open Items
+## Open Items
 
 | ID | Item | Blocking |
 |----|------|----------|
-| TBD-01 | SYS-21 second dedicated circuit (currently single attach) | No |
-| TBD-02 | Firewall rule-set review for workload egress FQDN tags (SYS-11, SYS-14, SYS-17) | No |
+| TBD-01 | Confirm second dedicated path for INF-21. | No |
+| TBD-02 | Confirm database engines, ports, and workload egress rules for CMP-01, CMP-04, and CMP-07. | No |

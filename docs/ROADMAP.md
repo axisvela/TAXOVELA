@@ -77,7 +77,7 @@ machine-testable policy while preserving human architectural judgement.
 | Initiative | Deliverable / acceptance criteria |
 |---|---|
 | Static checks on structured models | Started: `archharness arch-check` runs rules A-01..A-06 on an architecture YAML with rule ids and evidence, and the example governance test regenerates every shipped blueprint. Rule coverage still grows from real review findings. |
-| Evidence-aware validation | Started: `archharness validate-check` joins each finding's cited codes back to the requirements inventory and blueprint, so an unverifiable or stale finding surfaces before a backlog is built; the error rule runs over every example in CI. Remaining: bind findings to specific fields/elements (not only ids), and feed the join into the remediation backlog. |
+| Evidence-aware validation | `archharness validate-check` joins each finding's cited codes back to the requirements inventory and blueprint (the error rule runs over every example in CI), and `archharness backlog` groups the findings by the element they cite into an ordered `backlog/v1` remediation list, marking unanchored and unverifiable items. Remaining: bind findings to specific fields (not only ids) and carry per-item owner/effort. |
 | Policy profiles | Started: `standards/arch-gate-policy.yaml` declares named profiles over the baseline, `archharness enforce --profile <name>` selects one, the decision records which profile applied, and a looser profile must declare `allow_looser` with a rationale. Remaining: policy-to-standard mappings and per-profile override evidence. |
 | CI integration | Provide documented CI examples that archive artifacts, run validate → enforce deterministically, and fail closed on `BLOCK`. |
 

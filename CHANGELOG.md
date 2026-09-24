@@ -66,6 +66,11 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
   links, and entry authentication. The v2 diagram is versioned separately so
   historic validation and enforcement remain bound to the original diagram.
 
+- `archharness backlog` turns a `validation/v1` result into an ordered
+  remediation backlog (`backlog/v1`, JSON or Markdown): findings are grouped by
+  the element they cite, ordered by severity then disposition, and an item that
+  cites nothing, or something the model does not declare, is marked instead of
+  being quietly remediated.
 - `archharness validate-check` joins a `validation/v1` result back to the model:
   a finding that cites a typed code the model does not declare is an error
   (the unverifiable / false-positive path), an unanchored finding or one still

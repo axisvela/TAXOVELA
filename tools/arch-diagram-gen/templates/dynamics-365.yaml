@@ -1,0 +1,252 @@
+# ============================================================
+# Template: dynamics-365.yaml
+# Pattern: Dynamics 365 environments, Dataverse, and dual-write
+# Standard: standards/microsoft-saas-standard.yaml
+# Use when: Sales / Customer Service / Finance & Operations on D365
+# ============================================================
+
+_template:
+  id: "dynamics-365"
+  name: "Dynamics 365 — Environments, Dataverse & Dual-Write"
+  version: "1.0"
+  platform: "saas_integration"
+  use_when:
+    - "Customer engagement apps (Sales, Customer Service) on Dataverse"
+    - "Finance & Operations with dual-write to Dataverse"
+    - "Field or warehouse apps on Power Platform against Dataverse"
+    - "Company ERP or MDM systems integrated with D365"
+  typical_stack: ["Dataverse", "Dynamics 365 apps", "Power Platform",
+                  "VNet data gateway", "Entra ID", "Key Vault"]
+  mixable_with: ["power-platform", "microsoft-365", "private-cloud", "azure-hub-spoke"]
+  important_notes:
+    - "Each environment is a zone; Dataverse is the environment's data boundary"
+    - "Finance & Operations keeps its own data layer; dual-write is the only supported sync"
+    - "On-premises systems are reached through a VNet data gateway, never by opening a database port"
+  placeholder_guide:
+    XXX: "Program name"
+    ENV: "Environment name (prod / sandbox)"
+
+arch:
+  id: "XXX-D365-TechDiagram-V1.0"
+  name: "XXX — Dynamics 365 Architecture"
+  platform: "hybrid_cloud"
+  author: "Itcode-Firstname-Lastname"
+  owner_team: "Your Team"
+  version: "V1.0"
+
+  deployment:
+
+    # ── Dynamics 365 tenant (SaaS — not Company managed) ──────
+    - id: "dynamics-tenant"
+      type: "dynamics365"
+      location: "Dynamics 365 (Company tenant) [SG/HK]"
+      owner: "Microsoft"
+      subnets:
+        - id: "d365-prod"
+          type: "private"
+          name: "Production environment"
+          components:
+            - id: "d365-sales"
+              name: "Dynamics 365 Sales"
+              type: "BE"
+              owner_type: "third_party"
+
+            - id: "d365-cs"
+              name: "Dynamics 365 Customer Service"
+              type: "BE"
+              owner_type: "third_party"
+
+            - id: "dataverse"
+              name: "Dataverse\n(table: XXX)"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Confidential"
+
+        - id: "d365-sandbox"
+          type: "private"
+          name: "Sandbox environment"
+          components:
+            - id: "d365-sandbox-app"
+              name: "Sandbox\n(refresh from prod)"
+              type: "BE"
+              owner_type: "third_party"
+              notes: "Sandbox may hold production data; same controls apply"
+
+        - id: "d365-fo-env"
+          type: "private"
+          name: "Finance & Operations environment"
+          components:
+            - id: "d365-fo"
+              name: "Finance & Operations"
+              type: "BE"
+              owner_type: "third_party"
+              notes: "Own data layer; dual-write is the supported sync path"
+
+            - id: "dual-write"
+              name: "Dual-write"
+              type: "IP"
+              shape: "parallelogram"
+              notes: "Mapping and conflict policy documented"
+
+        - id: "d365-identity"
+          type: "private"
+          name: "Identity and secrets"
+          components:
+            - id: "entra-id"
+              name: "Entra ID\n(app registration + security roles)"
+              type: "SEC"
+              shape: "circle"
+              node_kind: "identity_provider"
+
+            - id: "key-vault"
+              name: "Key Vault"
+              type: "SEC"
+              shape: "circle"
+              node_kind: "key_management"
+              notes: "Company-side secrets and certificates"
+
+    # ── Company side: gateway, integration, ERP ───────────────
+    - id: "dc-primary"
+      type: "private_dc"
+      location: "Primary DC [CN]"
+      owner: "InfraSec"
+      network_zones:
+        - id: "dmz"
+          type: "dmz"
+          name: "DMZ"
+          components:
+            - id: "vnet-gateway"
+              name: "VNet data gateway"
+              type: "IP"
+              shape: "parallelogram"
+              notes: "Only path from D365 into the Company network"
+
+            - id: "dc-firewall"
+              name: "Boundary firewall"
+              type: "SEC"
+              shape: "hexagon"
+              role: "zone_boundary"
+
+        - id: "app-zone"
+          type: "app_zone"
+          name: "App Zone"
+          components:
+            - id: "mdm-service"
+              name: "Master data service"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot-3.5"
+              runtime: "Internal K8s Platform"
+              sensitivity: "Company Confidential"
+
+            - id: "integration-platform"
+              name: "Integration platform"
+              type: "IP"
+              shape: "parallelogram"
+              runtime: "Internal K8s Platform"
+              notes: "Mediates every D365 ↔ ERP integration"
+
+        - id: "erp-zone"
+          type: "intranet"
+          name: "ERP zone"
+          components:
+            - id: "erp-core"
+              name: "ERP core"
+              type: "BE"
+              owner_type: "biz_owned"
+              sensitivity: "Company Restricted"
+
+            - id: "erp-db"
+              name: "ERP database"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Restricted"
+              encryption_at_rest: "AES-256"
+
+  interactions:
+    - from: "user"
+      to: "d365-sales"
+      protocol: "HTTPS"
+      auth: "OIDC"
+      notes: "Entra ID with MFA and conditional access"
+
+    - from: "d365-sales"
+      to: "dataverse"
+      protocol: "HTTPS/OData"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "d365-cs"
+      to: "dataverse"
+      protocol: "HTTPS/OData"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "d365-sandbox-app"
+      to: "dataverse"
+      protocol: "HTTPS/OData"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "dual-write"
+      to: "dataverse"
+      protocol: "HTTPS/Dataverse API"
+      auth: "OAuth2.0 Client Credentials"
+      notes: "Dual-write sync inside the tenant"
+
+    - from: "d365-fo"
+      to: "dual-write"
+      protocol: "HTTPS/OData"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "dataverse"
+      to: "vnet-gateway"
+      protocol: "HTTPS/REST"
+      auth: "ClientCertificate"
+      encryption: "TLS1.2"
+      notes: "Only approved path into the Company network"
+
+    - from: "vnet-gateway"
+      to: "integration-platform"
+      protocol: "HTTPS/REST"
+      auth: "OAuth2.0 Client Credentials"
+      encryption: "TLS1.3"
+
+    - from: "integration-platform"
+      to: "mdm-service"
+      protocol: "HTTPS/REST"
+      auth: "mTLS"
+      encryption: "mTLS"
+
+    - from: "integration-platform"
+      to: "erp-core"
+      protocol: "HTTPS/SOAP"
+      auth: "ClientCertificate"
+      encryption: "TLS1.2"
+      notes: "ERP integration through the mediator only"
+
+    - from: "erp-core"
+      to: "erp-db"
+      protocol: "JDBC"
+      auth: "UserPassword"
+      encryption: "TLS1.2"
+
+    - from: "entra-id"
+      to: "d365-sales"
+      protocol: "HTTPS/OIDC"
+      auth: "OIDC"
+
+    - from: "dataverse"
+      to: "key-vault"
+      protocol: "HTTPS"
+      auth: "ManagedIdentity"
+      notes: "Certificates and connection strings for Company-side integration"
+
+  security:
+    key_management:
+      azure: "Key Vault holds certificates and connection strings for the gateway path"
+      other: "Entra ID app registrations use certificate credentials; no client secrets"
+    user_auth_internal:
+      server: "Entra ID"
+      protocol: "OIDC with MFA and conditional access"
+    network_segmentation:
+      external: "D365 reaches the Company network only through the VNet data gateway"
+      database: "ERP database is reachable from ERP core only; no direct SaaS access"
+      integration: "Integration platform mediates every D365 ↔ ERP flow"

@@ -10,6 +10,24 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Added
 
+- Design templates `gcp-hub-spoke.yaml`, `aliyun-landing-zone.yaml`,
+  `power-platform.yaml`, and `dynamics-365.yaml`, catalogued in
+  `templates/CATALOG.yaml` with selection criteria, prefilled regions, and
+  high-risk items. `tests/test_templates.py` now renders every template in
+  draw.io, D2, and PlantUML, runs the static model checks, and asserts that
+  components live inside a zone and every region kind has a palette — the
+  shipped Microsoft 365 template had failed all of those.
+
+### Fixed
+
+- The shipped Microsoft 365 template could not be rendered at all: its
+  components sat directly under a SaaS region, which the layout never places,
+  so twelve interaction references were unresolved. It now models the tenant
+  and the Power Platform environments as separate containers whose zones hold
+  the workloads.
+- PlantUML output resolves container endpoints, so a DC-to-cloud or peering
+  interaction (a region, not a component) renders instead of aborting.
+
 - Platform patterns for **Google Cloud**, **Alibaba Cloud**, and the
   **Microsoft SaaS** family (Microsoft 365, Power Platform, Dynamics 365):
   `standards/gcp-standard.yaml`, `standards/aliyun-standard.yaml`, and

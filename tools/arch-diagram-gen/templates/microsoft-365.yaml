@@ -48,70 +48,85 @@ arch:
 
   deployment:
 
-    # ── Microsoft Cloud (SaaS — not Company managed) ──────────
-    - id: "m365-cloud"
-      type: "saas"
-      location: "Microsoft Cloud (Company) [SG/HK]"
+    # ── Microsoft 365 tenant (SaaS — not Company managed) ─────
+    # A SaaS tenant is a black box: the workloads are the zones, and the only
+    # way in or out is a boundary component. See
+    # standards/microsoft-saas-standard.yaml.
+    - id: "m365-tenant"
+      type: "m365_tenant"
+      location: "Microsoft 365 tenant (Company) [SG/HK]"
       owner: "Microsoft"
-      components:
-        # ── Pattern A: Power Platform ─────────────────────────
-        - id: "power-platform"
-          name: "Power Platform\n(HK/SG)"
-          type: "BE"
-          owner_type: "third_party"
-          notes: "SaaS — not Company-managed; data residency: SG/HK"
+      subnets:
+        - id: "m365-collaboration"
+          type: "private"
+          name: "Collaboration and files"
+          components:
+            - id: "sharepoint"
+              name: "SharePoint\n[Site: XXXXX]\n[Resource: XXXXXX]"
+              type: "DS"
+              sensitivity: "Company Internal"
+              notes: "Graph API access — specify exact Permission Type and Scope"
 
-        - id: "canvas-app"
-          name: "Canvas App"
-          type: "FE"
-          owner_type: "biz_owned"
-          notes: "Built by business team on Power Platform"
+            - id: "outlook-m365"
+              name: "Outlook\n(Email Alert)"
+              type: "BE"
+              notes: "Power Automate email action"
 
-        - id: "power-automate"
-          name: "Power Automate\n(Flow)"
-          type: "BE"
-          owner_type: "biz_owned"
-          notes: "Automated workflow; Standard/Premium Connector"
+            - id: "m365-teams"
+              name: "Teams"
+              type: "BE"
 
-        - id: "dataverse"
-          name: "Dataverse\n(Table: XXXX)"
-          type: "DB"
-          shape: "cylinder"
-          sensitivity: "Company Internal"
-          notes: "Power Platform default datastore"
+        - id: "m365-identity"
+          type: "private"
+          name: "Identity and governance"
+          components:
+            - id: "entra-id"
+              name: "Entra ID"
+              type: "SEC"
+              shape: "circle"
+              notes: "Identity provider; Token verification; App Registration"
 
-        - id: "sharepoint"
-          name: "SharePoint\n[Site: XXXXX]\n[Resource: XXXXXX]"
-          type: "DS"
-          sensitivity: "Company Internal"
-          notes: "Graph API access — specify exact Permission Type and Scope"
+    # ── Power Platform environments (SaaS — see the dedicated
+    #    templates/power-platform.yaml for the full environment model) ──
+    - id: "power-platform-env"
+      type: "power_platform"
+      location: "Power Platform environments (Company) [SG/HK]"
+      owner: "Microsoft"
+      subnets:
+        - id: "power-prod"
+          type: "private"
+          name: "Production environment"
+          components:
+            - id: "power-platform"
+              name: "Power Platform\n(HK/SG)"
+              type: "BE"
+              owner_type: "third_party"
+              notes: "SaaS — not Company-managed; data residency: SG/HK"
 
-        - id: "outlook-m365"
-          name: "Outlook\n(Email Alert)"
-          type: "BE"
-          notes: "Power Automate email action"
+            - id: "canvas-app"
+              name: "Canvas App"
+              type: "FE"
+              owner_type: "biz_owned"
+              notes: "Built by business team on Power Platform"
 
-        # ── Pattern B: Copilot Studio / Teams Bot ─────────────
-        - id: "teams-server"
-          name: "Teams Server"
-          type: "BE"
-          owner_type: "third_party"
+            - id: "power-automate"
+              name: "Power Automate\n(Flow)"
+              type: "BE"
+              owner_type: "biz_owned"
+              notes: "Automated workflow; Standard/Premium Connector"
 
-        - id: "copilot-studio"
-          name: "Copilot Studio"
-          type: "BE"
-          owner_type: "biz_owned"
-          notes: "Low-code bot builder on Power Platform"
+            - id: "dataverse"
+              name: "Dataverse\n(Table: XXXX)"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Internal"
+              notes: "Power Platform default datastore"
 
-        - id: "entra-id"
-          name: "Entra ID"
-          type: "SEC"
-          shape: "circle"
-          notes: "Identity provider; Token verification; App Registration"
-
-        - id: "m365-teams"
-          name: "Teams"
-          type: "BE"
+            - id: "copilot-studio"
+              name: "Copilot Studio"
+              type: "BE"
+              owner_type: "biz_owned"
+              notes: "Low-code bot builder on Power Platform"
 
     # ── Azure (Company-managed Azure resources) ────────────────
     - id: "azure-backend"
@@ -213,7 +228,7 @@ arch:
       notes: "Premium Connector — calls Company backend"
 
     # ── Pattern B: Copilot Studio / Teams Bot ─────────────────
-    - from: "teams-server"
+    - from: "m365-teams"
       to: "azure-bot-service"
       protocol: "HTTPS/Bot Framework Protocol"
       auth: "JWT in activity"

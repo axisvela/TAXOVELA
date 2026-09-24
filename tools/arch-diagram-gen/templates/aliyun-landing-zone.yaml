@@ -1,0 +1,241 @@
+# ============================================================
+# Template: aliyun-landing-zone.yaml
+# Pattern: Alibaba Cloud landing zone — resource directory + CEN hub
+# Standard: standards/aliyun-standard.yaml
+# Use when: workloads on ECS/ACK, central VPC with CEN interconnect
+# ============================================================
+
+_template:
+  id: "aliyun-landing-zone"
+  name: "Alibaba Cloud — Resource Directory + CEN Landing Zone"
+  version: "1.0"
+  platform: "aliyun"
+  use_when:
+    - "Workloads on ECS or ACK (container service)"
+    - "Multi-account landing zone with a central VPC"
+    - "Cross-region connectivity through Cloud Enterprise Network (CEN)"
+    - "Data on RDS / PolarDB / OSS with in-country residency"
+  typical_stack: ["SLB/ALB", "Web Application Firewall", "Anti-DDoS", "CEN",
+                  "NAT Gateway", "ACK", "KMS", "SLS"]
+  mixable_with: ["private-cloud", "microsoft-365"]
+  important_notes:
+    - "vSwitch is bound to an availability zone; multi-AZ needs several vSwitches"
+    - "No workload holds an EIP; egress goes through the NAT gateway"
+    - "RAM roles with STS tokens only — long-lived AccessKeys are prohibited"
+  placeholder_guide:
+    XXX: "Application name"
+    HZ: "Region (e.g. cn-hangzhou)"
+
+arch:
+  id: "XXX-ALI-TechDiagram-V1.0"
+  name: "XXX — Alibaba Cloud Landing Zone Architecture"
+  platform: "hybrid_cloud"
+  author: "Itcode-Firstname-Lastname"
+  owner_team: "Your Team"
+  version: "V1.0"
+
+  deployment:
+
+    # ── Central VPC: shared network and security services ─────
+    - id: "aliyun-central-vpc"
+      type: "aliyun_vpc"
+      location: "Alibaba Cloud central VPC [HZ]"
+      owner: "InfraSec"
+      subnets:
+        - id: "central-edge"
+          type: "public"
+          name: "Edge vSwitch (AZ-A)"
+          components:
+            - id: "aliyun-ddos"
+              name: "Anti-DDoS\n(高防)"
+              type: "SEC"
+              shape: "hexagon"
+              node_kind: "security_gateway"
+
+            - id: "aliyun-waf"
+              name: "Web Application Firewall"
+              type: "SEC"
+              shape: "hexagon"
+              node_kind: "waf"
+
+            - id: "aliyun-slb"
+              name: "SLB / ALB"
+              type: "LB"
+              shape: "trapezoid"
+
+        - id: "central-shared"
+          type: "private"
+          name: "Shared services vSwitch (AZ-A)"
+          components:
+            - id: "aliyun-firewall"
+              name: "Cloud Firewall\n(云防火墙)"
+              type: "SEC"
+              shape: "hexagon"
+              node_kind: "firewall"
+
+            - id: "aliyun-nat"
+              name: "NAT Gateway"
+              type: "NW"
+              shape: "hexagon"
+              node_kind: "router"
+
+            - id: "aliyun-cen"
+              name: "Cloud Enterprise Network"
+              type: "NW"
+              shape: "hexagon"
+              node_kind: "router"
+              notes: "Hub for every cross-VPC and cross-region path"
+
+            - id: "aliyun-sls"
+              name: "Log Service (SLS)"
+              type: "BE"
+              notes: "Central collection and audit"
+
+    # ── Business VPC: workloads (two vSwitches, two AZs) ──────
+    - id: "aliyun-business-vpc"
+      type: "aliyun_vpc"
+      location: "Alibaba Cloud business VPC [HZ]"
+      owner: "Business IT"
+      subnets:
+        - id: "business-az-a"
+          type: "private"
+          name: "Application vSwitch (AZ-A)"
+          components:
+            - id: "ack-cluster"
+              name: "ACK cluster"
+              type: "NW"
+              node_kind: "paas"
+              notes: "Runtime for XXX services; no public IP on nodes"
+
+            - id: "xxx-service"
+              name: "XXX service"
+              type: "BE"
+              language: "Java-17"
+              runtime: "ACK cluster"
+              sensitivity: "Company Confidential"
+
+        - id: "business-az-b"
+          type: "private"
+          name: "Application vSwitch (AZ-B)"
+          components:
+            - id: "xxx-service-b"
+              name: "XXX service (AZ-B)"
+              type: "BE"
+              runtime: "ACK cluster"
+              sensitivity: "Company Confidential"
+
+        - id: "business-data"
+          type: "private"
+          name: "Data vSwitch (AZ-A)"
+          components:
+            - id: "rds-polar"
+              name: "PolarDB / RDS"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Restricted"
+              encryption_at_rest: "KMS"
+
+            - id: "oss-bucket"
+              name: "OSS bucket: XXX"
+              type: "DS"
+              sensitivity: "Company Restricted"
+              encryption_at_rest: "KMS"
+
+            - id: "aliyun-kms"
+              name: "KMS 凭据管家"
+              type: "SEC"
+              shape: "circle"
+              node_kind: "key_management"
+
+    # ── On-premises private DC ────────────────────────────────
+    - id: "dc-primary"
+      type: "private_dc"
+      location: "Primary DC [CN]"
+      owner: "InfraSec"
+      network_zones:
+        - id: "dc-intranet"
+          type: "intranet"
+          name: "Intranet"
+          components:
+            - id: "dc-legacy"
+              name: "Legacy system"
+              type: "BE"
+              owner_type: "org_it"
+
+            - id: "dc-ram-sso"
+              name: "Enterprise IdP"
+              type: "SEC"
+              shape: "circle"
+
+  interactions:
+    - from: "internet"
+      to: "aliyun-ddos"
+      protocol: "HTTPS 443"
+      auth: "none"
+      notes: "Scrubbing and rate limiting first"
+
+    - from: "aliyun-ddos"
+      to: "aliyun-waf"
+      protocol: "HTTPS"
+      auth: "none"
+
+    - from: "aliyun-waf"
+      to: "aliyun-slb"
+      protocol: "HTTPS"
+      auth: "none"
+
+    - from: "aliyun-slb"
+      to: "xxx-service"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "xxx-service"
+      to: "rds-polar"
+      protocol: "JDBC/MySQL"
+      auth: "UserPassword"
+      encryption: "TLS1.3"
+      notes: "Private endpoint only; credentials in KMS 凭据管家"
+
+    - from: "xxx-service"
+      to: "oss-bucket"
+      protocol: "HTTPS"
+      auth: "IAM Role"
+      encryption: "TLS1.3"
+
+    - from: "xxx-service"
+      to: "aliyun-kms"
+      protocol: "HTTPS"
+      auth: "IAM Role"
+      notes: "STS temporary credentials; no static AccessKey"
+
+    - from: "xxx-service-b"
+      to: "xxx-service"
+      protocol: "HTTPS"
+      auth: "OAuth2.0 Client Credentials"
+      notes: "Cross-AZ call inside the business VPC"
+
+    - from: "dc-legacy"
+      to: "aliyun-cen"
+      protocol: "IPSec/MPLS"
+      auth: "ClientCertificate"
+      encryption: "IPSec"
+      notes: "Hybrid path through CEN into the central VPC"
+
+    - from: "user"
+      to: "dc-ram-sso"
+      protocol: "HTTPS/SAML 2.0"
+      auth: "SAML2"
+      notes: "RAM federated to the enterprise IdP with MFA"
+
+  security:
+    key_management:
+      private_dc: "Enterprise vault for DC credentials"
+      other: "KMS 凭据管家 with per-class CMKs; STS tokens for workloads"
+    user_auth_internal:
+      server: "Enterprise IdP"
+      protocol: "SAML 2.0 with MFA, federated to RAM"
+    network_segmentation:
+      ingress: "Anti-DDoS → WAF → SLB; no workload holds an EIP"
+      east_west: "Cloud Firewall between vSwitches; CEN between VPCs"
+      external: "Egress through the NAT gateway only"
+      database: "Data vSwitch accepts private connections from the application vSwitches only"

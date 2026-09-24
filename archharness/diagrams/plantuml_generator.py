@@ -35,7 +35,7 @@ Skinparam colors match diagram-style.yaml:
 
 import re
 
-from . import labels, styles
+from . import labels, styles, topology
 
 
 # ── Zone color mapping ────────────────────────────────────────────────────────
@@ -230,8 +230,11 @@ def generate_plantuml(arch: dict) -> str:
     deployment = arch.get("deployment", [])
     for region in deployment:
         rtype = region.get("type", "private_dc")
-        zkey  = "network_zones" if rtype == "private_dc" else "subnets"
-        for zone in region.get(zkey, []):
+        # Containers are addressable endpoints too: a DC-to-cloud or VNet
+        # peering interaction names the region, not a component inside it.
+        alias_map[region.get("id", "")] = _pid(region.get("id", "")).upper()
+        for zone in topology.region_zones(region):
+            alias_map[zone.get("id", "")] = _pid(zone.get("id", "")).upper()
             for comp in zone.get("components", []):
                 alias_map[comp["id"]] = _pid(comp["id"]).upper()
 

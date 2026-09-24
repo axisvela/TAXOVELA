@@ -1,0 +1,197 @@
+# ============================================================
+# Template: power-platform.yaml
+# Pattern: Power Platform environments, DLP, and on-premises gateway
+# Standard: standards/microsoft-saas-standard.yaml
+# Use when: Canvas apps, Power Automate flows, Copilot Studio, Dataverse
+# ============================================================
+
+_template:
+  id: "power-platform"
+  name: "Power Platform — Managed Environments & DLP"
+  version: "1.0"
+  platform: "saas_integration"
+  use_when:
+    - "Canvas App or model-driven app on Dataverse"
+    - "Power Automate flows calling Company backends"
+    - "Copilot Studio bot with Azure OpenAI"
+    - "Business wants self-service apps without bypassing governance"
+  typical_stack: ["Managed Environments", "DLP policy", "Connectors",
+                  "Dataverse", "On-premises data gateway", "Entra ID"]
+  mixable_with: ["microsoft-365", "azure-hub-spoke", "private-cloud"]
+  important_notes:
+    - "The tenant is a black box: environments are the zones, and every call enters through the gateway or a connector"
+    - "DLP policy classifies every connector as Business, Non-Business, or Blocked"
+    - "The on-premises data gateway host is a Company component, not part of the SaaS tenant"
+  placeholder_guide:
+    XXX: "Application name"
+    ENV: "Environment name (dev / test / prod)"
+
+arch:
+  id: "XXX-PP-TechDiagram-V1.0"
+  name: "XXX — Power Platform Integration Architecture"
+  platform: "hybrid_cloud"
+  author: "Itcode-Firstname-Lastname"
+  owner_team: "Your Team"
+  version: "V1.0"
+
+  deployment:
+
+    # ── Power Platform tenant (SaaS — not Company managed) ────
+    - id: "power-platform-tenant"
+      type: "power_platform"
+      location: "Power Platform (Company tenant) [SG/HK]"
+      owner: "Microsoft"
+      subnets:
+        - id: "pp-prod-env"
+          type: "private"
+          name: "Production environment (Managed)"
+          components:
+            - id: "canvas-app"
+              name: "Canvas App\n(XXX)"
+              type: "FE"
+              owner_type: "biz_owned"
+
+            - id: "power-automate"
+              name: "Power Automate\n(Flow: XXX)"
+              type: "BE"
+              owner_type: "biz_owned"
+              notes: "Standard/Premium connector only"
+
+            - id: "dataverse"
+              name: "Dataverse\n(Table: XXXX)"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Internal"
+              notes: "Environment-scoped datastore"
+
+        - id: "pp-test-env"
+          type: "private"
+          name: "Test environment (standard)"
+          components:
+            - id: "canvas-app-test"
+              name: "Canvas App (test)"
+              type: "FE"
+              owner_type: "biz_owned"
+
+            - id: "dataverse-test"
+              name: "Dataverse (test)"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Internal"
+
+        - id: "pp-governance"
+          type: "private"
+          name: "Governance and DLP"
+          components:
+            - id: "pp-dlp"
+              name: "DLP policy\n(environment group)"
+              type: "SEC"
+              shape: "hexagon"
+              notes: "Connector classification: Business / Non-Business / Blocked"
+
+            - id: "entra-id"
+              name: "Entra ID\n(App registration + certificate)"
+              type: "SEC"
+              shape: "circle"
+              node_kind: "identity_provider"
+
+    # ── Company side: gateway host and backends ───────────────
+    - id: "dc-primary"
+      type: "private_dc"
+      location: "Primary DC [CN]"
+      owner: "InfraSec"
+      network_zones:
+        - id: "dmz"
+          type: "dmz"
+          name: "DMZ"
+          components:
+            - id: "onprem-gateway"
+              name: "On-premises data gateway"
+              type: "IP"
+              shape: "parallelogram"
+              notes: "Only Company-side ingress for Power Platform; no direct database port"
+
+            - id: "dc-firewall"
+              name: "Boundary firewall"
+              type: "SEC"
+              shape: "hexagon"
+              role: "zone_boundary"
+
+        - id: "app-zone"
+          type: "app_zone"
+          name: "App Zone"
+          components:
+            - id: "xxx-service"
+              name: "XXX service"
+              type: "BE"
+              language: "Java-17"
+              framework: "Spring Boot-3.5"
+              runtime: "Internal K8s Platform"
+              sensitivity: "Company Confidential"
+
+            - id: "xxx-db"
+              name: "XXX database"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Restricted"
+              encryption_at_rest: "AES-256"
+              notes: "Reachable from the gateway host only, never from the internet"
+
+  interactions:
+    - from: "user"
+      to: "canvas-app"
+      protocol: "HTTPS"
+      auth: "OIDC"
+      notes: "Entra ID sign-in with conditional access"
+
+    - from: "canvas-app"
+      to: "power-automate"
+      protocol: "HTTPS/OAuth2"
+      auth: "OAuth2.0 User Token"
+
+    - from: "power-automate"
+      to: "dataverse"
+      protocol: "HTTPS/OAuth2"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "power-automate"
+      to: "onprem-gateway"
+      protocol: "HTTPS/HTTPS relay"
+      auth: "ClientCertificate"
+      encryption: "TLS1.2"
+      notes: "Only approved egress path into the Company network"
+
+    - from: "onprem-gateway"
+      to: "xxx-service"
+      protocol: "HTTPS/REST"
+      auth: "OAuth2.0 Client Credentials"
+      encryption: "TLS1.3"
+
+    - from: "onprem-gateway"
+      to: "xxx-db"
+      protocol: "JDBC/PostgreSQL"
+      auth: "UserPassword"
+      encryption: "TLS1.3"
+      notes: "Credentials from the enterprise vault; least privilege account"
+
+    - from: "entra-id"
+      to: "canvas-app"
+      protocol: "HTTPS/OIDC"
+      auth: "OIDC"
+      notes: "Token issuance and verification"
+
+    - from: "pp-dlp"
+      to: "power-automate"
+      protocol: "Platform policy"
+      auth: "none"
+      notes: "Connector classification enforced at the environment group level"
+
+  security:
+    key_management:
+      other: "Entra ID app registrations use certificates; connection strings live in the enterprise vault"
+    user_auth_internal:
+      server: "Entra ID"
+      protocol: "OIDC with MFA and conditional access"
+    network_segmentation:
+      external: "SaaS calls land on the on-premises data gateway only"
+      database: "The gateway host is the only client allowed to reach XXX database"

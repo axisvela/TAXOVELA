@@ -1,0 +1,210 @@
+# ============================================================
+# Template: gcp-hub-spoke.yaml
+# Pattern: Google Cloud Shared VPC + on-premises hybrid
+# Standard: standards/gcp-standard.yaml
+# Use when: workloads on GKE / Compute Engine, Shared VPC landing zone
+# ============================================================
+
+_template:
+  id: "gcp-hub-spoke"
+  name: "Google Cloud — Shared VPC Hub + Service Projects"
+  version: "1.0"
+  platform: "gcp"
+  use_when:
+    - "Workloads on GKE, Cloud Run, or Compute Engine"
+    - "Shared VPC landing zone with host and service projects"
+    - "Hybrid connectivity via Cloud Interconnect or Cloud VPN"
+    - "BigQuery or Cloud Storage holding classified data"
+  typical_stack: ["Cloud Armor", "Global HTTPS LB", "GKE", "Cloud NAT", "Cloud KMS",
+                  "Secret Manager", "VPC Service Controls"]
+  mixable_with: ["private-cloud", "microsoft-365"]
+  important_notes:
+    - "Subnets are regional: one subnet covers every zone in that region"
+    - "Producers and consumers of a data service stay inside the VPC-SC perimeter"
+    - "Service accounts use Workload Identity Federation; no long-lived keys"
+  placeholder_guide:
+    XXX: "Application name"
+    PROJECT: "Service project id"
+    REGION: "GCP region (e.g. asia-east1)"
+
+arch:
+  id: "XXX-GCP-TechDiagram-V1.0"
+  name: "XXX — Google Cloud Hub-Spoke Architecture"
+  platform: "hybrid_cloud"
+  author: "Itcode-Firstname-Lastname"
+  owner_team: "Your Team"
+  version: "V1.0"
+
+  deployment:
+
+    # ── Host project: shared network services ─────────────────
+    - id: "gcp-host-project"
+      type: "gcp_vpc"
+      location: "Google Cloud host project [REGION]"
+      owner: "InfraSec"
+      subnets:
+        - id: "shared-ingress"
+          type: "public"
+          name: "Shared ingress subnet"
+          components:
+            - id: "gcp-armor"
+              name: "Cloud Armor\n(WAF policy)"
+              type: "SEC"
+              shape: "hexagon"
+              node_kind: "waf"
+
+            - id: "gcp-lb"
+              name: "Global HTTPS LB"
+              type: "LB"
+              shape: "trapezoid"
+
+        - id: "shared-egress"
+          type: "private"
+          name: "Shared egress subnet"
+          components:
+            - id: "gcp-nat"
+              name: "Cloud NAT"
+              type: "NW"
+              shape: "hexagon"
+              node_kind: "router"
+              notes: "All workload egress; workloads hold no external IP"
+
+            - id: "gcp-interconnect"
+              name: "Cloud Interconnect / VPN"
+              type: "NW"
+              shape: "hexagon"
+              node_kind: "vpn_gateway"
+
+    # ── Service project: workloads ────────────────────────────
+    - id: "gcp-service-project"
+      type: "gcp_vpc"
+      location: "Google Cloud service project [REGION]"
+      owner: "Business IT"
+      subnets:
+        - id: "private-runtime"
+          type: "private"
+          name: "Private runtime subnet (GKE)"
+          components:
+            - id: "gke-cluster"
+              name: "GKE private cluster"
+              type: "NW"
+              node_kind: "paas"
+              notes: "Runtime for XXX workloads; private nodes, no public IP"
+
+            - id: "xxx-service"
+              name: "XXX service"
+              type: "BE"
+              language: "Go-1.23"
+              runtime: "GKE private cluster"
+              sensitivity: "Company Confidential"
+
+            - id: "xxx-worker"
+              name: "XXX worker"
+              type: "BE"
+              runtime: "GKE private cluster"
+              sensitivity: "Company Confidential"
+
+        - id: "private-data"
+          type: "private"
+          name: "Private data subnet"
+          components:
+            - id: "bigquery"
+              name: "BigQuery\n(dataset: XXX)"
+              type: "DB"
+              shape: "cylinder"
+              sensitivity: "Company Restricted"
+              encryption_at_rest: "CMEK"
+
+            - id: "gcs-bucket"
+              name: "Cloud Storage\n(bucket: XXX)"
+              type: "DS"
+              sensitivity: "Company Restricted"
+              encryption_at_rest: "CMEK"
+
+            - id: "secret-manager"
+              name: "Secret Manager"
+              type: "SEC"
+              shape: "circle"
+              node_kind: "key_management"
+
+    # ── On-premises private DC ────────────────────────────────
+    - id: "dc-primary"
+      type: "private_dc"
+      location: "Primary DC [CN]"
+      owner: "InfraSec"
+      network_zones:
+        - id: "dc-intranet"
+          type: "intranet"
+          name: "Intranet"
+          components:
+            - id: "dc-legacy"
+              name: "Legacy system"
+              type: "BE"
+              owner_type: "org_it"
+
+            - id: "dc-directory"
+              name: "Enterprise directory"
+              type: "SEC"
+              shape: "circle"
+
+  interactions:
+    - from: "internet"
+      to: "gcp-armor"
+      protocol: "HTTPS 443"
+      auth: "OIDC"
+      notes: "Customer entry; Cloud Armor policy applies first"
+
+    - from: "gcp-armor"
+      to: "gcp-lb"
+      protocol: "HTTPS"
+      auth: "none"
+      notes: "Inspection then load balancing"
+
+    - from: "gcp-lb"
+      to: "xxx-service"
+      protocol: "HTTPS/TLS 1.3"
+      auth: "OAuth2.0 Client Credentials"
+
+    - from: "xxx-service"
+      to: "bigquery"
+      protocol: "HTTPS/gRPC"
+      auth: "IAM Role"
+      notes: "Inside the VPC Service Controls perimeter"
+
+    - from: "xxx-worker"
+      to: "gcs-bucket"
+      protocol: "HTTPS"
+      auth: "IAM Role"
+      encryption: "TLS1.3"
+
+    - from: "xxx-service"
+      to: "secret-manager"
+      protocol: "HTTPS"
+      auth: "ManagedIdentity"
+      notes: "Runtime secret access; no static credentials"
+
+    - from: "dc-legacy"
+      to: "gcp-interconnect"
+      protocol: "IPSec/MPLS"
+      auth: "ClientCertificate"
+      encryption: "IPSec"
+      notes: "Hybrid path into the shared egress subnet"
+
+    - from: "user"
+      to: "dc-directory"
+      protocol: "HTTPS/SAML 2.0"
+      auth: "SAML2"
+      notes: "Internal user sign-in; federated to Cloud Identity"
+
+  security:
+    key_management:
+      private_dc: "Enterprise vault for DC credentials; no shared secrets"
+      other: "Cloud KMS with CMEK for BigQuery and Cloud Storage"
+    user_auth_internal:
+      server: "Enterprise directory"
+      protocol: "SAML 2.0 with MFA, federated to Cloud Identity"
+    network_segmentation:
+      ingress: "Global HTTPS LB behind Cloud Armor; workloads hold no external IP"
+      east_west: "Service-to-service inside the shared VPC; VPC-SC for data services"
+      external: "All egress through Cloud NAT; hybrid traffic through Interconnect"
+      inter_dc: "Cloud Interconnect with IPSec over the private path"

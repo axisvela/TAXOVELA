@@ -110,6 +110,78 @@ templates:
       regions: ["Neimeng DC [CN]", "Azure China North2 [CN]"]
       security: ["Entra ID", "ODBC+TLS", "Azure Key Vault"]
 
+  - id: "gcp-hub-spoke"
+    file: "templates/gcp-hub-spoke.yaml"
+    name: "Google Cloud — Shared VPC Hub + Service Projects"
+    platform: "gcp"
+    standard: "standards/gcp-standard.yaml"
+    select_when:
+      - "Workloads on GKE, Cloud Run, or Compute Engine"
+      - "Shared VPC landing zone with host and service projects"
+      - "BigQuery or Cloud Storage holding classified data"
+      - "Hybrid connectivity via Cloud Interconnect or Cloud VPN"
+    key_components: ["Cloud Armor", "Global HTTPS LB", "Cloud NAT", "GKE", "VPC Service Controls", "Cloud KMS"]
+    prefilled:
+      regions: ["Google Cloud host project [REGION]", "Google Cloud service project [REGION]"]
+      security: ["Cloud KMS (CMEK)", "Secret Manager", "Workload Identity Federation"]
+    high_risk_items:
+      - "Workloads must not hold external IPs — verify against Cloud NAT egress"
+      - "Data services must stay inside the VPC Service Controls perimeter"
+
+  - id: "aliyun-landing-zone"
+    file: "templates/aliyun-landing-zone.yaml"
+    name: "Alibaba Cloud — Resource Directory + CEN Landing Zone"
+    platform: "aliyun"
+    standard: "standards/aliyun-standard.yaml"
+    select_when:
+      - "Workloads on ECS or ACK in a China region"
+      - "Multi-account landing zone with a central VPC"
+      - "Cross-region connectivity through CEN"
+      - "Data residency requirements inside PRC"
+    key_components: ["Anti-DDoS", "Web Application Firewall", "SLB/ALB", "CEN", "NAT Gateway", "ACK", "KMS"]
+    prefilled:
+      regions: ["Alibaba Cloud central VPC [HZ]", "Alibaba Cloud business VPC [HZ]"]
+      security: ["KMS 凭据管家", "RAM role + STS", "Cloud Firewall"]
+    high_risk_items:
+      - "No workload may hold an EIP; egress goes through the NAT gateway"
+      - "Long-lived AccessKeys are prohibited — use RAM roles with STS"
+
+  - id: "power-platform"
+    file: "templates/power-platform.yaml"
+    name: "Power Platform — Managed Environments & DLP"
+    platform: "saas_integration"
+    standard: "standards/microsoft-saas-standard.yaml"
+    select_when:
+      - "Canvas App or model-driven app on Dataverse"
+      - "Power Automate flows calling Company backends"
+      - "Copilot Studio bot with Azure OpenAI"
+      - "Business needs self-service apps without bypassing governance"
+    key_components: ["Managed Environments", "DLP policy", "Connectors", "Dataverse", "On-premises data gateway", "Entra ID"]
+    prefilled:
+      regions: ["Power Platform (Company tenant) [SG/HK]"]
+      security: ["Entra ID (certificate credentials)", "Enterprise vault", "On-premises data gateway"]
+    high_risk_items:
+      - "DLP policy must classify every connector (Business / Non-Business / Blocked)"
+      - "All Company-side traffic enters through the on-premises data gateway"
+
+  - id: "dynamics-365"
+    file: "templates/dynamics-365.yaml"
+    name: "Dynamics 365 — Environments, Dataverse & Dual-Write"
+    platform: "saas_integration"
+    standard: "standards/microsoft-saas-standard.yaml"
+    select_when:
+      - "Customer engagement apps (Sales, Customer Service) on Dataverse"
+      - "Finance & Operations with dual-write"
+      - "Field or warehouse apps on Power Platform against Dataverse"
+      - "ERP or master-data integration with D365"
+    key_components: ["Dataverse", "Dynamics 365 apps", "Dual-write", "VNet data gateway", "Entra ID", "Key Vault"]
+    prefilled:
+      regions: ["Dynamics 365 (Company tenant) [SG/HK]"]
+      security: ["Entra ID (security roles)", "Key Vault", "VNet data gateway"]
+    high_risk_items:
+      - "Dual-write mapping and conflict policy must be documented"
+      - "Sandbox holding production data needs the same controls as production"
+
 # ══════════════════════════════════════════════════════════════
 # TEMPLATE MIXING RULES
 # ══════════════════════════════════════════════════════════════

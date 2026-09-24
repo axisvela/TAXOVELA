@@ -1,0 +1,435 @@
+# Order Query Platform - AWS Hybrid Technical Architecture
+# ID: OQP-ROW-001-TechDiagram-V2.0  |  Platform: hybrid_cloud  |  Version: V2.0  |  Owner team: TBD  |  Author: OpenCode  |  Last modified: 2026-09-24
+
+direction: right
+
+internet: Internet {
+  shape: cloud
+  style {
+    fill: "#E8E8E8"
+  }
+}
+
+INF_01: "AWS US, N. Virginia [US] [TBD]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#232F3E"
+    stroke-width: 2
+  }
+
+  INF_02: "Public subnet (DMZ)" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    INF_05: "INF-05 AWS WAF and ALB" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    INF_06: "INF-06 AWS DMZ boundary firewall" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    CMP_01: "CMP-01 order-web\nK8s" {
+      shape: rectangle
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+          }
+    }
+  }
+
+  INF_03: "Private subnet (App Zone)" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    INF_07: "INF-07 AWS App boundary firewall" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    CMP_02: "CMP-02 gateway\nK8s" {
+      shape: parallelogram
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+          }
+    }
+    CMP_03: "CMP-03 order-portal\nK8s" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+          }
+    }
+    CMP_04: "CMP-04 order-report\nK8s" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+          }
+    }
+    CMP_11: "CMP-11 prc-consumer\nK8s" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+          }
+    }
+  }
+
+  INF_04: "Private subnet (DB Zone)" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    INF_08: "INF-08 AWS KMS" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    CMP_21: "CMP-21 ods-db" {
+      shape: cylinder
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    CMP_22: "CMP-22 dws-db" {
+      shape: cylinder
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    CMP_23: "CMP-23 cache" {
+      shape: cylinder
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    CMP_24: "CMP-24 object-store" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+  }
+
+}
+
+INF_09: "US DC [US] [IT Org]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  INF_10: "US DMZ" {
+    style {
+      fill: "#FFFDE7"
+      stroke: "#F9A825"
+      stroke-dash: 6
+    }
+
+    INF_11: "INF-11 US boundary firewall" {
+      shape: hexagon
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+    CMP_25: "CMP-25 dmz-apim" {
+      shape: parallelogram
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+    CMP_54: "CMP-54 internal-portal" {
+      shape: rectangle
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            stroke-dash: 5
+          }
+    }
+    CMP_55: "CMP-55 partner-portal" {
+      shape: rectangle
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            stroke-dash: 5
+          }
+    }
+  }
+
+  us_app: "US application and identity zone" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    INF_12: "INF-12 ADFS" {
+      shape: oval
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+    INF_13: "INF-13 Enterprise ID" {
+      shape: oval
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+          }
+    }
+    CMP_26: "CMP-26 us-apim" {
+      shape: parallelogram
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+    CMP_28: "CMP-28 us-kafka" {
+      shape: queue
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+  }
+
+}
+
+INF_14: "NA DC [US] [IT Org]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  INF_15: "NA integration zone" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    INF_18: "INF-18 NA boundary firewall" {
+      shape: hexagon
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+    CMP_27: "CMP-27 na-apih" {
+      shape: parallelogram
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+    CMP_31: "CMP-31 na-kafka" {
+      shape: queue
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+    CMP_32: "CMP-32 na-log-kafka" {
+      shape: queue
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+  }
+
+}
+
+INF_19: "PRC primary DC [CN] [IT Org]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  INF_21: "PRC primary intranet" {
+    style {
+      fill: "#F3E5F5"
+      stroke: "#7B1FA2"
+      stroke-dash: 6
+    }
+
+    INF_22: "INF-22 PRC primary boundary firewall" {
+      shape: hexagon
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+    CMP_29: "CMP-29 cn-primary-kafka" {
+      shape: queue
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+    CMP_44: "CMP-44 gap-cn" {
+      shape: parallelogram
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+  }
+
+}
+
+INF_23: "PRC secondary DC [CN] [IT Org]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  INF_25: "PRC secondary intranet" {
+    style {
+      fill: "#F3E5F5"
+      stroke: "#7B1FA2"
+      stroke-dash: 6
+    }
+
+    INF_26: "INF-26 PRC secondary boundary firewall" {
+      shape: hexagon
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+    CMP_30: "CMP-30 cn-secondary-kafka" {
+      shape: queue
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+  }
+
+}
+
+INF_28: "Azure CN North [CN] [Data Org]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#0078D4"
+    stroke-width: 2
+  }
+
+  azure_cn_edw: "PRC EDW" {
+    style {
+      fill: "#E8F5E9"
+      stroke: "#2E7D32"
+      stroke-dash: 6
+    }
+
+    CMP_53: "CMP-53 prc-dwp" {
+      shape: parallelogram
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+          }
+    }
+  }
+
+}
+
+# ── Interactions ──────────────────────────────────────
+
+internet -> INF_01.INF_02.INF_05: "P-HTTPS"
+INF_01.INF_02.INF_05 -> INF_01.INF_02.CMP_01: "P-HTTPS"
+INF_01.INF_02.CMP_01 -> INF_01.INF_02.INF_06: "P-HTTPS\n(AU-T1)"
+INF_01.INF_02.INF_06 -> INF_01.INF_03.CMP_02: "P-HTTPS\n(AU-T1)"
+INF_01.INF_03.CMP_02 -> INF_01.INF_03.CMP_03: "P-HTTPS\n(AU-T1)"
+INF_01.INF_03.CMP_03 -> INF_01.INF_03.INF_07: "P-POSTGRESQL\n(AU-P1)"
+INF_01.INF_03.INF_07 -> INF_01.INF_04.CMP_21: "P-POSTGRESQL\n(AU-P1)"
+INF_01.INF_03.CMP_04 -> INF_01.INF_04.CMP_22: "P-POSTGRESQL\n(AU-P1)"
+INF_01.INF_03.CMP_03 -> INF_01.INF_04.CMP_23: "P-REDIS\n(AU-P1)"
+INF_01.INF_03.CMP_04 -> INF_01.INF_04.CMP_24: "P-HTTPS\n(AU-I1)"
+INF_01.INF_03.CMP_02 -> INF_09.us_app.CMP_26: "P-HTTPS\n(AU-T1)"
+INF_01.INF_03.CMP_02 -> INF_14.INF_15.CMP_27: "P-HTTPS\n(AU-T1)"
+INF_01.INF_03.CMP_11 -> INF_23.INF_25.CMP_30: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+INF_28.azure_cn_edw.CMP_53 -> INF_23.INF_25.CMP_30: "P-HTTPS\n(AU-T1)"
+internet -> INF_09.INF_10.CMP_25: "P-HTTPS\n(AU-T1)"
+INF_09.us_app.INF_12 -> INF_09.INF_10.CMP_54: "P-HTTPS"
+INF_09.us_app.INF_13 -> INF_09.INF_10.CMP_55: "P-HTTPS"
+INF_09 -> INF_01: "P-MPLS\n(AU-T1)"
+INF_14 -> INF_01: "P-MPLS\n(AU-T1)"
+INF_19 -> INF_01: "P-MPLS\n(AU-S1)"
+INF_23 -> INF_01: "P-MPLS\n(AU-S1)"
+
+# ── Security declarations ─────────────────────────
+# Key Management [aws]: INF-08 AWS KMS with AWS Secrets Manager; rotation period TBD; hardcoded credentials prohibited
+# Key Management [private_dc]: Enterprise secret-management platform and rotation ownership TBD
+# User Auth (Internal): INF-12 / SAML2 over TLS 1.2+
+# User Auth (External): INF-13 / SAML2 over TLS 1.2+

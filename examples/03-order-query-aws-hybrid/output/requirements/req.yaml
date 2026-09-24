@@ -1,198 +1,204 @@
+# req.yaml — Order Query Platform (OQP ROW), req/v2
+# Generated from input/systems-registry.md + input/documents/requirements.md
+
+schema_version: req/v2
+
 requirements:
   project:
     name: "Order Query Platform (OQP ROW)"
-    id: "03-order-query-aws-hybrid"
+    id: "OQP-ROW-001"
     scope: "e2e"
     department: "TBD"
-    author: "OpenCode"
-    date: "2026-09-14"
     data_classification: "Acme Confidential"
-    purpose: "Provide a global order-query view from an AWS US application while federating approved US and PRC sources through mandatory mediation."
-    source_of_truth: "input/prompt.md"
 
-  applications:
-    - {id: "SYS-01", name: "ADFS", type: "existing", owner: "TBD", system_type: "identity", scope: "integration_boundary"}
-    - {id: "SYS-02", name: "Enterprise ID", type: "existing", owner: "TBD", system_type: "identity", scope: "integration_boundary"}
-    - {id: "SYS-03", name: "SOWB(sales operation workbench)", type: "existing", owner: "TBD", system_type: "portal", scope: "integration_boundary"}
-    - {id: "SYS-04", name: "external OP(order portal) site", type: "existing", owner: "TBD", system_type: "portal", scope: "integration_boundary"}
-    - {id: "SYS-05", name: "OP(order portal)-row-web", type: "new", owner: "TBD", system_type: "frontend", scope: "full"}
-    - {id: "SYS-06", name: "Gateway", type: "new", owner: "TBD", system_type: "backend", scope: "full"}
-    - {id: "SYS-07", name: "Order Portal", type: "new", owner: "TBD", system_type: "backend", scope: "full"}
-    - {id: "SYS-08", name: "Order Report", type: "new", owner: "TBD", system_type: "backend", scope: "full"}
-    - {id: "SYS-09", name: "Order Notification", type: "new", owner: "TBD", system_type: "backend", scope: "full"}
-    - {id: "SYS-10", name: "Transform Service", type: "new", owner: "TBD", system_type: "backend", scope: "full"}
-    - {id: "SYS-11", name: "Task Service", type: "new", owner: "TBD", system_type: "backend", scope: "full"}
-    - {id: "SYS-12", name: "Order Web", type: "new", owner: "TBD", system_type: "frontend", scope: "full"}
-    - {id: "SYS-13", name: "D365 Consumer", type: "new", owner: "TBD", system_type: "consumer", scope: "full"}
-    - {id: "SYS-14", name: "OFS(order fulfill service) Consumer", type: "new", owner: "TBD", system_type: "consumer", scope: "full"}
-    - {id: "SYS-15", name: "PRC Consumer", type: "new", owner: "TBD", system_type: "consumer", scope: "full"}
-    - {id: "SYS-16", name: "SOS(salse order servie) Consumer", type: "new", owner: "TBD", system_type: "consumer", scope: "full"}
-    - {id: "SYS-17", name: "IC(invoice service) Consumer", type: "new", owner: "TBD", system_type: "consumer", scope: "full"}
-    - {id: "SYS-18", name: "LOS(logistics operation servie) Consumer", type: "new", owner: "TBD", system_type: "consumer", scope: "full"}
-    - {id: "SYS-19", name: "SDS(service data service) Consumer", type: "new", owner: "TBD", system_type: "consumer", scope: "full"}
-    - {id: "SYS-20", name: "SIS(supply intelligence service) Consumer", type: "new", owner: "TBD", system_type: "consumer", scope: "full"}
-    - {id: "SYS-21", name: "NA Consumer", type: "new", owner: "TBD", system_type: "consumer", scope: "full"}
-    - {id: "SYS-22", name: "Consumer Task", type: "new", owner: "TBD", system_type: "backend", scope: "full"}
-    - {id: "SYS-23", name: "XXL-Job scheduler", type: "new", owner: "TBD", system_type: "scheduler", scope: "full"}
-    - {id: "SYS-24", name: "SOS(salse order servie)", type: "modified", owner: "biz_owned", system_type: "backend", scope: "full", cmdb_id: "A-XXXX-05"}
-    - {id: "SYS-25", name: "PostgreSQL ODS", type: "new", owner: "TBD", system_type: "database", scope: "full"}
-    - {id: "SYS-26", name: "PostgreSQL DWS", type: "new", owner: "TBD", system_type: "database", scope: "full"}
-    - {id: "SYS-27", name: "Redis", type: "new", owner: "TBD", system_type: "cache", scope: "full"}
-    - {id: "SYS-28", name: "S3", type: "new", owner: "TBD", system_type: "storage", scope: "full"}
-    - {id: "SYS-29", name: "DMZ-APIM", type: "existing", owner: "TBD", system_type: "integration", scope: "integration_boundary"}
-    - {id: "SYS-30", name: "APIM", type: "existing", owner: "TBD", system_type: "integration", scope: "integration_boundary"}
-    - {id: "SYS-31", name: "APIH", type: "existing", owner: "TBD", system_type: "integration", scope: "integration_boundary"}
-    - {id: "SYS-32", name: "kafka-us", type: "existing", owner: "TBD", system_type: "messaging", scope: "integration_boundary"}
-    - {id: "SYS-33", name: "kafka-cn", type: "existing", owner: "TBD", system_type: "messaging", scope: "integration_boundary"}
-    - {id: "SYS-34", name: "kafka-ikp", type: "existing", owner: "TBD", system_type: "messaging", scope: "integration_boundary"}
-    - {id: "SYS-35", name: "kafka-us-na", type: "existing", owner: "TBD", system_type: "messaging", scope: "integration_boundary"}
-    - {id: "SYS-36", name: "kafka-us-log", type: "existing", owner: "TBD", system_type: "messaging", scope: "integration_boundary"}
-    - {id: "SYS-37", name: "OP(order portal) ES", type: "existing", owner: "TBD", system_type: "database", scope: "integration_boundary"}
-    - {id: "SYS-38", name: "SDS(service data service)", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-01"}
-    - {id: "SYS-39", name: "2b service portal", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-02"}
-    - {id: "SYS-40", name: "OOP(order open platform)", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-03"}
-    - {id: "SYS-41", name: "order orchestration", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-04"}
-    - {id: "SYS-42", name: "CSP(cload servie portal)", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-10"}
-    - {id: "SYS-43", name: "IC(invoice service)", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-11"}
-    - {id: "SYS-44", name: "LOS(logistics operation servie)", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-12"}
-    - {id: "SYS-45", name: "Lakehouse", type: "existing", owner: "biz_owned", system_type: "data", scope: "integration_boundary", cmdb_id: "A-XXXX-13"}
-    - {id: "SYS-46", name: "OP(order portal)-PRC", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-14"}
-    - {id: "SYS-47", name: "SIS(supply intelligence service)", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-15"}
-    - {id: "SYS-48", name: "GAP(general account platform)-OTC", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-16"}
-    - {id: "SYS-49", name: "ECC", type: "existing", owner: "biz_owned", system_type: "erp", scope: "black_box", cmdb_id: "A-XXXX-17"}
-    - {id: "SYS-50", name: "IC(invoice service)-NA", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-18"}
-    - {id: "SYS-51", name: "SIS(supply intelligence service)-NA", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-19"}
-    - {id: "SYS-52", name: "GAP(general account platform)-OTC-NA", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-20"}
-    - {id: "SYS-53", name: "Lakehouse-ROW", type: "existing", owner: "biz_owned", system_type: "data", scope: "integration_boundary", cmdb_id: "A-XXXX-21"}
-    - {id: "SYS-54", name: "D365", type: "existing", owner: "org_it", system_type: "saas", scope: "integration_boundary", cmdb_id: "A-XXXX-06"}
-    - {id: "SYS-55", name: "edge-cache", type: "existing", owner: "org_it", system_type: "backend", scope: "integration_boundary", cmdb_id: "A-XXXX-07"}
-    - {id: "SYS-56", name: "ROW DWP(data warehosue platform)", type: "existing", owner: "biz_owned", system_type: "data", scope: "integration_boundary", cmdb_id: "A-XXXX-08"}
-    - {id: "SYS-57", name: "PRC DWP(data warehosue platform)", type: "existing", owner: "biz_owned", system_type: "data", scope: "integration_boundary", cmdb_id: "A-XXXX-09"}
-    - {id: "SYS-58", name: "Internal K8s Platform", type: "existing", owner: "TBD", system_type: "platform", scope: "platform_substrate"}
+  infra:
+    - {id: "INF-01", name: "AWS US VPC", node_kind: "iaas_vpc_vnet", infra_type: "public_cloud", network_type: "prod_network", country: "US", vendor: "Amazon Web Services", status: "active"}
+    - {id: "INF-02", name: "Public subnet (DMZ)", node_kind: "subnet", infra_type: "public_cloud", network_type: "dmz", parent_id: "INF-01", country: "US", status: "active"}
+    - {id: "INF-03", name: "Private subnet (App Zone)", node_kind: "subnet", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-01", country: "US", status: "active"}
+    - {id: "INF-04", name: "Private subnet (DB Zone)", node_kind: "subnet", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-01", country: "US", status: "active"}
+    - {id: "INF-05", name: "AWS WAF and ALB", node_kind: "waf", infra_type: "public_cloud", network_type: "dmz", parent_id: "INF-02", country: "US", status: "planned"}
+    - {id: "INF-06", name: "AWS DMZ boundary firewall", node_kind: "firewall", infra_type: "public_cloud", network_type: "dmz", parent_id: "INF-02", country: "US", status: "planned"}
+    - {id: "INF-07", name: "AWS App boundary firewall", node_kind: "firewall", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-03", country: "US", status: "planned"}
+    - {id: "INF-08", name: "AWS KMS", node_kind: "key_management", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-01", country: "US", status: "planned"}
+    - {id: "INF-09", name: "dc-us", node_kind: "data_center", infra_type: "private_cloud", network_type: "prod_network", country: "US", status: "active"}
+    - {id: "INF-10", name: "dc-us DMZ", node_kind: "network_zone", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-09", country: "US", status: "active"}
+    - {id: "INF-11", name: "dc-us Boundary Firewall", node_kind: "firewall", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-10", country: "US", status: "active"}
+    - {id: "INF-12", name: "ADFS", node_kind: "identity_provider", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-09", country: "US", vendor: "Microsoft", status: "active"}
+    - {id: "INF-13", name: "Enterprise ID", node_kind: "identity_provider", infra_type: "third_party", network_type: "prod_network", parent_id: "INF-09", country: "US", status: "active"}
+    - {id: "INF-14", name: "dc-us-na", node_kind: "data_center", infra_type: "private_cloud", network_type: "prod_network", country: "US", status: "active"}
+    - {id: "INF-15", name: "NA-PROD-INA-INTEGRATION", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-14", country: "US", status: "active"}
+    - {id: "INF-16", name: "NA-PROD-INA-K8S", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-14", country: "US", status: "active"}
+    - {id: "INF-17", name: "NA-PROD-INA-DB", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-14", country: "US", status: "active"}
+    - {id: "INF-18", name: "dc-us-na Boundary Firewall", node_kind: "firewall", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-14", country: "US", status: "active"}
+    - {id: "INF-19", name: "dc-cn-primary", node_kind: "data_center", infra_type: "private_cloud", network_type: "prod_network", country: "CN", status: "active"}
+    - {id: "INF-20", name: "dc-cn-primary DMZ", node_kind: "network_zone", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-19", country: "CN", status: "active"}
+    - {id: "INF-21", name: "dc-cn-primary Intranet", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-19", country: "CN", status: "active"}
+    - {id: "INF-22", name: "dc-cn-primary Boundary Firewall", node_kind: "firewall", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-20", country: "CN", status: "active"}
+    - {id: "INF-23", name: "dc-cn-secondary", node_kind: "data_center", infra_type: "private_cloud", network_type: "prod_network", country: "CN", status: "active"}
+    - {id: "INF-24", name: "dc-cn-secondary DMZ", node_kind: "network_zone", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-23", country: "CN", status: "active"}
+    - {id: "INF-25", name: "dc-cn-secondary Intranet", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-23", country: "CN", status: "active"}
+    - {id: "INF-26", name: "dc-cn-secondary Boundary Firewall", node_kind: "firewall", infra_type: "private_cloud", network_type: "dmz", parent_id: "INF-24", country: "CN", status: "active"}
+    - {id: "INF-27", name: "Azure US", node_kind: "iaas_vpc_vnet", infra_type: "public_cloud", network_type: "prod_network", country: "US", vendor: "Microsoft Azure", status: "active"}
+    - {id: "INF-28", name: "Azure CN North", node_kind: "iaas_vpc_vnet", infra_type: "public_cloud", network_type: "prod_network", country: "CN", vendor: "Microsoft Azure", status: "active"}
 
-  deployment:
-    - {app_id: "SYS-01", country: "US", dc_or_region: "dc-us - City C, State X", platform: "private_dc", zone_subnet: "TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-02", country: "US", dc_or_region: "dc-us - City C, State X", platform: "private_dc", zone_subnet: "TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-03", country: "US", dc_or_region: "dc-us - City C, State X", platform: "private_dc", zone_subnet: "Public subnet (DMZ)", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-04", country: "US", dc_or_region: "dc-us - City C, State X", platform: "private_dc", zone_subnet: "Public subnet (DMZ)", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-05", country: "US", dc_or_region: "AWS US - N. Virginia", platform: "aws", zone_subnet: "Public subnet (DMZ) / frontend K8s cluster", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-06", country: "US", dc_or_region: "AWS US - N. Virginia", platform: "aws", zone_subnet: "Private subnet (App Zone) / backend K8s cluster", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-07-SYS-23", country: "US", dc_or_region: "AWS US - N. Virginia", platform: "aws", zone_subnet: "Private subnet (App Zone) / backend K8s cluster", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-24", country: "US", dc_or_region: "AWS US - N. Virginia", platform: "aws", zone_subnet: "Private subnet (App Zone) / beside backend cluster", infrastructure_owner: "IT Org"}
-    - {app_id: "SYS-25-SYS-27", country: "US", dc_or_region: "AWS US - N. Virginia", platform: "aws", zone_subnet: "Private subnet (DB Zone)", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-28", country: "US", dc_or_region: "AWS US - N. Virginia", platform: "aws", zone_subnet: "AWS object storage; endpoint placement TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-29-SYS-30", country: "US", dc_or_region: "dc-us - City C, State X", platform: "private_dc", zone_subnet: "TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-31", country: "US", dc_or_region: "dc-us-na - City C, State X", platform: "private_dc", zone_subnet: "NA-PROD-INA-INTEGRATION", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-32", country: "US", dc_or_region: "dc-us - City C, State X", platform: "private_dc", zone_subnet: "TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-33", country: "CN", dc_or_region: "dc-cn-primary - City A, Province A", platform: "private_dc", zone_subnet: "TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-34", country: "CN", dc_or_region: "dc-cn-secondary - City B, Province B", platform: "private_dc", zone_subnet: "TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-35-SYS-36", country: "US", dc_or_region: "dc-us-na - City C, State X", platform: "private_dc", zone_subnet: "NA-PROD-INA-INTEGRATION", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-37", country: "US", dc_or_region: "dc-us-na - City C, State X", platform: "private_dc", zone_subnet: "NA-PROD-INA-DB", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-38-SYS-41", country: "US", dc_or_region: "dc-us - City C, State X", platform: "private_dc", zone_subnet: "App Zone", infrastructure_owner: "IT Org"}
-    - {app_id: "SYS-42-SYS-47", country: "CN", dc_or_region: "dc-cn-secondary - City B, Province B", platform: "private_dc", zone_subnet: "Intranet", infrastructure_owner: "IT Org / Data Org"}
-    - {app_id: "SYS-48-SYS-49", country: "CN", dc_or_region: "dc-cn-primary - City A, Province A", platform: "private_dc", zone_subnet: "Intranet", infrastructure_owner: "IT Org / SAP Team"}
-    - {app_id: "SYS-50-SYS-52", country: "US", dc_or_region: "dc-us-na - City C, State X", platform: "private_dc", zone_subnet: "NA-PROD-INA-K8S", infrastructure_owner: "IT Org"}
-    - {app_id: "SYS-53", country: "US", dc_or_region: "dc-us-na - City C, State X", platform: "private_dc", zone_subnet: "NA-PROD-INA-DB", infrastructure_owner: "Data Org"}
-    - {app_id: "SYS-54-SYS-56", country: "US", dc_or_region: "Azure US - exact region TBD", platform: "saas", zone_subnet: "SaaS", infrastructure_owner: "IT Org / Data Org"}
-    - {app_id: "SYS-57", country: "CN", dc_or_region: "Azure CN North - exact numbered region TBD", platform: "azure", zone_subnet: "EDW", infrastructure_owner: "Data Org"}
-    - {app_id: "SYS-58", country: "US", dc_or_region: "AWS US - N. Virginia", platform: "aws", zone_subnet: "OQP ROW frontend and backend K8s clusters", infrastructure_owner: "TBD"}
+  systems:
+    - {id: "APP-01", name: "Order Query Platform", type: "new", owner: "org_it", data_classification: "Acme Confidential"}
+    - {id: "APP-02", name: "US source systems", type: "existing", owner: "org_it"}
+    - {id: "APP-03", name: "NA source systems", type: "existing", owner: "org_it"}
+    - {id: "APP-04", name: "PRC primary source systems", type: "existing", owner: "org_it"}
+    - {id: "APP-05", name: "PRC secondary source systems", type: "existing", owner: "org_it"}
+    - {id: "APP-06", name: "Azure and SaaS sources", type: "existing", owner: "org_it", vendor: "Microsoft"}
+    - {id: "APP-07", name: "Existing portal entry systems", type: "existing", owner: "org_it"}
 
   components:
-    - {id: "SYS-05", app_id: "SYS-05", name: "OP(order portal)-row-web", type: "FE", language: "JavaScript/TypeScript version TBD", framework: "Nginx and React versions TBD", runtime: "SYS-58 frontend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-06", app_id: "SYS-06", name: "Gateway", type: "API", language: "TBD", framework: "TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-07", app_id: "SYS-07", name: "Order Portal", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-08", app_id: "SYS-08", name: "Order Report", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-09", app_id: "SYS-09", name: "Order Notification", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-10", app_id: "SYS-10", name: "Transform Service", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-11", app_id: "SYS-11", name: "Task Service", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-12", app_id: "SYS-12", name: "Order Web", type: "FE", language: "JavaScript/TypeScript version TBD", framework: "React version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-13", app_id: "SYS-13", name: "D365 Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-14", app_id: "SYS-14", name: "OFS(order fulfill service) Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-15", app_id: "SYS-15", name: "PRC Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-16", app_id: "SYS-16", name: "SOS(salse order servie) Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-17", app_id: "SYS-17", name: "IC(invoice service) Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-18", app_id: "SYS-18", name: "LOS(logistics operation servie) Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-19", app_id: "SYS-19", name: "SDS(service data service) Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-20", app_id: "SYS-20", name: "SIS(supply intelligence service) Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-21", app_id: "SYS-21", name: "NA Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-22", app_id: "SYS-22", name: "Consumer Task", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-23", app_id: "SYS-23", name: "XXL-Job scheduler", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-24", app_id: "SYS-24", name: "SOS(salse order servie)", type: "BE", language: "TBD", framework: "TBD", runtime: "AWS US App Zone beside backend cluster", sensitivity: "Acme Confidential"}
-    - {id: "SYS-25", app_id: "SYS-25", name: "PostgreSQL ODS", type: "DB", language: "SQL", framework: "PostgreSQL version TBD", runtime: "AWS managed/self-managed selection TBD", sensitivity: "Acme Confidential"}
-    - {id: "SYS-26", app_id: "SYS-26", name: "PostgreSQL DWS", type: "DB", language: "SQL", framework: "PostgreSQL version TBD", runtime: "AWS managed/self-managed selection TBD", sensitivity: "Acme Confidential"}
-    - {id: "SYS-27", app_id: "SYS-27", name: "Redis", type: "DB", language: "TBD", framework: "Redis version TBD", runtime: "AWS managed/self-managed selection TBD", sensitivity: "Acme Confidential"}
-    - {id: "SYS-28", app_id: "SYS-28", name: "S3", type: "DB", language: "N/A", framework: "Amazon S3", runtime: "AWS managed service", sensitivity: "Acme Confidential"}
+    - {id: "CMP-01", system_id: "APP-01", name: "OP-row-web", kind: "component", layer: "fe", component_role: "web_frontend", status: "active"}
+    - {id: "CMP-02", system_id: "APP-01", name: "Gateway", kind: "component", layer: "api", component_role: "api_gateway", status: "active"}
+    - {id: "CMP-03", system_id: "APP-01", name: "Order Portal", kind: "service", layer: "be", component_role: "backend_service", status: "active"}
+    - {id: "CMP-04", system_id: "APP-01", name: "Order Report", kind: "service", layer: "be", component_role: "backend_service", status: "active"}
+    - {id: "CMP-05", system_id: "APP-01", name: "Order Notification", kind: "service", layer: "be", component_role: "backend_service", status: "active"}
+    - {id: "CMP-06", system_id: "APP-01", name: "Transform Service", kind: "service", layer: "be", component_role: "data_processing", status: "active"}
+    - {id: "CMP-07", system_id: "APP-01", name: "Task Service", kind: "service", layer: "be", component_role: "backend_service", status: "active"}
+    - {id: "CMP-08", system_id: "APP-01", name: "Order Web", kind: "component", layer: "fe", component_role: "web_frontend", status: "active"}
+    - {id: "CMP-09", system_id: "APP-01", name: "D365 Consumer", kind: "service", layer: "be", component_role: "streaming_processing", status: "active"}
+    - {id: "CMP-10", system_id: "APP-01", name: "OFS Consumer", kind: "service", layer: "be", component_role: "streaming_processing", status: "active"}
+    - {id: "CMP-11", system_id: "APP-01", name: "PRC Consumer", kind: "service", layer: "be", component_role: "streaming_processing", status: "active"}
+    - {id: "CMP-12", system_id: "APP-01", name: "SOS Consumer", kind: "service", layer: "be", component_role: "streaming_processing", status: "active"}
+    - {id: "CMP-13", system_id: "APP-01", name: "IC Consumer", kind: "service", layer: "be", component_role: "streaming_processing", status: "active"}
+    - {id: "CMP-14", system_id: "APP-01", name: "LOS Consumer", kind: "service", layer: "be", component_role: "streaming_processing", status: "active"}
+    - {id: "CMP-15", system_id: "APP-01", name: "SDS Consumer", kind: "service", layer: "be", component_role: "streaming_processing", status: "active"}
+    - {id: "CMP-16", system_id: "APP-01", name: "SIS Consumer", kind: "service", layer: "be", component_role: "streaming_processing", status: "active"}
+    - {id: "CMP-17", system_id: "APP-01", name: "NA Consumer", kind: "service", layer: "be", component_role: "streaming_processing", status: "active"}
+    - {id: "CMP-18", system_id: "APP-01", name: "Consumer Task", kind: "service", layer: "be", component_role: "batch_processing", status: "active"}
+    - {id: "CMP-19", system_id: "APP-01", name: "XXL-Job scheduler", kind: "service", layer: "be", component_role: "batch_processing", status: "active"}
+    - {id: "CMP-20", system_id: "APP-02", name: "SOS", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-21", system_id: "APP-01", name: "PostgreSQL ODS", kind: "component", layer: "db", component_role: "database", encryption_at_rest: "TBD", key_management: "INF-08", status: "active"}
+    - {id: "CMP-22", system_id: "APP-01", name: "PostgreSQL DWS", kind: "component", layer: "db", component_role: "data_warehouse", encryption_at_rest: "TBD", key_management: "INF-08", status: "active"}
+    - {id: "CMP-23", system_id: "APP-01", name: "Redis", kind: "component", layer: "db", component_role: "cache", encryption_at_rest: "TBD", key_management: "INF-08", status: "active"}
+    - {id: "CMP-24", system_id: "APP-01", name: "S3", kind: "component", layer: "db", component_role: "object_storage", encryption_at_rest: "TBD", key_management: "INF-08", status: "active"}
+    - {id: "CMP-25", system_id: "APP-07", name: "DMZ-APIM", kind: "component", layer: "ip", component_role: "api_gateway", status: "active"}
+    - {id: "CMP-26", system_id: "APP-02", name: "APIM", kind: "component", layer: "ip", component_role: "api_gateway", status: "active"}
+    - {id: "CMP-27", system_id: "APP-03", name: "APIH", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-28", system_id: "APP-02", name: "kafka-us", kind: "component", layer: "mq", component_role: "message_bus", encryption_at_rest: "TBD", status: "active"}
+    - {id: "CMP-29", system_id: "APP-04", name: "kafka-cn", kind: "component", layer: "mq", component_role: "message_bus", encryption_at_rest: "TBD", status: "active"}
+    - {id: "CMP-30", system_id: "APP-05", name: "kafka-ikp", kind: "component", layer: "mq", component_role: "message_bus", encryption_at_rest: "TBD", status: "active"}
+    - {id: "CMP-31", system_id: "APP-03", name: "kafka-us-na", kind: "component", layer: "mq", component_role: "message_bus", encryption_at_rest: "TBD", status: "active"}
+    - {id: "CMP-32", system_id: "APP-03", name: "kafka-us-log", kind: "component", layer: "mq", component_role: "message_bus", encryption_at_rest: "TBD", status: "active"}
+    - {id: "CMP-33", system_id: "APP-03", name: "Order Portal ES", kind: "component", layer: "db", component_role: "database", encryption_at_rest: "TBD", status: "active"}
+    - {id: "CMP-34", system_id: "APP-02", name: "SDS", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-35", system_id: "APP-02", name: "2B service portal", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-36", system_id: "APP-02", name: "OOP", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-37", system_id: "APP-02", name: "order orchestration", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-38", system_id: "APP-05", name: "CSP", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-39", system_id: "APP-05", name: "IC", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-40", system_id: "APP-05", name: "LOS", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-41", system_id: "APP-05", name: "Lakehouse", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-42", system_id: "APP-05", name: "OP-PRC", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-43", system_id: "APP-05", name: "SIS", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-44", system_id: "APP-04", name: "GAP-OTC", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-45", system_id: "APP-04", name: "ECC", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-46", system_id: "APP-03", name: "IC-NA", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-47", system_id: "APP-03", name: "SIS-NA", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-48", system_id: "APP-03", name: "GAP-OTC-NA", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-49", system_id: "APP-03", name: "Lakehouse-ROW", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-50", system_id: "APP-06", name: "D365", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-51", system_id: "APP-06", name: "edge-cache", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-52", system_id: "APP-06", name: "ROW DWP", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-53", system_id: "APP-06", name: "PRC DWP", kind: "component", layer: "ip", component_role: "integration_service", status: "active"}
+    - {id: "CMP-54", system_id: "APP-07", name: "SOWB", kind: "component", layer: "fe", component_role: "web_frontend", status: "active"}
+    - {id: "CMP-55", system_id: "APP-07", name: "external OP site", kind: "component", layer: "fe", component_role: "web_frontend", status: "active"}
 
-  network_connections:
-    - {from_location: "dc-us", to_location: "AWS US VPC", type: "MPLS", encrypted: true, encryption_method: "Carrier encryption plus TLS 1.2+", managed_by: "TBD", boundary_control: "Firewall at each boundary"}
-    - {from_location: "dc-us-na", to_location: "AWS US VPC", type: "MPLS", encrypted: true, encryption_method: "Carrier encryption plus TLS 1.2+", managed_by: "TBD", boundary_control: "Firewall at each boundary"}
-    - {from_location: "dc-cn-primary", to_location: "AWS US VPC", type: "MPLS", encrypted: true, encryption_method: "Carrier encryption plus TLS 1.2+", managed_by: "TBD", boundary_control: "Firewall at each boundary; PRC rows prohibited"}
-    - {from_location: "dc-cn-secondary", to_location: "AWS US VPC", type: "MPLS", encrypted: true, encryption_method: "Carrier encryption plus TLS 1.2+", managed_by: "TBD", boundary_control: "Firewall at each boundary; PRC rows prohibited"}
-    - {from_location: "Azure US / Azure CN North", to_location: "Approved mediation boundary", type: "TBD", encrypted: true, encryption_method: "TLS 1.2+", managed_by: "TBD", boundary_control: "No direct application-to-source calls"}
+  deployments:
+    - {id: "DEP-01", component_id: "CMP-01", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-02", runtime_type: "container", runtime_detail: "Internal K8s Platform frontend cluster", instance_count: 2, status: "planned"}
+    - {id: "DEP-02", component_id: "CMP-02", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform backend cluster", instance_count: 2, status: "planned"}
+    - {id: "DEP-03", component_id: "CMP-03", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-04", component_id: "CMP-04", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-05", component_id: "CMP-05", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-06", component_id: "CMP-06", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-07", component_id: "CMP-07", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-08", component_id: "CMP-08", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-09", component_id: "CMP-09", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-10", component_id: "CMP-10", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-11", component_id: "CMP-11", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-12", component_id: "CMP-12", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-13", component_id: "CMP-13", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-14", component_id: "CMP-14", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-15", component_id: "CMP-15", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-16", component_id: "CMP-16", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-17", component_id: "CMP-17", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 2, status: "planned"}
+    - {id: "DEP-18", component_id: "CMP-18", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 1, status: "planned"}
+    - {id: "DEP-19", component_id: "CMP-19", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-03", runtime_type: "container", runtime_detail: "Internal K8s Platform", instance_count: 1, status: "planned"}
+    - {id: "DEP-20", component_id: "CMP-20", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-21", component_id: "CMP-21", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-04", runtime_type: "serverless", instance_count: 1, status: "planned"}
+    - {id: "DEP-22", component_id: "CMP-22", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-04", runtime_type: "serverless", instance_count: 1, status: "planned"}
+    - {id: "DEP-23", component_id: "CMP-23", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-04", runtime_type: "serverless", instance_count: 1, status: "planned"}
+    - {id: "DEP-24", component_id: "CMP-24", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-04", runtime_type: "serverless", instance_count: 1, status: "planned"}
+    - {id: "DEP-25", component_id: "CMP-25", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-10", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-26", component_id: "CMP-26", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-27", component_id: "CMP-27", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-15", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-28", component_id: "CMP-28", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "vm", instance_count: 3, status: "active"}
+    - {id: "DEP-29", component_id: "CMP-29", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-21", runtime_type: "vm", instance_count: 3, status: "active"}
+    - {id: "DEP-30", component_id: "CMP-30", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-25", runtime_type: "vm", instance_count: 3, status: "active"}
+    - {id: "DEP-31", component_id: "CMP-31", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-15", runtime_type: "vm", instance_count: 3, status: "active"}
+    - {id: "DEP-32", component_id: "CMP-32", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-15", runtime_type: "vm", instance_count: 3, status: "active"}
+    - {id: "DEP-33", component_id: "CMP-33", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-17", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-34", component_id: "CMP-34", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-35", component_id: "CMP-35", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-36", component_id: "CMP-36", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-37", component_id: "CMP-37", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-38", component_id: "CMP-38", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-25", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-39", component_id: "CMP-39", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-25", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-40", component_id: "CMP-40", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-25", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-41", component_id: "CMP-41", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-25", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-42", component_id: "CMP-42", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-25", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-43", component_id: "CMP-43", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-25", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-44", component_id: "CMP-44", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-21", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-45", component_id: "CMP-45", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-21", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-46", component_id: "CMP-46", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-16", runtime_type: "container", instance_count: 1, status: "active"}
+    - {id: "DEP-47", component_id: "CMP-47", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-16", runtime_type: "container", instance_count: 1, status: "active"}
+    - {id: "DEP-48", component_id: "CMP-48", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-16", runtime_type: "container", instance_count: 1, status: "active"}
+    - {id: "DEP-49", component_id: "CMP-49", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-17", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-50", component_id: "CMP-50", environment: "prod", deployment_type: "saas", location_type: "saas", infra_id: "INF-27", runtime_type: "serverless", instance_count: 1, status: "active"}
+    - {id: "DEP-51", component_id: "CMP-51", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-27", runtime_type: "serverless", instance_count: 1, status: "active"}
+    - {id: "DEP-52", component_id: "CMP-52", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-27", runtime_type: "serverless", instance_count: 1, status: "active"}
+    - {id: "DEP-53", component_id: "CMP-53", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-28", runtime_type: "serverless", instance_count: 1, status: "active"}
+    - {id: "DEP-54", component_id: "CMP-54", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-10", runtime_type: "vm", instance_count: 1, status: "active"}
+    - {id: "DEP-55", component_id: "CMP-55", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-10", runtime_type: "vm", instance_count: 1, status: "active"}
 
-  interactions:
-    - {id: "INT-001", from_component: "Internal employee", to_component: "SYS-01 - ADFS", protocol: "HTTPS/SAML 2.0", port: "TBD", auth_method: "SAML 2.0", notes: "User authentication"}
-    - {id: "INT-002", from_component: "External partner", to_component: "SYS-02 - Enterprise ID", protocol: "HTTPS/SAML 2.0", port: "TBD", auth_method: "SAML 2.0", notes: "User authentication"}
-    - {id: "INT-003", from_component: "SYS-01 - ADFS", to_component: "SYS-03 - SOWB(sales operation workbench)", protocol: "HTTPS/SAML 2.0", port: "TBD", auth_method: "SAML 2.0", notes: "Internal portal SSO"}
-    - {id: "INT-004", from_component: "SYS-02 - Enterprise ID", to_component: "SYS-04 - external OP(order portal) site", protocol: "HTTPS/SAML 2.0", port: "TBD", auth_method: "SAML 2.0", notes: "External portal SSO"}
-    - {id: "INT-005", from_component: "User browser", to_component: "SYS-05 - OP(order portal)-row-web", protocol: "HTTPS", port: "TBD", auth_method: "OAuth 2.0; flow TBD", notes: "Public entry through WAF"}
-    - {id: "INT-006", from_component: "SYS-05 - OP(order portal)-row-web", to_component: "SYS-06 - Gateway", protocol: "HTTPS", port: "TBD", auth_method: "OAuth 2.0", notes: "Cross-subnet security controls required"}
-    - {id: "INT-007", from_component: "SYS-06 - Gateway", to_component: "SYS-07-SYS-24 application services", protocol: "HTTPS", port: "TBD", auth_method: "OAuth 2.0", notes: "Exact service call matrix TBD"}
-    - {id: "INT-008", from_component: "External system applications", to_component: "SYS-29 - DMZ-APIM", protocol: "HTTPS", port: "TBD", auth_method: "OAuth 2.0 Client Credentials", notes: "Mandatory external mediation"}
-    - {id: "INT-009", from_component: "OQP ROW backend services", to_component: "SYS-30 - APIM", protocol: "HTTPS", port: "TBD", auth_method: "OAuth 2.0 Client Credentials", notes: "Mandatory internal mediation"}
-    - {id: "INT-010", from_component: "OQP ROW backend services", to_component: "SYS-31 - APIH", protocol: "HTTPS", port: "TBD", auth_method: "OAuth 2.0 Client Credentials", notes: "Mandatory NA mediation"}
-    - {id: "INT-011", from_component: "SYS-13-SYS-21 consumers", to_component: "SYS-32-SYS-36 designated Kafka clusters", protocol: "TCP/Kafka", port: "TBD", auth_method: "SASL/SCRAM", notes: "Exact consumer/topic/cluster matrix TBD"}
-    - {id: "INT-012", from_component: "OQP ROW application services", to_component: "SYS-25 - PostgreSQL ODS", protocol: "TCP/JDBC", port: "TBD", auth_method: "User/password from AWS Secrets Manager", notes: "DB Zone only"}
-    - {id: "INT-013", from_component: "OQP ROW application services", to_component: "SYS-26 - PostgreSQL DWS", protocol: "TCP/JDBC", port: "TBD", auth_method: "User/password from AWS Secrets Manager", notes: "DB Zone only"}
-    - {id: "INT-014", from_component: "OQP ROW application services", to_component: "SYS-27 - Redis", protocol: "TCP/Redis", port: "TBD", auth_method: "Password from AWS Secrets Manager", notes: "DB Zone only"}
-    - {id: "INT-015", from_component: "OQP ROW application services", to_component: "SYS-28 - S3", protocol: "HTTPS", port: "TBD", auth_method: "AWS IAM role", notes: "Object storage"}
-    - {id: "INT-016", from_component: "SYS-15 - PRC Consumer", to_component: "SYS-57 - PRC DWP(data warehosue platform)", protocol: "HTTPS", port: "TBD", auth_method: "OAuth 2.0 Client Credentials", notes: "Query in China; no PRC row replication to AWS"}
-    - {id: "INT-017", from_component: "SYS-38-SYS-41", to_component: "SYS-30 / SYS-32", protocol: "HTTPS or TCP/Kafka as designated", port: "TBD", auth_method: "OAuth 2.0 Client Credentials or SASL/SCRAM", notes: "Exact mediation mapping TBD; no direct calls"}
-    - {id: "INT-018", from_component: "SYS-42-SYS-47", to_component: "SYS-34 - kafka-ikp", protocol: "TCP/Kafka", port: "TBD", auth_method: "SASL/SCRAM", notes: "Per-source topics TBD"}
-    - {id: "INT-019", from_component: "SYS-48-SYS-49", to_component: "SYS-33 - kafka-cn", protocol: "TCP/Kafka", port: "TBD", auth_method: "SASL/SCRAM", notes: "Per-source topics TBD"}
-    - {id: "INT-020", from_component: "SYS-50-SYS-53", to_component: "SYS-31 / SYS-35 / SYS-36", protocol: "HTTPS or TCP/Kafka as designated", port: "TBD", auth_method: "OAuth 2.0 Client Credentials or SASL/SCRAM", notes: "Exact mediation mapping TBD; no direct calls"}
-    - {id: "INT-021", from_component: "SYS-54-SYS-56", to_component: "Approved SYS-29/SYS-30 or designated Kafka boundary", protocol: "HTTPS or TCP/Kafka as designated", port: "TBD", auth_method: "OAuth 2.0 Client Credentials or SASL/SCRAM", notes: "Exact source mediation mapping TBD; no direct calls"}
+  flows:
+    - {id: "FLOW-01", source_component_id: "internet", target_component_id: "CMP-01", protocol: "HTTPS", port: "443", auth_method: "none", encryption: "TLS1.2", cross_border: false, via: ["INF-05"], notes: "user authentication is AUTH-01/AUTH-02"}
+    - {id: "FLOW-02", source_component_id: "CMP-01", target_component_id: "CMP-02", protocol: "HTTPS", port: "443", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.2", cross_border: false, via: ["INF-06"]}
+    - {id: "FLOW-03", source_component_id: "CMP-02", target_component_id: "CMP-03", protocol: "HTTPS", port: "443", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.2", cross_border: false}
+    - {id: "FLOW-04", source_component_id: "CMP-03", target_component_id: "CMP-21", protocol: "PostgreSQL", port: "5432", auth_method: "UserPassword", encryption: "TLS1.2", cross_border: false, via: ["INF-07"]}
+    - {id: "FLOW-05", source_component_id: "CMP-04", target_component_id: "CMP-22", protocol: "PostgreSQL", port: "5432", auth_method: "UserPassword", encryption: "TLS1.2", cross_border: false, via: ["INF-07"]}
+    - {id: "FLOW-06", source_component_id: "CMP-03", target_component_id: "CMP-23", protocol: "Redis", port: "6379", auth_method: "UserPassword", encryption: "TLS1.2", cross_border: false, via: ["INF-07"]}
+    - {id: "FLOW-07", source_component_id: "CMP-04", target_component_id: "CMP-24", protocol: "HTTPS", port: "443", auth_method: "IAM_Role", encryption: "TLS1.2", cross_border: false}
+    - {id: "FLOW-08", source_component_id: "CMP-02", target_component_id: "CMP-26", protocol: "HTTPS", port: "443", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.2", cross_border: false, via: ["INF-11"]}
+    - {id: "FLOW-09", source_component_id: "CMP-02", target_component_id: "CMP-27", protocol: "HTTPS", port: "443", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.2", cross_border: false, via: ["INF-18"]}
+    - {id: "FLOW-10", source_component_id: "CMP-11", target_component_id: "CMP-30", protocol: "Kafka", port: "9093", auth_method: "SASL_SCRAM", encryption: "TLS1.2", cross_border: true, cross_border_basis: "Approved requests only; PRC row payloads remain in China.", via: ["INF-26"]}
+    - {id: "FLOW-11", source_component_id: "CMP-30", target_component_id: "CMP-53", protocol: "HTTPS", port: "443", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.2", cross_border: false}
+    - {id: "FLOW-12", source_component_id: "internet", target_component_id: "CMP-25", protocol: "HTTPS", port: "443", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.2", cross_border: false, via: ["INF-11"]}
 
-  user_auth:
-    - entry_point: "SYS-03 / SYS-05 internal path"
-      user_roles: ["internal_employee"]
-      auth_server: "ADFS"
-      auth_protocol: "SAML"
-      authorization: "RBAC"
-      auth_platform: "AuthZ Platform; role model TBD"
-    - entry_point: "SYS-04 / SYS-05 external path"
-      user_roles: ["external_partner"]
-      auth_server: "EnterpriseID"
-      auth_protocol: "SAML"
-      authorization: "RBAC"
-      auth_platform: "AuthZ Platform; role model TBD"
+  network_links:
+    - {id: "LNK-01", source_infra_id: "INF-09", target_infra_id: "INF-01", method: "mpls", encrypted: true, encryption_method: "Carrier encryption plus TLS 1.2+", managed_by: "TBD", redundancy: "primary"}
+    - {id: "LNK-02", source_infra_id: "INF-14", target_infra_id: "INF-01", method: "mpls", encrypted: true, encryption_method: "Carrier encryption plus TLS 1.2+", managed_by: "TBD", redundancy: "primary"}
+    - {id: "LNK-03", source_infra_id: "INF-19", target_infra_id: "INF-01", method: "mpls", encrypted: true, encryption_method: "Carrier encryption plus TLS 1.2+", managed_by: "TBD", redundancy: "primary", notes: "PRC row payloads prohibited"}
+    - {id: "LNK-04", source_infra_id: "INF-23", target_infra_id: "INF-01", method: "mpls", encrypted: true, encryption_method: "Carrier encryption plus TLS 1.2+", managed_by: "TBD", redundancy: "primary", notes: "PRC row payloads prohibited"}
+
+  auth:
+    - {id: "AUTH-01", subject: "user", applies_to: "CMP-01", auth_server: "INF-12", protocol: "SAML2", authorization: "RBAC", user_roles: "internal_employee", mfa: true}
+    - {id: "AUTH-02", subject: "user", applies_to: "CMP-01", auth_server: "INF-13", protocol: "SAML2", authorization: "RBAC", user_roles: "external_partner", mfa: true}
 
   credentials:
-    - {environment: "aws", solution: "AWS Secrets Manager and AWS KMS", notes: "DB, Redis, OAuth client, and Kafka credentials; rotation periods TBD; hardcoded credentials prohibited"}
-    - {environment: "private_dc", solution: "TBD", notes: "Existing enterprise secret-management platform and rotation ownership TBD"}
-    - {environment: "azure", solution: "TBD", notes: "Existing Azure secret-management platform TBD; access only through approved mediation"}
-
-  data_encryption:
-    - {component: "SYS-25-SYS-28 AWS data stores", at_rest: true, at_rest_method: "TBD", in_transit: true, in_transit_protocol: "TLS 1.2+", cross_border: false, cross_border_compliance: "Acme Confidential controls"}
-    - {component: "API gateway and application flows", at_rest: false, at_rest_method: "N/A", in_transit: true, in_transit_protocol: "TLS 1.2+", cross_border: true, cross_border_compliance: "Source residency controls; exact legal basis TBD"}
-    - {component: "SYS-32-SYS-36 Kafka", at_rest: true, at_rest_method: "TBD", in_transit: true, in_transit_protocol: "TLS 1.2+ with SASL/SCRAM", cross_border: true, cross_border_compliance: "PRC row payloads prohibited from leaving China"}
-    - {component: "SYS-57 PRC DWP(data warehosue platform)", at_rest: true, at_rest_method: "TBD", in_transit: true, in_transit_protocol: "TLS 1.2+", cross_border: false, cross_border_compliance: "PRC data-residency constraint; legal basis TBD"}
-
-  open_items:
-    - {id: "TBD-01", description: "Size SYS-25 and SYS-26 for ROW order volume.", owner: "TBD", target_date: "TBD", blocking: false}
-    - {id: "TBD-02", description: "Define SYS-23 high-availability topology.", owner: "TBD", target_date: "TBD", blocking: false}
-    - {id: "TBD-03", description: "Confirm exact Azure US and Azure China numbered regions.", owner: "Cloud / Data Org", target_date: "TBD", blocking: false}
-    - {id: "TBD-04", description: "Confirm all service ports; retain explicit TBD on design edges until confirmed.", owner: "Network / application owners", target_date: "TBD", blocking: false}
-    - {id: "TBD-05", description: "Define exact consumer/topic/Kafka-cluster and API gateway/source mappings.", owner: "Integration owner", target_date: "TBD", blocking: false}
-    - {id: "TBD-06", description: "Confirm runtime/framework versions and managed-service selections for new components.", owner: "Application owner", target_date: "TBD", blocking: false}
-    - {id: "TBD-07", description: "Confirm at-rest methods, secret rotation periods, and non-AWS secret platforms.", owner: "Security / platform owners", target_date: "TBD", blocking: false}
-    - {id: "TBD-08", description: "Define internal and partner RBAC roles and confirm AuthZ Platform ownership.", owner: "Security / application owner", target_date: "TBD", blocking: false}
-    - {id: "TBD-09", description: "Resolve OQP/OVP acronym discrepancy; use OQP ROW from human source until confirmed.", owner: "Project owner", target_date: "TBD", blocking: false}
+    - {environment: "aws", solution: "AWS Secrets Manager with AWS KMS", notes: "DB, cache, OAuth, and Kafka credentials; rotation period TBD."}
+    - {environment: "private_dc", solution: "TBD", notes: "Existing enterprise secret-management platform and rotation owner TBD."}
 
   constraints:
-    - "Use AWS US N. Virginia VPC with public DMZ, private App Zone, and private DB Zone subnets."
-    - "Mediate all cross-system calls through SYS-29, SYS-30, SYS-31, or SYS-32-SYS-36; direct calls are prohibited."
-    - "Place SYS-31 and SYS-35-SYS-36 in NA-PROD-INA-INTEGRATION and SYS-37 in NA-PROD-INA-DB."
-    - "Use MPLS between every private DC and AWS, firewalls at every boundary, and TLS 1.2+ on every application hop."
-    - "Keep PRC-sourced rows in China; SYS-15 queries SYS-57 in-country with no replication to AWS."
-    - "Use only masked A-XXXX-nn CMDB identifiers; include no IP addresses or CIDR ranges."
+    - "Use the AWS US three-tier VPC with INF-05, INF-06, and INF-07 enforcing the public, application, and data boundaries."
+    - "Cross-system traffic is mediated through CMP-25 through CMP-32; direct source-to-application traffic is prohibited."
+    - "PRC-sourced rows remain in China; FLOW-10 carries only approved requests and FLOW-11 executes the in-country query."
+    - "The internal K8s platform is runtime detail for AWS deployments, not an inventory component or infra appliance."
+
+  open_items:
+    - {id: "TBD-01", blocking: false, text: "Confirm database sizing, managed-service selection, at-rest encryption settings, and backup objectives."}
+    - {id: "TBD-02", blocking: false, text: "Confirm service ports, consumer topic-to-cluster assignments, and API source mappings."}
+    - {id: "TBD-03", blocking: false, text: "Confirm non-AWS secret platform, rotation ownership, and authorization role model."}

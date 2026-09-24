@@ -55,7 +55,11 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 - Examples 02 and 04 are migrated too. Example 04's registry now holds 208 rows
   across the seven tables, its appliances (router, F5, ADFS, external IdP) are
   infra nodes rather than components, and flows carry the contracted appliance
-  hops in `via`. Only example 03 remains on the legacy `SYS-nn` model.
+  hops in `via`.
+- Example 03 is migrated to req/v2: its seven-table registry separates AWS and
+  DC topology, security appliances, systems, components, deployments, flows,
+  links, and entry authentication. The v2 diagram is versioned separately so
+  historic validation and enforcement remain bound to the original diagram.
 
 ### Fixed
 

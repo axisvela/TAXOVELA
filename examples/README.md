@@ -34,7 +34,7 @@ Every file outside `systems-registry.md` — including `README.md` and
 |---|---------|----------|-----------|--------|
 | 01 | `01-ecommerce-azure` | E-commerce platform network | Azure multi-region Hub-Spoke + ExpressRoute | `reqv1` — rebuild pending (source diagram quality is poor) |
 | 02 | `02-ai-agent-hybrid` | Data Agent platform (GDA) | Private DC + Azure hybrid | `reqv2-complete` — blueprint and requirements on typed ids; v2 diagram awaits re-validation |
-| 03 | `03-order-query-aws-hybrid` | Order query over EDW data | AWS VPC (3-tier) + 4 private DCs | `reqv1` — rebuild pending |
+| 03 | `03-order-query-aws-hybrid` | Order query over EDW data | AWS VPC (3-tier) + 4 private DCs | `reqv2-complete` — typed inventory and v2 diagram rendered; historic validation remains bound to v1 diagram |
 | 04 | `04-service-delivery-private-cloud` | Service delivery platform (SDP) | Private cloud, 4 DCs + Azure | `reqv2-complete` — 208 registry rows; v2 diagram awaits re-validation |
 | 05 | `05-supply-chain-order-private-cloud` | Supply-chain order platform (OSP) | Private cloud active-active CN+NA | `reqv2-complete` — blueprint migrated to typed ids; v2 diagram awaits re-validation |
 | 06 | `06-factory-mes-industrial` | **Factory MES (PlantMES)** | Plant edge + central DCs | `reqv2-complete` — worked reference |

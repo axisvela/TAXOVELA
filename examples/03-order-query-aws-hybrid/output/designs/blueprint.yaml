@@ -1,294 +1,175 @@
 _design:
-  template_selection: "aws-hybrid + private-cloud"
+  stage: "design"
+  project_id: "OQP-ROW-001"
+  requirements_source: "output/requirements/req.yaml"
+  registry_source: "input/systems-registry.md"
+  templates: ["aws-hybrid", "private-cloud", "data-analytics"]
   decisions:
-    - decision: "Deployment pattern"
-      choice: "AWS N. Virginia three-tier VPC with private-DC integration regions"
-      rationale: "The new OQP ROW workload is hosted on AWS while identity, API mediation, Kafka, and source systems remain distributed across US and PRC private DCs."
-    - decision: "Application runtime"
-      choice: "SYS-58 Internal K8s Platform"
-      rationale: "Requirements place SYS-05 in the frontend cluster and SYS-06 through SYS-23 in the backend cluster; SYS-24 remains beside that cluster."
-    - decision: "Cross-system integration"
-      choice: "SYS-29/SYS-30/SYS-31 API hubs and SYS-32 through SYS-36 Kafka"
-      rationale: "Direct cross-system calls are prohibited; every source is shown at an approved mediation boundary. Exact API and topic mappings remain TBD-05."
-    - decision: "Identity and authorization"
-      choice: "SYS-01 ADFS, SYS-02 Enterprise ID, and AuthZ Platform RBAC"
-      rationale: "Separate internal and partner SSO paths are required, with authorization enforced at gateway and application layers."
-    - decision: "Data residency"
-      choice: "PRC rows remain in China"
-      rationale: "SYS-57 is accessed through the in-country SYS-34 boundary; only requests and approved non-row responses may traverse to AWS."
-  template_rationale: "The aws-hybrid template supplies the AWS/private-DC pattern and AWS security baseline. The private-cloud template supplies explicit multi-DC zones, integration-platform shapes, and private-DC security conventions. Azure is represented only as existing source boundaries, not as an application deployment tier."
+    - decision: "AWS ingress and tier boundaries"
+      choice: "INF-05 WAF ingress, INF-06 DMZ firewall, and INF-07 App firewall"
+      rationale: "Appliance policy models WAF and firewalls as infra L4 nodes; they are explicit hops in the relevant component flows."
+    - decision: "Identity and runtime classification"
+      choice: "INF-12 and INF-13 are identity-provider infra; Internal K8s Platform is deployment runtime detail"
+      rationale: "Identity providers are appliances and the Kubernetes platform is a runtime substrate, not a component or topology appliance."
+    - decision: "Cross-system integration and residency"
+      choice: "CMP-25 through CMP-32 provide the API and Kafka mediation boundaries"
+      rationale: "The architecture prohibits direct source-to-application calls and keeps PRC row processing in-country."
   validation_focus:
-    - "Confirm every cross-system flow terminates at an approved API or Kafka mediation component."
-    - "Confirm AWS public, application, and database tiers remain separated by boundary controls."
-    - "Confirm PRC row payloads never traverse a cross-border interaction."
-    - "Resolve TBD-04 ports and TBD-05 source/topic mappings before implementation."
+    - "Verify every public and cross-zone route traverses its declared INF appliance hop."
+    - "Verify PRC requests remain mediated and no row payload crosses LNK-03 or LNK-04."
+    - "Confirm unresolved ports, source mappings, and data-service settings before implementation."
 
 arch:
-  id: "03-order-query-aws-hybrid-TechDiagram-V1.0"
-  name: "Order Query Platform (OQP ROW) - AWS Hybrid Technical Architecture"
+  id: "OQP-ROW-001-TechDiagram-V2.0"
+  name: "Order Query Platform - AWS Hybrid Technical Architecture"
   platform: "hybrid_cloud"
-  version: "V1.0"
+  version: "V2.0"
   author: "OpenCode"
   owner_team: "TBD"
-  last_modified: "2026-09-14"
+  last_modified: "2026-09-24"
 
   deployment:
-    - id: "aws-us"
+    - id: "INF-01"
       type: "aws_vpc"
       role: "production"
       location: "AWS US, N. Virginia [US]"
       owner: "TBD"
       subnets:
-        - id: "aws-us-public-dmz"
+        - id: "INF-02"
           type: "public"
-          name: "Public subnet (DMZ) - Frontend K8s"
+          name: "Public subnet (DMZ)"
           components:
-            - {id: "NET-AWS-WAF", name: "ALB + AWS WAF", type: "LB", shape: "hexagon", owner_type: "org_it", status: "newly_created", notes: "Public HTTPS ingress; OWASP controls; no administrative ingress"}
-            - {id: "NET-AWS-DMZ-FW", name: "AWS DMZ Boundary Firewall", type: "LB", shape: "hexagon", owner_type: "org_it", status: "newly_created", notes: "Restricts Public subnet to Private App subnet traffic"}
-            - {id: "SYS-05", name: "SYS-05 - OP(order portal)-row-web", type: "FE", language: "JavaScript/TypeScript version TBD", framework: "Nginx and React versions TBD", runtime: "SYS-58 frontend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-        - id: "aws-us-private-app"
+            - {id: "INF-05", name: "INF-05 AWS WAF and ALB", type: "SEC", shape: "hexagon", owner_type: "org_it", status: "newly_created", notes: "Public HTTPS ingress"}
+            - {id: "INF-06", name: "INF-06 AWS DMZ boundary firewall", type: "SEC", shape: "hexagon", owner_type: "org_it", status: "newly_created", notes: "DMZ to application boundary"}
+            - {id: "CMP-01", name: "CMP-01 order-web", type: "FE", runtime: "Internal K8s Platform frontend cluster", owner_type: "org_it", status: "newly_created"}
+        - id: "INF-03"
           type: "private"
-          name: "Private subnet (App Zone) - Backend K8s"
+          name: "Private subnet (App Zone)"
           components:
-            - {id: "NET-AWS-APP-FW", name: "AWS App Boundary Firewall", type: "LB", shape: "hexagon", owner_type: "org_it", status: "newly_created", notes: "Restricts App subnet to DB subnet and approved MPLS integration paths"}
-            - {id: "SYS-58", name: "SYS-58 - Internal K8s Platform", type: "NW", runtime: "AWS managed infrastructure; product/version TBD", sensitivity: "Company Confidential", owner_type: "org_it", status: "unchanged", notes: "Platform substrate for frontend and backend K8s clusters"}
-            - {id: "SYS-06", name: "SYS-06 - Gateway", type: "API", language: "TBD", framework: "TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-07", name: "SYS-07 - Order Portal", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-08", name: "SYS-08 - Order Report", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-09", name: "SYS-09 - Order Notification", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-10", name: "SYS-10 - Transform Service", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-11", name: "SYS-11 - Task Service", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-12", name: "SYS-12 - Order Web", type: "FE", language: "JavaScript/TypeScript version TBD", framework: "React version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-13", name: "SYS-13 - D365 Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-14", name: "SYS-14 - OFS(order fulfill service) Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-15", name: "SYS-15 - PRC Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created", notes: "Request/control messages only across border; PRC rows remain in China"}
-            - {id: "SYS-16", name: "SYS-16 - SOS(salse order servie) Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-17", name: "SYS-17 - IC(invoice service) Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-18", name: "SYS-18 - LOS(logistics operation servie) Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-19", name: "SYS-19 - SDS(service data service) Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-20", name: "SYS-20 - SIS(supply intelligence service) Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-21", name: "SYS-21 - NA Consumer", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-22", name: "SYS-22 - Consumer Task", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created"}
-            - {id: "SYS-23", name: "SYS-23 - XXL-Job scheduler", type: "BE", language: "Java version TBD", framework: "Spring version TBD", runtime: "SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created", notes: "HA topology TBD-02"}
-            - {id: "SYS-24", name: "SYS-24 - SOS(salse order servie)", type: "BE", language: "TBD", framework: "TBD", runtime: "Beside SYS-58 backend K8s cluster", sensitivity: "Company Confidential", owner_type: "biz_owned", status: "changed", notes: "CMDB A-XXXX-05"}
-        - id: "aws-us-private-db"
+            - {id: "INF-07", name: "INF-07 AWS App boundary firewall", type: "SEC", shape: "hexagon", owner_type: "org_it", status: "newly_created", notes: "Application to data and WAN boundary"}
+            - {id: "CMP-02", name: "CMP-02 gateway", type: "API", shape: "parallelogram", runtime: "Internal K8s Platform backend cluster", owner_type: "org_it", status: "newly_created"}
+            - {id: "CMP-03", name: "CMP-03 order-portal", type: "BE", runtime: "Internal K8s Platform backend cluster", owner_type: "org_it", status: "newly_created"}
+            - {id: "CMP-04", name: "CMP-04 order-report", type: "BE", runtime: "Internal K8s Platform backend cluster", owner_type: "org_it", status: "newly_created"}
+            - {id: "CMP-11", name: "CMP-11 prc-consumer", type: "BE", runtime: "Internal K8s Platform backend cluster", owner_type: "org_it", status: "newly_created", notes: "Approved request messages only"}
+        - id: "INF-04"
           type: "private"
           name: "Private subnet (DB Zone)"
           components:
-            - {id: "SYS-25", name: "SYS-25 - PostgreSQL ODS", type: "DB", shape: "cylinder", language: "SQL", framework: "PostgreSQL version TBD", runtime: "AWS managed/self-managed selection TBD", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created", notes: "Sizing TBD-01; encryption configuration TBD-07"}
-            - {id: "SYS-26", name: "SYS-26 - PostgreSQL DWS", type: "DB", shape: "cylinder", language: "SQL", framework: "PostgreSQL version TBD", runtime: "AWS managed/self-managed selection TBD", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created", notes: "Sizing TBD-01; encryption configuration TBD-07"}
-            - {id: "SYS-27", name: "SYS-27 - Redis", type: "DB", shape: "cylinder", language: "TBD", framework: "Redis version TBD", runtime: "AWS managed/self-managed selection TBD", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created", notes: "Encryption configuration TBD-07"}
-            - {id: "SYS-28", name: "SYS-28 - S3", type: "DS", framework: "Amazon S3", runtime: "AWS managed service", sensitivity: "Company Confidential", owner_type: "org_it", status: "newly_created", notes: "Private HTTPS access; endpoint placement and encryption configuration TBD"}
+            - {id: "INF-08", name: "INF-08 AWS KMS", type: "SEC", shape: "hexagon", owner_type: "org_it", status: "newly_created"}
+            - {id: "CMP-21", name: "CMP-21 ods-db", type: "DB", shape: "cylinder", owner_type: "org_it", status: "newly_created"}
+            - {id: "CMP-22", name: "CMP-22 dws-db", type: "DB", shape: "cylinder", owner_type: "org_it", status: "newly_created"}
+            - {id: "CMP-23", name: "CMP-23 cache", type: "DB", shape: "cylinder", owner_type: "org_it", status: "newly_created"}
+            - {id: "CMP-24", name: "CMP-24 object-store", type: "DS", owner_type: "org_it", status: "newly_created"}
 
-    - id: "dc-us"
+    - id: "INF-09"
       type: "private_dc"
       role: "production"
-      location: "dc-us, City C, State X [US]"
-      owner: "InfraSec / IT Org"
+      location: "US DC [US]"
+      owner: "IT Org"
       network_zones:
-        - id: "dc-us-dmz"
+        - id: "INF-10"
           type: "dmz"
-          name: "Public subnet (DMZ)"
+          name: "US DMZ"
           components:
-            - {id: "NET-DC-US-FW", name: "dc-us Boundary Firewall", type: "LB", shape: "hexagon", owner_type: "org_it", status: "unchanged"}
-            - {id: "SYS-03", name: "SYS-03 - SOWB(sales operation workbench)", type: "FE", owner_type: "org_it", status: "unchanged", notes: "Internal portal"}
-            - {id: "SYS-04", name: "SYS-04 - external OP(order portal) site", type: "FE", owner_type: "org_it", status: "unchanged", notes: "External portal"}
-            - {id: "SYS-29", name: "SYS-29 - DMZ-APIM", type: "IP", shape: "parallelogram", owner_type: "org_it", status: "unchanged", notes: "Mandatory external API mediation"}
-        - id: "dc-us-app"
+            - {id: "INF-11", name: "INF-11 US boundary firewall", type: "SEC", shape: "hexagon", owner_type: "org_it", status: "unchanged"}
+            - {id: "CMP-25", name: "CMP-25 dmz-apim", type: "IP", shape: "parallelogram", owner_type: "org_it", status: "unchanged"}
+            - {id: "CMP-54", name: "CMP-54 internal-portal", type: "FE", owner_type: "org_it", status: "unchanged"}
+            - {id: "CMP-55", name: "CMP-55 partner-portal", type: "FE", owner_type: "org_it", status: "unchanged"}
+        - id: "us-app"
           type: "app_zone"
-          name: "App and Integration Zone"
+          name: "US application and identity zone"
           components:
-            - {id: "SYS-01", name: "SYS-01 - ADFS", type: "SEC", shape: "circle", owner_type: "org_it", status: "unchanged", notes: "Internal SSO"}
-            - {id: "SYS-02", name: "SYS-02 - Enterprise ID", type: "SEC", shape: "circle", owner_type: "org_it", status: "unchanged", notes: "External identity provider"}
-            - {id: "SYS-30", name: "SYS-30 - APIM", type: "IP", shape: "parallelogram", owner_type: "org_it", status: "unchanged", notes: "Mandatory internal API mediation"}
-            - {id: "SYS-32", name: "SYS-32 - kafka-us", type: "MQ", shape: "message_queue", owner_type: "org_it", status: "unchanged", notes: "TLS enabled; exact topic mappings TBD-05"}
-            - {id: "SYS-38", name: "SYS-38 - SDS(service data service)", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-01"}
-            - {id: "SYS-39", name: "SYS-39 - 2b service portal", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-02"}
-            - {id: "SYS-40", name: "SYS-40 - OOP(order open platform)", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-03"}
-            - {id: "SYS-41", name: "SYS-41 - order orchestration", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-04"}
+            - {id: "INF-12", name: "INF-12 ADFS", type: "SEC", shape: "circle", owner_type: "org_it", status: "unchanged"}
+            - {id: "INF-13", name: "INF-13 Enterprise ID", type: "SEC", shape: "circle", owner_type: "third_party", status: "unchanged"}
+            - {id: "CMP-26", name: "CMP-26 us-apim", type: "IP", shape: "parallelogram", owner_type: "org_it", status: "unchanged"}
+            - {id: "CMP-28", name: "CMP-28 us-kafka", type: "MQ", shape: "message_queue", owner_type: "org_it", status: "unchanged"}
 
-    - id: "dc-us-na"
+    - id: "INF-14"
       type: "private_dc"
       role: "production"
-      location: "dc-us-na, City C, State X [US]"
-      owner: "InfraSec / IT Org / Data Org"
+      location: "NA DC [US]"
+      owner: "IT Org"
       network_zones:
-        - id: "dc-us-na-integration"
+        - id: "INF-15"
           type: "app_zone"
-          name: "NA-PROD-INA-INTEGRATION"
+          name: "NA integration zone"
           components:
-            - {id: "NET-DC-US-NA-FW", name: "dc-us-na Boundary Firewall", type: "LB", shape: "hexagon", owner_type: "org_it", status: "unchanged"}
-            - {id: "SYS-31", name: "SYS-31 - APIH", type: "IP", shape: "parallelogram", owner_type: "org_it", status: "unchanged", notes: "Mandatory NA API mediation"}
-            - {id: "SYS-35", name: "SYS-35 - kafka-us-na", type: "MQ", shape: "message_queue", owner_type: "org_it", status: "unchanged", notes: "TLS enabled; exact topic mappings TBD-05"}
-            - {id: "SYS-36", name: "SYS-36 - kafka-us-log", type: "MQ", shape: "message_queue", owner_type: "org_it", status: "unchanged", notes: "TLS enabled; exact topic mappings TBD-05"}
-        - id: "dc-us-na-k8s"
-          type: "app_zone"
-          name: "NA-PROD-INA-K8S"
-          components:
-            - {id: "SYS-50", name: "SYS-50 - IC(invoice service)-NA", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-18"}
-            - {id: "SYS-51", name: "SYS-51 - SIS(supply intelligence service)-NA", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-19"}
-            - {id: "SYS-52", name: "SYS-52 - GAP(general account platform)-OTC-NA", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-20"}
-        - id: "dc-us-na-db"
-          type: "db_zone"
-          name: "NA-PROD-INA-DB"
-          components:
-            - {id: "SYS-37", name: "SYS-37 - OP(order portal) ES", type: "DB", shape: "cylinder", owner_type: "org_it", status: "unchanged", sensitivity: "Company Confidential", notes: "Existing Elasticsearch"}
-            - {id: "SYS-53", name: "SYS-53 - Lakehouse-ROW", type: "DB", shape: "cylinder", owner_type: "biz_owned", status: "unchanged", sensitivity: "Company Confidential", notes: "CMDB A-XXXX-21"}
+            - {id: "INF-18", name: "INF-18 NA boundary firewall", type: "SEC", shape: "hexagon", owner_type: "org_it", status: "unchanged"}
+            - {id: "CMP-27", name: "CMP-27 na-apih", type: "IP", shape: "parallelogram", owner_type: "org_it", status: "unchanged"}
+            - {id: "CMP-31", name: "CMP-31 na-kafka", type: "MQ", shape: "message_queue", owner_type: "org_it", status: "unchanged"}
+            - {id: "CMP-32", name: "CMP-32 na-log-kafka", type: "MQ", shape: "message_queue", owner_type: "org_it", status: "unchanged"}
 
-    - id: "dc-cn-primary"
+    - id: "INF-19"
       type: "private_dc"
       role: "production"
-      location: "dc-cn-primary, City A, Province A [CN]"
-      owner: "InfraSec / IT Org / SAP Team"
+      location: "PRC primary DC [CN]"
+      owner: "IT Org"
       network_zones:
-        - id: "dc-cn-primary-dmz"
-          type: "dmz"
-          name: "DMZ"
-          components:
-            - {id: "NET-DC-CN-PRIMARY-FW", name: "dc-cn-primary Boundary Firewall", type: "LB", shape: "hexagon", owner_type: "org_it", status: "unchanged", notes: "Blocks PRC row payloads from cross-border links"}
-        - id: "dc-cn-primary-intranet"
+        - id: "INF-21"
           type: "intranet"
-          name: "Intranet"
+          name: "PRC primary intranet"
           components:
-            - {id: "SYS-33", name: "SYS-33 - kafka-cn", type: "MQ", shape: "message_queue", owner_type: "org_it", status: "unchanged", notes: "TLS enabled; PRC topics remain in China"}
-            - {id: "SYS-48", name: "SYS-48 - GAP(general account platform)-OTC", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-16"}
-            - {id: "SYS-49", name: "SYS-49 - ECC", type: "BE", owner_type: "biz_owned", status: "unchanged", notes: "SAP ERP black box; CMDB A-XXXX-17"}
+            - {id: "INF-22", name: "INF-22 PRC primary boundary firewall", type: "SEC", shape: "hexagon", owner_type: "org_it", status: "unchanged"}
+            - {id: "CMP-29", name: "CMP-29 cn-primary-kafka", type: "MQ", shape: "message_queue", owner_type: "org_it", status: "unchanged"}
+            - {id: "CMP-44", name: "CMP-44 gap-cn", type: "IP", shape: "parallelogram", owner_type: "org_it", status: "unchanged"}
 
-    - id: "dc-cn-secondary"
+    - id: "INF-23"
       type: "private_dc"
       role: "production"
-      location: "dc-cn-secondary, City B, Province B [CN]"
-      owner: "InfraSec / IT Org / Data Org"
+      location: "PRC secondary DC [CN]"
+      owner: "IT Org"
       network_zones:
-        - id: "dc-cn-secondary-dmz"
-          type: "dmz"
-          name: "DMZ"
-          components:
-            - {id: "NET-DC-CN-SECONDARY-FW", name: "dc-cn-secondary Boundary Firewall", type: "LB", shape: "hexagon", owner_type: "org_it", status: "unchanged", notes: "Blocks PRC row payloads from cross-border links"}
-        - id: "dc-cn-secondary-intranet"
+        - id: "INF-25"
           type: "intranet"
-          name: "Intranet"
+          name: "PRC secondary intranet"
           components:
-            - {id: "SYS-34", name: "SYS-34 - kafka-ikp", type: "MQ", shape: "message_queue", owner_type: "org_it", status: "unchanged", notes: "In-country mediation; TLS enabled; exact topic mappings TBD-05"}
-            - {id: "SYS-42", name: "SYS-42 - CSP(cload servie portal)", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-10"}
-            - {id: "SYS-43", name: "SYS-43 - IC(invoice service)", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-11"}
-            - {id: "SYS-44", name: "SYS-44 - LOS(logistics operation servie)", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-12"}
-            - {id: "SYS-45", name: "SYS-45 - Lakehouse", type: "DB", shape: "cylinder", owner_type: "biz_owned", status: "unchanged", sensitivity: "Company Confidential", notes: "CMDB A-XXXX-13"}
-            - {id: "SYS-46", name: "SYS-46 - OP(order portal)-PRC", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-14"}
-            - {id: "SYS-47", name: "SYS-47 - SIS(supply intelligence service)", type: "BE", owner_type: "org_it", status: "unchanged", notes: "CMDB A-XXXX-15"}
+            - {id: "INF-26", name: "INF-26 PRC secondary boundary firewall", type: "SEC", shape: "hexagon", owner_type: "org_it", status: "unchanged"}
+            - {id: "CMP-30", name: "CMP-30 cn-secondary-kafka", type: "MQ", shape: "message_queue", owner_type: "org_it", status: "unchanged"}
 
-    - id: "azure-us"
+    - id: "INF-28"
       type: "azure_vnet"
       role: "production"
-      location: "Azure US, exact region TBD [US]"
-      owner: "IT Org / Data Org"
-      subnets:
-        - id: "azure-us-saas"
-          type: "spoke"
-          name: "Existing Azure and SaaS Sources"
-          components:
-            - {id: "SYS-54", name: "SYS-54 - D365", type: "BE", shape: "cloud_rect", owner_type: "org_it", status: "unchanged", sensitivity: "Company Confidential", notes: "Existing SaaS; CMDB A-XXXX-06; exact Azure region TBD-03"}
-            - {id: "SYS-55", name: "SYS-55 - edge-cache", type: "BE", shape: "cloud_rect", owner_type: "org_it", status: "unchanged", sensitivity: "Company Confidential", notes: "CMDB A-XXXX-07; exact Azure region TBD-03"}
-            - {id: "SYS-56", name: "SYS-56 - ROW DWP(data warehosue platform)", type: "DB", shape: "cylinder", owner_type: "biz_owned", status: "unchanged", sensitivity: "Company Confidential", notes: "CMDB A-XXXX-08; exact Azure region TBD-03"}
-
-    - id: "azure-cn-north"
-      type: "azure_vnet"
-      role: "production"
-      location: "Azure CN North, exact numbered region TBD [CN]"
+      location: "Azure CN North [CN]"
       owner: "Data Org"
       subnets:
         - id: "azure-cn-edw"
           type: "spoke"
-          name: "EDW"
+          name: "PRC EDW"
           components:
-            - {id: "SYS-57", name: "SYS-57 - PRC DWP(data warehosue platform)", type: "DB", shape: "cylinder", owner_type: "biz_owned", status: "unchanged", sensitivity: "Company Confidential", notes: "In-country data source; CMDB A-XXXX-09; exact Azure region TBD-03"}
+            - {id: "CMP-53", name: "CMP-53 prc-dwp", type: "IP", shape: "parallelogram", owner_type: "biz_owned", status: "unchanged", notes: "In-country query boundary"}
 
   interactions:
-    - {from: "user", to: "SYS-01", protocol: "HTTPS/SAML 2.0; port TBD", auth: "SAML 2.0", encryption: "TLS 1.2+", notes: "Internal employee authentication; port TBD-04"}
-    - {from: "user", to: "SYS-02", protocol: "HTTPS/SAML 2.0; port TBD", auth: "SAML 2.0", encryption: "TLS 1.2+", notes: "External partner authentication; port TBD-04"}
-    - {from: "SYS-01", to: "SYS-03", protocol: "HTTPS/SAML 2.0; port TBD", auth: "SAML 2.0", encryption: "TLS 1.2+", notes: "Internal portal SSO; port TBD-04"}
-    - {from: "SYS-02", to: "SYS-04", protocol: "HTTPS/SAML 2.0; port TBD", auth: "SAML 2.0", encryption: "TLS 1.2+", notes: "External portal SSO; port TBD-04"}
-    - {from: "internet", to: "NET-AWS-WAF", protocol: "HTTPS; port TBD", auth: "OAuth 2.0; flow TBD", encryption: "TLS 1.2+", notes: "User browser public ingress; port TBD-04"}
-    - {from: "NET-AWS-WAF", to: "SYS-05", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 user token", encryption: "TLS 1.2+", notes: "WAF-filtered frontend ingress; port TBD-04"}
-    - {from: "SYS-03", to: "SYS-05", protocol: "HTTPS; port TBD", auth: "SAML 2.0 session / OAuth 2.0 token exchange TBD", encryption: "TLS 1.2+", notes: "Internal portal launch path; port TBD-04"}
-    - {from: "SYS-04", to: "SYS-05", protocol: "HTTPS; port TBD", auth: "SAML 2.0 session / OAuth 2.0 token exchange TBD", encryption: "TLS 1.2+", notes: "External portal launch path; port TBD-04"}
-    - {from: "SYS-05", to: "NET-AWS-DMZ-FW", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 user token", encryption: "TLS 1.2+", notes: "DMZ-to-App boundary; port TBD-04"}
-    - {from: "NET-AWS-DMZ-FW", to: "SYS-06", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 user token", encryption: "TLS 1.2+", notes: "Allow-listed gateway route only; port TBD-04"}
-    - {from: "SYS-06", to: "SYS-07", protocol: "HTTPS; port TBD", auth: "OAuth 2.0", encryption: "TLS 1.2+", notes: "Service matrix TBD-05"}
-    - {from: "SYS-06", to: "SYS-08", protocol: "HTTPS; port TBD", auth: "OAuth 2.0", encryption: "TLS 1.2+", notes: "Service matrix TBD-05"}
-    - {from: "SYS-06", to: "SYS-09", protocol: "HTTPS; port TBD", auth: "OAuth 2.0", encryption: "TLS 1.2+", notes: "Service matrix TBD-05"}
-    - {from: "SYS-06", to: "SYS-10", protocol: "HTTPS; port TBD", auth: "OAuth 2.0", encryption: "TLS 1.2+", notes: "Service matrix TBD-05"}
-    - {from: "SYS-06", to: "SYS-11", protocol: "HTTPS; port TBD", auth: "OAuth 2.0", encryption: "TLS 1.2+", notes: "Service matrix TBD-05"}
-    - {from: "SYS-06", to: "SYS-12", protocol: "HTTPS; port TBD", auth: "OAuth 2.0", encryption: "TLS 1.2+", notes: "Service matrix TBD-05"}
-    - {from: "SYS-06", to: "SYS-22", protocol: "HTTPS; port TBD", auth: "OAuth 2.0", encryption: "TLS 1.2+", notes: "Service matrix TBD-05"}
-    - {from: "SYS-06", to: "SYS-23", protocol: "HTTPS; port TBD", auth: "OAuth 2.0", encryption: "TLS 1.2+", notes: "Service matrix and scheduler HA TBD"}
-    - {from: "SYS-06", to: "SYS-24", protocol: "HTTPS; port TBD", auth: "OAuth 2.0", encryption: "TLS 1.2+", notes: "Service matrix TBD-05"}
-    - {from: "SYS-07", to: "NET-AWS-APP-FW", protocol: "JDBC/TLS; port TBD", auth: "Password from AWS Secrets Manager", encryption: "TLS 1.2+", notes: "DB boundary; port TBD-04"}
-    - {from: "NET-AWS-APP-FW", to: "SYS-25", protocol: "JDBC/TLS; port TBD", auth: "Password from AWS Secrets Manager", encryption: "TLS 1.2+", notes: "ODS access; port TBD-04"}
-    - {from: "SYS-08", to: "SYS-26", protocol: "JDBC/TLS; port TBD", auth: "Password from AWS Secrets Manager", encryption: "TLS 1.2+", notes: "DWS reporting access through DB boundary controls; port TBD-04"}
-    - {from: "SYS-07", to: "SYS-27", protocol: "Redis/TLS; port TBD", auth: "Password from AWS Secrets Manager", encryption: "TLS 1.2+", notes: "Cache access through DB boundary controls; port TBD-04"}
-    - {from: "SYS-08", to: "SYS-28", protocol: "HTTPS; port TBD", auth: "AWS IAM role", encryption: "TLS 1.2+", notes: "Private object-storage access; endpoint placement TBD"}
-    - {from: "SYS-13", to: "SYS-32", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Provisional cluster assignment; confirm TBD-05"}
-    - {from: "SYS-14", to: "SYS-32", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Provisional cluster assignment; confirm TBD-05"}
-    - {from: "SYS-15", to: "SYS-34", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "In-country query mediation; no PRC row payload crosses to AWS; confirm TBD-05"}
-    - {from: "SYS-16", to: "SYS-32", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Provisional cluster assignment; confirm TBD-05"}
-    - {from: "SYS-17", to: "SYS-32", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Provisional cluster assignment; confirm TBD-05"}
-    - {from: "SYS-18", to: "SYS-32", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Provisional cluster assignment; confirm TBD-05"}
-    - {from: "SYS-19", to: "SYS-32", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Provisional cluster assignment; confirm TBD-05"}
-    - {from: "SYS-20", to: "SYS-32", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Provisional cluster assignment; confirm TBD-05"}
-    - {from: "SYS-21", to: "SYS-35", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Provisional NA cluster assignment; confirm TBD-05"}
-    - {from: "SYS-23", to: "SYS-22", protocol: "HTTPS; port TBD", auth: "OAuth 2.0", encryption: "TLS 1.2+", notes: "Scheduled consumer task invocation; exact schedule and HA TBD"}
-    - {from: "SYS-38", to: "SYS-30", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.2+", notes: "Mandatory mediation; exact mapping TBD-05"}
-    - {from: "SYS-39", to: "SYS-30", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.2+", notes: "Mandatory mediation; exact mapping TBD-05"}
-    - {from: "SYS-40", to: "SYS-32", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Mandatory mediation; exact mapping TBD-05"}
-    - {from: "SYS-41", to: "SYS-32", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Mandatory mediation; exact mapping TBD-05"}
-    - {from: "SYS-42", to: "SYS-34", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "In-country topic TBD-05"}
-    - {from: "SYS-43", to: "SYS-34", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "In-country topic TBD-05"}
-    - {from: "SYS-44", to: "SYS-34", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "In-country topic TBD-05"}
-    - {from: "SYS-45", to: "SYS-34", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "In-country topic TBD-05"}
-    - {from: "SYS-46", to: "SYS-34", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "In-country topic TBD-05"}
-    - {from: "SYS-47", to: "SYS-34", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "In-country topic TBD-05"}
-    - {from: "SYS-48", to: "SYS-33", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "In-country topic TBD-05"}
-    - {from: "SYS-49", to: "SYS-33", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "In-country topic TBD-05"}
-    - {from: "SYS-50", to: "SYS-31", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.2+", notes: "Mandatory NA mediation; exact mapping TBD-05"}
-    - {from: "SYS-51", to: "SYS-35", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Mandatory NA mediation; exact mapping TBD-05"}
-    - {from: "SYS-52", to: "SYS-31", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.2+", notes: "Mandatory NA mediation; exact mapping TBD-05"}
-    - {from: "SYS-53", to: "SYS-36", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Mandatory NA mediation; exact mapping TBD-05"}
-    - {from: "SYS-54", to: "SYS-29", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.2+", notes: "Approved Azure US mediation; provisional mapping TBD-05"}
-    - {from: "SYS-55", to: "SYS-30", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.2+", notes: "Approved Azure US mediation; provisional mapping TBD-05"}
-    - {from: "SYS-56", to: "SYS-35", protocol: "Kafka/TLS; port TBD", auth: "SASL/SCRAM", encryption: "TLS 1.2+", notes: "Approved Azure US mediation; provisional mapping TBD-05"}
-    - {from: "SYS-34", to: "SYS-57", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.2+", notes: "In-country query execution; no PRC row replication; exact adapter mapping TBD-05"}
-    - {from: "SYS-06", to: "SYS-30", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.2+", notes: "Mandatory internal mediation; port and mapping TBD"}
-    - {from: "SYS-06", to: "SYS-31", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.2+", notes: "Mandatory NA mediation; port and mapping TBD"}
-    - {from: "internet", to: "SYS-29", protocol: "HTTPS; port TBD", auth: "OAuth 2.0 Client Credentials", encryption: "TLS 1.2+", notes: "External system applications through DMZ-APIM and boundary firewall"}
-    - {from: "dc-us", to: "aws-us", protocol: "MPLS with application TLS 1.2+", auth: "Application-layer OAuth 2.0 or SASL/SCRAM", encryption: "Carrier encryption plus TLS 1.2+", notes: "Firewalls at both boundaries; ports TBD-04"}
-    - {from: "dc-us-na", to: "aws-us", protocol: "MPLS with application TLS 1.2+", auth: "Application-layer OAuth 2.0 or SASL/SCRAM", encryption: "Carrier encryption plus TLS 1.2+", notes: "Firewalls at both boundaries; ports TBD-04"}
-    - {from: "dc-cn-primary", to: "aws-us", protocol: "MPLS with application TLS 1.2+", auth: "SASL/SCRAM", encryption: "Carrier encryption plus TLS 1.2+", notes: "Firewalls at both boundaries; PRC row payloads prohibited"}
-    - {from: "dc-cn-secondary", to: "aws-us", protocol: "MPLS with application TLS 1.2+", auth: "SASL/SCRAM", encryption: "Carrier encryption plus TLS 1.2+", notes: "Firewalls at both boundaries; PRC row payloads prohibited"}
+    - {from: "internet", to: "INF-05", protocol: "HTTPS; 443", auth: "none", encryption: "TLS 1.2+", notes: "Public browser ingress"}
+    - {from: "INF-05", to: "CMP-01", protocol: "HTTPS; 443", auth: "SAML2", encryption: "TLS 1.2+", notes: "AUTH-01 or AUTH-02 user entry"}
+    - {from: "CMP-01", to: "INF-06", protocol: "HTTPS; 443", auth: "OAuth2_ClientCredentials", encryption: "TLS 1.2+", notes: "DMZ boundary"}
+    - {from: "INF-06", to: "CMP-02", protocol: "HTTPS; 443", auth: "OAuth2_ClientCredentials", encryption: "TLS 1.2+", notes: "Allow-listed gateway route"}
+    - {from: "CMP-02", to: "CMP-03", protocol: "HTTPS; 443", auth: "OAuth2_ClientCredentials", encryption: "TLS 1.2+", notes: "Application service"}
+    - {from: "CMP-03", to: "INF-07", protocol: "PostgreSQL; 5432", auth: "UserPassword", encryption: "TLS 1.2+", notes: "Data boundary"}
+    - {from: "INF-07", to: "CMP-21", protocol: "PostgreSQL; 5432", auth: "UserPassword", encryption: "TLS 1.2+", notes: "ODS access"}
+    - {from: "CMP-04", to: "CMP-22", protocol: "PostgreSQL; 5432", auth: "UserPassword", encryption: "TLS 1.2+", notes: "DWS reporting"}
+    - {from: "CMP-03", to: "CMP-23", protocol: "Redis; 6379", auth: "UserPassword", encryption: "TLS 1.2+", notes: "Cache access"}
+    - {from: "CMP-04", to: "CMP-24", protocol: "HTTPS; 443", auth: "IAM_Role", encryption: "TLS 1.2+", notes: "Object storage"}
+    - {from: "CMP-02", to: "CMP-26", protocol: "HTTPS; 443", auth: "OAuth2_ClientCredentials", encryption: "TLS 1.2+", notes: "Mandatory US mediation"}
+    - {from: "CMP-02", to: "CMP-27", protocol: "HTTPS; 443", auth: "OAuth2_ClientCredentials", encryption: "TLS 1.2+", notes: "Mandatory NA mediation"}
+    - {from: "CMP-11", to: "CMP-30", protocol: "Kafka; 9093", auth: "SASL_SCRAM", encryption: "TLS 1.2+", notes: "Approved request messages only"}
+    - {from: "CMP-30", to: "CMP-53", protocol: "HTTPS; 443", auth: "OAuth2_ClientCredentials", encryption: "TLS 1.2+", notes: "In-country PRC query"}
+    - {from: "internet", to: "CMP-25", protocol: "HTTPS; 443", auth: "OAuth2_ClientCredentials", encryption: "TLS 1.2+", notes: "External source mediation"}
+    - {from: "INF-12", to: "CMP-54", protocol: "HTTPS/SAML2; 443", auth: "SAML2", encryption: "TLS 1.2+", notes: "Internal portal SSO"}
+    - {from: "INF-13", to: "CMP-55", protocol: "HTTPS/SAML2; 443", auth: "SAML2", encryption: "TLS 1.2+", notes: "Partner portal SSO"}
+    - {from: "INF-09", to: "INF-01", protocol: "MPLS", auth: "OAuth2_ClientCredentials", encryption: "TLS 1.2+", notes: "LNK-01"}
+    - {from: "INF-14", to: "INF-01", protocol: "MPLS", auth: "OAuth2_ClientCredentials", encryption: "TLS 1.2+", notes: "LNK-02"}
+    - {from: "INF-19", to: "INF-01", protocol: "MPLS", auth: "SASL_SCRAM", encryption: "TLS 1.2+", notes: "LNK-03; PRC rows prohibited"}
+    - {from: "INF-23", to: "INF-01", protocol: "MPLS", auth: "SASL_SCRAM", encryption: "TLS 1.2+", notes: "LNK-04; PRC rows prohibited"}
 
   security:
     key_management:
-      aws: "AWS Secrets Manager and AWS KMS for DB, Redis, OAuth client, and Kafka credentials; rotation periods TBD-07; hardcoded credentials prohibited"
-      azure: "Existing Azure secret-management platform TBD-07; credentials remain behind approved mediation boundaries"
-      private_dc: "Existing enterprise secret-management platform and rotation ownership TBD-07; hardcoded credentials prohibited"
-    user_auth_internal:
-      server: "SYS-01 - ADFS"
-      protocol: "SAML 2.0 over TLS 1.2+"
-    user_auth_external:
-      server: "SYS-02 - Enterprise ID"
-      protocol: "SAML 2.0 over TLS 1.2+; OAuth 2.0 application flow TBD"
-    authorization:
-      platform: "AuthZ Platform; role model and ownership TBD-08"
-      enforcement: "SYS-29/SYS-30/SYS-31 API gateways plus SYS-06 and application-level RBAC"
-    bastion:
-      unified: "Privileged Access Workstation (PAW) / AWS Systems Manager Session Manager; final operating model TBD"
-      access_path: "Office Network -> PAW -> approved private network administration endpoint"
-    operational_access:
-      - "No public SSH or RDP"
-      - "MFA required for privileged access"
-      - "Least privilege and just-in-time access required"
-      - "Administrative actions must be logged and monitored"
+      aws: "INF-08 AWS KMS with AWS Secrets Manager; rotation period TBD; hardcoded credentials prohibited"
+      private_dc: "Enterprise secret-management platform and rotation ownership TBD"
+    user_auth_internal: {server: "INF-12", protocol: "SAML2 over TLS 1.2+"}
+    user_auth_external: {server: "INF-13", protocol: "SAML2 over TLS 1.2+"}
+    authorization: {platform: "AuthZ Platform; role model TBD", enforcement: "CMP-02 and mediated service boundaries"}
+    operational_access: ["No public SSH or RDP", "MFA required for privileged access", "Least privilege and logged administration"]
     data_protection:
-      in_transit: "TLS 1.2+ on every application hop; Kafka uses TLS 1.2+ with SASL/SCRAM"
-      at_rest: "Encryption required for SYS-25 through SYS-28 and SYS-32 through SYS-36; exact methods TBD-07; AWS keys managed by AWS KMS"
-      cross_border: "PRC-sourced rows remain in China; cross-border links carry only approved requests, control data, or non-row responses; legal basis TBD"
+      in_transit: "TLS 1.2+ on every application hop; Kafka uses TLS with SASL/SCRAM"
+      at_rest: "Encryption required for CMP-21 through CMP-24 and CMP-28 through CMP-32; settings TBD"
+      cross_border: "PRC-sourced rows remain in China; cross-border links carry only approved requests, control data, or non-row responses"

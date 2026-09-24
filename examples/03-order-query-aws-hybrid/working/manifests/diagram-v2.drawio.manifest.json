@@ -1,0 +1,12 @@
+{
+  "schema_version": "artifact/v1",
+  "id": "diagram-v2-drawio",
+  "type": "technical-deployment-view",
+  "schema": "application/vnd.jgraph.mxfile",
+  "path": "output\\diagrams\\diagram-v2.drawio",
+  "sha256": "a3aff422d1aeec8ca8dd788d1e551a411073a6505e8158d8731c48f2aba1f617",
+  "model_version": null,
+  "producer": "archharness diagram",
+  "produced_at": "2026-09-24T00:00:00+00:00",
+  "input_artifacts": ["blueprint.yaml"]
+}

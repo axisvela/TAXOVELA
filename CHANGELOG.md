@@ -66,6 +66,11 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
   links, and entry authentication. The v2 diagram is versioned separately so
   historic validation and enforcement remain bound to the original diagram.
 
+- `archharness init-project` scaffolds startable inputs: a seven-table registry
+  with one placeholder row per table, a coded `prompt.md` that cites them, and a
+  README quick start covering requirements → design → diagram → validate →
+  enforce. A fresh project passes the registry checker instead of opening with
+  a wall of errors, and existing files are never overwritten.
 - `archharness doctor` loads the governance inputs instead of only checking
   that their directories exist: the gate policy and every declared profile, the
   workflow spec, the req/v2 schema, and the diagram style must parse, so a

@@ -1,8 +1,15 @@
+import contextlib
+import io
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-from archharness.workspace import (
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from archharness.registry import check_example  # noqa: E402
+from archharness.workspace import (  # noqa: E402
     find_workspace,
     get_project,
     init_project,
@@ -31,6 +38,37 @@ class WorkspaceTests(unittest.TestCase):
             init_workspace(root)
             context = init_project(root, "payments")
             self.assertEqual(root.resolve(), find_workspace(context.input_path))
+
+    def test_new_project_scaffolds_inputs_that_pass_the_registry_check(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            init_workspace(root)
+            context = init_project(root, "orders", name="Order Platform")
+
+            registry = context.input_path / "systems-registry.md"
+            prompt = context.input_path / "prompt.md"
+            readme = context.project_root / "README.md"
+            self.assertTrue(registry.is_file())
+            self.assertTrue(prompt.is_file())
+            self.assertIn("archharness doctor", readme.read_text(encoding="utf-8"))
+
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                errors = check_example(context.project_root)
+
+            self.assertEqual(errors, 0, output.getvalue())
+            self.assertIn("OK", output.getvalue())
+
+    def test_scaffold_is_not_written_over_an_existing_project(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            init_workspace(root)
+            context = init_project(root, "orders")
+            registry = context.input_path / "systems-registry.md"
+            registry.write_text("# my own registry\n", encoding="utf-8")
+
+            init_project(root, "orders-next")
+            self.assertEqual(registry.read_text(encoding="utf-8"), "# my own registry\n")
 
     def test_rejects_unsafe_project_id(self):
         with tempfile.TemporaryDirectory() as temp:

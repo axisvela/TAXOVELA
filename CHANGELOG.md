@@ -66,6 +66,10 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
   links, and entry authentication. The v2 diagram is versioned separately so
   historic validation and enforcement remain bound to the original diagram.
 
+- `archharness doctor` loads the governance inputs instead of only checking
+  that their directories exist: the gate policy and every declared profile, the
+  workflow spec, the req/v2 schema, and the diagram style must parse, so a
+  broken installation is caught before the first pipeline run.
 - `archharness backlog` turns a `validation/v1` result into an ordered
   remediation backlog (`backlog/v1`, JSON or Markdown): findings are grouped by
   the element they cite, ordered by severity then disposition, and an item that

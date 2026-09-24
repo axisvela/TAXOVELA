@@ -67,11 +67,15 @@ class DoctorArgsTests(unittest.TestCase):
 
 class DoctorLayoutTests(unittest.TestCase):
     def _make_root(self, base: pathlib.Path, *, repo: bool) -> pathlib.Path:
+        import shutil
+
         root = base / ("repo" if repo else "pkg")
         (root / "tools" / "arch-diagram-gen").mkdir(parents=True)
         (root / "tools" / "arch-req-readers").mkdir(parents=True)
-        (root / "standards").mkdir(parents=True)
-        (root / "schemas").mkdir(parents=True)
+        # A real checkout or wheel ships the standards and schemas, and doctor
+        # now loads them rather than only checking that the directories exist.
+        for directory in ("standards", "schemas"):
+            shutil.copytree(ROOT / directory, root / directory)
         (root / "config.yaml").write_text("company: {}\n", encoding="utf-8")
         if repo:
             (root / ".claude" / "skills").mkdir(parents=True)

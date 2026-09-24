@@ -89,7 +89,7 @@ deterministic.
 | Initiative | Deliverable / acceptance criteria |
 |---|---|
 | CMDB/EA adapters | Add well-scoped ServiceNow, generic REST, and CSV adapters with authenticated configuration outside source control and normalized partial-requirement output. |
-| Guided onboarding | Improve `init-project`, `doctor`, templates, and error messages so a new team can produce its first governed diagram without knowing repository internals. |
+| Guided onboarding | Started: `doctor` loads every governance input (gate policy and all its profiles, workflow spec, req/v2 schema, diagram style) and fails closed with the loader's message, so a broken installation is diagnosed before the first pipeline run. Remaining: scaffold starter inputs in `init-project` and add a first-run walkthrough. |
 | Documentation | Maintain operator guides, decision records, example rebuild instructions, and concise upgrade notes alongside code changes. |
 | Metrics and feedback | Measure workflow completion, validation finding categories, routing/readability defects, and review turnaround without collecting sensitive architecture payloads. |
 

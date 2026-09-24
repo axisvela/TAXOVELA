@@ -193,6 +193,14 @@ def _print_doctor(workspace: str | None = None, project: str | None = None) -> i
                 print(f"        input={context.input_path}")
                 print(f"        output={context.output_path}")
 
+    print("  governance:")
+    for label, problem in governance_checks(root):
+        if problem is None:
+            print(f"  [ok]  {label}")
+        else:
+            print(f"  [!!]  {label} — {problem}")
+            problems.append(label)
+
     if os.environ.get("ARCHHARNESS_HOME"):
         print(f"  env   ARCHHARNESS_HOME={os.environ['ARCHHARNESS_HOME']}")
 
@@ -201,6 +209,58 @@ def _print_doctor(workspace: str | None = None, project: str | None = None) -> i
         return 1
     print("doctor: OK")
     return 0
+
+
+def governance_checks(root: Path) -> list[tuple[str, str | None]]:
+    """Verify the governance inputs actually load, not merely exist.
+
+    A directory listing cannot tell a working installation from a broken one:
+    a malformed gate policy, an unreadable workflow spec, or a schema that no
+    longer parses all pass a presence check and then fail during the pipeline.
+    Returns ``(label, problem_or_None)`` pairs.
+    """
+    from .enforcement import PolicyError, load_policy, resolve_bounds
+    from .schemas import load_schema
+    from .workflow import WorkflowError, load_spec, stage_ids
+
+    checks: list[tuple[str, str | None]] = []
+
+    policy_path = root / "standards" / "arch-gate-policy.yaml"
+    try:
+        bounds, _digest, default_profile = load_policy(policy_path)
+        import yaml
+
+        document = yaml.safe_load(policy_path.read_text(encoding="utf-8")) or {}
+        profiles = [default_profile] + [name for name in (document.get("profiles") or {})
+                                        if name != default_profile]
+        for name in profiles:
+            resolve_bounds(document, None if name == default_profile else name)
+        checks.append((f"gate policy (profiles: {', '.join(profiles)}; "
+                       f"block < {bounds['block_threshold']})", None))
+    except (PolicyError, OSError, ValueError) as exc:
+        checks.append(("gate policy", str(exc)))
+
+    try:
+        spec = load_spec()
+        checks.append((f"workflow spec ({len(stage_ids(spec))} stages)", None))
+    except (WorkflowError, OSError, ValueError) as exc:
+        checks.append(("workflow spec", str(exc)))
+
+    try:
+        schema = load_schema("req/v2")
+        checks.append((f"req/v2 schema ({len(schema.get('$defs') or {})} definitions)", None))
+    except Exception as exc:  # noqa: BLE001 - any loader failure is a problem
+        checks.append(("req/v2 schema", str(exc)))
+
+    try:
+        from .diagrams import styles, topology
+
+        checks.append((f"diagram style ({len(styles.STANDARD_SHAPES)} standard shapes; "
+                       f"{len(topology.POLICY.get('roles') or {})} roles)", None))
+    except Exception as exc:  # noqa: BLE001
+        checks.append(("diagram style", str(exc)))
+
+    return checks
 
 
 def _run_enforce(validation: str, policy: str | None, output: str | None,

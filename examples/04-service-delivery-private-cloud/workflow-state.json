@@ -8,7 +8,7 @@
         "type": "requirements",
         "schema": "arch-requirements",
         "path": "output\\requirements\\REQ.md",
-        "sha256": "55763a26824d3f3dded8c2fe19087ada4d8ae7943d9662a3f1fc652b31d73774"
+        "sha256": "c9fc2204e1d8067425abc8707ada5447362f9733710b08803426ed82583905f2"
       }
     },
     "req.yaml": {
@@ -19,7 +19,7 @@
         "type": "requirements",
         "schema": "arch-requirements",
         "path": "output\\requirements\\req.yaml",
-        "sha256": "e18edcd8ecfaed2b1f4fc8fb9dd98a5b91395e6ea900054c7c74c16944ea354a"
+        "sha256": "ce474d5838869bc3b9b63fbaff5d0ebd6dac96a16d436645098599ee5a6c58fa"
       }
     },
     "blueprint.yaml": {
@@ -30,7 +30,7 @@
         "type": "technical-deployment-view",
         "schema": "arch-schema-reference.yaml",
         "path": "output/designs/blueprint.yaml",
-        "sha256": "d5bd270610e1a718dc4f984e6fdd106470c3710de552672c23615b00613a7155",
+        "sha256": "92c75ba4d0da692e7e6eb3f5dfa3fcd7d87aedf292336db0f97f08a034f02687",
         "model_version": "private-cloud/2.0",
         "producer": "arch-design",
         "produced_at": "2026-09-14T13:07:56Z",
@@ -81,7 +81,7 @@
         "type": "validation-result",
         "schema": "validation/v1",
         "path": "output/validation/validate_result.json",
-        "sha256": "97f7f82334912eec8994f9b98fba7fc117e2636be2e6f76c8e93155b5fbc80b7",
+        "sha256": "655235061299bbf14e398bd4c78878c47253b26647a0491f045995bdf2d50d62",
         "model_version": "arch-validate/2.0",
         "producer": "arch-validate; archharness/0.7.0",
         "produced_at": "2026-09-15T00:56:09Z",

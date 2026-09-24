@@ -147,7 +147,7 @@
         "total_entities": 80,
         "missing_count": 1,
         "deduction_ratio": 0.0031,
-        "detail": "SYS-06 -> SYS-41 points away from Kafka although the rule requires both producer and consumer relations to point to Kafka."
+        "detail": "CMP-05 -> CMP-39 points away from Kafka although the rule requires both producer and consumer relations to point to Kafka."
       },
       {
         "category": "bidirectional_arrow",
@@ -168,7 +168,7 @@
         "total_entities": 34,
         "missing_count": 10,
         "deduction_ratio": 0.0735,
-        "detail": "Ten SDP-to-SAP calls go directly from SYS-07..SYS-11 to SYS-20/SYS-24 rather than through SYS-05 or another approved mediator; ratio includes the 0.25 subcategory weight."
+        "detail": "Ten SDP-to-SAP calls go directly from CMP-06..CMP-10 to CMP-31/CMP-35 rather than through CMP-04 or another approved mediator; ratio includes the 0.25 subcategory weight."
       }
     ],
     "Security_Compliance": [
@@ -263,7 +263,7 @@
       "disposition": "must_fix",
       "dimension": "Cloud_Network_Completeness",
       "subject": "SAP and 3PL/file partner boundaries",
-      "evidence": "SAP location is TBD and both partner-hosted boundaries state locations TBD, affecting SYS-20..SYS-24 and SYS-42..SYS-50.",
+      "evidence": "SAP location is TBD and both partner-hosted boundaries state locations TBD, affecting CMP-31..CMP-35 and CMP-40..CMP-48.",
       "confidence": "high"
     },
     {
@@ -272,7 +272,7 @@
       "severity": "high",
       "disposition": "must_fix",
       "dimension": "Cloud_Network_Completeness",
-      "subject": "SYS-38 through SYS-41 Azure placement",
+      "subject": "CMP-36 through CMP-39 Azure placement",
       "evidence": "No VNET, Subnet, Private Endpoint, or explicit SaaS public/private endpoint classification is visible for any of the four components.",
       "confidence": "high"
     },
@@ -332,8 +332,8 @@
       "severity": "high",
       "disposition": "must_fix",
       "dimension": "Interaction_Integration",
-      "subject": "SYS-06 -> SYS-41",
-      "evidence": "The consumer relation points away from Kafka; W-001/V-003 requires the SYS-41 consumer arrow to point toward SYS-06 Kafka.",
+      "subject": "CMP-05 -> CMP-39",
+      "evidence": "The consumer relation points away from Kafka; W-001/V-003 requires the CMP-39 consumer arrow to point toward CMP-05 Kafka.",
       "confidence": "high"
     },
     {
@@ -343,7 +343,7 @@
       "disposition": "must_fix",
       "dimension": "Interaction_Integration",
       "subject": "10 direct SDP-to-SAP interactions",
-      "evidence": "SYS-07..SYS-11 connect directly to SYS-20 and SYS-24 instead of traversing SYS-05 or another approved integration node.",
+      "evidence": "CMP-06..CMP-10 connect directly to CMP-31 and CMP-35 instead of traversing CMP-04 or another approved integration node.",
       "confidence": "high"
     },
     {
@@ -352,8 +352,8 @@
       "severity": "high",
       "disposition": "must_fix",
       "dimension": "Security_Compliance",
-      "subject": "Internet -> SYS-30 Enterprise ID",
-      "evidence": "SYS-30 is drawn inside US DC Intranet and receives Internet traffic directly, bypassing F5/DMZ. Partner inbound paths to the application are not shown through F5.",
+      "subject": "Internet -> INF-10 Enterprise ID",
+      "evidence": "INF-10 is drawn inside US DC Intranet and receives Internet traffic directly, bypassing F5/DMZ. Partner inbound paths to the application are not shown through F5.",
       "confidence": "high"
     },
     {
@@ -363,7 +363,7 @@
       "disposition": "must_fix",
       "dimension": "Security_Compliance",
       "subject": "Internal user authentication",
-      "evidence": "The User actor is disconnected. SYS-04 -> SYS-29 is shown, but the required user/front-end authentication path is not traceable from the actor to ADFS.",
+      "evidence": "The User actor is disconnected. CMP-03 -> INF-09 is shown, but the required user/front-end authentication path is not traceable from the actor to ADFS.",
       "confidence": "high"
     },
     {
@@ -373,7 +373,7 @@
       "disposition": "must_fix",
       "dimension": "Security_Compliance",
       "subject": "External user authentication",
-      "evidence": "Internet -> SYS-30 is present, but the application callback/entry point is absent and remains TBD in the blueprint, so Enterprise ID is not connected to the protected application flow.",
+      "evidence": "Internet -> INF-10 is present, but the application callback/entry point is absent and remains TBD in the blueprint, so Enterprise ID is not connected to the protected application flow.",
       "confidence": "high"
     },
     {
@@ -422,8 +422,8 @@
       "severity": "high",
       "disposition": "must_fix",
       "dimension": "Security_Compliance",
-      "subject": "SYS-24 and SYS-33 data stores",
-      "evidence": "SYS-24 stored data is in an undifferentiated SAP Private Zone and SYS-33 lakehouse is in generic Intranet; neither has an explicit DB/data segment or equivalent internal isolation boundary.",
+      "subject": "CMP-35 and CMP-26 data stores",
+      "evidence": "CMP-35 stored data is in an undifferentiated SAP Private Zone and CMP-26 lakehouse is in generic Intranet; neither has an explicit DB/data segment or equivalent internal isolation boundary.",
       "confidence": "high"
     },
     {

@@ -1,0 +1,735 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="arch-harness" version="24.6.4" type="device">
+  <diagram id="diag-1" name="Page-1">
+    <mxGraphModel dx="2000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1394" pageHeight="3463" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="hdr-2" value="&lt;b&gt;Diagram: Service Delivery Platform (SDP) - Private Cloud Multi-DC Technical Architecture&lt;/b&gt;&lt;br/&gt;ID: SDP-NA-001-TechDiagram-V1.0&lt;br/&gt;Platform: hybrid_cloud&lt;br/&gt;Version: V1.0&lt;br/&gt;Owner team: Service Delivery Platform Team&lt;br/&gt;Author: ArchHarness&lt;br/&gt;Last modified: 2026-09-14" style="text;whiteSpace=wrap;overflow=hidden;rounded=0;fontFamily=Helvetica;fontSize=11;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="40" y="-120" width="600" height="146" as="geometry"/>
+        </mxCell>
+        <mxCell id="inet-3" value="Internet" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.internet;" parent="1" vertex="1">
+          <mxGeometry x="40" y="80" width="60" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="user-4" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;align=center;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="160" y="70" width="37" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-5" value="CN Primary DC, City A, Province A [CN]&#10;(InfraSec)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="50" y="140" width="592" height="1797" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-6" value="DMZ" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#FFF9C4;strokeColor=#D6B656;" parent="reg-5" vertex="1">
+          <mxGeometry x="22" y="66" width="548" height="373" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-7" value="⚠ INF-03 | Edge router&#10;HW" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-6" vertex="1" tooltip="Runtime: Private DC network platform | Classification: Acme Confidential | Notes: Named Internet edge; no IP or CIDR assigned">
+          <mxGeometry x="124" y="52" width="174" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-8" value="⚠ INF-04 | F5&#10;PM" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-6" vertex="1" tooltip="Runtime: Private DC appliance | Classification: Acme Confidential | Notes: HA ingress and TLS termination group">
+          <mxGeometry x="314" y="48" width="110" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-9" value="⚠ CMP-01 | Service-Supply-Chain-dmz-nginx-proxy&#10;n/a, nginx · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-6" vertex="1" tooltip="Lang: N/A | Framework: Nginx (version TBD) | Runtime: Internal K8s Platform | Classification: Acme Confidential | Notes: HA DMZ reverse-proxy workload">
+          <mxGeometry x="144" y="126" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-10" value="⚠ CMP-02 | Service-Supply-Chain-gateway&#10;java, spring cloud · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-6" vertex="1" tooltip="Lang: Java (version TBD) | Framework: Spring Cloud (version TBD) | Runtime: Internal K8s Platform | Classification: Acme Confidential | Notes: HA DMZ API gateway workload">
+          <mxGeometry x="144" y="203" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-11" value="⚠ CMP-03 | Service-Supply-Chain-web&#10;java, spring cloud · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-6" vertex="1" tooltip="Lang: Java (version TBD) | Framework: Spring Cloud (version TBD) | Runtime: Internal K8s Platform | Classification: Acme Confidential | Notes: HA web frontend workload">
+          <mxGeometry x="144" y="280" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-12" value="Intranet" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#F5F5F5;strokeColor=#888888;" parent="reg-5" vertex="1">
+          <mxGeometry x="22" y="457" width="548" height="597" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-13" value="⚠ CMP-04 | WSO2&#10;wso2 api gateway · Private DC integration platform" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-12" vertex="1" tooltip="Framework: WSO2 API Gateway (version TBD) | Runtime: Private DC integration platform | Classification: Acme Confidential | Notes: HA API mediation; all cross-application APIs traverse this component">
+          <mxGeometry x="16" y="48" width="260" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-14" value="⚠ CMP-05 | Kafka (primary)&#10;kafka · Private DC HA cluster" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-12" vertex="1" tooltip="Framework: Kafka (version TBD) | Runtime: Private DC HA cluster | Classification: Acme Confidential | Notes: Primary event bus; all cross-application events traverse this component">
+          <mxGeometry x="292" y="48" width="240" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-15" value="⚠ CMP-06 | Service-Supply-Chain-int-nginx-proxy&#10;n/a, nginx · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-12" vertex="1" tooltip="Lang: N/A | Framework: Nginx (version TBD) | Runtime: Internal K8s Platform | Classification: Acme Confidential">
+          <mxGeometry x="144" y="122" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-16" value="⚠ CMP-07 | Service-Supply-Chain-main&#10;java, spring cloud · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-12" vertex="1" tooltip="Lang: Java (version TBD) | Framework: Spring Cloud (version TBD) | Runtime: Internal K8s Platform | Classification: Acme Confidential">
+          <mxGeometry x="144" y="199" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-17" value="⚠ CMP-08 | Service-Supply-Chain-websocket&#10;java, spring cloud · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-12" vertex="1" tooltip="Lang: Java (version TBD) | Framework: Spring Cloud (version TBD) | Runtime: Internal K8s Platform | Classification: Acme Confidential">
+          <mxGeometry x="144" y="276" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-18" value="⚠ CMP-09 | Service-Supply-Chain-* group (10 services)&#10;java, spring cloud · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-12" vertex="1" tooltip="Lang: Java (version TBD) | Framework: Spring Cloud (version TBD) | Runtime: Internal K8s Platform HA workload group | Classification: Acme Confidential | Notes: rms, tms, oms, wms, mds, ips, autopilot, ves, cfs, scs">
+          <mxGeometry x="144" y="353" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-19" value="⚠ CMP-10 | Service-Supply-Chain-* group (22 services)&#10;java, spring cloud · K8s" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-12" vertex="1" tooltip="Lang: Java (version TBD) | Framework: Spring Cloud (version TBD) | Runtime: Internal K8s Platform HA workload group | Classification: Acme Confidential | Notes: Registry label retained; supplied member list has 21 names pending reconciliation">
+          <mxGeometry x="144" y="430" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-20" value="⚠ CMP-11 | MFT platform&#10;mft platform · Private DC HA integration platform" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-12" vertex="1" tooltip="Framework: MFT platform (version TBD) | Runtime: Private DC HA integration platform | Classification: Acme Confidential | Notes: Only managed file-transfer egress to CMP-46 through CMP-48">
+          <mxGeometry x="144" y="507" width="260" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-21" value="DB Zone" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#E3F2FD;strokeColor=#6C8EBF;" parent="reg-5" vertex="1">
+          <mxGeometry x="22" y="1072" width="548" height="685" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-22" value="⚠ CMP-12 | MySQL TMS HA (1 primary + 2 replicas)&#10;mysql · Private DC HA group" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-21" vertex="1" tooltip="Framework: MySQL (version TBD) | Runtime: Private DC HA group | Classification: Acme Confidential | Notes: AES-256 at rest; no cross-region database replication">
+          <mxGeometry x="144" y="48" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-23" value="⚠ CMP-13 | MySQL Main HA (1 primary + 2 replicas)&#10;mysql · Private DC HA group" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-21" vertex="1" tooltip="Framework: MySQL (version TBD) | Runtime: Private DC HA group | Classification: Acme Confidential | Notes: AES-256 at rest; no cross-region database replication">
+          <mxGeometry x="144" y="130" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-24" value="⚠ DB group ×3&#10;mysql · Private DC HA group" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=4 4;fillColor=#FAFAFA;strokeColor=#666666;verticalAlign=top;spacingTop=4;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-21" vertex="1" tooltip="Framework: MySQL (version TBD) | Runtime: Private DC HA group | Classification: Acme Confidential">
+          <mxGeometry x="39" y="212" width="470" height="198" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-25" value="⚠ CMP-14 | MySQL WMS HA (1 primary + 2 replicas)&#10;mysql · Private DC HA group" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="comp-24" vertex="1" tooltip="Framework: MySQL (version TBD) | Runtime: Private DC HA group | Classification: Acme Confidential | Notes: AES-256 at rest; no cross-region database replication">
+          <mxGeometry x="12" y="36" width="215" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-26" value="⚠ CMP-15 | MySQL MDS HA (1 primary + 2 replicas)&#10;mysql · Private DC HA group" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="comp-24" vertex="1" tooltip="Framework: MySQL (version TBD) | Runtime: Private DC HA group | Classification: Acme Confidential | Notes: AES-256 at rest; no cross-region database replication">
+          <mxGeometry x="243" y="36" width="215" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-27" value="⚠ CMP-16 | MySQL OMS HA (1 primary + 2 replicas)&#10;mysql · Private DC HA group" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="comp-24" vertex="1" tooltip="Framework: MySQL (version TBD) | Runtime: Private DC HA group | Classification: Acme Confidential | Notes: AES-256 at rest; no cross-region database replication">
+          <mxGeometry x="127" y="118" width="215" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-28" value="⚠ CMP-17 | Redis HA (3 primary + 3 replicas)&#10;redis · Private DC HA group" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-21" vertex="1" tooltip="Framework: Redis (version TBD) | Runtime: Private DC HA group | Classification: Acme Confidential | Notes: TLS and ACL authentication; AES-256 at rest">
+          <mxGeometry x="144" y="428" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-29" value="⚠ CMP-18 | RabbitMQ HA (3 replicas)&#10;rabbitmq · Private DC HA group" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-21" vertex="1" tooltip="Framework: RabbitMQ (version TBD) | Runtime: Private DC HA group | Classification: Acme Confidential | Notes: TLS and SCRAM authentication; AES-256 at rest">
+          <mxGeometry x="144" y="510" width="260" height="59" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-30" value="⚠ CMP-19 | Elasticsearch HA (3 nodes)&#10;elasticsearch · Private DC HA group" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#FBC02D;strokeColor=#B58A00;fontColor=#000000;" parent="zone-21" vertex="1" tooltip="Framework: Elasticsearch (version TBD) | Runtime: Private DC HA group | Classification: Acme Confidential | Notes: TLS and service authentication; AES-256 at rest">
+          <mxGeometry x="144" y="587" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-31" value="US DC, City C, State X [US]&#10;(InfraSec)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="712" y="140" width="582" height="432" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-32" value="App Zone / Intranet" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#F5F5F5;strokeColor=#888888;" parent="reg-31" vertex="1">
+          <mxGeometry x="22" y="66" width="538" height="326" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-33" value="⚠ BE group ×4" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=4 4;fillColor=#FAFAFA;strokeColor=#666666;verticalAlign=top;spacingTop=4;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-32" vertex="1" tooltip="Classification: Acme Confidential">
+          <mxGeometry x="36" y="48" width="466" height="174" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-34" value="⚠ CMP-20 | Account-Service" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-33" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing black-box API boundary">
+          <mxGeometry x="17" y="36" width="203" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-35" value="⚠ CMP-21 | Service-customer-master-data" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-33" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing black-box API boundary">
+          <mxGeometry x="236" y="36" width="213" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-36" value="⚠ CMP-22 | Serice-Data-serviceE" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-33" vertex="1" tooltip="Classification: Acme Confidential | Notes: Registry-resolved label retained">
+          <mxGeometry x="13" y="106" width="213" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-37" value="⚠ CMP-23 | Price-master-ROW" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-33" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing black-box API boundary">
+          <mxGeometry x="242" y="106" width="211" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-38" value="⚠ INF-09 | ADFS" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-32" vertex="1" tooltip="Classification: Acme Confidential | Notes: Internal SAML identity provider">
+          <mxGeometry x="92" y="240" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-39" value="⚠ INF-10 | Enterprise ID" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-32" vertex="1" tooltip="Classification: Acme Confidential | Notes: External OIDC identity provider">
+          <mxGeometry x="258" y="240" width="188" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-40" value="CN Secondary DC, City B, Province B [CN]&#10;(InfraSec)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="712" y="642" width="582" height="436" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-41" value="Intranet" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#F5F5F5;strokeColor=#888888;" parent="reg-40" vertex="1">
+          <mxGeometry x="22" y="66" width="538" height="330" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-42" value="⚠ BE group ×4" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=4 4;fillColor=#FAFAFA;strokeColor=#666666;verticalAlign=top;spacingTop=4;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-41" vertex="1" tooltip="Classification: Acme Confidential">
+          <mxGeometry x="34" y="48" width="470" height="174" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-43" value="⚠ CMP-24 | Reverse-Management-System" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-42" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing black-box API boundary">
+          <mxGeometry x="12" y="36" width="215" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-44" value="⚠ CMP-25 | procurement-service" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-42" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing black-box API boundary">
+          <mxGeometry x="243" y="36" width="215" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-45" value="⚠ CMP-26 | lakehouse" style="shape=mxgraph.flowchart.stored_data;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-42" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing black-box data API boundary">
+          <mxGeometry x="60" y="106" width="159" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-46" value="⚠ CMP-28 | support-hub" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-42" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing black-box API boundary">
+          <mxGeometry x="235" y="106" width="174" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-47" value="⚠ CMP-27 | Kafka (secondary)" style="shape=parallelogram;html=1;strokeWidth=1;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-41" vertex="1" tooltip="Classification: Acme Confidential | Notes: Secondary event cluster">
+          <mxGeometry x="160" y="240" width="218" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-48" value="Support DC, City F [CN]&#10;(InfraSec)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="712" y="1148" width="582" height="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-49" value="App Zone" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#E8F5E9;strokeColor=#82B366;" parent="reg-48" vertex="1">
+          <mxGeometry x="22" y="66" width="538" height="134" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-50" value="⚠ CMP-29 | support-portal" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="zone-49" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing black-box API boundary">
+          <mxGeometry x="61" y="48" width="196" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-51" value="⚠ CMP-30 | support-gateway" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="zone-49" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing black-box API boundary">
+          <mxGeometry x="273" y="48" width="203" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-52" value="SAP landscape [location TBD]&#10;(SAP Team (TBD))" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="712" y="1458" width="582" height="432" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-53" value="SAP Private Zone" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#F5F5F5;strokeColor=#888888;" parent="reg-52" vertex="1">
+          <mxGeometry x="22" y="66" width="538" height="326" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-54" value="⚠ CMP-31 | S4" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="zone-53" vertex="1" tooltip="Classification: Acme Confidential | Notes: SAP ERP hub; no DMZ exposure">
+          <mxGeometry x="16" y="109" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-55" value="⚠ BE group ×3" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=4 4;fillColor=#FAFAFA;strokeColor=#666666;verticalAlign=top;spacingTop=4;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-53" vertex="1" tooltip="Classification: Acme Confidential">
+          <mxGeometry x="182" y="48" width="340" height="174" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-56" value="⚠ CMP-32 | SECC" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-55" vertex="1" tooltip="Classification: Acme Confidential | Notes: SAP black-box boundary">
+          <mxGeometry x="12" y="36" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-57" value="⚠ CMP-33 | LSCRM" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-55" vertex="1" tooltip="Classification: Acme Confidential | Notes: SAP black-box boundary">
+          <mxGeometry x="178" y="36" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-58" value="⚠ CMP-34 | CECC" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="comp-55" vertex="1" tooltip="Classification: Acme Confidential | Notes: SAP black-box boundary">
+          <mxGeometry x="95" y="106" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-59" value="⚠ CMP-35 | S3" style="shape=mxgraph.flowchart.stored_data;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;fillColor=#8E24AA;strokeColor=#6A1B9A;fontColor=#FFFFFF;" parent="zone-53" vertex="1" tooltip="Classification: Acme Confidential | Notes: SAP object-storage boundary">
+          <mxGeometry x="194" y="240" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-60" value="Azure US [exact region TBD]&#10;(ThirdParty / Cloud Owner (TBD))" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;" parent="1" vertex="1">
+          <mxGeometry x="712" y="1960" width="582" height="514" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-61" value="SaaS Application Boundary" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-60" vertex="1">
+          <mxGeometry x="22" y="66" width="538" height="256" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-62" value="⚠ BE group ×3" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=4 4;fillColor=#FAFAFA;strokeColor=#666666;verticalAlign=top;spacingTop=4;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-61" vertex="1" tooltip="Classification: Acme Confidential">
+          <mxGeometry x="34" y="48" width="470" height="174" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-63" value="⚠ CMP-36 | d365-service-delivery-bu1" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-62" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing SaaS black-box API boundary">
+          <mxGeometry x="12" y="36" width="215" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-64" value="⚠ CMP-37 | d365-service-delivery-bu2" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-62" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing SaaS black-box API boundary">
+          <mxGeometry x="243" y="36" width="215" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-65" value="⚠ CMP-38 | d365-service-delivery-bu3" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-62" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing SaaS black-box API boundary">
+          <mxGeometry x="127" y="106" width="215" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-66" value="Application Boundary" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc_subnet_private;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=0;" parent="reg-60" vertex="1">
+          <mxGeometry x="22" y="340" width="538" height="134" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-67" value="⚠ CMP-39 | edge-cache" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="zone-66" vertex="1" tooltip="Classification: Acme Confidential | Notes: Existing event-consuming black-box boundary">
+          <mxGeometry x="186" y="48" width="166" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-68" value="Partner hosted [locations TBD]&#10;(ThirdParty)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="50" y="2007" width="592" height="432" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-69" value="Internet 3PL Boundary" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#FFF9C4;strokeColor=#D6B656;" parent="reg-68" vertex="1">
+          <mxGeometry x="22" y="66" width="548" height="326" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-70" value="BE group ×6" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=4 4;fillColor=#FAFAFA;strokeColor=#666666;verticalAlign=top;spacingTop=4;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-69" vertex="1">
+          <mxGeometry x="39" y="48" width="470" height="244" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-71" value="CMP-40 | logistics partner A" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-70" vertex="1" tooltip="Notes: External logistics partner">
+          <mxGeometry x="12" y="36" width="215" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-72" value="CMP-41 | logstics-vendor-1" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-70" vertex="1" tooltip="Notes: External logistics partner; registry spelling retained">
+          <mxGeometry x="243" y="36" width="215" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-73" value="CMP-42 | logistics partner B" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-70" vertex="1" tooltip="Notes: External logistics partner">
+          <mxGeometry x="12" y="106" width="215" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-74" value="CMP-43 | logistics partner C" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-70" vertex="1" tooltip="Notes: External logistics partner">
+          <mxGeometry x="243" y="106" width="215" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-75" value="CMP-44 | logistics partner D" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-70" vertex="1" tooltip="Notes: External logistics partner">
+          <mxGeometry x="12" y="176" width="215" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-76" value="CMP-45 | logistics partner E" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-70" vertex="1" tooltip="Notes: External logistics partner">
+          <mxGeometry x="243" y="176" width="215" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg-77" value="Partner hosted [locations TBD]&#10;(ThirdParty)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;shadow=1;sketch=0;align=left;verticalAlign=top;fontFamily=Helvetica;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="50" y="2509" width="592" height="362" as="geometry"/>
+        </mxCell>
+        <mxCell id="zone-78" value="Internet File-Transfer Boundary" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=top;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;dashed=1;fillColor=#FFF9C4;strokeColor=#D6B656;" parent="reg-77" vertex="1">
+          <mxGeometry x="22" y="66" width="548" height="256" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-79" value="BE group ×3" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=4 4;fillColor=#FAFAFA;strokeColor=#666666;verticalAlign=top;spacingTop=4;fontFamily=Helvetica;fontSize=14;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" parent="zone-78" vertex="1">
+          <mxGeometry x="58" y="48" width="432" height="174" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-80" value="CMP-46 | file partner A" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-79" vertex="1" tooltip="Notes: External managed-file partner">
+          <mxGeometry x="12" y="36" width="196" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-81" value="CMP-47 | file partner B" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-79" vertex="1" tooltip="Notes: External managed-file partner">
+          <mxGeometry x="224" y="36" width="196" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="comp-82" value="CMP-48 | file partner C" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;fillColor=#FB8C00;strokeColor=#E65100;fontColor=#000000;" parent="comp-79" vertex="1" tooltip="Notes: External managed-file partner">
+          <mxGeometry x="118" y="106" width="196" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-83" value="P-HTTPS&#10;(AU-T2)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="inet-3" target="comp-7" edge="1" routingStrategy="midpoint-y" routingFallback="false" tooltip="External clients and 3PL traffic enter the named edge">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="70" y="192"/>
+              <mxPoint x="283" y="192"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-84" value="P-HTTPS&#10;(AU-C1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-7" target="comp-8" edge="1" routingStrategy="direct-horizontal" routingFallback="false" tooltip="Routed ingress to F5 HA group">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-85" value="P-HTTPS&#10;(AU-C1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-8" target="comp-9" edge="1" routingStrategy="midpoint-x" routingFallback="false" tooltip="Selected secure default pending TBD-004 approval">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="394" y="284"/>
+              <mxPoint x="394" y="362"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-86" value="P-HTTPS&#10;(AU-C1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-9" target="comp-11" edge="1" routingStrategy="outer-left" routingFallback="false" tooltip="DMZ reverse proxy to web tier">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="362"/>
+              <mxPoint x="-2" y="516"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-87" value="P-HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-11" target="comp-10" edge="1" routingStrategy="direct-vertical" routingFallback="false" tooltip="Web API call">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-88" value="P-HTTPS&#10;(AU-T1+C1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-10" target="comp-13" edge="1" routingStrategy="outer-left" routingFallback="false" tooltip="Basic Auth replacement target">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="438"/>
+              <mxPoint x="-2" y="673"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-89" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-13" target="comp-18" edge="1" routingStrategy="outer-left" routingFallback="false" tooltip="Mediated API route">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="673"/>
+              <mxPoint x="-2" y="980"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-90" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-13" target="comp-19" edge="1" routingStrategy="outer-left" routingFallback="false" tooltip="Mediated API route">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="673"/>
+              <mxPoint x="-2" y="1056"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-91" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-15" target="comp-14" edge="1" routingStrategy="midpoint-x" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="415" y="748"/>
+              <mxPoint x="415" y="673"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-92" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-16" target="comp-14" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-93" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-17" target="comp-14" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-94" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-18" target="comp-14" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-95" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-19" target="comp-14" edge="1" routingStrategy="outer-right" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1298" y="1056"/>
+              <mxPoint x="1298" y="673"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-96" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-15" target="comp-22" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="748"/>
+              <mxPoint x="-2" y="1292"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-97" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-16" target="comp-23" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="826"/>
+              <mxPoint x="-2" y="1374"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-98" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-17" target="comp-23" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="902"/>
+              <mxPoint x="-2" y="1374"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-99" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-18" target="comp-22" edge="1" routingStrategy="outer-left" routingFallback="false" tooltip="Group routes to authorized schemas only">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="980"/>
+              <mxPoint x="-2" y="1292"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-100" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-18" target="comp-23" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="980"/>
+              <mxPoint x="-2" y="1374"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-101" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-18" target="comp-24" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-102" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-19" target="comp-22" edge="1" routingStrategy="outer-left" routingFallback="false" tooltip="Group routes to authorized schemas only">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="1056"/>
+              <mxPoint x="-2" y="1292"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-103" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-19" target="comp-23" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="1056"/>
+              <mxPoint x="-2" y="1374"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-104" value="P-JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-19" target="comp-24" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-105" value="P-REDIS&#10;(AU-Z1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-15" target="comp-28" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="748"/>
+              <mxPoint x="-2" y="1672"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-106" value="P-REDIS&#10;(AU-Z1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-16" target="comp-28" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="826"/>
+              <mxPoint x="-2" y="1672"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-107" value="P-REDIS&#10;(AU-Z1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-17" target="comp-28" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="902"/>
+              <mxPoint x="-2" y="1672"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-108" value="P-REDIS&#10;(AU-Z1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-18" target="comp-28" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="980"/>
+              <mxPoint x="-2" y="1672"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-109" value="P-REDIS&#10;(AU-Z1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-19" target="comp-28" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="1056"/>
+              <mxPoint x="-2" y="1672"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-110" value="P-AMQPS&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-15" target="comp-29" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="748"/>
+              <mxPoint x="-2" y="1752"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-111" value="P-AMQPS&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-16" target="comp-29" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="826"/>
+              <mxPoint x="-2" y="1752"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-112" value="P-AMQPS&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-17" target="comp-29" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="902"/>
+              <mxPoint x="-2" y="1752"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-113" value="P-AMQPS&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-18" target="comp-29" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="980"/>
+              <mxPoint x="-2" y="1752"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-114" value="P-AMQPS&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-19" target="comp-29" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="1056"/>
+              <mxPoint x="-2" y="1752"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-115" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-15" target="comp-30" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="748"/>
+              <mxPoint x="-2" y="1831"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-116" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-16" target="comp-30" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="826"/>
+              <mxPoint x="-2" y="1831"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-117" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-17" target="comp-30" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="902"/>
+              <mxPoint x="-2" y="1831"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-118" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-18" target="comp-30" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="980"/>
+              <mxPoint x="-2" y="1831"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-119" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-19" target="comp-30" edge="1" routingStrategy="outer-left" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-2" y="1056"/>
+              <mxPoint x="-2" y="1831"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-120" value="P-RFC&#10;(AU-K1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-15" target="comp-54" edge="1" routingStrategy="region-gutter" routingFallback="false" tooltip="Encrypted private WAN; SAP endpoint confirmation pending">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="748"/>
+              <mxPoint x="670" y="1659"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-121" value="P-RFC&#10;(AU-K1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-16" target="comp-54" edge="1" routingStrategy="region-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="826"/>
+              <mxPoint x="670" y="1659"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-122" value="P-RFC&#10;(AU-K1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-17" target="comp-54" edge="1" routingStrategy="region-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="902"/>
+              <mxPoint x="670" y="1659"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-123" value="P-RFC&#10;(AU-K1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-18" target="comp-54" edge="1" routingStrategy="region-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="980"/>
+              <mxPoint x="670" y="1659"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-124" value="P-RFC&#10;(AU-K1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-19" target="comp-54" edge="1" routingStrategy="region-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="1056"/>
+              <mxPoint x="670" y="1659"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-125" value="P-RFC&#10;(AU-K1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-54" target="comp-55" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-126" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-15" target="comp-59" edge="1" routingStrategy="region-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="748"/>
+              <mxPoint x="670" y="1790"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-127" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-16" target="comp-59" edge="1" routingStrategy="region-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="826"/>
+              <mxPoint x="670" y="1790"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-128" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-17" target="comp-59" edge="1" routingStrategy="region-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="902"/>
+              <mxPoint x="670" y="1790"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-129" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-18" target="comp-59" edge="1" routingStrategy="region-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="980"/>
+              <mxPoint x="670" y="1790"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-130" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-19" target="comp-59" edge="1" routingStrategy="region-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="1056"/>
+              <mxPoint x="670" y="1790"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-131" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-13" target="comp-33" edge="1" routingStrategy="drawio-fallback" routingFallback="true" tooltip="CN-US minimized API dataset">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-132" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=0.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-13" target="comp-42" edge="1" routingStrategy="zone-gutter" routingFallback="false">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="218" y="569"/>
+              <mxPoint x="1003" y="569"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-133" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-14" target="comp-47" edge="1" routingStrategy="region-gutter" routingFallback="false" tooltip="One-way event publication; no database replication">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="673"/>
+              <mxPoint x="670" y="976"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-134" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-13" target="comp-50" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-135" value="P-HTTPS&#10;(AU-T1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-13" target="comp-51" edge="1" routingStrategy="drawio-fallback" routingFallback="true">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-136" value="P-HTTPS&#10;(AU-T1+C1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-13" target="comp-62" edge="1" routingStrategy="drawio-fallback" routingFallback="true" tooltip="Outbound-only Azure SaaS API integration">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-137" value="P-KAFKA&#10;(AU-S1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-67" target="comp-14" edge="1" routingStrategy="region-gutter" routingFallback="false" tooltip="Outbound event stream; private connectivity target pending TBD-007">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="2374"/>
+              <mxPoint x="670" y="673"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-138" value="P-HTTPS&#10;(AU-T1+C1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-13" target="comp-70" edge="1" routingStrategy="drawio-fallback" routingFallback="true" tooltip="Selected partner API profile pending TBD-005">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-139" value="P-SFTP+P-SSH" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-20" target="comp-79" edge="1" routingStrategy="drawio-fallback" routingFallback="true" tooltip="Managed transfer with automated key rotation">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-140" value="P-HTTPS&#10;(AU-T3+M1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="comp-11" target="comp-38" edge="1" routingStrategy="region-gutter" routingFallback="false" tooltip="Internal operations and BU user SSO">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="516"/>
+              <mxPoint x="670" y="472"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-141" value="P-HTTPS&#10;(AU-T2+M1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;jumpStyle=arc;jumpSize=10;fontSize=9;strokeColor=#78909C;fontColor=#78909C;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" parent="1" source="inet-3" target="comp-39" edge="1" routingStrategy="drawio-fallback" routingFallback="true" tooltip="Partner and carrier authentication; application callback endpoint remains TBD">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="lgnd-142" value="" style="group" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="40" y="2901" width="640" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="ltitle-143" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=14;fontStyle=1;" parent="lgnd-142" vertex="1">
+          <mxGeometry x="0" y="-30" width="100" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-144" value="Internal App (IT Org)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fontFamily=Helvetica;fontSize=14;" parent="lgnd-142" vertex="1">
+          <mxGeometry x="0" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-145" value="API Gateway / Integration" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;" parent="lgnd-142" vertex="1">
+          <mxGeometry x="155" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-146" value="Database" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=14;" parent="lgnd-142" vertex="1">
+          <mxGeometry x="310" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-147" value="Firewall / LB" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;fontFamily=Helvetica;fontSize=14;" parent="lgnd-142" vertex="1">
+          <mxGeometry x="465" y="0" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-148" value="Identity / Auth" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;shadow=0;gradientColor=none;fillColor=default;fontFamily=Helvetica;fontSize=14;" parent="lgnd-142" vertex="1">
+          <mxGeometry x="0" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-149" value="Biz Owned" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#8E24AA;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-142" vertex="1">
+          <mxGeometry x="155" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="li-150" value="Third Party" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;fillColor=#FB8C00;strokeColor=#6c8ebf;labelBorderColor=none;fontColor=#FFFFFF;" parent="lgnd-142" vertex="1">
+          <mxGeometry x="310" y="56" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-title-151" value="Protocol codes" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3113" width="240" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-152" value="P-HTTPS HTTPS" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3135" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-153" value="P-KAFKA Kafka" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3149" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-154" value="P-JDBC JDBC" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3163" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-155" value="P-REDIS Redis protocol" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3177" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-156" value="P-AMQPS" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3191" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-157" value="P-RFC SAP RFC" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3205" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-158" value="P-SFTP SFTP" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3219" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="proto-159" value="P-SSH SSH" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3233" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-title-160" value="Auth codes" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3261" width="240" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-161" value="T2 [Token / federation] OAuth2 / OIDC user login" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3283" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-162" value="C1 [Certificate / key] mTLS / client certificate" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3297" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-163" value="N0 [None] No service authentication" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3311" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-164" value="T1 [Token / federation] OAuth2 client credentials" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3325" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-165" value="S1 [SASL] SASL/SCRAM" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3339" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-166" value="Z1 [Authorization] Topic ACL / least privilege" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3353" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-167" value="K1 [Kerberos / OS] Kerberos / logon ticket" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3367" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-168" value="T3 [Token / federation] SAML 2.0 assertion" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3381" width="560" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth-169" value="M1 [User factor] MFA / OTP" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="3395" width="560" height="14" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

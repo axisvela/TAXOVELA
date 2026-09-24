@@ -52,6 +52,10 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 - Example 05 joins example 06 as a fully migrated reference: its blueprint nodes
   carry the req/v2 typed codes, with `CMP-nn-CN` / `CMP-nn-NA` for a component
   deployed in both sites, and its v2 diagram is rendered from that blueprint.
+- Examples 02 and 04 are migrated too. Example 04's registry now holds 208 rows
+  across the seven tables, its appliances (router, F5, ADFS, external IdP) are
+  infra nodes rather than components, and flows carry the contracted appliance
+  hops in `via`. Only example 03 remains on the legacy `SYS-nn` model.
 
 ### Fixed
 

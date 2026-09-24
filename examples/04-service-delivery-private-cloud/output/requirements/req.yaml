@@ -1,250 +1,1461 @@
+schema_version: req/v2
 requirements:
   project:
-    name: "Service Delivery Platform (SDP), NA Migration"
-    id: "SDP-NA-001"
-    scope: "e2e"
-    scope_decision: "Modification of the existing SDP platform; connected systems are black boxes and only their integration boundaries are in scope."
-    department: "TBD"
-    author: "ArchHarness"
-    date: "2026-09-14"
-    target_go_live: "TBD"
-    data_classification: "Acme Confidential"
-    business_purpose: "Extend the service supply-chain operations platform to serve North America while retaining its primary private-cloud deployment in CN."
-
-  applications:
-    - {id: "SYS-01", name: "F5", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-02", name: "Service-Supply-Chain-dmz-nginx-proxy", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-03", name: "Service-Supply-Chain-gateway", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-04", name: "Service-Supply-Chain-web", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-05", name: "WSO2", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-06", name: "Kafka (primary)", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-07", name: "Service-Supply-Chain-int-nginx-proxy", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-08", name: "Service-Supply-Chain-main", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-09", name: "Service-Supply-Chain-websocket", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-10", name: "Service-Supply-Chain-* group (10 services)", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-11", name: "Service-Supply-Chain-* group (22 services)", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-12", name: "MySQL TMS", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-13", name: "MySQL Main", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-14", name: "MySQL WMS", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-15", name: "MySQL MDS", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-16", name: "MySQL OMS", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-17", name: "Redis HA", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-18", name: "RabbitMQ HA", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-19", name: "Elasticsearch HA", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-20", name: "S4", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-21", name: "SECC", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-22", name: "LSCRM", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-23", name: "CECC", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-24", name: "S3", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-25", name: "Account-Service", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-26", name: "Service-customer-master-data", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-27", name: "Serice-Data-serviceE", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-28", name: "Price-master-ROW", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-29", name: "ADFS", type: "existing", owner: "org_it", vendor: ""}
-    - {id: "SYS-30", name: "Enterprise ID", type: "existing", owner: "org_it", vendor: ""}
-    - {id: "SYS-31", name: "Reverse-Management-System", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-32", name: "procurement-service", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-33", name: "lakehouse", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-34", name: "Kafka (secondary)", type: "existing", owner: "org_it", vendor: ""}
-    - {id: "SYS-35", name: "support-hub", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-36", name: "support-portal", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-37", name: "support-gateway", type: "existing", owner: "biz_owned", vendor: ""}
-    - {id: "SYS-38", name: "d365-service-delivery-bu1", type: "existing", owner: "third_party", vendor: "TBD"}
-    - {id: "SYS-39", name: "d365-service-delivery-bu2", type: "existing", owner: "third_party", vendor: "TBD"}
-    - {id: "SYS-40", name: "d365-service-delivery-bu3", type: "existing", owner: "third_party", vendor: "TBD"}
-    - {id: "SYS-41", name: "edge-cache", type: "existing", owner: "third_party", vendor: "TBD"}
-    - {id: "SYS-42", name: "logistics partner A", type: "existing", owner: "third_party", vendor: "logistics partner A"}
-    - {id: "SYS-43", name: "logstics-vendor-1", type: "existing", owner: "third_party", vendor: "logstics-vendor-1"}
-    - {id: "SYS-44", name: "logistics partner B", type: "existing", owner: "third_party", vendor: "logistics partner B"}
-    - {id: "SYS-45", name: "logistics partner C", type: "existing", owner: "third_party", vendor: "logistics partner C"}
-    - {id: "SYS-46", name: "logistics partner D", type: "existing", owner: "third_party", vendor: "logistics partner D"}
-    - {id: "SYS-47", name: "logistics partner E", type: "existing", owner: "third_party", vendor: "logistics partner E"}
-    - {id: "SYS-48", name: "file partner A", type: "existing", owner: "third_party", vendor: "file partner A"}
-    - {id: "SYS-49", name: "file partner B", type: "existing", owner: "third_party", vendor: "file partner B"}
-    - {id: "SYS-50", name: "file partner C", type: "existing", owner: "third_party", vendor: "file partner C"}
-    - {id: "SYS-51", name: "MFT platform", type: "modified", owner: "org_it", vendor: ""}
-    - {id: "SYS-52", name: "Edge router", type: "modified", owner: "org_it", vendor: ""}
-
-  deployment:
-    - {app_id: "SYS-01", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "Ingress", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-52", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "Ingress", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-02", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "DMZ, Internal K8s", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-03", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "DMZ, Internal K8s", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-04", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "DMZ, Internal K8s", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-05", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "Intranet", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-06", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "Intranet", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-07", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "Intranet, Internal K8s", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-08", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "Intranet, Internal K8s", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-09", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "Intranet, Internal K8s", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-10", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "Intranet, Internal K8s", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-11", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "Intranet, Internal K8s", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-12", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "DB Zone", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-13", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "DB Zone", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-14", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "DB Zone", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-15", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "DB Zone", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-16", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "DB Zone", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-17", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "DB Zone", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-18", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "DB Zone", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-19", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "DB Zone", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-20", country: "TBD", dc_or_region: "SAP landscape [TBD]", platform: "private_dc", zone_subnet: "TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-21", country: "TBD", dc_or_region: "SAP landscape [TBD]", platform: "private_dc", zone_subnet: "TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-22", country: "TBD", dc_or_region: "SAP landscape [TBD]", platform: "private_dc", zone_subnet: "TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-23", country: "TBD", dc_or_region: "SAP landscape [TBD]", platform: "private_dc", zone_subnet: "TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-24", country: "TBD", dc_or_region: "SAP landscape [TBD]", platform: "private_dc", zone_subnet: "TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-25", country: "US", dc_or_region: "US DC, City C [US]", platform: "private_dc", zone_subnet: "App Zone or Intranet, TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-26", country: "US", dc_or_region: "US DC, City C [US]", platform: "private_dc", zone_subnet: "App Zone or Intranet, TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-27", country: "US", dc_or_region: "US DC, City C [US]", platform: "private_dc", zone_subnet: "App Zone or Intranet, TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-28", country: "US", dc_or_region: "US DC, City C [US]", platform: "private_dc", zone_subnet: "App Zone or Intranet, TBD", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-29", country: "US", dc_or_region: "US DC, City C [US]", platform: "private_dc", zone_subnet: "App Zone or Intranet, TBD", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-30", country: "US", dc_or_region: "US DC, City C [US]", platform: "private_dc", zone_subnet: "App Zone or Intranet, TBD", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-31", country: "CN", dc_or_region: "CN Secondary DC, City B [CN]", platform: "private_dc", zone_subnet: "Intranet", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-32", country: "CN", dc_or_region: "CN Secondary DC, City B [CN]", platform: "private_dc", zone_subnet: "Intranet", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-33", country: "CN", dc_or_region: "CN Secondary DC, City B [CN]", platform: "private_dc", zone_subnet: "Intranet", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-34", country: "CN", dc_or_region: "CN Secondary DC, City B [CN]", platform: "private_dc", zone_subnet: "Intranet", infrastructure_owner: "InfraSec"}
-    - {app_id: "SYS-35", country: "CN", dc_or_region: "CN Secondary DC, City B [CN]", platform: "private_dc", zone_subnet: "Intranet", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-36", country: "CN", dc_or_region: "Support DC, City F [CN]", platform: "private_dc", zone_subnet: "App Zone", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-37", country: "CN", dc_or_region: "Support DC, City F [CN]", platform: "private_dc", zone_subnet: "App Zone", infrastructure_owner: "TBD"}
-    - {app_id: "SYS-38", country: "US", dc_or_region: "Azure region TBD [US]", platform: "saas", zone_subnet: "SaaS apps, exact placement TBD", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-39", country: "US", dc_or_region: "Azure region TBD [US]", platform: "saas", zone_subnet: "SaaS apps, exact placement TBD", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-40", country: "US", dc_or_region: "Azure region TBD [US]", platform: "saas", zone_subnet: "SaaS apps, exact placement TBD", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-41", country: "US", dc_or_region: "Azure region TBD [US]", platform: "azure", zone_subnet: "Exact network placement TBD", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-42", country: "TBD", dc_or_region: "Partner hosted [TBD]", platform: "saas", zone_subnet: "Internet 3PL", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-43", country: "TBD", dc_or_region: "Partner hosted [TBD]", platform: "saas", zone_subnet: "Internet 3PL", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-44", country: "TBD", dc_or_region: "Partner hosted [TBD]", platform: "saas", zone_subnet: "Internet 3PL", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-45", country: "TBD", dc_or_region: "Partner hosted [TBD]", platform: "saas", zone_subnet: "Internet 3PL", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-46", country: "TBD", dc_or_region: "Partner hosted [TBD]", platform: "saas", zone_subnet: "Internet 3PL", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-47", country: "TBD", dc_or_region: "Partner hosted [TBD]", platform: "saas", zone_subnet: "Internet 3PL", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-48", country: "TBD", dc_or_region: "Partner hosted [TBD]", platform: "saas", zone_subnet: "Internet file-transfer boundary", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-49", country: "TBD", dc_or_region: "Partner hosted [TBD]", platform: "saas", zone_subnet: "Internet file-transfer boundary", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-50", country: "TBD", dc_or_region: "Partner hosted [TBD]", platform: "saas", zone_subnet: "Internet file-transfer boundary", infrastructure_owner: "ThirdParty"}
-    - {app_id: "SYS-51", country: "CN", dc_or_region: "CN Primary DC, City A [CN]", platform: "private_dc", zone_subnet: "Intranet", infrastructure_owner: "InfraSec"}
-
+    name: Service Delivery Platform (SDP) - Private Cloud Multi-DC
+    id: SDP-NA-001
+    scope: e2e
+    author: TBD
+    date: '2026-09-14'
+    department: TBD
+    data_classification: Acme Confidential
+  infra:
+  - id: INF-01
+    name: CN Primary DC, City A, Province A [CN]
+    node_kind: data_center
+    infra_type: private_cloud
+    network_type: prod_network
+    country: CN
+  - id: INF-02
+    name: DMZ
+    node_kind: network_zone
+    infra_type: private_cloud
+    network_type: dmz
+    parent_id: INF-01
+    country: CN
+  - id: INF-03
+    name: SYS-52 | Edge router
+    node_kind: router
+    infra_type: private_cloud
+    network_type: dmz
+    parent_id: INF-02
+    country: CN
+  - id: INF-04
+    name: SYS-01 | F5
+    node_kind: load_balancer
+    infra_type: private_cloud
+    network_type: dmz
+    parent_id: INF-02
+    country: CN
+  - id: INF-05
+    name: Intranet
+    node_kind: network_zone
+    infra_type: private_cloud
+    network_type: prod_network
+    parent_id: INF-01
+    country: CN
+  - id: INF-06
+    name: DB Zone
+    node_kind: network_zone
+    infra_type: private_cloud
+    network_type: prod_network
+    parent_id: INF-01
+    country: CN
+  - id: INF-07
+    name: US DC, City C, State X [US]
+    node_kind: data_center
+    infra_type: private_cloud
+    network_type: prod_network
+    country: US
+  - id: INF-08
+    name: App Zone / Intranet
+    node_kind: network_zone
+    infra_type: private_cloud
+    network_type: prod_network
+    parent_id: INF-07
+    country: US
+  - id: INF-09
+    name: SYS-29 | ADFS
+    node_kind: identity_provider
+    infra_type: private_cloud
+    network_type: prod_network
+    parent_id: INF-08
+    country: US
+  - id: INF-10
+    name: SYS-30 | Enterprise ID
+    node_kind: identity_provider
+    infra_type: private_cloud
+    network_type: prod_network
+    parent_id: INF-08
+    country: US
+  - id: INF-11
+    name: CN Secondary DC, City B, Province B [CN]
+    node_kind: data_center
+    infra_type: private_cloud
+    network_type: prod_network
+    country: CN
+  - id: INF-12
+    name: Intranet
+    node_kind: network_zone
+    infra_type: private_cloud
+    network_type: prod_network
+    parent_id: INF-11
+    country: CN
+  - id: INF-13
+    name: Support DC, City F [CN]
+    node_kind: data_center
+    infra_type: private_cloud
+    network_type: prod_network
+    country: CN
+  - id: INF-14
+    name: App Zone
+    node_kind: network_zone
+    infra_type: private_cloud
+    network_type: prod_network
+    parent_id: INF-13
+    country: CN
+  - id: INF-15
+    name: SAP landscape [location TBD]
+    node_kind: data_center
+    infra_type: private_cloud
+    network_type: prod_network
+  - id: INF-16
+    name: SAP Private Zone
+    node_kind: network_zone
+    infra_type: private_cloud
+    network_type: prod_network
+    parent_id: INF-15
+  - id: INF-17
+    name: Azure US [exact region TBD]
+    node_kind: iaas_vpc_vnet
+    infra_type: public_cloud
+    network_type: prod_network
+  - id: INF-18
+    name: SaaS Application Boundary
+    node_kind: network_zone
+    infra_type: public_cloud
+    network_type: prod_network
+    parent_id: INF-17
+  - id: INF-19
+    name: Application Boundary
+    node_kind: network_zone
+    infra_type: public_cloud
+    network_type: prod_network
+    parent_id: INF-17
+  - id: INF-20
+    name: Partner hosted [locations TBD]
+    node_kind: data_center
+    infra_type: private_cloud
+    network_type: prod_network
+  - id: INF-21
+    name: Internet 3PL Boundary
+    node_kind: network_zone
+    infra_type: private_cloud
+    network_type: prod_network
+    parent_id: INF-20
+  - id: INF-22
+    name: Partner hosted [locations TBD]
+    node_kind: data_center
+    infra_type: private_cloud
+    network_type: prod_network
+  - id: INF-23
+    name: Internet File-Transfer Boundary
+    node_kind: network_zone
+    infra_type: private_cloud
+    network_type: prod_network
+    parent_id: INF-20
+  systems:
+  - id: APP-01
+    name: Service Delivery Platform
+    type: new
+    owner: org_it
+    vendor: '-'
+  - id: APP-02
+    name: SAP landscape
+    type: existing
+    owner: third_party
+    vendor: SAP
+  - id: APP-03
+    name: Azure satellites
+    type: existing
+    owner: third_party
+    vendor: Microsoft Azure
+  - id: APP-04
+    name: Logistics partners
+    type: existing
+    owner: third_party
+    vendor: '-'
+  - id: APP-05
+    name: File-transfer partners
+    type: existing
+    owner: third_party
+    vendor: '-'
   components:
-    - {id: "SYS-01", app_id: "SYS-01", name: "F5", type: "LB", language: "N/A", framework: "F5", runtime: "Private DC appliance", sensitivity: "Company Confidential"}
-    - {id: "SYS-02", app_id: "SYS-02", name: "Service-Supply-Chain-dmz-nginx-proxy", type: "FE", language: "N/A", framework: "Nginx TBD", runtime: "Internal K8s, DMZ", sensitivity: "Company Confidential"}
-    - {id: "SYS-03", app_id: "SYS-03", name: "Service-Supply-Chain-gateway", type: "API", language: "Java TBD", framework: "Spring Cloud TBD", runtime: "Internal K8s, DMZ", sensitivity: "Company Confidential"}
-    - {id: "SYS-04", app_id: "SYS-04", name: "Service-Supply-Chain-web", type: "FE", language: "Java TBD", framework: "Spring Cloud TBD", runtime: "Internal K8s, DMZ", sensitivity: "Company Confidential"}
-    - {id: "SYS-05", app_id: "SYS-05", name: "WSO2", type: "IP", language: "TBD", framework: "WSO2 API Gateway TBD", runtime: "Private DC, Intranet", sensitivity: "Company Confidential"}
-    - {id: "SYS-06", app_id: "SYS-06", name: "Kafka (primary)", type: "MQ", language: "TBD", framework: "Kafka TBD", runtime: "Private DC, Intranet", sensitivity: "Company Confidential"}
-    - {id: "SYS-07", app_id: "SYS-07", name: "Service-Supply-Chain-int-nginx-proxy", type: "BE", language: "N/A", framework: "Nginx TBD", runtime: "Internal K8s, Intranet", sensitivity: "Company Confidential"}
-    - {id: "SYS-08", app_id: "SYS-08", name: "Service-Supply-Chain-main", type: "BE", language: "Java TBD", framework: "Spring Cloud TBD", runtime: "Internal K8s, Intranet", sensitivity: "Company Confidential"}
-    - {id: "SYS-09", app_id: "SYS-09", name: "Service-Supply-Chain-websocket", type: "BE", language: "Java TBD", framework: "Spring Cloud TBD", runtime: "Internal K8s, Intranet", sensitivity: "Company Confidential"}
-    - {id: "SYS-10", app_id: "SYS-10", name: "Service-Supply-Chain-* group (10 services)", type: "BE", language: "Java TBD", framework: "Spring Cloud TBD", runtime: "Internal K8s, Intranet", sensitivity: "Company Confidential"}
-    - {id: "SYS-11", app_id: "SYS-11", name: "Service-Supply-Chain-* group (22 services)", type: "BE", language: "Java TBD", framework: "Spring Cloud TBD", runtime: "Internal K8s, Intranet", sensitivity: "Company Confidential"}
-    - {id: "SYS-12", app_id: "SYS-12", name: "MySQL TMS", type: "DB", language: "N/A", framework: "MySQL TBD", runtime: "Private DC HA, 1 primary and 2 replicas", sensitivity: "Company Confidential"}
-    - {id: "SYS-13", app_id: "SYS-13", name: "MySQL Main", type: "DB", language: "N/A", framework: "MySQL TBD", runtime: "Private DC HA, 1 primary and 2 replicas", sensitivity: "Company Confidential"}
-    - {id: "SYS-14", app_id: "SYS-14", name: "MySQL WMS", type: "DB", language: "N/A", framework: "MySQL TBD", runtime: "Private DC HA, 1 primary and 2 replicas", sensitivity: "Company Confidential"}
-    - {id: "SYS-15", app_id: "SYS-15", name: "MySQL MDS", type: "DB", language: "N/A", framework: "MySQL TBD", runtime: "Private DC HA, 1 primary and 2 replicas", sensitivity: "Company Confidential"}
-    - {id: "SYS-16", app_id: "SYS-16", name: "MySQL OMS", type: "DB", language: "N/A", framework: "MySQL TBD", runtime: "Private DC HA, 1 primary and 2 replicas", sensitivity: "Company Confidential"}
-    - {id: "SYS-17", app_id: "SYS-17", name: "Redis HA", type: "DB", language: "N/A", framework: "Redis TBD", runtime: "Private DC HA, 3 primary and 3 replica nodes", sensitivity: "Company Confidential"}
-    - {id: "SYS-18", app_id: "SYS-18", name: "RabbitMQ HA", type: "MQ", language: "N/A", framework: "RabbitMQ TBD", runtime: "Private DC HA, 3 replicas", sensitivity: "Company Confidential"}
-    - {id: "SYS-19", app_id: "SYS-19", name: "Elasticsearch HA", type: "DB", language: "N/A", framework: "Elasticsearch TBD", runtime: "Private DC HA, 3 nodes", sensitivity: "Company Confidential"}
-    - {id: "SYS-51", app_id: "SYS-51", name: "MFT platform", type: "IP", language: "TBD", framework: "MFT platform TBD", runtime: "Private DC, Intranet", sensitivity: "Company Confidential"}
-    - {id: "SYS-52", app_id: "SYS-52", name: "Edge router", type: "SEC", language: "N/A", framework: "TBD", runtime: "Private DC network platform", sensitivity: "Company Confidential"}
-
-  network_connections:
-    - {from_location: "Internet", to_location: "CN Primary DC", type: "Internet", encrypted: true, encryption_method: "TLS 1.2 or later"}
-    - {from_location: "CN Primary DC", to_location: "US DC", type: "VPN | MPLS", encrypted: true, encryption_method: "VPN encryption or MPLS protection TBD"}
-    - {from_location: "CN Primary DC", to_location: "CN Secondary DC", type: "VPN | MPLS", encrypted: true, encryption_method: "TBD"}
-    - {from_location: "CN Primary DC", to_location: "Support DC", type: "VPN | MPLS", encrypted: true, encryption_method: "TBD"}
-    - {from_location: "CN Primary DC", to_location: "Azure region TBD", type: "Internet", encrypted: true, encryption_method: "TLS 1.2 or later for HTTPS; event transport TBD"}
-    - {from_location: "CN Primary DC", to_location: "SAP landscape", type: "MPLS", encrypted: true, encryption_method: "TBD"}
-    - {from_location: "CN Primary DC", to_location: "External partners", type: "Internet", encrypted: true, encryption_method: "TLS 1.2 or later or SFTP/SSH; EDI transport TBD"}
-
-  interactions:
-    - {id: "INT-001", from_component: "External client", to_component: "SYS-01", protocol: "HTTPS", port: "443", auth_method: "OAuth2, flow TBD", notes: "TLS termination at ingress"}
-    - {id: "INT-002", from_component: "SYS-01", to_component: "SYS-02", protocol: "HTTPS", port: "443", auth_method: "TBD", notes: "Internal ingress authentication not supplied"}
-    - {id: "INT-003", from_component: "SYS-04", to_component: "SYS-03", protocol: "HTTPS", port: "443", auth_method: "OAuth2", notes: "DMZ flow"}
-    - {id: "INT-004", from_component: "SYS-03", to_component: "SYS-05", protocol: "HTTPS", port: "443", auth_method: "Basic Auth", notes: "Weak auth; rotation and migration TBD"}
-    - {id: "INT-005", from_component: "SYS-05", to_component: "SYS-10, SYS-11", protocol: "HTTPS", port: "443", auth_method: "Basic Auth", notes: "Mediated cross-application API calls"}
-    - {id: "INT-006", from_component: "SYS-07, SYS-08, SYS-09, SYS-10, SYS-11", to_component: "SYS-06", protocol: "TCP", port: "9093", auth_method: "SASL/SCRAM", notes: "TLS configuration TBD"}
-    - {id: "INT-007", from_component: "SYS-07, SYS-08, SYS-09, SYS-10, SYS-11", to_component: "SYS-12, SYS-13, SYS-14, SYS-15, SYS-16", protocol: "JDBC over TCP", port: "3306", auth_method: "User/password from K8s Secrets", notes: "Intranet to DB Zone only"}
-    - {id: "INT-008", from_component: "SYS-07, SYS-08, SYS-09, SYS-10, SYS-11", to_component: "SYS-17", protocol: "TCP", port: "6379", auth_method: "Basic Auth", notes: "TLS and stronger auth TBD"}
-    - {id: "INT-009", from_component: "SYS-07, SYS-08, SYS-09, SYS-10, SYS-11", to_component: "SYS-19", protocol: "HTTPS", port: "19200", auth_method: "Basic Auth", notes: "TLS 1.2 or later"}
-    - {id: "INT-010", from_component: "SYS-07, SYS-08, SYS-09, SYS-10, SYS-11", to_component: "SYS-18", protocol: "TCP", port: "5672", auth_method: "Basic Auth", notes: "TLS and stronger auth TBD"}
-    - {id: "INT-011", from_component: "SYS-07, SYS-08, SYS-09, SYS-10, SYS-11", to_component: "SYS-20", protocol: "TCP/RFC", port: "33xx", auth_method: "SAP Logon Ticket", notes: "Exact port and transport protection TBD"}
-    - {id: "INT-012", from_component: "SYS-20", to_component: "SYS-21", protocol: "TCP/RFC", port: "33xx", auth_method: "SAP Logon Ticket, confirmation TBD", notes: "Exact port TBD"}
-    - {id: "INT-013", from_component: "SYS-20", to_component: "SYS-22", protocol: "TCP/RFC", port: "33xx", auth_method: "SAP Logon Ticket, confirmation TBD", notes: "Exact port TBD"}
-    - {id: "INT-014", from_component: "SYS-20", to_component: "SYS-23", protocol: "TCP/RFC", port: "33xx", auth_method: "SAP Logon Ticket, confirmation TBD", notes: "Exact port TBD"}
-    - {id: "INT-015", from_component: "SYS-07, SYS-08, SYS-09, SYS-10, SYS-11", to_component: "SYS-24", protocol: "HTTPS", port: "443", auth_method: "Basic Auth", notes: "Credential rotation TBD"}
-    - {id: "INT-016", from_component: "SYS-05", to_component: "SYS-25", protocol: "HTTPS", port: "443", auth_method: "Basic Auth", notes: "US DC mediated API"}
-    - {id: "INT-017", from_component: "SYS-05", to_component: "SYS-26", protocol: "HTTPS", port: "443", auth_method: "Basic Auth", notes: "US DC mediated API"}
-    - {id: "INT-018", from_component: "SYS-05", to_component: "SYS-27", protocol: "HTTPS", port: "443", auth_method: "Basic Auth", notes: "US DC mediated API"}
-    - {id: "INT-019", from_component: "SYS-05", to_component: "SYS-28", protocol: "HTTPS", port: "443", auth_method: "Basic Auth", notes: "US DC mediated API"}
-    - {id: "INT-020", from_component: "SYS-05", to_component: "SYS-31", protocol: "HTTPS", port: "443", auth_method: "OAuth2", notes: "OAuth2 flow TBD"}
-    - {id: "INT-021", from_component: "SYS-05", to_component: "SYS-32", protocol: "HTTPS", port: "443", auth_method: "OAuth2", notes: "OAuth2 flow TBD"}
-    - {id: "INT-022", from_component: "SYS-05", to_component: "SYS-33", protocol: "HTTPS", port: "443", auth_method: "OAuth2", notes: "OAuth2 flow TBD"}
-    - {id: "INT-023", from_component: "SYS-06", to_component: "SYS-34", protocol: "TCP", port: "9093", auth_method: "SASL/SCRAM", notes: "Direction and TLS configuration TBD"}
-    - {id: "INT-024", from_component: "SYS-05", to_component: "SYS-35", protocol: "HTTPS", port: "443", auth_method: "OAuth2", notes: "OAuth2 flow TBD"}
-    - {id: "INT-025", from_component: "SYS-05", to_component: "SYS-36", protocol: "HTTPS", port: "443", auth_method: "OAuth2", notes: "OAuth2 flow TBD"}
-    - {id: "INT-026", from_component: "SYS-05", to_component: "SYS-37", protocol: "HTTPS", port: "443", auth_method: "OAuth2", notes: "OAuth2 flow TBD"}
-    - {id: "INT-027", from_component: "SYS-05", to_component: "SYS-38", protocol: "HTTPS", port: "443", auth_method: "OAuth2", notes: "Azure endpoint and OAuth2 flow TBD"}
-    - {id: "INT-028", from_component: "SYS-05", to_component: "SYS-39", protocol: "HTTPS", port: "443", auth_method: "OAuth2", notes: "Azure endpoint and OAuth2 flow TBD"}
-    - {id: "INT-029", from_component: "SYS-05", to_component: "SYS-40", protocol: "HTTPS", port: "443", auth_method: "OAuth2", notes: "Azure endpoint and OAuth2 flow TBD"}
-    - {id: "INT-030", from_component: "SYS-06", to_component: "SYS-41", protocol: "TCP", port: "9093", auth_method: "SASL/SCRAM", notes: "Direction and TLS configuration TBD"}
-    - {id: "INT-031", from_component: "SYS-05", to_component: "SYS-42", protocol: "HTTPS or TCP/EDI", port: "443 or TBD", auth_method: "OAuth2 for HTTPS; EDI auth TBD", notes: "Exact protocol TBD"}
-    - {id: "INT-032", from_component: "SYS-05", to_component: "SYS-43", protocol: "HTTPS or TCP/EDI", port: "443 or TBD", auth_method: "OAuth2 for HTTPS; EDI auth TBD", notes: "Exact protocol TBD"}
-    - {id: "INT-033", from_component: "SYS-05", to_component: "SYS-44", protocol: "HTTPS or TCP/EDI", port: "443 or TBD", auth_method: "OAuth2 for HTTPS; EDI auth TBD", notes: "Exact protocol TBD"}
-    - {id: "INT-034", from_component: "SYS-05", to_component: "SYS-45", protocol: "HTTPS or TCP/EDI", port: "443 or TBD", auth_method: "OAuth2 for HTTPS; EDI auth TBD", notes: "Exact protocol TBD"}
-    - {id: "INT-035", from_component: "SYS-05", to_component: "SYS-46", protocol: "HTTPS or TCP/EDI", port: "443 or TBD", auth_method: "OAuth2 for HTTPS; EDI auth TBD", notes: "Exact protocol TBD"}
-    - {id: "INT-036", from_component: "SYS-05", to_component: "SYS-47", protocol: "HTTPS or TCP/EDI", port: "443 or TBD", auth_method: "OAuth2 for HTTPS; EDI auth TBD", notes: "Exact protocol TBD"}
-    - {id: "INT-037", from_component: "SYS-51", to_component: "SYS-48", protocol: "SFTP", port: "22", auth_method: "SSH key", notes: "Key rotation TBD"}
-    - {id: "INT-038", from_component: "SYS-51", to_component: "SYS-49", protocol: "SFTP", port: "22", auth_method: "SSH key", notes: "Key rotation TBD"}
-    - {id: "INT-039", from_component: "SYS-51", to_component: "SYS-50", protocol: "SFTP", port: "22", auth_method: "SSH key", notes: "Key rotation TBD"}
-    - {id: "INT-040", from_component: "SYS-04", to_component: "SYS-29", protocol: "SAML 2.0 over HTTPS", port: "443", auth_method: "SAML assertion", notes: "Internal operations and BU users"}
-    - {id: "INT-041", from_component: "External portals TBD", to_component: "SYS-30", protocol: "OIDC/OAuth2 over HTTPS", port: "443", auth_method: "OAuth2 Authorization Code / OIDC, confirmation TBD", notes: "Partners and carriers"}
-
-  user_auth:
-    - entry_point: "SYS-04"
-      user_roles: ["Internal operations", "BU users"]
-      auth_server: "ADFS"
-      auth_protocol: "SAML"
-      authorization: "RBAC"
-      auth_platform: "AuthZ Platform"
-    - entry_point: "External portals TBD"
-      user_roles: ["Partners", "Carriers"]
-      auth_server: "EnterpriseID"
-      auth_protocol: "OIDC"
-      authorization: "RBAC"
-      auth_platform: "AuthZ Platform"
-
+  - id: CMP-01
+    system_id: APP-01
+    name: SYS-02 | Service-Supply-Chain-dmz-nginx-proxy
+    kind: service
+    layer: fe
+    component_role: web_frontend
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-02
+    system_id: APP-01
+    name: SYS-03 | Service-Supply-Chain-gateway
+    kind: service
+    layer: api
+    component_role: api_gateway
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-03
+    system_id: APP-01
+    name: SYS-04 | Service-Supply-Chain-web
+    kind: service
+    layer: fe
+    component_role: web_frontend
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-04
+    system_id: APP-01
+    name: SYS-05 | WSO2
+    kind: service
+    layer: ip
+    component_role: integration_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-05
+    system_id: APP-01
+    name: SYS-06 | Kafka (primary)
+    kind: service
+    layer: mq
+    component_role: message_bus
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-06
+    system_id: APP-01
+    name: SYS-07 | Service-Supply-Chain-int-nginx-proxy
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-07
+    system_id: APP-01
+    name: SYS-08 | Service-Supply-Chain-main
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-08
+    system_id: APP-01
+    name: SYS-09 | Service-Supply-Chain-websocket
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-09
+    system_id: APP-01
+    name: SYS-10 | Service-Supply-Chain-* group (10 services)
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-10
+    system_id: APP-01
+    name: SYS-11 | Service-Supply-Chain-* group (22 services)
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-11
+    system_id: APP-01
+    name: SYS-51 | MFT platform
+    kind: service
+    layer: ip
+    component_role: integration_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-12
+    system_id: APP-01
+    name: SYS-12 | MySQL TMS HA (1 primary + 2 replicas)
+    kind: component
+    layer: db
+    component_role: database
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-13
+    system_id: APP-01
+    name: SYS-13 | MySQL Main HA (1 primary + 2 replicas)
+    kind: component
+    layer: db
+    component_role: database
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-14
+    system_id: APP-01
+    name: SYS-14 | MySQL WMS HA (1 primary + 2 replicas)
+    kind: component
+    layer: db
+    component_role: database
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-15
+    system_id: APP-01
+    name: SYS-15 | MySQL MDS HA (1 primary + 2 replicas)
+    kind: component
+    layer: db
+    component_role: database
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-16
+    system_id: APP-01
+    name: SYS-16 | MySQL OMS HA (1 primary + 2 replicas)
+    kind: component
+    layer: db
+    component_role: database
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-17
+    system_id: APP-01
+    name: SYS-17 | Redis HA (3 primary + 3 replicas)
+    kind: component
+    layer: db
+    component_role: database
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-18
+    system_id: APP-01
+    name: SYS-18 | RabbitMQ HA (3 replicas)
+    kind: service
+    layer: mq
+    component_role: message_bus
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-19
+    system_id: APP-01
+    name: SYS-19 | Elasticsearch HA (3 nodes)
+    kind: component
+    layer: db
+    component_role: database
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-20
+    system_id: APP-01
+    name: SYS-25 | Account-Service
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-21
+    system_id: APP-01
+    name: SYS-26 | Service-customer-master-data
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-22
+    system_id: APP-01
+    name: SYS-27 | Serice-Data-serviceE
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-23
+    system_id: APP-01
+    name: SYS-28 | Price-master-ROW
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-24
+    system_id: APP-01
+    name: SYS-31 | Reverse-Management-System
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-25
+    system_id: APP-01
+    name: SYS-32 | procurement-service
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-26
+    system_id: APP-01
+    name: SYS-33 | lakehouse
+    kind: component
+    layer: db
+    component_role: object_storage
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-27
+    system_id: APP-01
+    name: SYS-34 | Kafka (secondary)
+    kind: service
+    layer: mq
+    component_role: message_bus
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-28
+    system_id: APP-01
+    name: SYS-35 | support-hub
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-29
+    system_id: APP-01
+    name: SYS-36 | support-portal
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-30
+    system_id: APP-01
+    name: SYS-37 | support-gateway
+    kind: service
+    layer: api
+    component_role: api_gateway
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-31
+    system_id: APP-02
+    name: SYS-20 | S4
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-32
+    system_id: APP-02
+    name: SYS-21 | SECC
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-33
+    system_id: APP-02
+    name: SYS-22 | LSCRM
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-34
+    system_id: APP-02
+    name: SYS-23 | CECC
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-35
+    system_id: APP-02
+    name: SYS-24 | S3
+    kind: component
+    layer: db
+    component_role: object_storage
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-36
+    system_id: APP-03
+    name: SYS-38 | d365-service-delivery-bu1
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-37
+    system_id: APP-03
+    name: SYS-39 | d365-service-delivery-bu2
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-38
+    system_id: APP-03
+    name: SYS-40 | d365-service-delivery-bu3
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-39
+    system_id: APP-03
+    name: SYS-41 | edge-cache
+    kind: service
+    layer: be
+    component_role: backend_service
+    sensitivity: Acme Confidential
+    status: active
+  - id: CMP-40
+    system_id: APP-04
+    name: SYS-42 | logistics partner A
+    kind: service
+    layer: be
+    component_role: backend_service
+    status: active
+  - id: CMP-41
+    system_id: APP-04
+    name: SYS-43 | logstics-vendor-1
+    kind: service
+    layer: be
+    component_role: backend_service
+    status: active
+  - id: CMP-42
+    system_id: APP-04
+    name: SYS-44 | logistics partner B
+    kind: service
+    layer: be
+    component_role: backend_service
+    status: active
+  - id: CMP-43
+    system_id: APP-04
+    name: SYS-45 | logistics partner C
+    kind: service
+    layer: be
+    component_role: backend_service
+    status: active
+  - id: CMP-44
+    system_id: APP-04
+    name: SYS-46 | logistics partner D
+    kind: service
+    layer: be
+    component_role: backend_service
+    status: active
+  - id: CMP-45
+    system_id: APP-04
+    name: SYS-47 | logistics partner E
+    kind: service
+    layer: be
+    component_role: backend_service
+    status: active
+  - id: CMP-46
+    system_id: APP-04
+    name: SYS-48 | file partner A
+    kind: service
+    layer: be
+    component_role: backend_service
+    status: active
+  - id: CMP-47
+    system_id: APP-04
+    name: SYS-49 | file partner B
+    kind: service
+    layer: be
+    component_role: backend_service
+    status: active
+  - id: CMP-48
+    system_id: APP-04
+    name: SYS-50 | file partner C
+    kind: service
+    layer: be
+    component_role: backend_service
+    status: active
+  deployments:
+  - id: DEP-01
+    component_id: CMP-01
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-02
+    runtime_type: container
+  - id: DEP-02
+    component_id: CMP-02
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-02
+    runtime_type: container
+  - id: DEP-03
+    component_id: CMP-03
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-02
+    runtime_type: container
+  - id: DEP-04
+    component_id: CMP-04
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: vm
+  - id: DEP-05
+    component_id: CMP-05
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: container
+  - id: DEP-06
+    component_id: CMP-06
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: container
+  - id: DEP-07
+    component_id: CMP-07
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: container
+  - id: DEP-08
+    component_id: CMP-08
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: container
+  - id: DEP-09
+    component_id: CMP-09
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: container
+  - id: DEP-10
+    component_id: CMP-10
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: container
+  - id: DEP-11
+    component_id: CMP-11
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: vm
+  - id: DEP-12
+    component_id: CMP-12
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-06
+    runtime_type: physical
+  - id: DEP-13
+    component_id: CMP-13
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-06
+    runtime_type: physical
+  - id: DEP-14
+    component_id: CMP-14
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-06
+    runtime_type: physical
+  - id: DEP-15
+    component_id: CMP-15
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-06
+    runtime_type: physical
+  - id: DEP-16
+    component_id: CMP-16
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-06
+    runtime_type: physical
+  - id: DEP-17
+    component_id: CMP-17
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-06
+    runtime_type: physical
+  - id: DEP-18
+    component_id: CMP-18
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-06
+    runtime_type: physical
+  - id: DEP-19
+    component_id: CMP-19
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-06
+    runtime_type: physical
+  - id: DEP-20
+    component_id: CMP-20
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-08
+    runtime_type: container
+  - id: DEP-21
+    component_id: CMP-21
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-08
+    runtime_type: container
+  - id: DEP-22
+    component_id: CMP-22
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-08
+    runtime_type: container
+  - id: DEP-23
+    component_id: CMP-23
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-08
+    runtime_type: container
+  - id: DEP-24
+    component_id: CMP-24
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: container
+  - id: DEP-25
+    component_id: CMP-25
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: container
+  - id: DEP-26
+    component_id: CMP-26
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: container
+  - id: DEP-27
+    component_id: CMP-27
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: container
+  - id: DEP-28
+    component_id: CMP-28
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-12
+    runtime_type: container
+  - id: DEP-29
+    component_id: CMP-29
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-14
+    runtime_type: container
+  - id: DEP-30
+    component_id: CMP-30
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-14
+    runtime_type: container
+  - id: DEP-31
+    component_id: CMP-31
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-16
+    runtime_type: container
+  - id: DEP-32
+    component_id: CMP-32
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-16
+    runtime_type: container
+  - id: DEP-33
+    component_id: CMP-33
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-16
+    runtime_type: container
+  - id: DEP-34
+    component_id: CMP-34
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-16
+    runtime_type: container
+  - id: DEP-35
+    component_id: CMP-35
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-16
+    runtime_type: container
+  - id: DEP-36
+    component_id: CMP-36
+    environment: prod
+    deployment_type: public_cloud
+    location_type: public_cloud_region
+    infra_id: INF-18
+    runtime_type: container
+  - id: DEP-37
+    component_id: CMP-37
+    environment: prod
+    deployment_type: public_cloud
+    location_type: public_cloud_region
+    infra_id: INF-18
+    runtime_type: container
+  - id: DEP-38
+    component_id: CMP-38
+    environment: prod
+    deployment_type: public_cloud
+    location_type: public_cloud_region
+    infra_id: INF-18
+    runtime_type: container
+  - id: DEP-39
+    component_id: CMP-39
+    environment: prod
+    deployment_type: public_cloud
+    location_type: public_cloud_region
+    infra_id: INF-19
+    runtime_type: container
+  - id: DEP-40
+    component_id: CMP-40
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-21
+    runtime_type: container
+  - id: DEP-41
+    component_id: CMP-41
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-21
+    runtime_type: container
+  - id: DEP-42
+    component_id: CMP-42
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-21
+    runtime_type: container
+  - id: DEP-43
+    component_id: CMP-43
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-21
+    runtime_type: container
+  - id: DEP-44
+    component_id: CMP-44
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-21
+    runtime_type: container
+  - id: DEP-45
+    component_id: CMP-45
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-21
+    runtime_type: container
+  - id: DEP-46
+    component_id: CMP-46
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-23
+    runtime_type: container
+  - id: DEP-47
+    component_id: CMP-47
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-23
+    runtime_type: container
+  - id: DEP-48
+    component_id: CMP-48
+    environment: prod
+    deployment_type: private_cloud
+    location_type: data_center
+    infra_id: INF-23
+    runtime_type: container
+  flows:
+  - id: FLOW-01
+    source_component_id: internet
+    target_component_id: CMP-01
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+    via:
+    - INF-03
+    - INF-04
+  - id: FLOW-02
+    source_component_id: CMP-01
+    target_component_id: CMP-01
+    protocol: HTTPS/TLS 1.3
+    auth_method: mTLS
+    encryption: TLS1.3
+    via:
+    - INF-03
+    - INF-04
+    - INF-04
+  - id: FLOW-03
+    source_component_id: CMP-01
+    target_component_id: CMP-01
+    protocol: HTTPS/TLS 1.3
+    auth_method: mTLS
+    encryption: TLS1.3
+    via:
+    - INF-04
+  - id: FLOW-04
+    source_component_id: CMP-01
+    target_component_id: CMP-03
+    protocol: HTTPS/TLS 1.3
+    auth_method: mTLS
+    encryption: TLS1.3
+  - id: FLOW-05
+    source_component_id: CMP-03
+    target_component_id: CMP-02
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-06
+    source_component_id: CMP-02
+    target_component_id: CMP-04
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-07
+    source_component_id: CMP-04
+    target_component_id: CMP-09
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-08
+    source_component_id: CMP-04
+    target_component_id: CMP-10
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-09
+    source_component_id: CMP-06
+    target_component_id: CMP-05
+    protocol: Kafka/TLS
+    auth_method: SASL_SCRAM
+    encryption: TLS1.3
+  - id: FLOW-10
+    source_component_id: CMP-07
+    target_component_id: CMP-05
+    protocol: Kafka/TLS
+    auth_method: SASL_SCRAM
+    encryption: TLS1.3
+  - id: FLOW-11
+    source_component_id: CMP-08
+    target_component_id: CMP-05
+    protocol: Kafka/TLS
+    auth_method: SASL_SCRAM
+    encryption: TLS1.3
+  - id: FLOW-12
+    source_component_id: CMP-09
+    target_component_id: CMP-05
+    protocol: Kafka/TLS
+    auth_method: SASL_SCRAM
+    encryption: TLS1.3
+  - id: FLOW-13
+    source_component_id: CMP-10
+    target_component_id: CMP-05
+    protocol: Kafka/TLS
+    auth_method: SASL_SCRAM
+    encryption: TLS1.3
+  - id: FLOW-14
+    source_component_id: CMP-06
+    target_component_id: CMP-12
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-15
+    source_component_id: CMP-07
+    target_component_id: CMP-13
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-16
+    source_component_id: CMP-08
+    target_component_id: CMP-13
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-17
+    source_component_id: CMP-09
+    target_component_id: CMP-12
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-18
+    source_component_id: CMP-09
+    target_component_id: CMP-13
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-19
+    source_component_id: CMP-09
+    target_component_id: CMP-14
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-20
+    source_component_id: CMP-09
+    target_component_id: CMP-15
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-21
+    source_component_id: CMP-09
+    target_component_id: CMP-16
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-22
+    source_component_id: CMP-10
+    target_component_id: CMP-12
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-23
+    source_component_id: CMP-10
+    target_component_id: CMP-13
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-24
+    source_component_id: CMP-10
+    target_component_id: CMP-14
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-25
+    source_component_id: CMP-10
+    target_component_id: CMP-15
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-26
+    source_component_id: CMP-10
+    target_component_id: CMP-16
+    protocol: JDBC/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-27
+    source_component_id: CMP-06
+    target_component_id: CMP-17
+    protocol: Redis/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-28
+    source_component_id: CMP-07
+    target_component_id: CMP-17
+    protocol: Redis/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-29
+    source_component_id: CMP-08
+    target_component_id: CMP-17
+    protocol: Redis/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-30
+    source_component_id: CMP-09
+    target_component_id: CMP-17
+    protocol: Redis/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-31
+    source_component_id: CMP-10
+    target_component_id: CMP-17
+    protocol: Redis/TLS
+    auth_method: none
+    encryption: TLS1.3
+  - id: FLOW-32
+    source_component_id: CMP-06
+    target_component_id: CMP-18
+    protocol: AMQPS/TLS
+    auth_method: SASL_SCRAM
+    encryption: TLS1.3
+  - id: FLOW-33
+    source_component_id: CMP-07
+    target_component_id: CMP-18
+    protocol: AMQPS/TLS
+    auth_method: SASL_SCRAM
+    encryption: TLS1.3
+  - id: FLOW-34
+    source_component_id: CMP-08
+    target_component_id: CMP-18
+    protocol: AMQPS/TLS
+    auth_method: SASL_SCRAM
+    encryption: TLS1.3
+  - id: FLOW-35
+    source_component_id: CMP-09
+    target_component_id: CMP-18
+    protocol: AMQPS/TLS
+    auth_method: SASL_SCRAM
+    encryption: TLS1.3
+  - id: FLOW-36
+    source_component_id: CMP-10
+    target_component_id: CMP-18
+    protocol: AMQPS/TLS
+    auth_method: SASL_SCRAM
+    encryption: TLS1.3
+  - id: FLOW-37
+    source_component_id: CMP-06
+    target_component_id: CMP-19
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-38
+    source_component_id: CMP-07
+    target_component_id: CMP-19
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-39
+    source_component_id: CMP-08
+    target_component_id: CMP-19
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-40
+    source_component_id: CMP-09
+    target_component_id: CMP-19
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-41
+    source_component_id: CMP-10
+    target_component_id: CMP-19
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-42
+    source_component_id: CMP-06
+    target_component_id: CMP-31
+    protocol: RFC/SNC
+    auth_method: none
+    encryption: TBD
+  - id: FLOW-43
+    source_component_id: CMP-07
+    target_component_id: CMP-31
+    protocol: RFC/SNC
+    auth_method: none
+    encryption: TBD
+  - id: FLOW-44
+    source_component_id: CMP-08
+    target_component_id: CMP-31
+    protocol: RFC/SNC
+    auth_method: none
+    encryption: TBD
+  - id: FLOW-45
+    source_component_id: CMP-09
+    target_component_id: CMP-31
+    protocol: RFC/SNC
+    auth_method: none
+    encryption: TBD
+  - id: FLOW-46
+    source_component_id: CMP-10
+    target_component_id: CMP-31
+    protocol: RFC/SNC
+    auth_method: none
+    encryption: TBD
+  - id: FLOW-47
+    source_component_id: CMP-31
+    target_component_id: CMP-32
+    protocol: RFC/SNC
+    auth_method: none
+    encryption: TBD
+  - id: FLOW-48
+    source_component_id: CMP-31
+    target_component_id: CMP-33
+    protocol: RFC/SNC
+    auth_method: none
+    encryption: TBD
+  - id: FLOW-49
+    source_component_id: CMP-31
+    target_component_id: CMP-34
+    protocol: RFC/SNC
+    auth_method: none
+    encryption: TBD
+  - id: FLOW-50
+    source_component_id: CMP-06
+    target_component_id: CMP-35
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-51
+    source_component_id: CMP-07
+    target_component_id: CMP-35
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-52
+    source_component_id: CMP-08
+    target_component_id: CMP-35
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-53
+    source_component_id: CMP-09
+    target_component_id: CMP-35
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-54
+    source_component_id: CMP-10
+    target_component_id: CMP-35
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-55
+    source_component_id: CMP-04
+    target_component_id: CMP-20
+    protocol: HTTPS/TLS 1.3 over IPsec private WAN
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-56
+    source_component_id: CMP-04
+    target_component_id: CMP-21
+    protocol: HTTPS/TLS 1.3 over IPsec private WAN
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-57
+    source_component_id: CMP-04
+    target_component_id: CMP-22
+    protocol: HTTPS/TLS 1.3 over IPsec private WAN
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-58
+    source_component_id: CMP-04
+    target_component_id: CMP-23
+    protocol: HTTPS/TLS 1.3 over IPsec private WAN
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-59
+    source_component_id: CMP-04
+    target_component_id: CMP-24
+    protocol: HTTPS/TLS 1.3 over IPsec private WAN
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-60
+    source_component_id: CMP-04
+    target_component_id: CMP-25
+    protocol: HTTPS/TLS 1.3 over IPsec private WAN
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-61
+    source_component_id: CMP-04
+    target_component_id: CMP-26
+    protocol: HTTPS/TLS 1.3 over IPsec private WAN
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-62
+    source_component_id: CMP-05
+    target_component_id: CMP-27
+    protocol: Kafka/TLS over IPsec private WAN
+    auth_method: SASL_SCRAM
+    encryption: TLS1.3
+  - id: FLOW-63
+    source_component_id: CMP-04
+    target_component_id: CMP-28
+    protocol: HTTPS/TLS 1.3 over IPsec private WAN
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-64
+    source_component_id: CMP-04
+    target_component_id: CMP-29
+    protocol: HTTPS/TLS 1.3 over IPsec private WAN
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-65
+    source_component_id: CMP-04
+    target_component_id: CMP-30
+    protocol: HTTPS/TLS 1.3 over IPsec private WAN
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-66
+    source_component_id: CMP-04
+    target_component_id: CMP-36
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-67
+    source_component_id: CMP-04
+    target_component_id: CMP-37
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-68
+    source_component_id: CMP-04
+    target_component_id: CMP-38
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-69
+    source_component_id: CMP-05
+    target_component_id: CMP-39
+    protocol: Kafka/TLS
+    auth_method: SASL_SCRAM
+    encryption: TLS1.3
+  - id: FLOW-70
+    source_component_id: CMP-04
+    target_component_id: CMP-40
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-71
+    source_component_id: CMP-04
+    target_component_id: CMP-41
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-72
+    source_component_id: CMP-04
+    target_component_id: CMP-42
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-73
+    source_component_id: CMP-04
+    target_component_id: CMP-43
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-74
+    source_component_id: CMP-04
+    target_component_id: CMP-44
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-75
+    source_component_id: CMP-04
+    target_component_id: CMP-45
+    protocol: HTTPS/TLS 1.3
+    auth_method: OAuth2_ClientCredentials
+    encryption: TLS1.3
+  - id: FLOW-76
+    source_component_id: CMP-11
+    target_component_id: CMP-46
+    protocol: SFTP/SSH
+    auth_method: ClientCertificate
+    encryption: TBD
+  - id: FLOW-77
+    source_component_id: CMP-11
+    target_component_id: CMP-47
+    protocol: SFTP/SSH
+    auth_method: ClientCertificate
+    encryption: TBD
+  - id: FLOW-78
+    source_component_id: CMP-11
+    target_component_id: CMP-48
+    protocol: SFTP/SSH
+    auth_method: ClientCertificate
+    encryption: TBD
+  network_links:
+  - id: LNK-01
+    source_infra_id: INF-01
+    target_infra_id: INF-07
+    method: vpn
+    encrypted: true
+    managed_by: TBD
+    redundancy: primary
+    notes: named private WAN path; method and carrier TBD
+  - id: LNK-02
+    source_infra_id: INF-01
+    target_infra_id: INF-11
+    method: vpn
+    encrypted: true
+    managed_by: TBD
+    redundancy: primary
+    notes: named private WAN path; method and carrier TBD
+  - id: LNK-03
+    source_infra_id: INF-01
+    target_infra_id: INF-13
+    method: vpn
+    encrypted: true
+    managed_by: TBD
+    redundancy: primary
+    notes: named private WAN path; method and carrier TBD
+  - id: LNK-04
+    source_infra_id: INF-01
+    target_infra_id: INF-17
+    method: vpn
+    encrypted: true
+    managed_by: TBD
+    redundancy: primary
+    notes: named private WAN path; method and carrier TBD
+  auth:
+  - id: AUTH-01
+    subject: user
+    applies_to: CMP-01
+    auth_server: INF-09
+    protocol: SAML2
+    authorization: RBAC
+    mfa: true
+    notes: internal STS fallback; trigger and role mapping TBD
+  - id: AUTH-02
+    subject: user
+    applies_to: CMP-01
+    auth_server: INF-10
+    protocol: OIDC
+    authorization: RBAC
+    mfa: true
+    notes: external partner users; tenant and role claims TBD
   credentials:
-    - {environment: "private_dc", solution: "Kubernetes Secrets", notes: "For K8s workload database credentials; encryption at rest and rotation controls TBD; no hardcoded credentials"}
-    - {environment: "private_dc", solution: "TBD enterprise secret store", notes: "Required for non-K8s components SYS-01, SYS-05, SYS-06, SYS-12 through SYS-19, SYS-51, and SYS-52"}
-    - {environment: "azure", solution: "TBD", notes: "Secret ownership and controls for SYS-38 through SYS-41 are not supplied"}
-    - {environment: "private_dc", solution: "SYS-51 managed SSH keys; backing vault TBD", notes: "Partner key lifecycle and rotation TBD"}
-
-  data_encryption:
-    - {component: "SYS-12, SYS-13, SYS-14, SYS-15, SYS-16", at_rest: false, at_rest_method: "TBD", in_transit: true, in_transit_protocol: "TLS 1.2 or later required; JDBC configuration TBD", cross_border: true, cross_border_compliance: "Potential CN-US data flow; data fields and compliance basis TBD"}
-    - {component: "SYS-17", at_rest: false, at_rest_method: "TBD", in_transit: true, in_transit_protocol: "TLS 1.2 or later required; configuration TBD", cross_border: true, cross_border_compliance: "Potential CN-US data flow; data fields and compliance basis TBD"}
-    - {component: "SYS-18", at_rest: false, at_rest_method: "TBD", in_transit: true, in_transit_protocol: "TLS 1.2 or later required; configuration TBD", cross_border: true, cross_border_compliance: "Potential CN-US events; fields and compliance basis TBD"}
-    - {component: "SYS-19", at_rest: false, at_rest_method: "TBD", in_transit: true, in_transit_protocol: "TLS 1.2 or later", cross_border: true, cross_border_compliance: "Potential CN-US indexed data; fields and compliance basis TBD"}
-    - {component: "SYS-06, SYS-34", at_rest: false, at_rest_method: "TBD", in_transit: true, in_transit_protocol: "TLS 1.2 or later required; Kafka configuration TBD", cross_border: true, cross_border_compliance: "Event fields and compliance basis TBD"}
-    - {component: "SYS-51", at_rest: false, at_rest_method: "TBD", in_transit: true, in_transit_protocol: "SFTP/SSH", cross_border: true, cross_border_compliance: "File contents, partner locations, and compliance basis TBD"}
-
+  - environment: private_dc
+    solution: Kubernetes Secrets encrypted at rest; enterprise vault with HSM-backed
+      keys for appliances and HA data platforms; automated rotation
+  - environment: azure
+    solution: Azure Key Vault with managed identities and private endpoints
+  - environment: other
+    solution: 'partner_keys: short-lived SSH certificates from the enterprise vault
+      with dual control'
   open_items:
-    - {id: "TBD-001", description: "Confirm NA cut-over sequence for SYS-11 group.", owner: "Program", blocking: true}
-    - {id: "TBD-002", description: "Confirm SYS-51 to SYS-06 replacement roadmap.", owner: "Integration owner", blocking: false}
-    - {id: "TBD-003", description: "Reconcile the stated SYS-11 count of 22 with the 21 supplied member names.", owner: "Application owner", blocking: false}
-    - {id: "TBD-004", description: "Define authentication between SYS-01 and SYS-02.", owner: "Security / platform owner", blocking: true}
-    - {id: "TBD-005", description: "Select HTTPS or TCP/EDI per SYS-42 through SYS-47 and define EDI authentication.", owner: "Integration / partner owners", blocking: true}
-    - {id: "TBD-006", description: "Confirm SAP hosting location, RFC ports, authentication, and transport encryption.", owner: "SAP owner", blocking: true}
-    - {id: "TBD-007", description: "Confirm Azure region, network placement, and connectivity type.", owner: "Cloud owner", blocking: true}
-    - {id: "TBD-008", description: "Confirm encryption for every VPN/MPLS path and non-HTTPS protocol.", owner: "InfraSec", blocking: true}
-    - {id: "TBD-009", description: "Define non-K8s secret stores and credential/key rotation controls.", owner: "InfraSec", blocking: true}
-    - {id: "TBD-010", description: "Confirm at-rest encryption methods for databases, caches, queues, indexes, events, and managed files.", owner: "Data / platform owners", blocking: true}
-    - {id: "TBD-011", description: "Identify cross-border data elements and establish the applicable transfer compliance basis.", owner: "Privacy / legal", blocking: true}
-    - {id: "TBD-012", description: "Confirm business owner, department, and target go-live date.", owner: "Program", blocking: false}
-    - {id: "TBD-013", description: "Replace or formally risk-accept Basic Auth integrations.", owner: "Security / integration owner", blocking: true}
-
-  constraints:
-    - "Private cloud is mandatory for SDP; Azure systems are existing satellites only."
-    - "The primary deployment remains in the CN Primary DC with separate DMZ, Intranet, and DB zones."
-    - "All cross-application API calls traverse SYS-05; all event traffic traverses SYS-06; direct application-to-application connections are prohibited."
-    - "Managed partner file transfer traverses SYS-51."
-    - "SYS-20 through SYS-23 are reachable only by RFC from Intranet and are not exposed to the DMZ."
-    - "The DB Zone is reachable only from SDP Intranet services, with the stated HA topology."
-    - "External 3PL and file traffic terminates at SYS-01 in the DMZ and never connects directly to Intranet."
-    - "TLS 1.2 or later, or an approved equivalent encrypted transport, is required everywhere."
-    - "Credentials are not hardcoded; K8s workload database credentials use Kubernetes Secrets."
-    - "No IP addresses or CIDR ranges are defined; use named locations and zones until allocations are approved."
+  - id: TBD-001
+    description: Confirm the NA cut-over sequence and per-site capacity plan
+    owner: TBD
+    blocking: false
+  - id: TBD-002
+    description: Security must approve the mTLS device authentication for the SAP
+      RFC boundary
+    owner: Security
+    blocking: true
+  - id: TBD-003
+    description: InfraSec must confirm IPsec encryption and carrier for each named
+      private WAN path
+    owner: InfraSec
+    blocking: true
+  - id: TBD-004
+    description: Confirm the Azure region, subnet ownership, and private connectivity
+      roadmap
+    owner: Cloud owner
+    blocking: true
+  - id: TBD-005
+    description: Privacy and Legal must approve the minimized CN-US transfer dataset
+      and transfer basis
+    owner: Privacy/Legal
+    blocking: true
+  - id: TBD-006
+    description: Data owners must confirm AES-256 at-rest implementation for every
+      HA data platform
+    owner: Data owners
+    blocking: false

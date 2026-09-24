@@ -61,19 +61,19 @@ The ruleset digest binds all six arch-validate YAML rule files, `standards/priva
 1. Redraw the four congested regions so every label is readable and unambiguously attached to one arrow. Split the view into ingress/identity, application/data, SAP/integration, and external-partner views if necessary.
 2. Change dashed borders on 37 physical components and 9 physical zones to solid borders. Reserve dashed borders for logical concepts.
 3. Replace the Azure exact-region TBD and SAP/partner location TBD values with approved Region/country or jurisdiction labels.
-4. Classify SYS-38 through SYS-41 correctly as SaaS endpoints or place Azure-owned workloads in explicit VNET/Subnet boundaries with private endpoint details.
+4. Classify CMP-36 through CMP-39 correctly as SaaS endpoints or place Azure-owned workloads in explicit VNET/Subnet boundaries with private endpoint details.
 5. Add infrastructure-level connectivity links. Identify MPLS/equivalent for DC-to-DC and SAP, and ExpressRoute/equivalent private connectivity for Azure. Twenty-six of 37 cross-boundary arrows currently lack connection type.
 6. Add visible component categories to the 37 generic component boxes and visible runtime/platform placement to all 52 components.
 7. Add explicit ports to all 80 arrows as required by `input/prompt.md`. Protocol and auth text are present on all 80, but ports are absent.
-8. Reverse the SYS-41 consumer relation so it points to SYS-06 Kafka.
-9. Mediate the ten SYS-07..SYS-11 to SAP SYS-20/SYS-24 calls through SYS-05 or another approved integration platform.
-10. Remove the direct Internet-to-SYS-30 Intranet ingress. Show external identity and application callback paths through the approved F5/DMZ pattern.
+8. Reverse the CMP-39 consumer relation so it points to CMP-05 Kafka.
+9. Mediate the ten CMP-06..CMP-10 to SAP CMP-31/CMP-35 calls through CMP-04 or another approved integration platform.
+10. Remove the direct Internet-to-INF-10 Intranet ingress. Show external identity and application callback paths through the approved F5/DMZ pattern.
 11. Connect the user actor and application entry point to ADFS and Enterprise ID with complete request/callback semantics.
 12. Add AuthZ Platform as a visible node and show policy enforcement connections, or visibly annotate application RBAC/ABAC enforcement.
 13. Select and name the non-K8s enterprise vault, then show consumers and rotation. Kubernetes Secrets only covers workload DB credentials; TBD-009 remains blocking.
 14. Label the eight known CN-US application/event flows with data classification, minimized fields, and approved transfer basis.
 15. Add the mandatory Office Network -> MFA -> PAW -> management plane -> target-zone operational path.
-16. Put SYS-24 and SYS-33 inside explicit DB/data segments or show equivalent enforceable isolation.
+16. Put CMP-35 and CMP-26 inside explicit DB/data segments or show equivalent enforceable isolation.
 17. Complete the legend with arrow direction, line style, warning/status markers, and all boundary semantics.
 18. Resolve and approve mTLS for F5/nginx and partners, SAP SNC/auth endpoints, and the Enterprise ID callback instead of rendering unresolved assumptions as final controls.
 
@@ -81,7 +81,7 @@ The ruleset digest binds all six arch-validate YAML rule files, `standards/priva
 
 ### F5 And DMZ
 
-The main web path follows `Internet -> SYS-52 -> SYS-01 F5 -> SYS-02`, and SYS-01 is correctly shown as a hexagon in the DMZ. However, `Internet -> SYS-30` bypasses F5 into the US DC Intranet, and the external identity callback/application path is missing. Partner inbound traffic is not explicitly traceable through F5.
+The main web path follows `Internet -> INF-03 -> INF-04 F5 -> CMP-01`, and INF-04 is correctly shown as a hexagon in the DMZ. However, `Internet -> INF-10` bypasses F5 into the US DC Intranet, and the external identity callback/application path is missing. Partner inbound traffic is not explicitly traceable through F5.
 
 ### Mediation And Boundaries
 
@@ -93,7 +93,7 @@ All 80 arrows contain auth text, but several controls are unresolved assumptions
 
 ### PAW And Database Zoning
 
-The blueprint declares PAW and DB segmentation, but the PNG omits the PAW path entirely. The eight CN-primary stores are visibly in DB Zone; SYS-24 and SYS-33 lack explicit DB/data sub-segmentation. Dense overlaps over the CN-primary DB Zone materially reduce confidence in individual access-path interpretation.
+The blueprint declares PAW and DB segmentation, but the PNG omits the PAW path entirely. The eight CN-primary stores are visibly in DB Zone; CMP-35 and CMP-26 lack explicit DB/data sub-segmentation. Dense overlaps over the CN-primary DB Zone materially reduce confidence in individual access-path interpretation.
 
 ## Enforcement Readiness
 

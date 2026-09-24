@@ -155,8 +155,8 @@ python -m archharness migrate-status --json   # machine-readable backlog
 Each example resolves to `scaffold`, `reqv1`, `reqv2-partial`, or
 `reqv2-complete`, and the example matrix in `examples/README.md` must agree —
 `tests/test_migration_status.py` fails when the table and the measured state
-diverge. Example 05 measures as `reqv2-partial`: its registry and `req.yaml` are
-already req/v2, and the remaining work is the blueprint/diagram id space.
+diverge. Examples 02, 04, 05, and 06 measure as `reqv2-complete`; example 03 is
+the remaining rebuild.
 
 ## Ordering recommendation
 
@@ -165,7 +165,7 @@ already req/v2, and the remaining work is the blueprint/diagram id space.
 | 06 factory-mes | done | validated reference |
 | 05 supply-chain | done | migrated; v2 diagram awaits re-validation |
 | 02 ai-agent-hybrid | done | migrated; v2 diagram awaits re-validation |
+| 04 service-delivery | done | migrated; 208 registry rows, v2 diagram awaits re-validation |
 | 03 order-query-aws | medium | AWS standard + EDW |
-| 04 service-delivery | medium | private-cloud full coverage |
 | 01 ecommerce-azure | low value | source diagram quality is poor; rebuild last or drop |
 | 07/08 | blocked | awaiting reference input |

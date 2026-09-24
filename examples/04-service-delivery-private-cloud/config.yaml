@@ -1,7 +1,7 @@
 # config.yaml — example overlay for service-delivery-private-cloud
 #
 # SDP spans four private DCs plus Azure-hosted satellite systems, and
-# integrates with SAP (RFC), SYS-51, and external 3PL partners.
+# integrates with SAP (RFC), CMP-11, and external 3PL partners.
 # Deep-merged on top of the repository-root config.yaml.
 # (System codes resolve via input/systems-registry.md.)
 
@@ -12,7 +12,7 @@ datacenters:
     model: "three-tier"
     zones: ["DMZ", "Intranet", "DB Zone"]
     region: "APAC-CN"
-    notes: "SYS-01 ingress, SYS-02..SYS-04 DMZ K8s, SYS-05..SYS-11 Intranet K8s, SYS-12..SYS-19 DB Zone (7 HA groups), SYS-52. (See input/systems-registry.md.)"
+    notes: "INF-04 ingress, CMP-01..CMP-03 DMZ K8s, CMP-04..CMP-10 Intranet K8s, CMP-12..CMP-19 DB Zone (7 HA groups), INF-03. (See input/systems-registry.md.)"
 
   - id: "dc-us"
     aliases: ["US DC"]
@@ -20,7 +20,7 @@ datacenters:
     model: "two-tier"
     zones: ["App Zone", "Intranet"]
     region: "NA"
-    notes: "SYS-25, SYS-26, SYS-27, SYS-28, SYS-29, SYS-30. (See input/systems-registry.md.)"
+    notes: "CMP-20, CMP-21, CMP-22, CMP-23, INF-09, INF-10. (See input/systems-registry.md.)"
 
   - id: "dc-cn-secondary"
     aliases: ["CN Secondary DC", "备DC"]
@@ -28,7 +28,7 @@ datacenters:
     model: "two-tier"
     zones: ["Intranet"]
     region: "APAC-CN"
-    notes: "SYS-31, SYS-32, SYS-33, SYS-34, SYS-35. (See input/systems-registry.md.)"
+    notes: "CMP-24, CMP-25, CMP-26, CMP-27, CMP-28. (See input/systems-registry.md.)"
 
   - id: "dc-cn-support"
     aliases: ["Support DC"]
@@ -36,7 +36,7 @@ datacenters:
     model: "two-tier"
     zones: ["App Zone"]
     region: "APAC-CN"
-    notes: "SYS-36, SYS-37 support systems. (See input/systems-registry.md.)"
+    notes: "CMP-29, CMP-30 support systems. (See input/systems-registry.md.)"
 
   - id: "azure-global"
     aliases: ["Azure"]
@@ -44,7 +44,7 @@ datacenters:
     model: "saas"
     zones: ["SaaS apps"]
     region: "NA"
-    notes: "SYS-38, SYS-39, SYS-40 and SYS-41 consuming SDP APIs. (See input/systems-registry.md.)"
+    notes: "CMP-36, CMP-37, CMP-38 and CMP-39 consuming SDP APIs. (See input/systems-registry.md.)"
 
 platforms:
   api_gateway: "WSO2 API Gateway"

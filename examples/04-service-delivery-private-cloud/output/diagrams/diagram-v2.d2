@@ -1,0 +1,746 @@
+# Service Delivery Platform (SDP) - Private Cloud Multi-DC Technical Architecture
+# ID: SDP-NA-001-TechDiagram-V1.0  |  Platform: hybrid_cloud  |  Version: V1.0  |  Owner team: Service Delivery Platform Team  |  Author: ArchHarness  |  Last modified: 2026-09-14
+
+direction: right
+
+internet: Internet {
+  shape: cloud
+  style {
+    fill: "#E8E8E8"
+  }
+}
+
+dc_cn_primary: "CN Primary DC, City A, Province A [CN] [InfraSec]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  dc_cn_primary_dmz: "DMZ" {
+    style {
+      fill: "#FFFDE7"
+      stroke: "#F9A825"
+      stroke-dash: 6
+    }
+
+    INF_03: "⚠ INF-03 | Edge router\nHW" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    INF_04: "⚠ INF-04 | F5\nPM" {
+      shape: hexagon
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_01: "⚠ CMP-01 | Service-Supply-Chain-dmz-nginx-proxy\nn/a, nginx · K8s" {
+      shape: rectangle
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_02: "⚠ CMP-02 | Service-Supply-Chain-gateway\njava, spring cloud · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_03: "⚠ CMP-03 | Service-Supply-Chain-web\njava, spring cloud · K8s" {
+      shape: rectangle
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+  dc_cn_primary_intranet: "Intranet" {
+    style {
+      fill: "#F3E5F5"
+      stroke: "#7B1FA2"
+      stroke-dash: 6
+    }
+
+    CMP_04: "⚠ CMP-04 | WSO2\nwso2 api gateway · Private DC integration platform" {
+      shape: parallelogram
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_05: "⚠ CMP-05 | Kafka (primary)\nkafka · Private DC HA cluster" {
+      shape: queue
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_06: "⚠ CMP-06 | Service-Supply-Chain-int-nginx-proxy\nn/a, nginx · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_07: "⚠ CMP-07 | Service-Supply-Chain-main\njava, spring cloud · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_08: "⚠ CMP-08 | Service-Supply-Chain-websocket\njava, spring cloud · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_09: "⚠ CMP-09 | Service-Supply-Chain-* group (10 services)\njava, spring cloud · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_10: "⚠ CMP-10 | Service-Supply-Chain-* group (22 services)\njava, spring cloud · K8s" {
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_11: "⚠ CMP-11 | MFT platform\nmft platform · Private DC HA integration platform" {
+      shape: parallelogram
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+  }
+
+  dc_cn_primary_db: "DB Zone" {
+    style {
+      fill: "#E3F2FD"
+      stroke: "#1565C0"
+      stroke-dash: 6
+    }
+
+    CMP_12: "⚠ CMP-12 | MySQL TMS HA (1 primary + 2 replicas)\nmysql · Private DC HA group" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_13: "⚠ CMP-13 | MySQL Main HA (1 primary + 2 replicas)\nmysql · Private DC HA group" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_14: "⚠ CMP-14 | MySQL WMS HA (1 primary + 2 replicas)\nmysql · Private DC HA group" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_15: "⚠ CMP-15 | MySQL MDS HA (1 primary + 2 replicas)\nmysql · Private DC HA group" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_16: "⚠ CMP-16 | MySQL OMS HA (1 primary + 2 replicas)\nmysql · Private DC HA group" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_17: "⚠ CMP-17 | Redis HA (3 primary + 3 replicas)\nredis · Private DC HA group" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_18: "⚠ CMP-18 | RabbitMQ HA (3 replicas)\nrabbitmq · Private DC HA group" {
+      shape: queue
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_19: "⚠ CMP-19 | Elasticsearch HA (3 nodes)\nelasticsearch · Private DC HA group" {
+      shape: cylinder
+      style {
+            fill: "#FBC02D"
+            stroke: "#B58A00"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+  }
+
+}
+
+dc_us: "US DC, City C, State X [US] [InfraSec]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  dc_us_intranet: "App Zone / Intranet" {
+    style {
+      fill: "#F3E5F5"
+      stroke: "#7B1FA2"
+      stroke-dash: 6
+    }
+
+    CMP_20: "⚠ CMP-20 | Account-Service" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_21: "⚠ CMP-21 | Service-customer-master-data" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_22: "⚠ CMP-22 | Serice-Data-serviceE" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_23: "⚠ CMP-23 | Price-master-ROW" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    INF_09: "⚠ INF-09 | ADFS" {
+      shape: oval
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    INF_10: "⚠ INF-10 | Enterprise ID" {
+      shape: oval
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+  }
+
+}
+
+dc_cn_secondary: "CN Secondary DC, City B, Province B [CN] [InfraSec]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  dc_cn_secondary_intranet: "Intranet" {
+    style {
+      fill: "#F3E5F5"
+      stroke: "#7B1FA2"
+      stroke-dash: 6
+    }
+
+    CMP_24: "⚠ CMP-24 | Reverse-Management-System" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_25: "⚠ CMP-25 | procurement-service" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_26: "⚠ CMP-26 | lakehouse" {
+      shape: stored_data
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            bold: true
+          }
+    }
+    CMP_27: "⚠ CMP-27 | Kafka (secondary)" {
+      shape: queue
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_28: "⚠ CMP-28 | support-hub" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+}
+
+dc_cn_support: "Support DC, City F [CN] [InfraSec]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  dc_cn_support_app: "App Zone" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    CMP_29: "⚠ CMP-29 | support-portal" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_30: "⚠ CMP-30 | support-gateway" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+}
+
+sap_landscape: "SAP landscape [location TBD] [SAP Team (TBD)]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  sap_private_zone: "SAP Private Zone" {
+    style {
+      fill: "#F3E5F5"
+      stroke: "#7B1FA2"
+      stroke-dash: 6
+    }
+
+    CMP_31: "⚠ CMP-31 | S4" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_32: "⚠ CMP-32 | SECC" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_33: "⚠ CMP-33 | LSCRM" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_34: "⚠ CMP-34 | CECC" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_35: "⚠ CMP-35 | S3" {
+      shape: stored_data
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            bold: true
+          }
+    }
+  }
+
+}
+
+azure_us_satellites: "Azure US [exact region TBD] [ThirdParty / Cloud Owner (TBD)]" {
+  style {
+    fill: "#FAFAFA"
+    stroke: "#0078D4"
+    stroke-width: 2
+  }
+
+  azure_us_saas: "SaaS Application Boundary" {
+    style {
+      fill: "#E8F5E9"
+      stroke: "#2E7D32"
+      stroke-dash: 6
+    }
+
+    CMP_36: "⚠ CMP-36 | d365-service-delivery-bu1" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_37: "⚠ CMP-37 | d365-service-delivery-bu2" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_38: "⚠ CMP-38 | d365-service-delivery-bu3" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+  azure_us_app: "Application Boundary" {
+    style {
+      fill: "#E8F5E9"
+      stroke: "#2E7D32"
+      stroke-dash: 6
+    }
+
+    CMP_39: "⚠ CMP-39 | edge-cache" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+}
+
+external_3pl: "Partner hosted [locations TBD] [ThirdParty]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  external_3pl_boundary: "Internet 3PL Boundary" {
+    style {
+      fill: "#FFFDE7"
+      stroke: "#F9A825"
+      stroke-dash: 6
+    }
+
+    CMP_40: "CMP-40 | logistics partner A" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+          }
+    }
+    CMP_41: "CMP-41 | logstics-vendor-1" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+          }
+    }
+    CMP_42: "CMP-42 | logistics partner B" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+          }
+    }
+    CMP_43: "CMP-43 | logistics partner C" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+          }
+    }
+    CMP_44: "CMP-44 | logistics partner D" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+          }
+    }
+    CMP_45: "CMP-45 | logistics partner E" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+          }
+    }
+  }
+
+}
+
+external_file_partners: "Partner hosted [locations TBD] [ThirdParty]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  external_file_boundary: "Internet File-Transfer Boundary" {
+    style {
+      fill: "#FFFDE7"
+      stroke: "#F9A825"
+      stroke-dash: 6
+    }
+
+    CMP_46: "CMP-46 | file partner A" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+          }
+    }
+    CMP_47: "CMP-47 | file partner B" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+          }
+    }
+    CMP_48: "CMP-48 | file partner C" {
+      style {
+            fill: "#FB8C00"
+            stroke: "#E65100"
+            font-color: "#000000"
+            stroke-dash: 5
+          }
+    }
+  }
+
+}
+
+# ── Interactions ──────────────────────────────────────
+
+internet -> dc_cn_primary.dc_cn_primary_dmz.INF_03: "P-HTTPS\n(AU-T2)"
+dc_cn_primary.dc_cn_primary_dmz.INF_03 -> dc_cn_primary.dc_cn_primary_dmz.INF_04: "P-HTTPS\n(AU-C1)"
+dc_cn_primary.dc_cn_primary_dmz.INF_04 -> dc_cn_primary.dc_cn_primary_dmz.CMP_01: "P-HTTPS\n(AU-C1)"
+dc_cn_primary.dc_cn_primary_dmz.CMP_01 -> dc_cn_primary.dc_cn_primary_dmz.CMP_03: "P-HTTPS\n(AU-C1)"
+dc_cn_primary.dc_cn_primary_dmz.CMP_03 -> dc_cn_primary.dc_cn_primary_dmz.CMP_02: "P-HTTPS"
+dc_cn_primary.dc_cn_primary_dmz.CMP_02 -> dc_cn_primary.dc_cn_primary_intranet.CMP_04: "P-HTTPS\n(AU-T1+C1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> dc_cn_primary.dc_cn_primary_intranet.CMP_09: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> dc_cn_primary.dc_cn_primary_intranet.CMP_10: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_06 -> dc_cn_primary.dc_cn_primary_intranet.CMP_05: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.dc_cn_primary_intranet.CMP_07 -> dc_cn_primary.dc_cn_primary_intranet.CMP_05: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.dc_cn_primary_intranet.CMP_08 -> dc_cn_primary.dc_cn_primary_intranet.CMP_05: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.dc_cn_primary_intranet.CMP_09 -> dc_cn_primary.dc_cn_primary_intranet.CMP_05: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.dc_cn_primary_intranet.CMP_10 -> dc_cn_primary.dc_cn_primary_intranet.CMP_05: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.dc_cn_primary_intranet.CMP_06 -> dc_cn_primary.dc_cn_primary_db.CMP_12: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_07 -> dc_cn_primary.dc_cn_primary_db.CMP_13: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_08 -> dc_cn_primary.dc_cn_primary_db.CMP_13: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_09 -> dc_cn_primary.dc_cn_primary_db.CMP_12: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_09 -> dc_cn_primary.dc_cn_primary_db.CMP_13: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_09 -> dc_cn_primary.dc_cn_primary_db.CMP_14: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_09 -> dc_cn_primary.dc_cn_primary_db.CMP_15: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_09 -> dc_cn_primary.dc_cn_primary_db.CMP_16: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_10 -> dc_cn_primary.dc_cn_primary_db.CMP_12: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_10 -> dc_cn_primary.dc_cn_primary_db.CMP_13: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_10 -> dc_cn_primary.dc_cn_primary_db.CMP_14: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_10 -> dc_cn_primary.dc_cn_primary_db.CMP_15: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_10 -> dc_cn_primary.dc_cn_primary_db.CMP_16: "P-JDBC"
+dc_cn_primary.dc_cn_primary_intranet.CMP_06 -> dc_cn_primary.dc_cn_primary_db.CMP_17: "P-REDIS\n(AU-Z1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_07 -> dc_cn_primary.dc_cn_primary_db.CMP_17: "P-REDIS\n(AU-Z1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_08 -> dc_cn_primary.dc_cn_primary_db.CMP_17: "P-REDIS\n(AU-Z1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_09 -> dc_cn_primary.dc_cn_primary_db.CMP_17: "P-REDIS\n(AU-Z1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_10 -> dc_cn_primary.dc_cn_primary_db.CMP_17: "P-REDIS\n(AU-Z1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_06 -> dc_cn_primary.dc_cn_primary_db.CMP_18: "P-AMQPS\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.dc_cn_primary_intranet.CMP_07 -> dc_cn_primary.dc_cn_primary_db.CMP_18: "P-AMQPS\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.dc_cn_primary_intranet.CMP_08 -> dc_cn_primary.dc_cn_primary_db.CMP_18: "P-AMQPS\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.dc_cn_primary_intranet.CMP_09 -> dc_cn_primary.dc_cn_primary_db.CMP_18: "P-AMQPS\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.dc_cn_primary_intranet.CMP_10 -> dc_cn_primary.dc_cn_primary_db.CMP_18: "P-AMQPS\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.dc_cn_primary_intranet.CMP_06 -> dc_cn_primary.dc_cn_primary_db.CMP_19: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_07 -> dc_cn_primary.dc_cn_primary_db.CMP_19: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_08 -> dc_cn_primary.dc_cn_primary_db.CMP_19: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_09 -> dc_cn_primary.dc_cn_primary_db.CMP_19: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_10 -> dc_cn_primary.dc_cn_primary_db.CMP_19: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_06 -> sap_landscape.sap_private_zone.CMP_31: "P-RFC\n(AU-K1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_07 -> sap_landscape.sap_private_zone.CMP_31: "P-RFC\n(AU-K1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_08 -> sap_landscape.sap_private_zone.CMP_31: "P-RFC\n(AU-K1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_09 -> sap_landscape.sap_private_zone.CMP_31: "P-RFC\n(AU-K1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_10 -> sap_landscape.sap_private_zone.CMP_31: "P-RFC\n(AU-K1)"
+sap_landscape.sap_private_zone.CMP_31 -> sap_landscape.sap_private_zone.CMP_32: "P-RFC\n(AU-K1)"
+sap_landscape.sap_private_zone.CMP_31 -> sap_landscape.sap_private_zone.CMP_33: "P-RFC\n(AU-K1)"
+sap_landscape.sap_private_zone.CMP_31 -> sap_landscape.sap_private_zone.CMP_34: "P-RFC\n(AU-K1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_06 -> sap_landscape.sap_private_zone.CMP_35: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_07 -> sap_landscape.sap_private_zone.CMP_35: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_08 -> sap_landscape.sap_private_zone.CMP_35: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_09 -> sap_landscape.sap_private_zone.CMP_35: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_10 -> sap_landscape.sap_private_zone.CMP_35: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> dc_us.dc_us_intranet.CMP_20: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> dc_us.dc_us_intranet.CMP_21: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> dc_us.dc_us_intranet.CMP_22: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> dc_us.dc_us_intranet.CMP_23: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> dc_cn_secondary.dc_cn_secondary_intranet.CMP_24: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> dc_cn_secondary.dc_cn_secondary_intranet.CMP_25: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> dc_cn_secondary.dc_cn_secondary_intranet.CMP_26: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_05 -> dc_cn_secondary.dc_cn_secondary_intranet.CMP_27: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> dc_cn_secondary.dc_cn_secondary_intranet.CMP_28: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> dc_cn_support.dc_cn_support_app.CMP_29: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> dc_cn_support.dc_cn_support_app.CMP_30: "P-HTTPS\n(AU-T1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> azure_us_satellites.azure_us_saas.CMP_36: "P-HTTPS\n(AU-T1+C1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> azure_us_satellites.azure_us_saas.CMP_37: "P-HTTPS\n(AU-T1+C1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> azure_us_satellites.azure_us_saas.CMP_38: "P-HTTPS\n(AU-T1+C1)"
+azure_us_satellites.azure_us_app.CMP_39 -> dc_cn_primary.dc_cn_primary_intranet.CMP_05: "P-KAFKA\n(AU-S1)" { style { stroke-dash: 4 } }
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> external_3pl.external_3pl_boundary.CMP_40: "P-HTTPS\n(AU-T1+C1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> external_3pl.external_3pl_boundary.CMP_41: "P-HTTPS\n(AU-T1+C1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> external_3pl.external_3pl_boundary.CMP_42: "P-HTTPS\n(AU-T1+C1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> external_3pl.external_3pl_boundary.CMP_43: "P-HTTPS\n(AU-T1+C1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> external_3pl.external_3pl_boundary.CMP_44: "P-HTTPS\n(AU-T1+C1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_04 -> external_3pl.external_3pl_boundary.CMP_45: "P-HTTPS\n(AU-T1+C1)"
+dc_cn_primary.dc_cn_primary_intranet.CMP_11 -> external_file_partners.external_file_boundary.CMP_46: "P-SFTP+P-SSH"
+dc_cn_primary.dc_cn_primary_intranet.CMP_11 -> external_file_partners.external_file_boundary.CMP_47: "P-SFTP+P-SSH"
+dc_cn_primary.dc_cn_primary_intranet.CMP_11 -> external_file_partners.external_file_boundary.CMP_48: "P-SFTP+P-SSH"
+dc_cn_primary.dc_cn_primary_dmz.CMP_03 -> dc_us.dc_us_intranet.INF_09: "P-HTTPS\n(AU-T3+M1)"
+internet -> dc_us.dc_us_intranet.INF_10: "P-HTTPS\n(AU-T2+M1)"
+
+# ── Security declarations ─────────────────────────
+# Key Management [private_dc]: Kubernetes Secrets encrypted at rest for workloads; enterprise vault with HSM-backed keys for F5, WSO2, Kafka, HA data platforms, MFT platform, and network devices; automated rotation; no hardcoded credentials
+# Key Management [azure]: Azure Key Vault with managed identities and private endpoints for Azure-owned secrets; third-party control evidence required
+# Key Management [partner_keys]: CMP-11 obtains short-lived SSH certificates from the enterprise vault; dual control and automated rotation
+# User Auth (Internal): INF-09 | ADFS / SAML 2.0 over TLS 1.3 with signed assertions and MFA
+# User Auth (External): INF-10 | Enterprise ID / OIDC / OAuth2.0 Authorization Code with PKCE and MFA

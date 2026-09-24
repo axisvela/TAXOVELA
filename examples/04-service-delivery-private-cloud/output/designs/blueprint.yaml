@@ -3,9 +3,9 @@ _template:
   version: "2.0"
   mixed_with: "azure satellite boundary"
 
-# TODO TBD-001: Confirm the NA cut-over sequence for SYS-11.
-# TODO TBD-004: Security must approve the selected mTLS device authentication for SYS-01 to SYS-02.
-# TODO TBD-005: Partner owners must confirm HTTPS/mTLS for SYS-42 through SYS-47 or document an approved EDI alternative.
+# TODO TBD-001: Confirm the NA cut-over sequence for CMP-10.
+# TODO TBD-004: Security must approve the selected mTLS device authentication for INF-04 to CMP-01.
+# TODO TBD-005: Partner owners must confirm HTTPS/mTLS for CMP-40 through CMP-45 or document an approved EDI alternative.
 # TODO TBD-006: SAP owner must confirm hosting, SNC-protected RFC endpoints, and SAP authentication.
 # TODO TBD-007: Cloud owner must confirm the Azure US region, subnet ownership, and private connectivity roadmap.
 # TODO TBD-008: InfraSec must confirm IPsec encryption over each named private WAN path.
@@ -33,16 +33,16 @@ arch:
           type: "dmz"
           name: "DMZ"
           components:
-            - id: "SYS-52"
-              name: "SYS-52 | Edge router"
+            - id: "INF-03"
+              name: "INF-03 | Edge router"
               type: "NW"
               runtime: "Private DC network platform"
               sensitivity: "Acme Confidential"
               owner_type: "org_it"
               status: "changed"
               notes: "Named Internet edge; no IP or CIDR assigned"
-            - id: "SYS-01"
-              name: "SYS-01 | F5"
+            - id: "INF-04"
+              name: "INF-04 | F5"
               type: "LB"
               shape: "hexagon"
               runtime: "Private DC appliance"
@@ -50,8 +50,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "HA ingress and TLS termination group"
-            - id: "SYS-02"
-              name: "SYS-02 | Service-Supply-Chain-dmz-nginx-proxy"
+            - id: "CMP-01"
+              name: "CMP-01 | Service-Supply-Chain-dmz-nginx-proxy"
               type: "FE"
               language: "N/A"
               framework: "Nginx (version TBD)"
@@ -60,8 +60,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "HA DMZ reverse-proxy workload"
-            - id: "SYS-03"
-              name: "SYS-03 | Service-Supply-Chain-gateway"
+            - id: "CMP-02"
+              name: "CMP-02 | Service-Supply-Chain-gateway"
               type: "API"
               language: "Java (version TBD)"
               framework: "Spring Cloud (version TBD)"
@@ -70,8 +70,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "HA DMZ API gateway workload"
-            - id: "SYS-04"
-              name: "SYS-04 | Service-Supply-Chain-web"
+            - id: "CMP-03"
+              name: "CMP-03 | Service-Supply-Chain-web"
               type: "FE"
               language: "Java (version TBD)"
               framework: "Spring Cloud (version TBD)"
@@ -85,8 +85,8 @@ arch:
           type: "intranet"
           name: "Intranet"
           components:
-            - id: "SYS-05"
-              name: "SYS-05 | WSO2"
+            - id: "CMP-04"
+              name: "CMP-04 | WSO2"
               type: "IP"
               shape: "parallelogram"
               framework: "WSO2 API Gateway (version TBD)"
@@ -95,8 +95,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "HA API mediation; all cross-application APIs traverse this component"
-            - id: "SYS-06"
-              name: "SYS-06 | Kafka (primary)"
+            - id: "CMP-05"
+              name: "CMP-05 | Kafka (primary)"
               type: "MQ"
               shape: "message_queue"
               framework: "Kafka (version TBD)"
@@ -105,8 +105,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "Primary event bus; all cross-application events traverse this component"
-            - id: "SYS-07"
-              name: "SYS-07 | Service-Supply-Chain-int-nginx-proxy"
+            - id: "CMP-06"
+              name: "CMP-06 | Service-Supply-Chain-int-nginx-proxy"
               type: "BE"
               language: "N/A"
               framework: "Nginx (version TBD)"
@@ -114,8 +114,8 @@ arch:
               sensitivity: "Acme Confidential"
               owner_type: "org_it"
               status: "changed"
-            - id: "SYS-08"
-              name: "SYS-08 | Service-Supply-Chain-main"
+            - id: "CMP-07"
+              name: "CMP-07 | Service-Supply-Chain-main"
               type: "BE"
               language: "Java (version TBD)"
               framework: "Spring Cloud (version TBD)"
@@ -123,8 +123,8 @@ arch:
               sensitivity: "Acme Confidential"
               owner_type: "org_it"
               status: "changed"
-            - id: "SYS-09"
-              name: "SYS-09 | Service-Supply-Chain-websocket"
+            - id: "CMP-08"
+              name: "CMP-08 | Service-Supply-Chain-websocket"
               type: "BE"
               language: "Java (version TBD)"
               framework: "Spring Cloud (version TBD)"
@@ -132,8 +132,8 @@ arch:
               sensitivity: "Acme Confidential"
               owner_type: "org_it"
               status: "changed"
-            - id: "SYS-10"
-              name: "SYS-10 | Service-Supply-Chain-* group (10 services)"
+            - id: "CMP-09"
+              name: "CMP-09 | Service-Supply-Chain-* group (10 services)"
               type: "BE"
               language: "Java (version TBD)"
               framework: "Spring Cloud (version TBD)"
@@ -142,8 +142,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "rms, tms, oms, wms, mds, ips, autopilot, ves, cfs, scs"
-            - id: "SYS-11"
-              name: "SYS-11 | Service-Supply-Chain-* group (22 services)"
+            - id: "CMP-10"
+              name: "CMP-10 | Service-Supply-Chain-* group (22 services)"
               type: "BE"
               language: "Java (version TBD)"
               framework: "Spring Cloud (version TBD)"
@@ -152,8 +152,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "Registry label retained; supplied member list has 21 names pending reconciliation"
-            - id: "SYS-51"
-              name: "SYS-51 | MFT platform"
+            - id: "CMP-11"
+              name: "CMP-11 | MFT platform"
               type: "IP"
               shape: "parallelogram"
               framework: "MFT platform (version TBD)"
@@ -161,14 +161,14 @@ arch:
               sensitivity: "Acme Confidential"
               owner_type: "org_it"
               status: "changed"
-              notes: "Only managed file-transfer egress to SYS-48 through SYS-50"
+              notes: "Only managed file-transfer egress to CMP-46 through CMP-48"
 
         - id: "dc-cn-primary-db"
           type: "db_zone"
           name: "DB Zone"
           components:
-            - id: "SYS-12"
-              name: "SYS-12 | MySQL TMS HA (1 primary + 2 replicas)"
+            - id: "CMP-12"
+              name: "CMP-12 | MySQL TMS HA (1 primary + 2 replicas)"
               type: "DB"
               shape: "cylinder"
               framework: "MySQL (version TBD)"
@@ -177,8 +177,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "AES-256 at rest; no cross-region database replication"
-            - id: "SYS-13"
-              name: "SYS-13 | MySQL Main HA (1 primary + 2 replicas)"
+            - id: "CMP-13"
+              name: "CMP-13 | MySQL Main HA (1 primary + 2 replicas)"
               type: "DB"
               shape: "cylinder"
               framework: "MySQL (version TBD)"
@@ -187,8 +187,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "AES-256 at rest; no cross-region database replication"
-            - id: "SYS-14"
-              name: "SYS-14 | MySQL WMS HA (1 primary + 2 replicas)"
+            - id: "CMP-14"
+              name: "CMP-14 | MySQL WMS HA (1 primary + 2 replicas)"
               type: "DB"
               shape: "cylinder"
               framework: "MySQL (version TBD)"
@@ -197,8 +197,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "AES-256 at rest; no cross-region database replication"
-            - id: "SYS-15"
-              name: "SYS-15 | MySQL MDS HA (1 primary + 2 replicas)"
+            - id: "CMP-15"
+              name: "CMP-15 | MySQL MDS HA (1 primary + 2 replicas)"
               type: "DB"
               shape: "cylinder"
               framework: "MySQL (version TBD)"
@@ -207,8 +207,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "AES-256 at rest; no cross-region database replication"
-            - id: "SYS-16"
-              name: "SYS-16 | MySQL OMS HA (1 primary + 2 replicas)"
+            - id: "CMP-16"
+              name: "CMP-16 | MySQL OMS HA (1 primary + 2 replicas)"
               type: "DB"
               shape: "cylinder"
               framework: "MySQL (version TBD)"
@@ -217,8 +217,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "AES-256 at rest; no cross-region database replication"
-            - id: "SYS-17"
-              name: "SYS-17 | Redis HA (3 primary + 3 replicas)"
+            - id: "CMP-17"
+              name: "CMP-17 | Redis HA (3 primary + 3 replicas)"
               type: "DB"
               shape: "cylinder"
               framework: "Redis (version TBD)"
@@ -227,8 +227,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "TLS and ACL authentication; AES-256 at rest"
-            - id: "SYS-18"
-              name: "SYS-18 | RabbitMQ HA (3 replicas)"
+            - id: "CMP-18"
+              name: "CMP-18 | RabbitMQ HA (3 replicas)"
               type: "MQ"
               shape: "message_queue"
               framework: "RabbitMQ (version TBD)"
@@ -237,8 +237,8 @@ arch:
               owner_type: "org_it"
               status: "changed"
               notes: "TLS and SCRAM authentication; AES-256 at rest"
-            - id: "SYS-19"
-              name: "SYS-19 | Elasticsearch HA (3 nodes)"
+            - id: "CMP-19"
+              name: "CMP-19 | Elasticsearch HA (3 nodes)"
               type: "DB"
               shape: "cylinder"
               framework: "Elasticsearch (version TBD)"
@@ -258,12 +258,12 @@ arch:
           type: "intranet"
           name: "App Zone / Intranet"
           components:
-            - {id: "SYS-25", name: "SYS-25 | Account-Service", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
-            - {id: "SYS-26", name: "SYS-26 | Service-customer-master-data", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
-            - {id: "SYS-27", name: "SYS-27 | Serice-Data-serviceE", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Registry-resolved label retained"}
-            - {id: "SYS-28", name: "SYS-28 | Price-master-ROW", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
-            - {id: "SYS-29", name: "SYS-29 | ADFS", type: "SEC", shape: "circle", sensitivity: "Acme Confidential", owner_type: "org_it", status: "unchanged", notes: "Internal SAML identity provider"}
-            - {id: "SYS-30", name: "SYS-30 | Enterprise ID", type: "SEC", shape: "circle", sensitivity: "Acme Confidential", owner_type: "org_it", status: "unchanged", notes: "External OIDC identity provider"}
+            - {id: "CMP-20", name: "CMP-20 | Account-Service", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "CMP-21", name: "CMP-21 | Service-customer-master-data", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "CMP-22", name: "CMP-22 | Serice-Data-serviceE", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Registry-resolved label retained"}
+            - {id: "CMP-23", name: "CMP-23 | Price-master-ROW", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "INF-09", name: "INF-09 | ADFS", type: "SEC", shape: "circle", sensitivity: "Acme Confidential", owner_type: "org_it", status: "unchanged", notes: "Internal SAML identity provider"}
+            - {id: "INF-10", name: "INF-10 | Enterprise ID", type: "SEC", shape: "circle", sensitivity: "Acme Confidential", owner_type: "org_it", status: "unchanged", notes: "External OIDC identity provider"}
 
     - id: "dc-cn-secondary"
       type: "private_dc"
@@ -275,11 +275,11 @@ arch:
           type: "intranet"
           name: "Intranet"
           components:
-            - {id: "SYS-31", name: "SYS-31 | Reverse-Management-System", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
-            - {id: "SYS-32", name: "SYS-32 | procurement-service", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
-            - {id: "SYS-33", name: "SYS-33 | lakehouse", type: "DS", shape: "stored_data", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box data API boundary"}
-            - {id: "SYS-34", name: "SYS-34 | Kafka (secondary)", type: "MQ", shape: "message_queue", sensitivity: "Acme Confidential", owner_type: "org_it", status: "unchanged", notes: "Secondary event cluster"}
-            - {id: "SYS-35", name: "SYS-35 | support-hub", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "CMP-24", name: "CMP-24 | Reverse-Management-System", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "CMP-25", name: "CMP-25 | procurement-service", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "CMP-26", name: "CMP-26 | lakehouse", type: "DS", shape: "stored_data", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box data API boundary"}
+            - {id: "CMP-27", name: "CMP-27 | Kafka (secondary)", type: "MQ", shape: "message_queue", sensitivity: "Acme Confidential", owner_type: "org_it", status: "unchanged", notes: "Secondary event cluster"}
+            - {id: "CMP-28", name: "CMP-28 | support-hub", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
 
     - id: "dc-cn-support"
       type: "private_dc"
@@ -291,8 +291,8 @@ arch:
           type: "app_zone"
           name: "App Zone"
           components:
-            - {id: "SYS-36", name: "SYS-36 | support-portal", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
-            - {id: "SYS-37", name: "SYS-37 | support-gateway", type: "API", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "CMP-29", name: "CMP-29 | support-portal", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
+            - {id: "CMP-30", name: "CMP-30 | support-gateway", type: "API", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "Existing black-box API boundary"}
 
     - id: "sap-landscape"
       type: "private_dc"
@@ -304,11 +304,11 @@ arch:
           type: "intranet"
           name: "SAP Private Zone"
           components:
-            - {id: "SYS-20", name: "SYS-20 | S4", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP ERP hub; no DMZ exposure"}
-            - {id: "SYS-21", name: "SYS-21 | SECC", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP black-box boundary"}
-            - {id: "SYS-22", name: "SYS-22 | LSCRM", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP black-box boundary"}
-            - {id: "SYS-23", name: "SYS-23 | CECC", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP black-box boundary"}
-            - {id: "SYS-24", name: "SYS-24 | S3", type: "DS", shape: "stored_data", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP object-storage boundary"}
+            - {id: "CMP-31", name: "CMP-31 | S4", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP ERP hub; no DMZ exposure"}
+            - {id: "CMP-32", name: "CMP-32 | SECC", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP black-box boundary"}
+            - {id: "CMP-33", name: "CMP-33 | LSCRM", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP black-box boundary"}
+            - {id: "CMP-34", name: "CMP-34 | CECC", type: "BE", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP black-box boundary"}
+            - {id: "CMP-35", name: "CMP-35 | S3", type: "DS", shape: "stored_data", sensitivity: "Acme Confidential", owner_type: "biz_owned", status: "unchanged", notes: "SAP object-storage boundary"}
 
     - id: "azure-us-satellites"
       type: "azure_vnet"
@@ -320,14 +320,14 @@ arch:
           type: "spoke"
           name: "SaaS Application Boundary"
           components:
-            - {id: "SYS-38", name: "SYS-38 | d365-service-delivery-bu1", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
-            - {id: "SYS-39", name: "SYS-39 | d365-service-delivery-bu2", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
-            - {id: "SYS-40", name: "SYS-40 | d365-service-delivery-bu3", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
+            - {id: "CMP-36", name: "CMP-36 | d365-service-delivery-bu1", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
+            - {id: "CMP-37", name: "CMP-37 | d365-service-delivery-bu2", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
+            - {id: "CMP-38", name: "CMP-38 | d365-service-delivery-bu3", type: "BE", shape: "cloud_rect", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing SaaS black-box API boundary"}
         - id: "azure-us-app"
           type: "spoke"
           name: "Application Boundary"
           components:
-            - {id: "SYS-41", name: "SYS-41 | edge-cache", type: "BE", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing event-consuming black-box boundary"}
+            - {id: "CMP-39", name: "CMP-39 | edge-cache", type: "BE", sensitivity: "Acme Confidential", owner_type: "third_party", status: "unchanged", notes: "Existing event-consuming black-box boundary"}
 
     - id: "external-3pl"
       type: "private_dc"
@@ -339,12 +339,12 @@ arch:
           type: "dmz"
           name: "Internet 3PL Boundary"
           components:
-            - {id: "SYS-42", name: "SYS-42 | logistics partner A", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
-            - {id: "SYS-43", name: "SYS-43 | logstics-vendor-1", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner; registry spelling retained"}
-            - {id: "SYS-44", name: "SYS-44 | logistics partner B", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
-            - {id: "SYS-45", name: "SYS-45 | logistics partner C", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
-            - {id: "SYS-46", name: "SYS-46 | logistics partner D", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
-            - {id: "SYS-47", name: "SYS-47 | logistics partner E", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
+            - {id: "CMP-40", name: "CMP-40 | logistics partner A", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
+            - {id: "CMP-41", name: "CMP-41 | logstics-vendor-1", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner; registry spelling retained"}
+            - {id: "CMP-42", name: "CMP-42 | logistics partner B", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
+            - {id: "CMP-43", name: "CMP-43 | logistics partner C", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
+            - {id: "CMP-44", name: "CMP-44 | logistics partner D", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
+            - {id: "CMP-45", name: "CMP-45 | logistics partner E", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External logistics partner"}
 
     - id: "external-file-partners"
       type: "private_dc"
@@ -356,114 +356,114 @@ arch:
           type: "dmz"
           name: "Internet File-Transfer Boundary"
           components:
-            - {id: "SYS-48", name: "SYS-48 | file partner A", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External managed-file partner"}
-            - {id: "SYS-49", name: "SYS-49 | file partner B", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External managed-file partner"}
-            - {id: "SYS-50", name: "SYS-50 | file partner C", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External managed-file partner"}
+            - {id: "CMP-46", name: "CMP-46 | file partner A", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External managed-file partner"}
+            - {id: "CMP-47", name: "CMP-47 | file partner B", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External managed-file partner"}
+            - {id: "CMP-48", name: "CMP-48 | file partner C", type: "BE", shape: "cloud_rect", owner_type: "third_party", status: "unchanged", notes: "External managed-file partner"}
 
   interactions:
-    - {from: "internet", to: "SYS-52", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Authorization Code", encryption: "TLS 1.3", notes: "External clients and 3PL traffic enter the named edge"}
-    - {from: "SYS-52", to: "SYS-01", protocol: "HTTPS/TLS 1.3", auth: "mTLS", encryption: "TLS 1.3", notes: "Routed ingress to F5 HA group"}
-    - {from: "SYS-01", to: "SYS-02", protocol: "HTTPS/TLS 1.3", auth: "mTLS", encryption: "TLS 1.3", notes: "Selected secure default pending TBD-004 approval"}
-    - {from: "SYS-02", to: "SYS-04", protocol: "HTTPS/TLS 1.3", auth: "mTLS", encryption: "TLS 1.3", notes: "DMZ reverse proxy to web tier"}
-    - {from: "SYS-04", to: "SYS-03", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 User Token", encryption: "TLS 1.3", notes: "Web API call"}
-    - {from: "SYS-03", to: "SYS-05", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Basic Auth replacement target"}
-    - {from: "SYS-05", to: "SYS-10", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3", notes: "Mediated API route"}
-    - {from: "SYS-05", to: "SYS-11", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3", notes: "Mediated API route"}
+    - {from: "internet", to: "INF-03", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Authorization Code", encryption: "TLS 1.3", notes: "External clients and 3PL traffic enter the named edge"}
+    - {from: "INF-03", to: "INF-04", protocol: "HTTPS/TLS 1.3", auth: "mTLS", encryption: "TLS 1.3", notes: "Routed ingress to F5 HA group"}
+    - {from: "INF-04", to: "CMP-01", protocol: "HTTPS/TLS 1.3", auth: "mTLS", encryption: "TLS 1.3", notes: "Selected secure default pending TBD-004 approval"}
+    - {from: "CMP-01", to: "CMP-03", protocol: "HTTPS/TLS 1.3", auth: "mTLS", encryption: "TLS 1.3", notes: "DMZ reverse proxy to web tier"}
+    - {from: "CMP-03", to: "CMP-02", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 User Token", encryption: "TLS 1.3", notes: "Web API call"}
+    - {from: "CMP-02", to: "CMP-04", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Basic Auth replacement target"}
+    - {from: "CMP-04", to: "CMP-09", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3", notes: "Mediated API route"}
+    - {from: "CMP-04", to: "CMP-10", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3", notes: "Mediated API route"}
 
-    - {from: "SYS-07", to: "SYS-06", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
-    - {from: "SYS-08", to: "SYS-06", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
-    - {from: "SYS-09", to: "SYS-06", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-06", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
-    - {from: "SYS-11", to: "SYS-06", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "CMP-06", to: "CMP-05", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "CMP-07", to: "CMP-05", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "CMP-08", to: "CMP-05", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "CMP-09", to: "CMP-05", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "CMP-10", to: "CMP-05", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
 
-    - {from: "SYS-07", to: "SYS-12", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-08", to: "SYS-13", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-09", to: "SYS-13", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-12", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3", notes: "Group routes to authorized schemas only"}
-    - {from: "SYS-10", to: "SYS-13", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-14", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-15", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-16", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-11", to: "SYS-12", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3", notes: "Group routes to authorized schemas only"}
-    - {from: "SYS-11", to: "SYS-13", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-11", to: "SYS-14", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-11", to: "SYS-15", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-11", to: "SYS-16", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-06", to: "CMP-12", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-07", to: "CMP-13", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-08", to: "CMP-13", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-09", to: "CMP-12", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3", notes: "Group routes to authorized schemas only"}
+    - {from: "CMP-09", to: "CMP-13", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-09", to: "CMP-14", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-09", to: "CMP-15", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-09", to: "CMP-16", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-10", to: "CMP-12", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3", notes: "Group routes to authorized schemas only"}
+    - {from: "CMP-10", to: "CMP-13", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-10", to: "CMP-14", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-10", to: "CMP-15", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-10", to: "CMP-16", protocol: "JDBC/TLS", auth: "PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
 
-    - {from: "SYS-07", to: "SYS-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-08", to: "SYS-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-09", to: "SYS-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-11", to: "SYS-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
-    - {from: "SYS-07", to: "SYS-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
-    - {from: "SYS-08", to: "SYS-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
-    - {from: "SYS-09", to: "SYS-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
-    - {from: "SYS-11", to: "SYS-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
-    - {from: "SYS-07", to: "SYS-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-08", to: "SYS-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-09", to: "SYS-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-11", to: "SYS-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-06", to: "CMP-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-07", to: "CMP-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-08", to: "CMP-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-09", to: "CMP-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-10", to: "CMP-17", protocol: "Redis/TLS", auth: "ACL + PWD from Kubernetes Secrets", encryption: "TLS 1.3"}
+    - {from: "CMP-06", to: "CMP-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "CMP-07", to: "CMP-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "CMP-08", to: "CMP-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "CMP-09", to: "CMP-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "CMP-10", to: "CMP-18", protocol: "AMQPS/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3"}
+    - {from: "CMP-06", to: "CMP-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-07", to: "CMP-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-08", to: "CMP-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-09", to: "CMP-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-10", to: "CMP-19", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
 
-    - {from: "SYS-07", to: "SYS-20", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC", notes: "Encrypted private WAN; SAP endpoint confirmation pending"}
-    - {from: "SYS-08", to: "SYS-20", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
-    - {from: "SYS-09", to: "SYS-20", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
-    - {from: "SYS-10", to: "SYS-20", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
-    - {from: "SYS-11", to: "SYS-20", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
-    - {from: "SYS-20", to: "SYS-21", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
-    - {from: "SYS-20", to: "SYS-22", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
-    - {from: "SYS-20", to: "SYS-23", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
-    - {from: "SYS-07", to: "SYS-24", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-08", to: "SYS-24", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-09", to: "SYS-24", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-10", to: "SYS-24", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
-    - {from: "SYS-11", to: "SYS-24", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-06", to: "CMP-31", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC", notes: "Encrypted private WAN; SAP endpoint confirmation pending"}
+    - {from: "CMP-07", to: "CMP-31", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "CMP-08", to: "CMP-31", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "CMP-09", to: "CMP-31", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "CMP-10", to: "CMP-31", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "CMP-31", to: "CMP-32", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "CMP-31", to: "CMP-33", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "CMP-31", to: "CMP-34", protocol: "RFC/SNC", auth: "SAP Logon Ticket", encryption: "SAP SNC"}
+    - {from: "CMP-06", to: "CMP-35", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-07", to: "CMP-35", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-08", to: "CMP-35", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-09", to: "CMP-35", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
+    - {from: "CMP-10", to: "CMP-35", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3"}
 
-    - {from: "SYS-05", to: "SYS-25", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec", notes: "CN-US minimized API dataset"}
-    - {from: "SYS-05", to: "SYS-26", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
-    - {from: "SYS-05", to: "SYS-27", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
-    - {from: "SYS-05", to: "SYS-28", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
-    - {from: "SYS-05", to: "SYS-31", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
-    - {from: "SYS-05", to: "SYS-32", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
-    - {from: "SYS-05", to: "SYS-33", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
-    - {from: "SYS-06", to: "SYS-34", protocol: "Kafka/TLS over IPsec private WAN", auth: "SASL/SCRAM", encryption: "TLS 1.3 + IPsec", notes: "One-way event publication; no database replication"}
-    - {from: "SYS-05", to: "SYS-35", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
-    - {from: "SYS-05", to: "SYS-36", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
-    - {from: "SYS-05", to: "SYS-37", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "CMP-04", to: "CMP-20", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec", notes: "CN-US minimized API dataset"}
+    - {from: "CMP-04", to: "CMP-21", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "CMP-04", to: "CMP-22", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "CMP-04", to: "CMP-23", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "CMP-04", to: "CMP-24", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "CMP-04", to: "CMP-25", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "CMP-04", to: "CMP-26", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "CMP-05", to: "CMP-27", protocol: "Kafka/TLS over IPsec private WAN", auth: "SASL/SCRAM", encryption: "TLS 1.3 + IPsec", notes: "One-way event publication; no database replication"}
+    - {from: "CMP-04", to: "CMP-28", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "CMP-04", to: "CMP-29", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
+    - {from: "CMP-04", to: "CMP-30", protocol: "HTTPS/TLS 1.3 over IPsec private WAN", auth: "OAuth2.0 Client Credentials", encryption: "TLS 1.3 + IPsec"}
 
-    - {from: "SYS-05", to: "SYS-38", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Outbound-only Azure SaaS API integration"}
-    - {from: "SYS-05", to: "SYS-39", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Outbound-only Azure SaaS API integration"}
-    - {from: "SYS-05", to: "SYS-40", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Outbound-only Azure SaaS API integration"}
-    - {from: "SYS-06", to: "SYS-41", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3", notes: "Outbound event stream; private connectivity target pending TBD-007"}
+    - {from: "CMP-04", to: "CMP-36", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Outbound-only Azure SaaS API integration"}
+    - {from: "CMP-04", to: "CMP-37", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Outbound-only Azure SaaS API integration"}
+    - {from: "CMP-04", to: "CMP-38", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Outbound-only Azure SaaS API integration"}
+    - {from: "CMP-05", to: "CMP-39", protocol: "Kafka/TLS", auth: "SASL/SCRAM", encryption: "TLS 1.3", notes: "Outbound event stream; private connectivity target pending TBD-007"}
 
-    - {from: "SYS-05", to: "SYS-42", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
-    - {from: "SYS-05", to: "SYS-43", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
-    - {from: "SYS-05", to: "SYS-44", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
-    - {from: "SYS-05", to: "SYS-45", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
-    - {from: "SYS-05", to: "SYS-46", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
-    - {from: "SYS-05", to: "SYS-47", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
-    - {from: "SYS-51", to: "SYS-48", protocol: "SFTP/SSH", auth: "Vault-managed SSH certificate", encryption: "SSH-2", notes: "Managed transfer with automated key rotation"}
-    - {from: "SYS-51", to: "SYS-49", protocol: "SFTP/SSH", auth: "Vault-managed SSH certificate", encryption: "SSH-2", notes: "Managed transfer with automated key rotation"}
-    - {from: "SYS-51", to: "SYS-50", protocol: "SFTP/SSH", auth: "Vault-managed SSH certificate", encryption: "SSH-2", notes: "Managed transfer with automated key rotation"}
+    - {from: "CMP-04", to: "CMP-40", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
+    - {from: "CMP-04", to: "CMP-41", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
+    - {from: "CMP-04", to: "CMP-42", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
+    - {from: "CMP-04", to: "CMP-43", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
+    - {from: "CMP-04", to: "CMP-44", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
+    - {from: "CMP-04", to: "CMP-45", protocol: "HTTPS/TLS 1.3", auth: "OAuth2.0 Client Credentials + mTLS", encryption: "TLS 1.3", notes: "Selected partner API profile pending TBD-005"}
+    - {from: "CMP-11", to: "CMP-46", protocol: "SFTP/SSH", auth: "Vault-managed SSH certificate", encryption: "SSH-2", notes: "Managed transfer with automated key rotation"}
+    - {from: "CMP-11", to: "CMP-47", protocol: "SFTP/SSH", auth: "Vault-managed SSH certificate", encryption: "SSH-2", notes: "Managed transfer with automated key rotation"}
+    - {from: "CMP-11", to: "CMP-48", protocol: "SFTP/SSH", auth: "Vault-managed SSH certificate", encryption: "SSH-2", notes: "Managed transfer with automated key rotation"}
 
-    - {from: "SYS-04", to: "SYS-29", protocol: "HTTPS/SAML 2.0", auth: "Signed SAML assertion + MFA", encryption: "TLS 1.3", notes: "Internal operations and BU user SSO"}
-    - {from: "internet", to: "SYS-30", protocol: "HTTPS/OIDC", auth: "OAuth2.0 Authorization Code + PKCE + MFA", encryption: "TLS 1.3", notes: "Partner and carrier authentication; application callback endpoint remains TBD"}
+    - {from: "CMP-03", to: "INF-09", protocol: "HTTPS/SAML 2.0", auth: "Signed SAML assertion + MFA", encryption: "TLS 1.3", notes: "Internal operations and BU user SSO"}
+    - {from: "internet", to: "INF-10", protocol: "HTTPS/OIDC", auth: "OAuth2.0 Authorization Code + PKCE + MFA", encryption: "TLS 1.3", notes: "Partner and carrier authentication; application callback endpoint remains TBD"}
 
   security:
     key_management:
       private_dc: "Kubernetes Secrets encrypted at rest for workloads; enterprise vault with HSM-backed keys for F5, WSO2, Kafka, HA data platforms, MFT platform, and network devices; automated rotation; no hardcoded credentials"
       azure: "Azure Key Vault with managed identities and private endpoints for Azure-owned secrets; third-party control evidence required"
-      partner_keys: "SYS-51 obtains short-lived SSH certificates from the enterprise vault; dual control and automated rotation"
+      partner_keys: "CMP-11 obtains short-lived SSH certificates from the enterprise vault; dual control and automated rotation"
     user_auth_internal:
-      server: "SYS-29 | ADFS"
+      server: "INF-09 | ADFS"
       protocol: "SAML 2.0 over TLS 1.3 with signed assertions and MFA"
     user_auth_external:
-      server: "SYS-30 | Enterprise ID"
+      server: "INF-10 | Enterprise ID"
       protocol: "OIDC / OAuth2.0 Authorization Code with PKCE and MFA"
     authorization:
       platform: "AuthZ Platform"
-      enforcement: "SYS-05 API policy plus application-level RBAC, least privilege, deny by default"
+      enforcement: "CMP-04 API policy plus application-level RBAC, least privilege, deny by default"
     bastion:
       unified: "Privileged Access Workstation (PAW)"
       access_path: "Office Network -> MFA -> PAW -> approved management plane -> named private zone"
@@ -473,10 +473,10 @@ arch:
       - "Administrative traffic is isolated from application and data traffic"
       - "Quarterly access recertification and immediate revocation on role change"
     network_segmentation:
-      ingress: "Internet traffic enters via SYS-52 and terminates at SYS-01; DMZ has no direct route to DB Zone"
-      east_west: "Allowlisted flows only; cross-application APIs use SYS-05 and events use SYS-06"
-      database: "DB Zone accepts encrypted connections only from SYS-07 through SYS-11 service identities"
-      external: "3PL APIs use SYS-05; files use SYS-51; SAP RFC is Intranet-only; no partner has direct Intranet access"
+      ingress: "Internet traffic enters via INF-03 and terminates at INF-04; DMZ has no direct route to DB Zone"
+      east_west: "Allowlisted flows only; cross-application APIs use CMP-04 and events use CMP-05"
+      database: "DB Zone accepts encrypted connections only from CMP-06 through CMP-10 service identities"
+      external: "3PL APIs use CMP-04; files use CMP-11; SAP RFC is Intranet-only; no partner has direct Intranet access"
       inter_dc: "Named private WAN paths use IPsec encryption; no direct cross-region database replication"
     data_protection:
       in_transit: "TLS 1.3 preferred and TLS 1.2 minimum; mTLS for trust-boundary APIs; SAP SNC for RFC; SSH-2 for SFTP"

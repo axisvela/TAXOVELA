@@ -1,0 +1,10 @@
+schema_version: 1
+project:
+  id: "09-analytics-gcp-shared-vpc"
+  name: "Analytics API on Google Cloud Shared VPC"
+  platform: "hybrid_cloud"
+  data_classification: "internal"
+paths:
+  input: "./input"
+  working: "./working"
+  output: "./output"

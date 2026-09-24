@@ -10,6 +10,14 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Added
 
+- `examples/09-analytics-gcp-shared-vpc` — a worked Google Cloud reference:
+  Shared VPC host project, Cloud Armor and global HTTPS LB ingress, Cloud NAT
+  egress, Cloud Interconnect to an on-premises ERP, and a CMEK data tier, with
+  the seven-table registry, `req/v2` requirements, blueprint, and rendered
+  diagram. It ships without a `validate_result.json` because validation needs
+  the vision review; every deterministic check passes and is documented in its
+  README.
+
 - Design templates `gcp-hub-spoke.yaml`, `aliyun-landing-zone.yaml`,
   `power-platform.yaml`, and `dynamics-365.yaml`, catalogued in
   `templates/CATALOG.yaml` with selection criteria, prefilled regions, and

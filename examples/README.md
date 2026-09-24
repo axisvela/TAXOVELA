@@ -40,6 +40,7 @@ Every file outside `systems-registry.md` — including `README.md` and
 | 06 | `06-factory-mes-industrial` | **Factory MES (PlantMES)** | Plant edge + central DCs | `reqv2-complete` — worked reference |
 | 07 | `07-finance-core-banking` | Core banking / payments | Private cloud, two-site-three-center | `scaffold` — input pending |
 | 08 | `08-telecom-bss` | Telecom BSS / charging | Hybrid | `scaffold` — input pending |
+| 09 | `09-analytics-gcp-shared-vpc` | Analytics API (ANA) | Google Cloud Shared VPC + on-prem ERP | `reqv2-complete` — validation record pending a vision review |
 
 The Status column starts with a migration token — `scaffold`, `reqv1`,
 `reqv2-partial`, or `reqv2-complete` — measured by

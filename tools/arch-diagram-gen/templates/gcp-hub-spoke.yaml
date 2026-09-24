@@ -75,10 +75,12 @@ arch:
               shape: "hexagon"
               node_kind: "vpn_gateway"
 
-    # ── Service project: workloads ────────────────────────────
-    - id: "gcp-service-project"
+    # ── Shared VPC: the host project owns the network, the service ──
+    #    projects attach to it, so the workloads sit in these subnets
+    #    rather than in a boundary of their own.
+    - id: "gcp-workloads"
       type: "gcp_vpc"
-      location: "Google Cloud service project [REGION]"
+      location: "Google Cloud workloads (service project) [REGION]"
       owner: "Business IT"
       subnets:
         - id: "private-runtime"

@@ -1,0 +1,23 @@
+# Example-specific overlay, deep-merged on top of the root config.yaml.
+# Only what this example needs to state differently.
+
+datacenters:
+  - id: "gcp-shared-vpc"
+    aliases: ["Google Cloud host project", "gcp-shared-vpc"]
+    location: { city: "TBD", country: "US" }
+    model: "shared_vpc"
+    zones: ["Shared ingress subnet", "Shared egress subnet", "Private runtime subnet", "Private data subnet"]
+    region: "NA"
+    notes: "Shared VPC host project; the service project attaches to it and owns no network of its own"
+
+platforms:
+  api_gateway: "Global HTTPS load balancer"
+  message_bus: "Cloud Pub/Sub"
+  k8s_platform: "GKE private cluster"
+  integration_platforms:
+    - "Global HTTPS load balancer"
+    - "Cloud Pub/Sub"
+    - "Cloud Interconnect"
+  auth_internal: "Enterprise directory (federated to Cloud Identity)"
+  auth_external: "Enterprise directory (OIDC)"
+  authz_platform: "IAM + Cloud Identity"

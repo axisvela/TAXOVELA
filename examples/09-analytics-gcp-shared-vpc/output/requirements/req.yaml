@@ -1,0 +1,79 @@
+# req.yaml — Analytics API (ANA) on Google Cloud, req/v2
+# Generated from input/systems-registry.md + output/designs/blueprint.yaml
+
+schema_version: req/v2
+
+requirements:
+  project:
+    name: "Analytics API (ANA) - Google Cloud Shared VPC and On-Premises Hybrid"
+    id: "ANA-GCP-001"
+    scope: "e2e"
+    department: "Data Platform"
+    author: "TBD"
+    date: "2026-09-24"
+    data_classification: "Acme Confidential"
+
+  infra:
+    - {id: "INF-01", name: "Google Cloud host project", node_kind: "iaas_vpc_vnet", infra_type: "public_cloud", network_type: "prod_network", country: "TBD", status: "planned"}
+    - {id: "INF-02", name: "Shared ingress subnet", node_kind: "subnet", infra_type: "public_cloud", network_type: "dmz", parent_id: "INF-01", country: "TBD", status: "planned"}
+    - {id: "INF-03", name: "Shared egress subnet", node_kind: "subnet", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-01", country: "TBD", status: "planned"}
+    - {id: "INF-04", name: "Private runtime subnet", node_kind: "subnet", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-01", country: "TBD", status: "planned"}
+    - {id: "INF-05", name: "Private data subnet", node_kind: "subnet", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-01", country: "TBD", status: "planned"}
+    - {id: "INF-06", name: "Primary DC", node_kind: "data_center", infra_type: "private_cloud", network_type: "prod_network", country: "CN", infra_owner: "InfraSec", status: "active"}
+    - {id: "INF-07", name: "Primary DC Intranet", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-06", country: "CN", status: "active"}
+    - {id: "INF-08", name: "Cloud Armor", node_kind: "waf", infra_type: "public_cloud", network_type: "dmz", parent_id: "INF-02", country: "TBD", status: "planned"}
+    - {id: "INF-09", name: "Global HTTPS load balancer", node_kind: "load_balancer", infra_type: "public_cloud", network_type: "dmz", parent_id: "INF-02", country: "TBD", status: "planned"}
+    - {id: "INF-10", name: "Cloud NAT", node_kind: "router", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-03", country: "TBD", status: "planned"}
+    - {id: "INF-11", name: "Cloud Interconnect", node_kind: "vpn_gateway", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-03", country: "TBD", status: "planned"}
+    - {id: "INF-12", name: "Secret Manager", node_kind: "key_management", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-05", country: "TBD", status: "planned"}
+    - {id: "INF-13", name: "Enterprise directory", node_kind: "identity_provider", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-07", country: "CN", status: "active"}
+
+  systems:
+    - {id: "APP-01", name: "Analytics API platform", type: "new", owner: "org_it", vendor: "Google Cloud"}
+    - {id: "APP-02", name: "On-premises ERP landscape", type: "existing", owner: "org_it", vendor: "-"}
+
+  components:
+    - {id: "CMP-01", system_id: "APP-01", name: "Analytics API", kind: "service", layer: "be", component_role: "backend_service", sensitivity: "Acme Confidential", status: "active"}
+    - {id: "CMP-02", system_id: "APP-01", name: "Analytics worker", kind: "service", layer: "be", component_role: "backend_service", sensitivity: "Acme Confidential", key_management: "INF-12", status: "active"}
+    - {id: "CMP-03", system_id: "APP-01", name: "BigQuery warehouse", kind: "component", layer: "db", component_role: "data_warehouse", sensitivity: "Acme Confidential", encryption_at_rest: "CMEK", status: "active"}
+    - {id: "CMP-04", system_id: "APP-01", name: "Cloud Storage stage", kind: "component", layer: "db", component_role: "object_storage", sensitivity: "Acme Confidential", encryption_at_rest: "CMEK", status: "active"}
+    - {id: "CMP-05", system_id: "APP-02", name: "ERP extract service", kind: "component", layer: "ip", component_role: "integration_service", sensitivity: "Acme Confidential", status: "active"}
+    - {id: "CMP-06", system_id: "APP-02", name: "ERP core", kind: "component", layer: "be", component_role: "application_service", sensitivity: "Acme Restricted", encryption_at_rest: "AES-256", status: "active"}
+
+  deployments:
+    - {id: "DEP-01", component_id: "CMP-01", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-04", runtime_type: "container", runtime_detail: "GKE private cluster", instance_count: 2, status: "planned"}
+    - {id: "DEP-02", component_id: "CMP-02", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-04", runtime_type: "container", runtime_detail: "GKE private cluster", instance_count: 2, status: "planned"}
+    - {id: "DEP-03", component_id: "CMP-03", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-05", runtime_type: "serverless", status: "planned"}
+    - {id: "DEP-04", component_id: "CMP-04", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-05", runtime_type: "serverless", status: "planned"}
+    - {id: "DEP-05", component_id: "CMP-05", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-07", runtime_type: "container", runtime_detail: "Internal K8s", instance_count: 2, status: "active"}
+    - {id: "DEP-06", component_id: "CMP-06", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-07", runtime_type: "physical", instance_count: 1, status: "active"}
+
+  # Flows connect components; the WAF, load balancer, and gateway hops they
+  # traverse are carried in `via`, and identity is declared in `auth`.
+  flows:
+    - {id: "FLOW-01", source_component_id: "internet", target_component_id: "CMP-01", protocol: "HTTPS", port: "443", auth_method: "OAuth2_ClientCredentials", encryption: "TLS1.3", cross_border: false, via: ["INF-08", "INF-09"], notes: "Cloud Armor and the HTTPS LB are the entry hops; internal consumers"}
+    - {id: "FLOW-02", source_component_id: "CMP-01", target_component_id: "CMP-03", protocol: "gRPC", port: "443", auth_method: "IAM_Role", encryption: "TLS1.3", cross_border: false, notes: "Inside the VPC Service Controls perimeter"}
+    - {id: "FLOW-03", source_component_id: "CMP-02", target_component_id: "CMP-04", protocol: "HTTPS", port: "443", auth_method: "IAM_Role", encryption: "TLS1.3", cross_border: false, notes: "Least-privilege bucket role"}
+    - {id: "FLOW-04", source_component_id: "CMP-02", target_component_id: "CMP-05", protocol: "HTTPS", port: "443", auth_method: "ClientCertificate", encryption: "IPSec", cross_border: true, cross_border_basis: "Extracts minimized and classified; Privacy and Legal approval required", via: ["INF-11"], notes: "ERP extracts over Cloud Interconnect"}
+    - {id: "FLOW-05", source_component_id: "CMP-05", target_component_id: "CMP-06", protocol: "JDBC", port: "5432", auth_method: "UserPassword", encryption: "TLS1.3", cross_border: false, notes: "Single reader of the ERP schema"}
+
+  network_links:
+    - {id: "LNK-01", source_infra_id: "INF-06", target_infra_id: "INF-01", method: "leased_line", encrypted: true, encryption_method: "IPSec over Cloud Interconnect", managed_by: "InfraSec", redundancy: "primary", notes: "No direct cross-region database replication"}
+
+  auth:
+    - {id: "AUTH-01", subject: "user", applies_to: "CMP-01", auth_server: "INF-13", protocol: "SAML2", authorization: "RBAC", mfa: true, notes: "Federated to Cloud Identity; role mapping TBD"}
+    - {id: "AUTH-02", subject: "user", applies_to: "CMP-01", auth_server: "INF-13", protocol: "OIDC", authorization: "RBAC", mfa: true, notes: "OAuth2.0 authorization code with PKCE; partner scopes TBD"}
+
+  credentials:
+    - {environment: "private_dc", solution: "Enterprise vault for ERP credentials; automated rotation"}
+    - {environment: "other", solution: "Cloud KMS with CMEK for BigQuery and Cloud Storage; Secret Manager for runtime credentials"}
+
+  constraints:
+    - "A workload must not hold an external IP; all egress goes through Cloud NAT"
+    - "BigQuery and Cloud Storage stay inside the VPC Service Controls perimeter"
+    - "No static credentials in workloads; Secret Manager issues them at runtime"
+
+  open_items:
+    - {id: "TBD-001", description: "Confirm the GCP region and Cloud Interconnect capacity", owner: "Network team", blocking: true}
+    - {id: "TBD-002", description: "Confirm BigQuery retention and the CMEK rotation period", owner: "Data Platform", blocking: false}
+    - {id: "TBD-003", description: "Privacy and Legal must approve the ERP extract scope before production", owner: "Privacy/Legal", blocking: true}

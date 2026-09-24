@@ -35,7 +35,7 @@ Skinparam colors match diagram-style.yaml:
 
 import re
 
-from . import labels
+from . import labels, styles
 
 
 # ── Zone color mapping ────────────────────────────────────────────────────────
@@ -50,13 +50,14 @@ ZONE_COLORS = {
     "default":  ("#F5F5F5", "#9E9E9E"),
 }
 
+#: Region fill/stroke, derived from the shared renderer palette so a new
+#: hosting kind appears here without a second table to maintain.
 REGION_COLORS = {
-    "private_dc":  ("#FAFAFA", "#444444"),
-    "aws_vpc":     ("#FAFAFA", "#232F3E"),
-    "azure_vnet":  ("#FAFAFA", "#0078D4"),
-    "saas":        ("#F5F5F5", "#888888"),
-    "default":     ("#FAFAFA", "#666666"),
+    region_type: (palette.get("fill") or "#FAFAFA", palette["stroke"])
+    for region_type, palette in styles.REGION_CONTAINERS.items()
 }
+REGION_COLORS["saas"] = ("#F5F5F5", "#888888")
+REGION_COLORS["default"] = ("#FAFAFA", "#666666")
 
 STATUS_COLORS = {
     "newly_created": "#D32F2F",

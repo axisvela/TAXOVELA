@@ -1,0 +1,96 @@
+# ============================================================
+# Standard: aliyun-standard.yaml
+# 来源: Alibaba Cloud landing-zone architecture guidance
+# 用途: accuracy-rules / security-rules 的 Aliyun 专属校验基线
+# ============================================================
+
+standard:
+  name: "Alibaba Cloud Architecture Standard"
+  version: "1.0"
+  applies_to: ["aliyun_vpc"]
+
+# ═══════════════════════════════════════════════════════════
+# 1. 账号体系与网络拓扑
+# ═══════════════════════════════════════════════════════════
+topology:
+  model: "资源目录 + 中心 VPC（CEN 互联）（强制）"
+
+  account_structure:
+    - "企业实名账号是结算与合规主体，业务账号挂在资源目录（Resource Directory）下"
+    - "生产与非生产使用不同资源夹与账号，禁止同账号混跑"
+    - "中心账号承载共享网络与安全服务，业务账号只承载工作负载"
+
+  network:
+    hub_vpc:
+      - "云企业网 CEN（作为跨 VPC / 跨地域互联的枢纽）"
+      - "云防火墙（Cloud Firewall）统一南北与东西向策略"
+      - "NAT 网关（出站）与共享带宽"
+      - "集中式日志（SLS）与安全中心"
+    business_vpc:
+      - "应用与平台工作负载"
+      - "每个地域（Region）独立 VPC，不与其它地域扁平化"
+    vswitch: "vSwitch 绑定可用区（Zone），是 VPC 内的子网，跨可用区需多个 vSwitch"
+
+  rules:
+    - "跨 VPC 与跨地域访问一律经 CEN，不使用公网 Endpoint"
+    - "生产环境每个可用区至少一个 vSwitch，避免单可用区依赖"
+    - "入口统一经 ALB/SLB + WAF + 高防（Anti-DDoS），工作负载不直接暴露 EIP"
+
+deployment_rules:
+  - "ECS/ACK 工作负载不得分配公网 IP；确需出站时经 NAT 网关"
+  - "RDS、PolarDB、OSS 等数据服务使用私网连接与白名单"
+  - "所有 VPC 必须启用流日志（Flow Log）"
+
+config_rules:
+  - "禁止 RAM 用户使用永久 AccessKey，改用 STS 临时凭据"
+  - "强制资源标签（环境、系统、负责人）"
+  - "限制可用地域与实例规格"
+
+# ═══════════════════════════════════════════════════════════
+# 2. 入口与出口
+# ═══════════════════════════════════════════════════════════
+ingress:
+  entry: "ALB / SLB（七层或四层）"
+  waf: "Web 应用防火墙 + Anti-DDoS"
+  rule: "负载均衡与 WAF 是独立节点，不得标注在连接线上"
+
+egress:
+  path: "工作负载 → NAT 网关 → Internet"
+  inspection: "出站经云防火墙与 SLS 审计"
+  rule: "任何组件不得持有 EIP 直连公网"
+
+# ═══════════════════════════════════════════════════════════
+# 3. 身份、密钥与数据
+# ═══════════════════════════════════════════════════════════
+identity:
+  human: "RAM 用户 + 企业 IdP 联合（SSO），强制 MFA"
+  workload: "RAM 角色 + STS 临时凭据；避免长期 AccessKey"
+  authorization: "RAM 策略最小权限，按资源与操作粒度授权，禁止使用主账号 AccessKey"
+  rule: "用户认证与工作负载身份分别建模"
+
+secrets:
+  store: "KMS 凭据管家（Secrets Manager）"
+  keys: "KMS 主密钥（CMK），按数据等级分密钥"
+  rule: "AccessKey、数据库口令不得出现在蓝图文本中"
+
+data:
+  classification: "按数据等级选择地域（如 cn-hangzhou / cn-shanghai）"
+  residency: "跨境传输需合规评估；受限数据不出境"
+  at_rest: "KMS 加密（RDS/PolarDB/OSS）"
+  in_transit: "TLS 1.2+；内网访问优先私网地址"
+
+observability:
+  logging: "日志服务 SLS（集中采集与审计）"
+  monitoring: "云监控 + 告警规则"
+  security: "云安全中心（Security Center）"
+
+# ═══════════════════════════════════════════════════════════
+# 4. 建模规则（供 arch-design / arch-diagram 使用）
+# ═══════════════════════════════════════════════════════════
+modelling:
+  region_type: "aliyun_vpc"
+  zones_key: "subnets"
+  notes:
+    - "中心 VPC 与业务 VPC 各自是一个 region（type: aliyun_vpc），vSwitch 是其中的 zone"
+    - "CEN、云防火墙、NAT 网关、高防属于 INF L4 节点，不是组件"
+    - "ACK 是组件的 runtime，不单独作为组件"

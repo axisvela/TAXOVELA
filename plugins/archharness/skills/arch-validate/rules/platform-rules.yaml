@@ -342,3 +342,155 @@ private_cloud_rules:
     validation_logic: "dc_interconnect_uses_mpls_or_expressroute"
     impact: "使用公网互连私有 DC 数据面临泄露风险且不满足合规要求"
     suggestion: "在 DC 间连接标注 MPLS 图标和加密方式（IPSec）"
+
+# ══════════════════════════════════════════════════
+# GCP 专属规则
+# ══════════════════════════════════════════════════
+gcp_rules:
+
+  - id: "E-GCP-001"
+    dimension: "Cloud_Network_Completeness"
+    name: "GCP 必须采用 Shared VPC 拓扑"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      GCP 架构必须使用 Organization → Folder → Project 层级加 Shared VPC：
+      host project 承载共享子网、Cloud NAT、Cloud Router 与混合连接，
+      service project 只承载工作负载并通过 IAM 使用 host 子网。
+      生产与非生产必须位于不同 Folder 与独立 Project。
+    check_target: "gcp_shared_vpc_nodes"
+    validation_logic: "gcp_shared_vpc_topology_present"
+    impact: "缺少 host project 会导致每个项目各自建网、出口与审计点分散，无法集中治理"
+    suggestion: "画出 host project 与其共享子网，标注 service project 只挂工作负载"
+
+  - id: "E-GCP-002"
+    dimension: "Cloud_Network_Completeness"
+    name: "GCP 入口必须经全局 HTTPS 负载均衡与 Cloud Armor"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      外部入口必须由全局外部 HTTPS 负载均衡承接并挂载 Cloud Armor 策略
+      （OWASP 规则、速率限制、来源限制）。工作负载不得持有外部 IP，
+      内部服务使用 Internal LB 或 Private Service Connect。
+    check_target: "gcp_ingress_chain"
+    validation_logic: "external_ingress_has_lb_and_waf"
+    impact: "负载均衡直接暴露工作负载会绕过 WAF 与集中式访问控制"
+    suggestion: "画出 Global HTTPS LB → Cloud Armor → 后端服务，并标注工作负载无外部 IP"
+
+  - id: "E-GCP-003"
+    dimension: "Security_Compliance"
+    name: "GCP 数据服务必须位于 VPC Service Controls 边界内"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      BigQuery、Cloud Storage、Spanner 等数据服务必须位于 VPC Service Controls
+      边界内，并使用 CMEK 加密受限数据；出站流量经 Cloud NAT，
+      服务账号不使用长期密钥（改用 Workload Identity Federation）。
+    check_target: "gcp_data_services"
+    validation_logic: "data_services_in_vpc_sc_with_cmek"
+    impact: "缺少服务边界时数据可被带外导出，且不满足受限数据驻留要求"
+    suggestion: "标注 VPC-SC 边界与 CMEK 密钥，服务账号使用联合身份"
+
+# ══════════════════════════════════════════════════
+# Aliyun 专属规则
+# ══════════════════════════════════════════════════
+aliyun_rules:
+
+  - id: "E-ALI-001"
+    dimension: "Cloud_Network_Completeness"
+    name: "Alibaba Cloud 必须采用资源目录 + CEN 中心网络"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      账号必须挂在资源目录（Resource Directory）下，生产与非生产使用不同资源夹与账号；
+      跨 VPC 与跨地域互联一律经云企业网 CEN，不使用公网 Endpoint。
+      中心 VPC 承载云防火墙、NAT 网关与集中日志。
+    check_target: "aliyun_vpc_topology"
+    validation_logic: "resource_directory_with_cen_hub"
+    impact: "缺少 CEN 中心网络会导致跨 VPC 走公网或点对点互联，策略与审计分散"
+    suggestion: "画出中心 VPC 与 CEN，业务 VPC 经 CEN 互联并标注云防火墙"
+
+  - id: "E-ALI-002"
+    dimension: "Cloud_Network_Completeness"
+    name: "Alibaba Cloud 入口必须经负载均衡与 WAF"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      外部入口必须由 ALB/SLB 承接并挂载 Web 应用防火墙与 Anti-DDoS 高防；
+      ECS/ACK 工作负载不得分配公网 IP，确需出站时经 NAT 网关。
+    check_target: "aliyun_ingress_chain"
+    validation_logic: "external_ingress_has_lb_and_waf"
+    impact: "工作负载直接暴露 EIP 会绕过 WAF 与高防，且出口不可审计"
+    suggestion: "画出 ALB/SLB + WAF 链路，标注工作负载无 EIP、出站经 NAT 网关"
+
+  - id: "E-ALI-003"
+    dimension: "Security_Compliance"
+    name: "Alibaba Cloud 身份必须使用 RAM 角色与 STS 临时凭据"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      禁止使用主账号或 RAM 用户永久 AccessKey 访问资源；工作负载使用 RAM 角色 +
+      STS 临时凭据，人类访问联合企业 IdP 并强制 MFA。
+      密钥与口令存放在 KMS 凭据管家，按数据等级分密钥。
+    check_target: "aliyun_identity_and_secrets"
+    validation_logic: "no_long_lived_access_key"
+    impact: "长期 AccessKey 泄露即等同于账号失陷，且无法按会话追责"
+    suggestion: "改为 RAM 角色 + STS，并标注 KMS 凭据管家与加密方法"
+
+# ══════════════════════════════════════════════════
+# Microsoft SaaS 专属规则（Microsoft 365 / Power Platform / Dynamics 365）
+# ══════════════════════════════════════════════════
+microsoft_saas_rules:
+
+  - id: "E-MS-001"
+    dimension: "Cloud_Network_Completeness"
+    name: "Microsoft SaaS 必须按租户边界黑盒建模"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      Microsoft 365、Power Platform、Dynamics 365 的租户/环境是客户不拥有的边界，
+      不得为其绘制客户侧 DMZ / App Zone / DB Zone。正确画法是：
+      一个 region 容器 + 内部工作负载或环境作为 zone + 一个边界组件承接所有集成，
+      且没有组件直连 SaaS 内部工作负载。
+    check_target: "microsoft_saas_regions"
+    validation_logic: "saas_region_is_container_with_boundary_component"
+    impact: "把 SaaS 画成客户网络会虚构并不存在的控制点，误导安全评估与合规结论"
+    suggestion: "改为 region 容器 + zone + 单一边界组件（integration_service）"
+
+  - id: "E-MS-002"
+    dimension: "Security_Compliance"
+    name: "Microsoft SaaS 身份必须为 Entra ID + 条件访问"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      三个平台共用 Entra ID 作为唯一身份源：人类访问强制 MFA 与条件访问，
+      特权角色经 PIM 即时提升；工作负载使用应用注册 + 证书或托管身份，
+      禁止客户端密钥明文，禁止平台内本地账号。
+    check_target: "microsoft_saas_identity"
+    validation_logic: "entra_id_with_certificate_credentials"
+    impact: "无 MFA/条件访问或使用共享密钥会导致租户级横向移动与凭据滥用"
+    suggestion: "标注 Entra ID、条件访问、PIM，并把应用注册标注为证书认证"
+
+  - id: "E-MS-003"
+    dimension: "Security_Compliance"
+    name: "Power Platform 与 Dynamics 365 必须有环境隔离与 DLP 策略"
+    severity: "error"
+    issue_type: "must_fix"
+    priority: "High"
+    description: >
+      Power Platform 按 dev/test/prod 分离环境并启用 Managed Environment，
+      以环境组统一应用 DLP 策略（连接器按 Business / Non-Business / Blocked 分类）；
+      Dynamics 365 生产与沙箱分离。本地系统一律经本地数据网关或 VNet 数据网关接入，
+      不开放公网数据库端口。
+    check_target: "power_platform_and_dynamics_environments"
+    validation_logic: "environments_separated_with_dlp_and_gateway"
+    impact: "缺少 DLP 与网关管控时，业务可自助把受限数据接出到未授权连接器"
+    suggestion: "画出环境分层、DLP 策略与本地数据网关，标注无公网数据库直连"

@@ -1,0 +1,151 @@
+# ============================================================
+# Standard: microsoft-saas-standard.yaml
+# 覆盖: Microsoft 365、Power Platform、Dynamics 365
+# 来源: Microsoft cloud security benchmark / Power Platform
+#       well-architected / Dynamics 365 implementation guidance
+# 用途: accuracy-rules / security-rules / platform-rules 的
+#       Microsoft SaaS 专属校验基线
+# ============================================================
+
+standard:
+  name: "Microsoft SaaS Architecture Standard"
+  version: "1.0"
+  applies_to: ["m365_tenant", "power_platform", "dynamics365"]
+
+# ═══════════════════════════════════════════════════════════
+# 1. 放置与分区模型（三者共用）
+# ═══════════════════════════════════════════════════════════
+topology:
+  model: "租户/环境边界容器（黑盒）+ 客户侧接入节点（强制）"
+
+  placement:
+    - "Microsoft 365、Power Platform、Dynamics 365 各自是一个 region 容器"
+    - "同一租户下的多个产品画成并列的 region，不嵌套"
+    - "客户自有组件（网关、连接器宿主、集成服务）部署在客户侧 region，不进入 SaaS region"
+
+  zones:
+    - "SaaS region 内的 zone 是工作负载或环境，不是网络分区"
+    - "Microsoft 365：Exchange Online / SharePoint Online / Teams 等工作负载各为一个 zone"
+    - "Power Platform / Dynamics 365：每个环境（dev / test / prod）为一个 zone"
+    - "禁止在 SaaS region 内绘制 DMZ / App Zone / DB Zone 等客户网络分区"
+
+  connectivity:
+    - "客户侧到 SaaS 的流量一律经边界组件（integration_service）"
+    - "本地系统接入经本地数据网关或 VNet 数据网关，网关宿主是客户侧组件"
+    - "tenant 间（B2B）与跨环境集成需显式声明信任关系"
+
+  rules:
+    - "SaaS region 不得出现直连内部工作负载的边"
+    - "数据驻留由租户/环境的地理配置表达，不用可用区或子网表达"
+
+# ═══════════════════════════════════════════════════════════
+# 2. 身份（三者共用同一身份源）
+# ═══════════════════════════════════════════════════════════
+identity:
+  source: "Entra ID（唯一身份源，同时服务 Microsoft 365、Power Platform、Dynamics 365）"
+  human:
+    - "强制 MFA 与条件访问（设备、位置、风险信号）"
+    - "特权角色经 PIM 即时提升，禁用永久管理员"
+    - "禁止平台内本地账号；外部协作走 B2B 并定期访问评审"
+  workload:
+    - "应用注册 + 证书或托管身份；禁止客户端密钥明文"
+    - "按最小权限授予 Graph / Dataverse / Power Platform API 权限"
+  rule: "用户身份与工作负载身份分别建模；一个身份源不得出现多条并列认证声明"
+
+# ═══════════════════════════════════════════════════════════
+# 3. 共同边界原则（三者共用）
+# ═══════════════════════════════════════════════════════════
+boundary:
+  control_plane: "Microsoft 365 租户是身份与合规边界；客户不拥有其内部网络分区"
+  network_zones: "租户内不存在 DMZ / App Zone / DB Zone，不得为 SaaS 画客户侧网络分区"
+  rule: "SaaS 平台按黑盒建模：一个 region 容器 + 内部工作负载/环境 + 一个边界组件承接所有集成"
+  integration: "所有流量的发起与承接都经由边界组件（integration_service），不直连内部工作负载"
+  regions: "数据驻留由租户/环境的地理配置决定，不用可用区表达"
+
+# ═══════════════════════════════════════════════════════════
+# 1. Microsoft 365
+# ═══════════════════════════════════════════════════════════
+microsoft_365:
+  region_type: "m365_tenant"
+  zones_key: "subnets"
+  workloads:
+    - "Exchange Online（邮件）"
+    - "SharePoint Online / OneDrive（文档）"
+    - "Microsoft Teams（协作）"
+    - "Entra ID（身份，同时服务其它 SaaS）"
+  identity:
+    - "Entra ID 为唯一身份源，禁止租户内本地账号"
+    - "强制 MFA 与条件访问（Conditional Access），按设备与位置策略"
+    - "特权角色使用 PIM 即时提升，禁用永久管理员"
+  governance:
+    - "Purview：敏感度标签、DLP、保留策略、eDiscovery"
+    - "多地理（Multi-Geo）时明确各区域的驻留范围"
+    - "外部共享默认关闭，白名单开启"
+  integration:
+    - "Graph API（应用注册 + 证书或托管身份，不使用共享密钥）"
+    - "跨租户访问（B2B）需明确信任关系与访问评审"
+
+# ═══════════════════════════════════════════════════════════
+# 2. Power Platform
+# ═══════════════════════════════════════════════════════════
+power_platform:
+  region_type: "power_platform"
+  zones_key: "subnets"
+  environments:
+    - "按 dev / test / prod 分离环境，生产环境启用 Managed Environment"
+    - "环境组（Environment Groups）统一应用策略"
+    - "Dataverse 随环境创建，按环境界限隔离数据"
+  governance:
+    - "DLP 策略按环境组限定连接器（Business / Non-Business / Blocked）"
+    - "自定义连接器与本地数据网关需单独审批"
+    - "环境创建权限收敛到平台团队，业务自助创建默认禁止"
+  integration:
+    - "连接器与本地数据网关是唯一的出站/入站路径"
+    - "本地数据网关所在主机按边界组件建模，禁止直连数据库"
+    - "应用注册使用证书凭据，禁止客户端密钥明文"
+
+# ═══════════════════════════════════════════════════════════
+# 3. Dynamics 365
+# ═══════════════════════════════════════════════════════════
+dynamics_365:
+  region_type: "dynamics365"
+  zones_key: "subnets"
+  environments:
+    - "按应用（Sales / Customer Service / Finance & Operations / Supply Chain）分环境"
+    - "生产与沙箱（Sandbox）分离，沙箱可含生产数据时需同等管控"
+    - "Dataverse 是数据边界；财务与运营应用（F&O）使用独立数据层"
+  identity:
+    - "Entra ID 应用注册 + 安全角色（Security Roles）最小权限"
+    - "禁止在插件或集成中硬编码凭据"
+  integration:
+    - "Web API（OData）或 dual-write 与 F&O 同步；跨环境使用虚拟表或数据集成"
+    - "本地系统经 VNet 数据网关或本地数据网关接入，不开放公网数据库端口"
+    - "dual-write 的映射与错误处理需记录，冲突策略明确"
+
+# ═══════════════════════════════════════════════════════════
+# 4. 密钥、数据与可观测性（三者共用）
+# ═══════════════════════════════════════════════════════════
+secrets:
+  store: "Entra ID 应用注册证书 + Key Vault（客户侧密钥与连接字符串）"
+  rule: "SaaS 平台凭据不得出现在蓝图文本；使用托管身份或证书认证"
+
+data:
+  classification: "租户/环境内数据按客户分级；受限数据不得进入低等级环境"
+  residency: "记录数据驻留区域；跨境使用需合规批准"
+  at_rest: "由 Microsoft 托管加密；客户侧以 CMEK/客户密钥（如可用）增强"
+  in_transit: "TLS 1.2+；平台间使用托管身份"
+
+observability:
+  logging: "统一审计日志（Purview / Power Platform admin center / D365 审计）导出至 SIEM"
+  monitoring: "服务健康与消息中心；集成失败告警"
+  security: "Microsoft Defender for Cloud Apps / Defender XDR 覆盖"
+
+# ═══════════════════════════════════════════════════════════
+# 5. 建模规则（供 arch-design / arch-diagram 使用）
+# ═══════════════════════════════════════════════════════════
+modelling:
+  notes:
+    - "三者各自是一个 region 类型；同一租户内的多个产品画成并列的 region"
+    - "工作负载（Exchange/SharePoint/Teams）或环境（Power Platform/D365）是 region 内的 zone"
+    - "Entra ID、Key Vault、本地数据网关按 INF L4 节点建模；应用注册与连接器按边界组件建模"
+    - "集成一律经由边界组件，画成从客户组件指向边界组件，再由边界组件指向 SaaS region"

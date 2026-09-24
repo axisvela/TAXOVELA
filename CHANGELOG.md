@@ -10,6 +10,20 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Added
 
+- Platform patterns for **Google Cloud**, **Alibaba Cloud**, and the
+  **Microsoft SaaS** family (Microsoft 365, Power Platform, Dynamics 365):
+  `standards/gcp-standard.yaml`, `standards/aliyun-standard.yaml`, and
+  `standards/microsoft-saas-standard.yaml` each state placement, zone model,
+  identity, secret handling, and data classification, with matching
+  `E-GCP-*`, `E-ALI-*`, and `E-MS-*` validation rules. New region kinds
+  (`gcp_vpc`, `aliyun_vpc`, `m365_tenant`, `power_platform`, `dynamics365`)
+  resolve zones through `standards/diagram-roles.yaml` and render in draw.io,
+  D2, PlantUML, and PNG from one shared palette in `styles.REGION_CONTAINERS`,
+  so a further platform is a palette entry rather than a renderer branch.
+  Microsoft SaaS is modelled as a black box: a tenant/environment container
+  whose zones are workloads or environments, reached only through a boundary
+  component.
+
 - `docs/ci-pipeline.md` is a copy-pasteable workflow that runs doctor,
   `req-validate`, `arch-check`, `trace-check`, `schema-check`, `validate-check`,
   `backlog`, and the `enforce` gate on every pull request, archiving the

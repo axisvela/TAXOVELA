@@ -32,7 +32,7 @@ default rectangle rather than to a misleading approximation.
 import re
 from typing import Optional
 
-from . import labels
+from . import labels, styles
 
 
 # ── D2 style constants ────────────────────────────────────────────────────────
@@ -260,28 +260,25 @@ def generate_d2(arch: dict) -> str:
         zkey = "network_zones" if rtype == "private_dc" else "subnets"
 
         # Container shape
-        if rtype == "aws_vpc":
+        palette = styles.REGION_CONTAINERS.get(rtype, styles.REGION_CONTAINERS["private_dc"])
+        fill = palette.get("fill") or "#FAFAFA"
+        stroke = palette["stroke"]
+        if rtype in ("aws_vpc", "azure_vnet", "gcp_vpc", "aliyun_vpc"):
             container_shape = "cloud"
-            fill = "#FAFAFA"
-            stroke = "#232F3E"
-        elif rtype == "azure_vnet":
-            container_shape = "cloud"
-            fill = "#FAFAFA"
-            stroke = "#0078D4"
         else:
             container_shape = "rectangle"
-            fill = "#FAFAFA"
-            stroke = "#444444"
 
         lines.append(f"{rid}: \"{rlabel}\" {{")
-        if rtype == "private_dc":
+        if palette.get("double") or rtype in ("aws_vpc", "azure_vnet", "gcp_vpc", "aliyun_vpc"):
             lines.append(f"  shape: {container_shape}")
         lines.append(f"  style {{")
         lines.append(f'    fill: "{fill}"')
         lines.append(f'    stroke: "{stroke}"')
         lines.append(f'    stroke-width: 2')
-        if rtype == "private_dc":
+        if palette.get("double"):
             lines.append(f'    double-border: true')
+        if palette.get("dashed"):
+            lines.append(f'    stroke-dash: 6')
         lines.append(f"  }}")
         lines.append("")
 

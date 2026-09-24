@@ -38,6 +38,23 @@ regions:
     azure_vnet:
       zones_key: "subnets"
       boundary_roles: []
+    gcp_vpc:
+      zones_key: "subnets"        # Shared VPC: subnets are regional
+      boundary_roles: []
+    aliyun_vpc:
+      zones_key: "subnets"        # vSwitches are the zone level
+      boundary_roles: []
+    # Microsoft SaaS platforms are black boxes: the tenant/environment boundary
+    # is the container, and its workloads or environments are the zones.
+    m365_tenant:
+      zones_key: "subnets"
+      boundary_roles: []
+    power_platform:
+      zones_key: "subnets"
+      boundary_roles: []
+    dynamics365:
+      zones_key: "subnets"
+      boundary_roles: []
     saas:
       zones_key: "subnets"
       boundary_roles: []

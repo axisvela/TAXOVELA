@@ -1,0 +1,99 @@
+# ============================================================
+# Standard: gcp-standard.yaml
+# 来源: Google Cloud landing-zone architecture guidance
+# 用途: accuracy-rules / security-rules 的 GCP 专属校验基线
+# ============================================================
+
+standard:
+  name: "Google Cloud Architecture Standard"
+  version: "1.0"
+  applies_to: ["gcp_vpc"]
+
+# ═══════════════════════════════════════════════════════════
+# 1. 资源层级与网络拓扑
+# ═══════════════════════════════════════════════════════════
+topology:
+  model: "Organization → Folder → Project + Shared VPC（强制）"
+
+  resource_hierarchy:
+    - "Organization 是结算与策略的根；生产与非生产放在不同 Folder"
+    - "Project 是资源与 IAM 的边界，不是网络边界"
+    - "生产工作负载使用独立 Project，禁止与非生产共享"
+
+  shared_vpc:
+    host_project:
+      - "共享子网（Shared subnets）"
+      - "Cloud NAT / Cloud Router"
+      - "Cloud Interconnect 或 Cloud VPN 终结"
+      - "集中式日志与审计导出"
+    service_project:
+      - "承载工作负载（GKE、Compute Engine、Cloud Run）"
+      - "通过 IAM 绑定使用 host 的子网，不自行创建 VPC"
+    subnets: "子网是区域级资源（regional subnet），一个子网覆盖该区域的所有 zone"
+
+  rules:
+    - "每个物理 Region 各自建立子网与 Cloud NAT，不做跨区扁平网络"
+    - "入口一律经由全局外部 HTTPS 负载均衡 + Cloud Armor，工作负载不得直接暴露公网 IP"
+    - "出站流量默认经 Cloud NAT；无公网出口需求的工作负载应完全无外部 IP"
+    - "跨项目访问使用 Private Service Connect 或 VPC peering，不使用公网端点"
+
+deployment_rules:
+  - "GKE 使用私有集群（private nodes），控制平面与节点均无公网 IP"
+  - "数据服务（BigQuery、Cloud Storage、Spanner）置于 VPC Service Controls 边界内"
+  - "所有子网必须启用 VPC Flow Logs"
+
+org_policy:
+  - "禁止工作负载使用外部 IP（按项目豁免需记录）"
+  - "强制 Shielded VM 与 OS Login"
+  - "强制 CMEK（客户管理密钥）用于受限数据"
+  - "限制允许的 Region 与机器类型"
+
+# ═══════════════════════════════════════════════════════════
+# 2. 入口与出口
+# ═══════════════════════════════════════════════════════════
+ingress:
+  entry: "Global external HTTPS load balancer"
+  waf: "Cloud Armor（OWASP 规则 + 速率限制 + 地域/来源限制）"
+  internal: "Internal load balancer 或 Private Service Connect endpoint"
+  rule: "负载均衡与 WAF 是独立节点，不得标注在连接线上"
+
+egress:
+  path: "工作负载 → Cloud NAT → Internet"
+  inspection: "出站流量经 Cloud NAT 与集中式日志；敏感场景经 Secure Web Proxy"
+  rule: "任何组件不得拥有直接公网出口"
+
+# ═══════════════════════════════════════════════════════════
+# 3. 身份、密钥与数据
+# ═══════════════════════════════════════════════════════════
+identity:
+  human: "Cloud Identity / Workspace，联合至企业 IdP，强制 MFA"
+  workload: "Service account + Workload Identity Federation（避免长期密钥）"
+  authorization: "IAM 角色最小权限；禁止 primitive roles（Owner/Editor）用于应用"
+  rule: "用户认证声明与工作负载身份分别建模，不复用同一凭据"
+
+secrets:
+  store: "Secret Manager"
+  keys: "Cloud KMS（CMEK），按环境与数据等级分密钥"
+  rule: "密钥与凭据不得出现在蓝图文本或镜像中；使用短生命周期令牌"
+
+data:
+  classification: "按数据等级选择 Region 与 Location（如 asia-east1 / EU）"
+  residency: "受限数据保持在指定 Region；跨区导出需合规批准"
+  at_rest: "CMEK；BigQuery 与 GCS 使用统一密钥策略"
+  in_transit: "TLS 1.2+；服务间使用 mTLS 或 Private Service Connect"
+
+observability:
+  logging: "Cloud Logging（集中式 sink 到安全项目）"
+  monitoring: "Cloud Monitoring + 告警策略"
+  security: "Security Command Center Premium"
+
+# ═══════════════════════════════════════════════════════════
+# 4. 建模规则（供 arch-design / arch-diagram 使用）
+# ═══════════════════════════════════════════════════════════
+modelling:
+  region_type: "gcp_vpc"
+  zones_key: "subnets"
+  notes:
+    - "Hub 与 Spoke 各自是一个 region（type: gcp_vpc），子网是其中的 zone"
+    - "Cloud Armor、Cloud NAT、Interconnect 属于 INF L4 节点，不是组件"
+    - "GKE/Cloud Run 是组件的 runtime，不单独作为组件"

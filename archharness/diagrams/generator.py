@@ -78,11 +78,16 @@ def _comp_style(comp: dict, status: str = "unchanged") -> str:
 
 
 def _region_container_style(region: dict) -> str:
+    """Container style for a region, from the shared palette.
+
+    AWS keeps its vendor group shape; every other hosting kind reads the
+    palette in ``styles.REGION_CONTAINERS``, so adding GCP, Aliyun, or a SaaS
+    tenant is a palette entry rather than another branch here.
+    """
     rtype = region.get("type", "private_dc")
     if rtype == "aws_vpc":
         return styles.AWS_GROUP
     if rtype == "azure_vnet":
-        # Use a styled container for Azure
         return (
             "points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],"
             "[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],"
@@ -92,8 +97,7 @@ def _region_container_style(region: dict) -> str:
             "shape=mxgraph.azure.azure;fillColor=none;strokeColor=#0078D4;"
             "verticalAlign=top;align=left;spacingLeft=30;fontColor=#0078D4;dashed=0;"
         )
-    # Private DC
-    return styles.DC_CONTAINER
+    return styles.region_container_style(rtype)
 
 
 def _subnet_style(subnet: dict) -> str:

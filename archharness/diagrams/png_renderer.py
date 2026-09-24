@@ -17,7 +17,7 @@ import matplotlib.patches as mpatches
 from matplotlib.patches import FancyBboxPatch, Polygon
 import numpy as np
 
-from . import labels, topology
+from . import labels, styles, topology
 
 # ── Color palette ─────────────────────────────────────────────────────────────
 
@@ -451,15 +451,15 @@ def render_png(arch: dict, png_path: str, dpi: int = 130):
         rtype = region.get("type", "private_dc")
         zkey  = topology.region_zones_key(region)
 
-        # Container
-        is_aws    = rtype == "aws_vpc"
-        is_azure  = rtype == "azure_vnet"
-        bg_col    = "#FAFAFA"
-        bdr_col   = "#232F3E" if is_aws else ("#0078D4" if is_azure else "#444444")
-        bdr_lw    = 1.5 if (is_aws or is_azure) else 2.5
+        # Container — palette shared with the draw.io and D2 renderers.
+        palette = styles.REGION_CONTAINERS.get(rtype, styles.REGION_CONTAINERS["private_dc"])
+        bg_col  = palette.get("fill") or "#FAFAFA"
+        bdr_col = palette["stroke"]
+        bdr_lw  = 2.5 if palette.get("double") else 1.5
 
-        _draw_rect(ax, rx, ry, rw, rh, bg_col, bdr_col, lw=bdr_lw, z=1)
-        if rtype == "private_dc":
+        _draw_rect(ax, rx, ry, rw, rh, bg_col, bdr_col, lw=bdr_lw, z=1,
+                   dashed=bool(palette.get("dashed")))
+        if palette.get("double"):
             _draw_rect(ax, rx+4, ry+4, rw-8, rh-8, "none", bdr_col, lw=0.6, z=1)
 
         # Region label

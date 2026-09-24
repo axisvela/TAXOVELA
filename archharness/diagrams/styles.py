@@ -191,6 +191,41 @@ STANDARD_SHAPES = {
     "cloud": "shape=cloud;whiteSpace=wrap;html=1;" + COMPONENT_FONT,
 }
 
+# ── Region containers ─────────────────────────────────────────────────────────
+#
+# One palette for every hosting kind, so a new platform is a data change rather
+# than a new branch in four renderers. ``double`` marks the private-cloud
+# double border; ``dashed`` marks logical (SaaS/office) boundaries.
+
+REGION_CONTAINERS = {
+    "private_dc":  {"stroke": "#444444", "fill": "#FAFAFA", "double": True},
+    "plant":       {"stroke": "#444444", "fill": "#FAFAFA", "double": True},
+    "aws_vpc":     {"stroke": "#232F3E", "fill": "#FAFAFA"},
+    "azure_vnet":  {"stroke": "#0078D4", "fill": "#FAFAFA"},
+    "gcp_vpc":     {"stroke": "#1A73E8", "fill": "#FAFAFA"},
+    "aliyun_vpc":  {"stroke": "#FF6A00", "fill": "#FAFAFA"},
+    "m365_tenant": {"stroke": "#D83B01", "fill": "#FFF7F2", "dashed": True},
+    "power_platform": {"stroke": "#742774", "fill": "#FAF5FA", "dashed": True},
+    "dynamics365": {"stroke": "#002050", "fill": "#F2F5FA", "dashed": True},
+    "saas_tenant": {"stroke": "#5C6BC0", "fill": "#F3F6FF", "dashed": True},
+    "office_network": {"stroke": "#666666", "fill": "none", "dashed": True},
+    "factory_network": {"stroke": "#666666", "fill": "none", "dashed": True},
+    "lab_network": {"stroke": "#666666", "fill": "none", "dashed": True},
+    "third_party": {"stroke": "#B85450", "fill": "none", "dashed": True},
+}
+
+
+def region_container_style(region_type: str) -> str:
+    """Container style for a hosting kind (an unknown kind is a plain DC box)."""
+    palette = REGION_CONTAINERS.get(region_type, REGION_CONTAINERS["private_dc"])
+    style = f"{DC_CONTAINER}strokeColor={palette['stroke']};"
+    if palette.get("fill") and palette["fill"] != "none":
+        style = f"fillColor={palette['fill']};" + style
+    if palette.get("dashed"):
+        style += "dashed=1;"
+    return style
+
+
 # ── Edge styles ───────────────────────────────────────────────────────────────
 
 EDGE_SOLID = (

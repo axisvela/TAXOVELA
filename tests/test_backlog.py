@@ -48,6 +48,16 @@ class BacklogTests(unittest.TestCase):
         self.assertEqual(backlog["items"][0]["anchor"]["name"], "Order API")
         self.assertEqual(backlog["items"][0]["anchor"]["kind"], "component")
 
+    def test_field_qualifier_narrows_the_anchor(self):
+        backlog = build_backlog(_validation(_issue(
+            "VAL-001", "CMP-02 encryption", "CMP-02.encryption_at_rest is missing")),
+            REQUIREMENTS, BLUEPRINT)
+
+        anchor = backlog["items"][0]["anchor"]
+        self.assertEqual(anchor["id"], "CMP-02")
+        self.assertEqual(anchor["field"], "encryption_at_rest")
+        self.assertEqual(backlog["groups"]["CMP-02"], ["BL-001"])
+
     def test_items_are_ordered_by_severity_then_disposition(self):
         backlog = build_backlog(_validation(
             _issue("VAL-001", "CMP-02 low", "CMP-02 note", severity="low", disposition="consider"),

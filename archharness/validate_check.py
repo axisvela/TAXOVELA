@@ -6,10 +6,16 @@ command extracts the typed codes a finding cites and joins them back to the
 requirements model and the architecture blueprint, so an unverifiable or stale
 finding is visible before a remediation backlog is built from it.
 
+A finding may qualify a citation with the field it is about, as
+``CMP-03.encryption_at_rest`` or ``FLOW-12.auth_method``. The field is checked
+against the entity's definition in ``schemas/req-v2.schema.json``, so field-level
+evidence is verified rather than asserted.
+
 Rules
     V-01 ERROR  a cited typed code does not exist in the model
     V-02 WARN   a finding cites no model element at all
     V-03 WARN   a finding cites the retired ``SYS-nn`` id space
+    V-04 ERROR  a cited ``CODE.field`` is not a field of that entity
 
 Usage
     archharness validate-check -v output/validation/validate_result.json \\
@@ -30,8 +36,30 @@ from .diagrams import topology
 
 #: Entity ids a finding may cite: inventory rows and the derived layers.
 TYPED_CODE = re.compile(r"\b(INF|APP|CMP|SUB|STK|DEP|FLOW|LNK|AUTH)-\d{1,4}\b")
+#: An optional field qualifier, e.g. ``CMP-03.encryption_at_rest``.
+FIELD_CODE = re.compile(
+    r"\b(INF|APP|CMP|SUB|STK|DEP|FLOW|LNK|AUTH)-(\d{1,4})\.([a-z][a-z0-9_]*)\b")
 #: The id space retired by the req/v2 migration.
 LEGACY_CODE = re.compile(r"\bSYS-\d{1,4}\b", re.IGNORECASE)
+
+#: Typed prefix → the definition that describes its fields.
+_ENTITY_DEFS = {
+    "INF": "infra", "APP": "system", "CMP": "component", "STK": "stack",
+    "DEP": "deployment", "FLOW": "flow", "LNK": "networkLink", "AUTH": "auth",
+}
+
+
+def entity_fields() -> dict[str, set[str]]:
+    """Field names per typed prefix, read from the req/v2 schema."""
+    from .schemas import load_schema
+
+    defs = load_schema("req/v2").get("$defs", {})
+    fields: dict[str, set[str]] = {}
+    for prefix, definition in _ENTITY_DEFS.items():
+        properties = (defs.get(definition) or {}).get("properties") or {}
+        if properties:
+            fields[prefix] = set(properties)
+    return fields
 
 _COLLECTIONS = ("infra", "systems", "components", "stacks", "deployments",
                 "flows", "network_links", "auth")
@@ -79,6 +107,7 @@ def check_findings(validation: dict, requirements: dict | None = None,
     if not isinstance(validation, dict) or validation.get("schema_version") != "validation/v1":
         return [_finding("V-00", "validation input must be a validation/v1 document")]
     known = model_ids(requirements, blueprint)
+    fields = entity_fields()
     findings: list[dict] = []
 
     for issue in validation.get("issues") or []:
@@ -95,6 +124,19 @@ def check_findings(validation: dict, requirements: dict | None = None,
                 "V-01",
                 f"{issue_id} cites {', '.join(unknown)}, which the model does not declare",
                 issue_id=issue_id, unknown_codes=unknown))
+
+        bad_fields = []
+        for match in FIELD_CODE.finditer(text):
+            prefix, number, field = match.groups()
+            code = f"{prefix}-{int(number):02d}"
+            allowed = fields.get(prefix)
+            if code in known and allowed is not None and field not in allowed:
+                bad_fields.append(f"{code}.{field}")
+        if bad_fields:
+            findings.append(_finding(
+                "V-04",
+                f"{issue_id} cites {', '.join(bad_fields)}, which are not fields of that entity",
+                issue_id=issue_id, unknown_fields=bad_fields))
         if not cited and not legacy:
             findings.append(_finding(
                 "V-02",

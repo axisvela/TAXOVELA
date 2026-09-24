@@ -81,6 +81,30 @@ class EvidenceCheckTests(unittest.TestCase):
         self.assertEqual(rules(findings), ["V-03"])
         self.assertEqual(findings[0]["evidence"]["legacy_codes"], ["SYS-05"])
 
+    def test_field_qualified_citation_is_verified(self):
+        validation = _validation(_issue(
+            "VAL-005", "CMP-01 encryption", "CMP-01.encryption_at_rest is TBD"))
+
+        self.assertEqual(check_findings(validation, REQUIREMENTS, BLUEPRINT), [])
+
+    def test_unknown_field_of_a_known_entity_is_an_error(self):
+        validation = _validation(_issue(
+            "VAL-006", "CMP-01 encryption", "CMP-01.encryption_in_transit is TBD"))
+
+        findings = check_findings(validation, REQUIREMENTS, BLUEPRINT)
+
+        self.assertEqual(rules(findings), ["V-04"])
+        self.assertEqual(findings[0]["severity"], "ERROR")
+        self.assertEqual(findings[0]["evidence"]["unknown_fields"],
+                         ["CMP-01.encryption_in_transit"])
+
+    def test_field_on_an_unknown_code_reports_the_code_only(self):
+        validation = _validation(_issue("VAL-007", "ghost", "CMP-99.encryption_at_rest is TBD"))
+
+        findings = check_findings(validation, REQUIREMENTS, BLUEPRINT)
+
+        self.assertEqual(rules(findings), ["V-01"])
+
     def test_wrong_document_version_is_rejected(self):
         findings = check_findings({"schema_version": "requirements/v1"})
 

@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 
 from .diagrams import topology
-from .validate_check import TYPED_CODE, check_findings
+from .validate_check import FIELD_CODE, TYPED_CODE, check_findings
 
 SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3}
 DISPOSITION_ORDER = {"must_fix": 0, "should_fix": 1, "consider": 2}
@@ -87,9 +87,17 @@ def build_backlog(validation: dict, requirements: dict | None = None,
         cited = sorted({match.group(0) for match in TYPED_CODE.finditer(text)})
         anchors = [code for code in cited if code in index]
         unknown = [code for code in cited if code not in index]
+        # A field qualifier narrows the item to the column that has to change.
+        fields = [f"{match.group(1)}-{int(match.group(2)):02d}.{match.group(3)}"
+                  for match in FIELD_CODE.finditer(text)]
 
         if anchors:
-            group, target = anchors[0], index[anchors[0]]
+            group, target = anchors[0], dict(index[anchors[0]])
+            field_name = next((f.split(".", 1)[1] for f in fields
+                               if f.startswith(f"{group}.")), None)
+            if field_name:
+                target["field"] = field_name
+                group = f"{group}.{field_name}"
         else:
             group, target = UNANCHORED, {"kind": UNANCHORED, "name": issue.get("subject") or ""}
 
@@ -103,7 +111,7 @@ def build_backlog(validation: dict, requirements: dict | None = None,
             "subject": issue.get("subject"),
             "evidence": issue.get("evidence"),
             "confidence": issue.get("confidence"),
-            "anchor": {**target, "id": group if anchors else None},
+            "anchor": {**target, "id": anchors[0] if anchors else None},
         }
         if unknown:
             item["unverified_codes"] = unknown

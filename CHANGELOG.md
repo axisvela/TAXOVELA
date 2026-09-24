@@ -71,6 +71,10 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
   the element they cite, ordered by severity then disposition, and an item that
   cites nothing, or something the model does not declare, is marked instead of
   being quietly remediated.
+- A validation finding may qualify a citation with the field it is about
+  (`CMP-03.encryption_at_rest`). `validate-check` verifies the field against the
+  entity definition in `schemas/req-v2.schema.json` (rule V-04), and `backlog`
+  carries it as `anchor.field`.
 - `archharness validate-check` joins a `validation/v1` result back to the model:
   a finding that cites a typed code the model does not declare is an error
   (the unverifiable / false-positive path), an unanchored finding or one still

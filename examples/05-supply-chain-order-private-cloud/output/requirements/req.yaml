@@ -133,6 +133,14 @@ requirements:
     - {id: "DEP-43", component_id: "CMP-35", environment: "prod", deployment_type: "third_party", location_type: "saas", infra_id: "INF-08", runtime_type: "physical", instance_count: 1}
     - {id: "DEP-44", component_id: "CMP-33", environment: "prod", deployment_type: "third_party", location_type: "saas", infra_id: "INF-01", runtime_type: "physical", instance_count: 1}
     - {id: "DEP-45", component_id: "CMP-31", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-12", runtime_type: "serverless", instance_count: 1}
+    - {id: "DEP-46", component_id: "CMP-29", environment: "prod", deployment_type: "third_party", location_type: "saas", infra_id: "INF-01", runtime_type: "serverless", instance_count: 1}
+    - {id: "DEP-47", component_id: "CMP-30", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-11", runtime_type: "serverless", instance_count: 1}
+    - {id: "DEP-48", component_id: "CMP-32", environment: "prod", deployment_type: "third_party", location_type: "saas", infra_id: "INF-12", runtime_type: "serverless", instance_count: 1}
+    - {id: "DEP-49", component_id: "CMP-34", environment: "prod", deployment_type: "third_party", location_type: "saas", infra_id: "INF-01", runtime_type: "physical", instance_count: 1}
+    - {id: "DEP-50", component_id: "CMP-25", environment: "prod", deployment_type: "third_party", location_type: "saas", infra_id: "INF-01", runtime_type: "serverless", instance_count: 1}
+    - {id: "DEP-51", component_id: "CMP-26", environment: "prod", deployment_type: "third_party", location_type: "saas", infra_id: "INF-01", runtime_type: "serverless", instance_count: 1}
+    - {id: "DEP-52", component_id: "CMP-27", environment: "prod", deployment_type: "third_party", location_type: "saas", infra_id: "INF-01", runtime_type: "serverless", instance_count: 1}
+    - {id: "DEP-53", component_id: "CMP-28", environment: "prod", deployment_type: "third_party", location_type: "saas", infra_id: "INF-01", runtime_type: "serverless", instance_count: 1}
 
   flows:
     - {id: "FLOW-01", source_component_id: "internet", target_component_id: "CMP-01", protocol: "HTTPS", port: "443", auth_method: "none", encryption: "TLS1.3", cross_border: false, via: ["INF-16"], notes: "CN employees; user auth = AUTH-01"}

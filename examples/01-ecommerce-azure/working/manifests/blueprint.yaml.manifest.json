@@ -4,9 +4,12 @@
   "type": "technical-deployment-view",
   "schema": "architecture/v1",
   "path": "output\\designs\\blueprint.yaml",
-  "sha256": "6cd8628f69e985dd56a465cd731e94688b0ea2b37ad6e460cc8a1fc479e08216",
+  "sha256": "68885d57fd3e49e1ba2214b9b6226258e186689fa80136bb9bb27766aaeac648",
   "model_version": "openai/gpt-5.6-terra",
   "producer": "arch-design",
   "produced_at": "2026-09-24T00:00:00+00:00",
-  "input_artifacts": ["req.yaml", "REQ.md"]
+  "input_artifacts": [
+    "req.yaml",
+    "REQ.md"
+  ]
 }

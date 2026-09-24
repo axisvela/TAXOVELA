@@ -4,7 +4,7 @@
   "type": "requirements",
   "schema": "requirements/v1",
   "path": "output\\requirements\\req.yaml",
-  "sha256": "1a96b92bffbf0537d34181559f52ef630645b545c7d589cd822038cb284a3b5d",
+  "sha256": "f62d03353c60408e6e74dcc6a5641e86420cae5d488227491e45095845a4abfb",
   "model_version": null,
   "producer": "arch-requirements",
   "produced_at": "2026-09-14T11:23:29+00:00",

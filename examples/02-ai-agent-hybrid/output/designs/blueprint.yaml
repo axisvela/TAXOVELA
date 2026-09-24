@@ -157,8 +157,8 @@ arch:
           type: "hub"
           name: "East US Hybrid Connectivity Boundary"
           components:
-            - id: "azure-eastus-private-connectivity"
-              name: "Private Connectivity Gateway - Type TBD"
+            - id: "INF-11"
+              name: "Private Connectivity Gateway - type TBD"
               type: "NW"
               status: "unchanged"
               notes: "Carrier, routing, firewall, and private DNS implementation are TBD; no public application path."
@@ -187,8 +187,8 @@ arch:
           type: "hub"
           name: "East US 2 Hybrid Connectivity Boundary"
           components:
-            - id: "azure-eastus2-private-connectivity"
-              name: "Private Connectivity Gateway - Type TBD"
+            - id: "INF-12"
+              name: "Private Connectivity Gateway - type TBD"
               type: "NW"
               status: "unchanged"
               notes: "Carrier, routing, firewall, and private DNS implementation are TBD; no public application path."

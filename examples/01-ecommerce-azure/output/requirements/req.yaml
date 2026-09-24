@@ -24,6 +24,7 @@ requirements:
     - {id: INF-19, name: "Japan East database subnet", node_kind: subnet, infra_type: public_cloud, network_type: prod_network, parent_id: INF-05, country: JP, status: planned}
     - {id: INF-20, name: "US corporate data center", node_kind: data_center, infra_type: private_cloud, network_type: prod_network, country: US, status: active}
     - {id: INF-21, name: "Japan corporate data center", node_kind: data_center, infra_type: private_cloud, network_type: prod_network, country: JP, status: active}
+    - {id: INF-22, name: "East US ingress subnet", node_kind: subnet, infra_type: public_cloud, network_type: dmz, parent_id: INF-02, country: US, status: planned}
   systems:
     - {id: APP-01, name: "US e-commerce platform", type: new, owner: biz_owned, data_classification: "Acme Confidential"}
     - {id: APP-02, name: "AP e-commerce platform", type: new, owner: biz_owned, data_classification: "Acme Confidential"}

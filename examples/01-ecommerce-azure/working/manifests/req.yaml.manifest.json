@@ -4,9 +4,15 @@
   "type": "requirements",
   "schema": "requirements/v2",
   "path": "output\\requirements\\req.yaml",
-  "sha256": "f0812cf1ac16eaaaec6a90761a8a14b294cf8aa08ce85ac61d34fb43e7e365bf",
+  "sha256": "bad4d3a11fd898b2544e17daf7288fc5b4143e88c9573728a8c1213c6a4212eb",
   "model_version": null,
   "producer": "arch-requirements",
   "produced_at": "2026-09-24T00:00:00+00:00",
-  "input_artifacts": ["input/prompt.md", "input/systems-registry.md", "input/documents/requirements.md", "project.yaml", "config.yaml"]
+  "input_artifacts": [
+    "input/prompt.md",
+    "input/systems-registry.md",
+    "input/documents/requirements.md",
+    "project.yaml",
+    "config.yaml"
+  ]
 }

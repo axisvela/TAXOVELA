@@ -50,14 +50,14 @@ INF_02: "Azure East US [US] [Business IT]" {
     stroke-width: 2
   }
 
-  INF_10: "East US ingress" {
+  INF_22: "East US ingress" {
     style {
       fill: "#FAFAFA"
       stroke: "#BDBDBD"
       stroke-dash: 6
     }
 
-    INF_10_WAF: "INF-10 Application Gateway WAF\nAzure Application Gateway WAF v2" {
+    INF_10: "INF-10 Application Gateway WAF\nAzure Application Gateway WAF v2" {
       shape: hexagon
       style {
             fill: "#D32F2F"
@@ -330,9 +330,9 @@ INF_21: "Japan corporate DC [JP] [Corporate IT]" {
 
 # ── Interactions ──────────────────────────────────────
 
-internet -> INF_02.INF_10.INF_10_WAF: "P-HTTPS\n(AU-T2)"
-INF_02.INF_10.INF_10_WAF -> INF_02.INF_11.CMP_01: "P-HTTPS"
-INF_02.INF_10.INF_10_WAF -> INF_02.INF_12.CMP_02: "P-HTTPS"
+internet -> INF_02.INF_22.INF_10: "P-HTTPS\n(AU-T2)"
+INF_02.INF_22.INF_10 -> INF_02.INF_11.CMP_01: "P-HTTPS"
+INF_02.INF_22.INF_10 -> INF_02.INF_12.CMP_02: "P-HTTPS"
 INF_02.INF_11.CMP_01 -> INF_01.eus_firewall_zone.INF_06: "P-TCP\n(AU-I2)"
 INF_01.eus_firewall_zone.INF_06 -> INF_02.INF_13.CMP_03: "P-TCP\n(AU-I2)"
 INF_02.INF_12.CMP_02 -> INF_02.INF_13.CMP_03: "P-TCP\n(AU-I2)"

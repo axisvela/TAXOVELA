@@ -25,8 +25,8 @@ _TYPED_NODE = re.compile(r"^(CMP|INF)-(\d+)(?:-([A-Z]{2}))?$")
 _SITE_COUNTRIES = {"NA": {"US", "CA", "MX"}}
 
 
-def _finding(rule: str, message: str, **evidence) -> dict:
-    return {"rule": rule, "severity": "ERROR", "message": message, "evidence": evidence}
+def _finding(rule: str, message: str, severity: str = "ERROR", **evidence) -> dict:
+    return {"rule": rule, "severity": severity, "message": message, "evidence": evidence}
 
 
 def _load(path: Path) -> dict:
@@ -43,6 +43,9 @@ def check_traceability(requirements: dict, blueprint: dict) -> list[dict]:
     req/v2 collection.
     T-02: a country-suffixed component node has at least one deployment of its
     base component on infra in that country.
+    T-03: every blueprint node id is a typed code, so no node escapes the
+    inventory join.
+    T-04 (WARN): every req/v2 component has at least one deployment row.
     """
     if not isinstance(requirements, dict) or requirements.get("schema_version") != "req/v2":
         return [_finding("T-00", "requirements input must be a req/v2 document")]
@@ -52,10 +55,17 @@ def check_traceability(requirements: dict, blueprint: dict) -> list[dict]:
     deployments = req.get("deployments", []) or []
     findings: list[dict] = []
 
+    deployed = {row.get("component_id") for row in deployments}
+
     for _region, _zone, node in _nodes(blueprint):
         node_id = str(node.get("id") or "")
         match = _TYPED_NODE.match(node_id)
         if not match:
+            # A node the inventory cannot reference breaks the join silently.
+            findings.append(_finding(
+                "T-03",
+                f"blueprint node {node_id!r} is not a typed CMP-/INF- code",
+                node_id=node_id))
             continue
         kind, number, country = match.groups()
         base = f"{kind}-{number}"
@@ -76,6 +86,12 @@ def check_traceability(requirements: dict, blueprint: dict) -> list[dict]:
                     "T-02", f"site-qualified node {node_id!r} has no {country} deployment for {base}",
                     node_id=node_id, component_id=base, country=country,
                 ))
+
+    for component_id in sorted(components):
+        if component_id not in deployed:
+            findings.append(_finding(
+                "T-04", f"component {component_id} has no deployment row",
+                severity="WARN", component_id=component_id))
     return findings
 
 
@@ -106,14 +122,18 @@ def main(argv: list[str] | None = None) -> int:
     except Exception as exc:  # noqa: BLE001
         print(f"ERROR: cannot read trace inputs: {exc}", file=sys.stderr)
         return 2
+    errors = [finding for finding in findings if finding["severity"] == "ERROR"]
     if args.as_json:
-        print(json.dumps({"schema_version": "trace-check/v1", "findings": findings}, indent=2))
+        print(json.dumps({"schema_version": "trace-check/v1",
+                          "errors": len(errors),
+                          "warnings": len(findings) - len(errors),
+                          "findings": findings}, indent=2))
     elif findings:
         for finding in findings:
-            print(f"ERROR {finding['rule']}: {finding['message']}")
+            print(f"{finding['severity']} {finding['rule']}: {finding['message']}")
     else:
         print("OK — req/v2 inventory and blueprint nodes are traceable")
-    return 1 if findings else 0
+    return 1 if errors else 0
 
 
 if __name__ == "__main__":

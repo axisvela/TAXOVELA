@@ -4,9 +4,11 @@
   "type": "technical-deployment-view",
   "schema": "text/d2",
   "path": "output\\diagrams\\diagram-v2.d2",
-  "sha256": "57bd445b441c5c9b3e0ab46e7fbc3ef8e6b52d51d77091ffddd57cbdefd69d56",
+  "sha256": "04f6cb60a4bcf79bcd02d086a684bf2105b9ae1d7f96e92c2e56fe29da9fab74",
   "model_version": null,
   "producer": "archharness diagram",
   "produced_at": "2026-09-24T00:00:00+00:00",
-  "input_artifacts": ["blueprint.yaml"]
+  "input_artifacts": [
+    "blueprint.yaml"
+  ]
 }

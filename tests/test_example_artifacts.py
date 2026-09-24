@@ -111,6 +111,30 @@ class ExampleArtifactIntegrityTests(unittest.TestCase):
             self.assertEqual(findings, [], f"{example.name}: {json.dumps(findings, indent=2)}")
         self.assertGreater(checked, 0, "no req/v2 example trace was checked")
 
+    def test_example_requirements_trace_to_the_blueprint(self):
+        """A migrated example must join inventory, blueprint, and deployments."""
+        import yaml
+
+        from archharness.trace_check import check_traceability
+
+        checked = 0
+        for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):
+            requirement = example / "output" / "requirements" / "req.yaml"
+            blueprint = example / "output" / "designs" / "blueprint.yaml"
+            if not requirement.is_file() or not blueprint.is_file():
+                continue
+            requirements = yaml.safe_load(requirement.read_text(encoding="utf-8"))
+            if requirements.get("schema_version") != "req/v2":
+                continue
+            arch = yaml.safe_load(blueprint.read_text(encoding="utf-8"))
+            checked += 1
+            errors = [
+                finding for finding in check_traceability(requirements, arch)
+                if finding["severity"] == "ERROR"
+            ]
+            self.assertEqual(errors, [], f"{example.name}: {json.dumps(errors, indent=2)}")
+        self.assertGreater(checked, 0, "no req/v2 example was traced")
+
     def test_example_manifests_use_project_relative_paths(self):
         for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):
             state_path = example / "workflow-state.json"

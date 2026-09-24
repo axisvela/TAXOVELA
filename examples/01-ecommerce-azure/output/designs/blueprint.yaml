@@ -35,11 +35,11 @@ arch:
       location: Azure East US [US]
       owner: Business IT
       subnets:
-        - id: INF-10
+        - id: INF-22
           type: public
           name: East US ingress
           components:
-            - {id: INF-10-WAF, name: "INF-10 Application Gateway WAF", type: SEC, shape: hexagon, runtime: "Azure Application Gateway WAF v2", owner_type: org_it, status: newly_created}
+            - {id: INF-10, name: "INF-10 Application Gateway WAF", type: SEC, shape: hexagon, runtime: "Azure Application Gateway WAF v2", owner_type: org_it, status: newly_created}
         - id: INF-11
           type: private
           name: East US business runtime
@@ -132,9 +132,9 @@ arch:
           components:
             - {id: CMP-11, name: "CMP-11 Japan corporate boundary", type: IP, shape: parallelogram, owner_type: org_it, status: unchanged}
   interactions:
-    - {from: internet, to: INF-10-WAF, protocol: "HTTPS; 443", auth: OIDC, encryption: TLS1.3, notes: "AUTH-01 customer entry"}
-    - {from: INF-10-WAF, to: CMP-01, protocol: "HTTPS; 443", auth: OAuth2_AuthorizationCode, encryption: TLS1.3, notes: "WAF-protected AKS route"}
-    - {from: INF-10-WAF, to: CMP-02, protocol: "HTTPS; 443", auth: OAuth2_AuthorizationCode, encryption: TLS1.3, notes: "WAF-protected VM route"}
+    - {from: internet, to: INF-10, protocol: "HTTPS; 443", auth: OIDC, encryption: TLS1.3, notes: "AUTH-01 customer entry"}
+    - {from: INF-10, to: CMP-01, protocol: "HTTPS; 443", auth: OAuth2_AuthorizationCode, encryption: TLS1.3, notes: "WAF-protected AKS route"}
+    - {from: INF-10, to: CMP-02, protocol: "HTTPS; 443", auth: OAuth2_AuthorizationCode, encryption: TLS1.3, notes: "WAF-protected VM route"}
     - {from: CMP-01, to: INF-06, protocol: "TCP; TBD", auth: ManagedIdentity, encryption: TLS1.3, notes: "FLOW-03 inspection"}
     - {from: INF-06, to: CMP-03, protocol: "TCP; TBD", auth: ManagedIdentity, encryption: TLS1.3, notes: "US database"}
     - {from: CMP-02, to: CMP-03, protocol: "TCP; TBD", auth: ManagedIdentity, encryption: TLS1.3, notes: "US database"}

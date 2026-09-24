@@ -31,6 +31,7 @@ Single source of truth for literal entity names in this req/v2 example.
 | INF-19 | Subnet-Flash-AP-DB | subnet | public_cloud | prod_network | INF-05 | JP | jpe-db-zone | Database location |
 | INF-20 | dc-us | data_center | private_cloud | prod_network | - | US | us-dc | Existing corporate boundary |
 | INF-21 | dc-jp | data_center | private_cloud | prod_network | - | JP | jp-dc | Existing local boundary |
+| INF-22 | APPGW subnet | subnet | public_cloud | dmz | INF-02 | US | eus-ingress-zone | App Gateway ingress subnet hosting INF-10 |
 
 ## R2 - Systems
 

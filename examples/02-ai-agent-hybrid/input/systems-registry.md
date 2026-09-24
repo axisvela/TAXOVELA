@@ -26,6 +26,8 @@ The reference diagram itself is NOT scrubbed — that is why 参考图原名 kee
 | INF-08 | azure-eastus | iaas_vpc_vnet | public_cloud | prod_network | - | US | azure-us | governed EDW region |
 | INF-09 | azure-eastus2 | iaas_vpc_vnet | public_cloud | prod_network | - | US | azure-us2 | model service region, TBD |
 | INF-10 | Office Network | office_network | office | office_network | - | CN | office-net | administrator access |
+| INF-11 | azure-eastus hub private connectivity | vpn_gateway | public_cloud | prod_network | INF-08 | US | azure-us-connectivity | private endpoint connectivity, type TBD |
+| INF-12 | azure-eastus2 hub private connectivity | vpn_gateway | public_cloud | prod_network | INF-09 | US | azure-us2-connectivity | private endpoint connectivity, type TBD |
 
 The internal container platform (参考图原名 `Earth K8S`) is not an infra node: it
 carries no network boundary of its own, so it is modelled as the `runtime` of

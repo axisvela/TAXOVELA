@@ -22,6 +22,8 @@ requirements:
     - {id: "INF-08", name: "azure-eastus", node_kind: "iaas_vpc_vnet", infra_type: "public_cloud", network_type: "prod_network", country: "US", vendor: "Microsoft Azure", status: "active"}
     - {id: "INF-09", name: "azure-eastus2", node_kind: "iaas_vpc_vnet", infra_type: "public_cloud", network_type: "prod_network", country: "US", vendor: "Microsoft Azure", status: "planned"}
     - {id: "INF-10", name: "Office Network", node_kind: "office_network", infra_type: "office", network_type: "office_network", country: "CN", status: "active"}
+    - {id: "INF-11", name: "azure-eastus hub private connectivity", node_kind: "vpn_gateway", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-08", country: "US", status: "active"}
+    - {id: "INF-12", name: "azure-eastus2 hub private connectivity", node_kind: "vpn_gateway", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-09", country: "US", status: "planned"}
 
   systems:
     - {id: "APP-01", name: "Data Agent Platform (GDA)", type: "new", owner: "org_it", data_classification: "Acme Confidential"}

@@ -141,6 +141,22 @@ Single source of truth for every entity name in this example (req/v2 model).
 | DEP-43 | SAP NA interface | CMP-35 | prod | third_party | saas | INF-08 | physical | 1 | s4-na-dep | NA SAP zone |
 | DEP-44 | CN SAP interface | CMP-33 | prod | third_party | saas | INF-01 | physical | 1 | ecc-dep | CN SAP zone |
 | DEP-45 | Azure peers | CMP-31 | prod | public_cloud | public_cloud_region | INF-12 | serverless | 1 | azure-peer-dep | CMP-31–CMP-32 |
+| DEP-46 | CN peer boundary | CMP-29 | prod | third_party | saas | INF-01 | serverless | 1 | cn-peer-dep | |
+| DEP-47 | AWS peer boundary | CMP-30 | prod | public_cloud | public_cloud_region | INF-11 | serverless | 1 | aws-peer-dep | |
+| DEP-48 | Azure SaaS boundary | CMP-32 | prod | third_party | saas | INF-12 | serverless | 1 | azure-saas-dep | |
+| DEP-49 | CN SAP interface | CMP-34 | prod | third_party | saas | INF-01 | physical | 1 | s4-cn-dep | |
+| DEP-50 | CN peer boundary | CMP-25 | prod | third_party | saas | INF-01 | serverless | 1 | ecomm-peer-dep | |
+| DEP-51 | CN peer boundary | CMP-26 | prod | third_party | saas | INF-01 | serverless | 1 | sos-prc-dep | |
+| DEP-52 | CN peer boundary | CMP-27 | prod | third_party | saas | INF-01 | serverless | 1 | cfos-prc-dep | |
+| DEP-53 | CN peer boundary | CMP-28 | prod | third_party | saas | INF-01 | serverless | 1 | cfos-ap-dep | |
+| DEP-46 | CN peer boundary | CMP-29 | prod | third_party | saas | INF-01 | serverless | 1 | cn-peer-dep | |
+| DEP-47 | AWS peer boundary | CMP-30 | prod | public_cloud | public_cloud_region | INF-11 | serverless | 1 | aws-peer-dep | |
+| DEP-48 | Azure SaaS boundary | CMP-32 | prod | third_party | saas | INF-12 | serverless | 1 | azure-saas-dep | |
+| DEP-49 | CN SAP interface | CMP-34 | prod | third_party | saas | INF-01 | physical | 1 | s4-cn-dep | |
+| DEP-50 | CN peer boundary | CMP-25 | prod | third_party | saas | INF-01 | serverless | 1 | ecomm-peer-dep | |
+| DEP-51 | CN peer boundary | CMP-26 | prod | third_party | saas | INF-01 | serverless | 1 | sos-prc-dep | |
+| DEP-52 | CN peer boundary | CMP-27 | prod | third_party | saas | INF-01 | serverless | 1 | cfos-prc-dep | |
+| DEP-53 | CN peer boundary | CMP-28 | prod | third_party | saas | INF-01 | serverless | 1 | cfos-ap-dep | |
 
 ## R5 — Component flows
 

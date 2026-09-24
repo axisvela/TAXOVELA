@@ -8,7 +8,7 @@
         "type": "requirements",
         "schema": "req/v1",
         "path": "output\\requirements\\req.yaml",
-        "sha256": "1f14a9a3077e116148054290d6a939719bf9581a9defdf4cb2bcf190b12b26c9",
+        "sha256": "22f53dfb5768f6988f71127ff2b2a6ea4e0785858c5b37f8fae2b14a74e38fa3",
         "model_version": "openai/gpt-5.6-sol",
         "producer": "archharness/0.7.0",
         "produced_at": "2026-09-14T11:26:47+00:00",

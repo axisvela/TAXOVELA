@@ -578,7 +578,11 @@ def parse_arch_yaml(data: dict, source_file: str) -> PartialReq:
             continue
 
         flow = PartialFlow(id=f"flow_{i + 1}")
-        flow.source = fv(label_by_id.get(source, source), Confidence.HIGH, SRC)
+        # req/v2 has one external-flow sentinel, ``internet``. A rendered user
+        # actor or office network represents the same pre-auth boundary rather
+        # than a component row, so preserve the flow by normalising it here.
+        flow_source = "internet" if source in _EXTERNAL_SOURCES else label_by_id.get(source, source)
+        flow.source = fv(flow_source, Confidence.HIGH, SRC)
         flow.target = fv(label_by_id.get(target, target), Confidence.HIGH, SRC)
         if iact.get("protocol"):
             flow.protocol = fv(iact["protocol"], Confidence.HIGH, SRC)

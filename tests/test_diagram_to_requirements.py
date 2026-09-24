@@ -5,6 +5,7 @@ complete model yields an empty requirements document.
 """
 
 import contextlib
+import copy
 import io
 import pathlib
 import sys
@@ -165,6 +166,17 @@ class DiagramToRequirementsTests(unittest.TestCase):
         self.assertEqual(links[0]["source_infra_id"], "INF-01")
         self.assertEqual(links[0]["target_infra_id"], "INF-04")
         self.assertEqual(links[0]["method"], "mpls")
+
+    def test_user_and_office_sources_normalise_to_internet(self):
+        arch = copy.deepcopy(ARCH)
+        arch["arch"]["interactions"] = [
+            {"from": "user", "to": "api", "protocol": "HTTPS", "auth": "OIDC"},
+            {"from": "office-network", "to": "api", "protocol": "HTTPS", "auth": "OIDC"},
+        ]
+
+        partial = self._read(arch)
+
+        self.assertEqual([flow.source.value for flow in partial.flows], ["internet", "internet"])
 
     def test_auth_declarations_anchor_to_the_ingress_component(self):
         partial = self._read(ARCH)

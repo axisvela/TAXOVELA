@@ -12,6 +12,7 @@ from .requirements import command as req_command
 from . import arch_check as arch_check_module
 from . import migrate_status as migrate_status_module
 from . import trace_check as trace_check_module
+from . import validate_check as validate_check_module
 from . import yaml_validate as yaml_validate_module
 
 _COMMANDS = {
@@ -20,6 +21,7 @@ _COMMANDS = {
     "migrate-status": migrate_status_module.main,
     "req": req_command.main,
     "trace-check": trace_check_module.main,
+    "validate-check": validate_check_module.main,
     "validate-yaml": yaml_validate_module.main,
 }
 

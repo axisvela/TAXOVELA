@@ -66,6 +66,12 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
   links, and entry authentication. The v2 diagram is versioned separately so
   historic validation and enforcement remain bound to the original diagram.
 
+- `archharness validate-check` joins a `validation/v1` result back to the model:
+  a finding that cites a typed code the model does not declare is an error
+  (the unverifiable / false-positive path), an unanchored finding or one still
+  citing the retired `SYS-nn` space is a warning. Every shipped example passes
+  the error rule; four validation records still cite the retired id space and
+  are flagged for re-validation.
 - Gate policy profiles: `standards/arch-gate-policy.yaml` can declare named
   profiles over the baseline (`production`, `poc`) and `archharness enforce
   --profile <name>` selects one. The decision records which profile gated the

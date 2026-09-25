@@ -3,10 +3,12 @@
   "id": "diagram-v2-drawio",
   "type": "technical-deployment-view",
   "schema": "application/vnd.jgraph.mxfile",
-  "path": "output\\diagrams\\diagram-v2.drawio",
-  "sha256": "0f92f5b5c514f9c7b5a611a7d8401cc3690e17eb36e38e600767e0aa56b34cd1",
+  "path": "output/diagrams/diagram-v2.drawio",
+  "sha256": "c165f272169e5972f1cb93e419272f855a67a182317ce83a161218a68a7a10a5",
   "model_version": null,
   "producer": "archharness diagram",
   "produced_at": "2026-09-24T00:00:00+00:00",
-  "input_artifacts": ["blueprint.yaml"]
+  "input_artifacts": [
+    "blueprint.yaml"
+  ]
 }

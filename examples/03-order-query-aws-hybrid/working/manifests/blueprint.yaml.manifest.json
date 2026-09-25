@@ -3,7 +3,7 @@
   "id": "blueprint.yaml",
   "type": "technical-deployment-view",
   "schema": "architecture/v1",
-  "path": "output\\designs\\blueprint.yaml",
+  "path": "output/designs/blueprint.yaml",
   "sha256": "c7177562482afb24103f7b3fa6b186907902005ee1bbcde288673bd011fb1d00",
   "model_version": "openai/gpt-5.6-sol",
   "producer": "arch-design",

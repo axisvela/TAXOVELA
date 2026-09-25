@@ -38,16 +38,19 @@ def make_manifest(
     file_path = Path(path)
     if project_root is not None:
         try:
-            stored = str(file_path.resolve().relative_to(Path(project_root).resolve()))
+            # Store POSIX separators so a manifest recorded on Windows resolves
+            # on Linux (and vice versa). A backslash path is a literal filename
+            # on POSIX, which makes the recorded artifact unverifiable.
+            stored = file_path.resolve().relative_to(Path(project_root).resolve()).as_posix()
         except ValueError:
-            stored = str(file_path)
+            stored = file_path.as_posix()
     else:
         # No project root: keep the manifest portable rather than embedding a
         # machine-specific absolute path. Prefer a path relative to the working
         # directory; otherwise just the file name (callers can pass a base_dir to
         # verify_manifest to resolve it).
         try:
-            stored = str(file_path.resolve().relative_to(Path.cwd().resolve()))
+            stored = file_path.resolve().relative_to(Path.cwd().resolve()).as_posix()
         except (ValueError, OSError):
             stored = file_path.name
     manifest = {
@@ -66,10 +69,20 @@ def make_manifest(
     return manifest
 
 
+def _portable_path(raw: str) -> Path:
+    """Resolve a recorded path on any platform.
+
+    Manifests written before separators were normalised may carry Windows
+    backslashes; on POSIX those are literal filename characters and the lookup
+    fails. Forward slashes resolve on every platform.
+    """
+    return Path(str(raw).replace("\\", "/"))
+
+
 def verify_manifest(manifest: dict, base_dir: str | Path | None = None) -> bool:
     """Recompute the hash and report whether the artifact is unchanged."""
     validate_manifest(manifest)
-    path = Path(manifest["path"])
+    path = _portable_path(manifest["path"])
     if base_dir is not None and not path.is_absolute():
         path = Path(base_dir) / path
     if not path.is_file():
@@ -83,7 +96,7 @@ def check_manifest(manifest: dict, base_dir: str | Path | None = None) -> dict:
         validate_manifest(manifest)
     except Exception as exc:
         return {"valid": False, "reason": "invalid-manifest", "detail": str(exc)}
-    path = Path(manifest["path"])
+    path = _portable_path(manifest["path"])
     if base_dir is not None and not path.is_absolute():
         path = Path(base_dir) / path
     if not path.is_file():

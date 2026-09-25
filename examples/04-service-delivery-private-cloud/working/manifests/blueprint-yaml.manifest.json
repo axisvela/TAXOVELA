@@ -3,10 +3,12 @@
   "id": "SDP-NA-001-blueprint-yaml",
   "type": "technical-deployment-view",
   "schema": "arch-schema-reference.yaml",
-  "path": "../../output/designs/blueprint.yaml",
-  "sha256": "06e4b8e92080405327ba6e47b82f1197c7157fabb672bf28db3d03ebb7ec15ef",
+  "path": "output/designs/blueprint.yaml",
+  "sha256": "b5631d3ab5591067d5e57b2001b989aa0291aa9dda2ed72c854abdd87b3898e0",
   "model_version": "private-cloud/2.0",
   "producer": "arch-design",
   "produced_at": "2026-09-14T13:07:56Z",
-  "input_artifacts": ["SDP-NA-001-req-yaml"]
+  "input_artifacts": [
+    "SDP-NA-001-req-yaml"
+  ]
 }

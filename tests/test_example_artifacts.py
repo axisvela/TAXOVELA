@@ -188,7 +188,8 @@ class ExampleArtifactIntegrityTests(unittest.TestCase):
             for name, entry in (state.get("artifacts") or {}).items():
                 if entry.get("kind") != "manifest":
                     continue
-                stored = pathlib.Path(entry["data"]["path"])
+                raw = entry["data"]["path"]
+                stored = pathlib.Path(raw)
                 # Portable examples must never embed a machine-specific root.
                 self.assertFalse(
                     stored.is_absolute(),
@@ -197,6 +198,14 @@ class ExampleArtifactIntegrityTests(unittest.TestCase):
                 self.assertFalse(
                     str(stored).startswith(".."),
                     f"{example.name}: {name} escapes the project root",
+                )
+                # Check the stored string, not str(Path(...)): on Windows
+                # Path renders forward slashes as backslashes. A backslash path
+                # is a literal filename on POSIX, so a Windows-recorded
+                # manifest would fail to resolve on Linux.
+                self.assertNotIn(
+                    "\\", raw,
+                    f"{example.name}: {name} stores a non-portable path",
                 )
 
 

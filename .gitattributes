@@ -1,0 +1,22 @@
+# Canonical text checkout.
+#
+# Recorded artifact digests (artifact/v1) are SHA-256 over the exact bytes on
+# disk. Without a normalisation rule a Windows CRLF checkout hashes differently
+# from a Linux LF checkout, so the same commit fails `workflow verify` and
+# tests/test_example_artifacts.py on one platform or the other. Forcing LF for
+# text makes checkouts byte-stable everywhere.
+* text=auto eol=lf
+
+# Declare binaries explicitly so auto-detection never rewrites them (a PNG can
+# legitimately contain a CRLF byte pair inside compressed data).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
+*.zip binary
+*.gz binary
+*.whl binary

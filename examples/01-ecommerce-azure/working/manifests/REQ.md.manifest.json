@@ -3,10 +3,16 @@
   "id": "REQ.md",
   "type": "requirements_document",
   "schema": "requirements/v2",
-  "path": "output\\requirements\\REQ.md",
+  "path": "output/requirements/REQ.md",
   "sha256": "3ccba352f42e37b7c29d9588ea0539f6c236ed8e4b04687563ab7c55ad020299",
   "model_version": null,
   "producer": "arch-requirements",
   "produced_at": "2026-09-24T00:00:00+00:00",
-  "input_artifacts": ["input/prompt.md", "input/systems-registry.md", "input/documents/requirements.md", "project.yaml", "config.yaml"]
+  "input_artifacts": [
+    "input/prompt.md",
+    "input/systems-registry.md",
+    "input/documents/requirements.md",
+    "project.yaml",
+    "config.yaml"
+  ]
 }

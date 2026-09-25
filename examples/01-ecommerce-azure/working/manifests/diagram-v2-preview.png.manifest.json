@@ -3,10 +3,12 @@
   "id": "diagram-v2-preview-png",
   "type": "technical-deployment-view",
   "schema": "image/png",
-  "path": "output\\diagrams\\diagram-v2-preview.png",
+  "path": "output/diagrams/diagram-v2-preview.png",
   "sha256": "11ec616a0f21255b2e9df1d27e10a1ce9d9d66f35da0f56aaf928fbe2b49efae",
   "model_version": null,
   "producer": "d2",
   "produced_at": "2026-09-24T00:00:00+00:00",
-  "input_artifacts": ["diagram-v2.d2"]
+  "input_artifacts": [
+    "diagram-v2.d2"
+  ]
 }

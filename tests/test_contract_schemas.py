@@ -292,6 +292,36 @@ class ArtifactManifestTests(unittest.TestCase):
             self.assertFalse(verify_manifest(manifest, tmp))
             self.assertEqual(check_manifest(manifest, tmp)["reason"], "digest-mismatch")
 
+    def test_manifest_stores_a_posix_relative_path(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            nested = pathlib.Path(tmp) / "output" / "requirements"
+            nested.mkdir(parents=True)
+            target = nested / "req.yaml"
+            target.write_text("schema_version: req/v2\n", encoding="utf-8")
+            manifest = make_manifest(
+                artifact_id="req-demo", artifact_type="requirements",
+                schema="req/v2", path=target, project_root=tmp,
+            )
+            # Portable on every platform: never a Windows backslash path.
+            self.assertEqual(manifest["path"], "output/requirements/req.yaml")
+            self.assertNotIn("\\", manifest["path"])
+            self.assertTrue(verify_manifest(manifest, tmp))
+
+    def test_backslash_manifest_path_still_resolves(self):
+        """Legacy manifests recorded with backslashes must keep resolving."""
+        with tempfile.TemporaryDirectory() as tmp:
+            nested = pathlib.Path(tmp) / "output" / "requirements"
+            nested.mkdir(parents=True)
+            target = nested / "req.yaml"
+            target.write_text("schema_version: req/v2\n", encoding="utf-8")
+            manifest = make_manifest(
+                artifact_id="req-demo", artifact_type="requirements",
+                schema="req/v2", path=target, project_root=tmp,
+            )
+            manifest["path"] = "output\\requirements\\req.yaml"
+            self.assertTrue(verify_manifest(manifest, tmp))
+            self.assertTrue(check_manifest(manifest, tmp)["valid"])
+
 
 if __name__ == "__main__":
     unittest.main()

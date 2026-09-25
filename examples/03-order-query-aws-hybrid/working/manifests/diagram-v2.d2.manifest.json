@@ -3,10 +3,12 @@
   "id": "diagram-v2-d2",
   "type": "technical-deployment-view",
   "schema": "text/vnd.d2",
-  "path": "output\\diagrams\\diagram-v2.d2",
-  "sha256": "900542881888427fc57ed97b7db18b96adca7dd242623b84e84bd4aa3904b646",
+  "path": "output/diagrams/diagram-v2.d2",
+  "sha256": "3fb4b6750da9146fc77d6e9e2f440cacaf717fc174ec7d6d30c741df774946b1",
   "model_version": null,
   "producer": "archharness diagram",
   "produced_at": "2026-09-24T00:00:00+00:00",
-  "input_artifacts": ["blueprint.yaml"]
+  "input_artifacts": [
+    "blueprint.yaml"
+  ]
 }

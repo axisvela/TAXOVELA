@@ -3,7 +3,7 @@
   "id": "req.yaml",
   "type": "requirements",
   "schema": "requirements/v2",
-  "path": "output\\requirements\\req.yaml",
+  "path": "output/requirements/req.yaml",
   "sha256": "b5faaa7f88eef6676eda67ca7216648a3e64e6b6083901504bed78256aeae1b7",
   "model_version": null,
   "producer": "arch-requirements",

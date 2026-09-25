@@ -3,7 +3,7 @@
   "id": "REQ.md",
   "type": "requirements_document",
   "schema": "requirements/v2",
-  "path": "output\\requirements\\REQ.md",
+  "path": "output/requirements/REQ.md",
   "sha256": "cd4b38cbb7b79f917d9499d74c51f008dc830dcf63a97b678f911324fc851208",
   "model_version": null,
   "producer": "arch-requirements",

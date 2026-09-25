@@ -3,7 +3,7 @@
   "id": "diagram-png",
   "type": "technical-deployment-view",
   "schema": "image/png",
-  "path": "output\\diagrams\\diagram.png",
+  "path": "output/diagrams/diagram.png",
   "sha256": "d3e8422e8fcc77a855fd68795ee9b9975ea0feebf978d17a1e0bc5ab0e5e98c8",
   "model_version": null,
   "producer": "archharness diagram",

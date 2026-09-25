@@ -19,13 +19,15 @@ step.
 | `03-order-query-aws-hybrid` | `output/diagrams/diagram.png` | intact | as above (`diagram-v2.png`) |
 | `04-service-delivery-private-cloud` | `output/diagrams/diagram.png` | intact | as above (`diagram-v2.png`) |
 | `05-supply-chain-order-private-cloud` | `output/diagrams/diagram.png` | intact | as above (`diagram-v2.png`) |
-| `06-factory-mes-industrial` | `output/diagrams/diagram.png` | **broken** — the file no longer exists, and the recorded hash matches neither `diagram-v11.png` nor `diagram-v12.png` | re-validate the current image |
+| `06-factory-mes-industrial` | `output/diagrams/diagram.png` | **broken** — the file no longer exists, its recorded hash matches neither `diagram-v11.png` nor `diagram-v12.png`, and no such hash appears anywhere in git history (those bytes were never committed), so it cannot be repaired from history | re-validate the current image |
 | `09-analytics-gcp-shared-vpc` | — | no validation recorded | initial validation |
 | `10-power-platform-governed` | — | no validation recorded | initial validation |
 | `11-aliyun-landing-zone` | — | no validation recorded | initial validation |
 
 `tests/test_validation_bindings.py` guards this table: a newly dangling or
 mismatched binding fails CI, and `06` is acknowledged as the known-broken case.
+`tests/test_example_artifacts.py::test_example_standalone_manifests_match_disk`
+guards the per-artifact manifests under `working/manifests/` the same way.
 
 ## Hard rules
 

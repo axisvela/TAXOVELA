@@ -6,6 +6,7 @@ mirror-path reference cannot be committed silently.
 """
 
 import contextlib
+import hashlib
 import io
 import json
 import pathlib
@@ -178,6 +179,33 @@ class ExampleArtifactIntegrityTests(unittest.TestCase):
                                  f"{example.name}: reasons changed")
 
         self.assertGreater(checked, 0, "no recorded decision was replayed")
+
+    def test_example_standalone_manifests_match_disk(self):
+        """Every working/manifests/*.json must resolve to its file and match it.
+
+        Only workflow-state manifests were verified before; a standalone
+        manifest could rot (deleted file, re-rendered artifact) unnoticed.
+        """
+        checked = 0
+        for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):
+            manifests = example / "working" / "manifests"
+            if not manifests.is_dir():
+                continue
+            for path in sorted(manifests.glob("*.json")):
+                document = json.loads(path.read_text(encoding="utf-8"))
+                if document.get("schema_version") != "artifact/v1":
+                    continue
+                target = example / str(document.get("path", "")).replace("\\", "/")
+                checked += 1
+                with self.subTest(example=example.name, manifest=path.name):
+                    self.assertTrue(target.is_file(),
+                                    f"{path.name}: {document.get('path')} is missing")
+                    self.assertEqual(
+                        hashlib.sha256(target.read_bytes()).hexdigest(),
+                        document.get("sha256"),
+                        f"{path.name}: stale digest for {document.get('path')}",
+                    )
+        self.assertGreater(checked, 0, "no standalone manifest was checked")
 
     def test_example_manifests_use_project_relative_paths(self):
         for example in sorted(p for p in EXAMPLES.glob("*") if p.is_dir()):

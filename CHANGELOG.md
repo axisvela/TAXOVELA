@@ -10,6 +10,11 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Added
 
+- `docs/first-run.md` ends with a **platform recipe** per standard — private
+  cloud, AWS, Azure, Google Cloud, Alibaba Cloud, and Microsoft SaaS. Each names
+  the template to copy, the region kind, the zone model, the ingress and egress
+  path, the identity and secret store, the placement rules that trip people up,
+  and a worked example.
 - CMDB/EA adapter coverage: `tests/test_req_from_api.py` exercises the
   ServiceNow and generic REST field mappings, the HTTP auth headers
   (basic / bearer / API key), the unset-configuration and API-error gaps, DC

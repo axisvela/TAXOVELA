@@ -172,6 +172,125 @@ underneath a recorded decision fails the gate closed.
 
 ---
 
+## Platform recipes
+
+Each recipe is the shortest path from a platform standard to a model that
+passes `arch-check` and `trace-check`: the template to copy, the placement
+rules that trip people up, and a worked example. The region kind is the
+`type:` of the top-level `deployment[]` entry; its zones hold the workloads.
+
+### Private cloud — `standards/private-cloud-standard.yaml`
+
+- **Template** `templates/private-cloud.yaml`; region kind `private_dc`.
+- **Zones** `DMZ` / `App Zone` / `DB Zone` (Hohhot three-tier) or `DMZ` /
+  `Intranet` (Shenyang two-tier). Web servers only in the DMZ; a DB is never
+  in the DMZ.
+- **Ingress** `Internet → [Anti-DDoS] → F5 → DMZ web → App Zone → DB Zone`.
+  F5 is mandatory; nothing reaches the public network without it.
+- **East–west** default deny. App-to-app goes through the integration platform,
+  never straight to another application's database.
+- **Identity** ADFS for internal users, Enterprise ID for external; permissions
+  enforced by the AuthZ platform. **Secrets** have no central vault here: use
+  OS-level encrypted storage, Windows DPAPI, a JKS/PKCS#12 keystore, or a
+  Kubernetes Secret with encryption at rest — and never store a key beside the
+  data it protects.
+- **Ops** all administrative access via PAW; no public SSH/RDP.
+- **Worked example** `examples/06-factory-mes-industrial` (dual-site, three-tier).
+
+### AWS — `standards/aws-standard.yaml`
+
+- **Template** `templates/aws-hybrid.yaml`; region kinds `private_dc` and
+  `aws_vpc` (one per hub/spoke).
+- **Topology** Hub–Spoke is mandatory; one hub VPC per physical Region; prod
+  and non-prod in separate accounts and hub VPCs.
+- **Ingress** `Internet → ALB (WAF) → backend via PrivateLink`; partner APIs add
+  the WSO2 API Gateway in the **spoke** VPC, never the hub.
+- **Egress** every spoke's egress goes through the hub firewall, default deny.
+- **Placement** no workloads in public subnets, no public IPs; managed services
+  (RDS/S3/DynamoDB) reachable only through VPC endpoints.
+- **Identity / secrets** IAM roles, no hard-coded credentials; Secrets Manager
+  plus KMS with rotation.
+- **Worked example** `examples/03-order-query-aws-hybrid`.
+
+### Azure — `standards/azure-standard.yaml`
+
+- **Template** `templates/azure-hub-spoke.yaml`; region kind `azure_vnet`
+  (hub, spoke, and an optional `private_dc` for on-prem integration).
+- **Topology** Hub–Spoke is mandatory; one hub per Region; prod and non-prod in
+  separate subscriptions.
+- **Ingress** `Internet → App Gateway (WAF v2) → backend (Private Endpoint)`;
+  partner APIs add APIM in Internal VNET mode in the **spoke**.
+- **Egress** every spoke's egress goes through the hub firewall.
+- **Placement** no public-subnet workloads, no public IPs; all PaaS via Private
+  Endpoint + Private DNS; an NSG on every subnet.
+- **Identity / secrets** Managed Identity only; Key Vault is mandatory with
+  soft-delete and purge protection. **Ops** Azure Bastion is the only jump host.
+- **Worked example** `examples/01-ecommerce-azure`.
+
+### Google Cloud — `standards/gcp-standard.yaml`
+
+- **Template** `templates/gcp-hub-spoke.yaml`; region kind `gcp_vpc` (host
+  project + service project).
+- **Topology** Organization → Folder → Project. A project is an IAM boundary,
+  **not** a network boundary; production gets its own project. Subnets are
+  regional: one subnet covers every zone of that Region, so plan subnets, not
+  per-zone networks.
+- **Ingress** `Internet → global external HTTPS LB + Cloud Armor → workloads`;
+  a workload never holds an external IP.
+- **Egress** workloads → Cloud NAT; a workload with no egress need gets no
+  external IP at all.
+- **Placement** GKE private clusters; data services (BigQuery/GCS/Spanner)
+  inside a VPC Service Controls perimeter.
+- **Identity / secrets** people via Cloud Identity federated to the enterprise
+  IdP; workloads via service accounts with Workload Identity Federation (no
+  long-lived keys); Secret Manager + Cloud KMS (CMEK), keyed per environment
+  and data grade.
+- **Worked example** `examples/09-analytics-gcp-shared-vpc`.
+
+### Alibaba Cloud — `standards/aliyun-standard.yaml`
+
+- **Template** `templates/aliyun-landing-zone.yaml`; region kind `aliyun_vpc`
+  (central VPC + business VPC, joined by CEN).
+- **Topology** resource directory with separate accounts for prod and non-prod;
+  the central account holds the shared network and security services. A vSwitch
+  is bound to one availability zone, so multi-AZ production needs several
+  vSwitches.
+- **Ingress** `Internet → Anti-DDoS → WAF → SLB/ALB → workloads`; no workload
+  holds an EIP.
+- **Egress** workloads → NAT gateway; cross-VPC and cross-Region traffic goes
+  through CEN only, never a public endpoint.
+- **Placement** ECS/ACK with no public IP; RDS/PolarDB/OSS via private endpoint
+  and whitelist; Flow Logs on every VPC.
+- **Identity / secrets** RAM users federated to the enterprise IdP with MFA;
+  workloads assume RAM roles with STS tokens (long-lived AccessKeys are
+  prohibited); KMS Secrets Manager + CMK per data grade.
+- **Worked example** `examples/11-aliyun-landing-zone`.
+
+### Microsoft SaaS — `standards/microsoft-saas-standard.yaml`
+
+- **Templates** `templates/power-platform.yaml`, `templates/dynamics-365.yaml`,
+  `templates/microsoft-365.yaml`; region kinds `m365_tenant`, `power_platform`,
+  `dynamics365`.
+- **Model it as a black box.** Each product is its own region container; the
+  zones are workloads (Exchange Online / SharePoint / Teams) or environments
+  (dev / test / prod). Never draw DMZ / App Zone / DB Zone inside a SaaS
+  region.
+- **Boundary** every integration enters and leaves through one boundary
+  component; on-premises systems connect through an on-premises or VNet data
+  gateway hosted on the **customer** side.
+- **Identity** Entra ID is the only identity source; MFA and Conditional Access
+  for people, PIM for privileged roles, no tenant-local accounts. Workload
+  identity is an app registration with a certificate or managed identity —
+  never a plaintext client secret.
+- **Secrets** Entra ID certificates plus Key Vault for customer-side connection
+  strings; platform credentials never appear in the blueprint.
+- **Governance** a Power Platform DLP policy classifies every connector
+  (Business / Non-Business / Blocked); a sandbox holding production data gets
+  the same controls as production.
+- **Worked example** `examples/10-power-platform-governed`.
+
+---
+
 ## When something goes wrong
 
 | Symptom | Diagnose with | Usual fix |

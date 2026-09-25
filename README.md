@@ -1,5 +1,7 @@
 # ArchHarness
 
+**English** | [中文](./README.zh-CN.md)
+
 Enterprise architecture design and validation skill pack for **Claude Code**, **OpenCode**,
 **Codex**, **GitHub Copilot**, and **Cursor**.
 

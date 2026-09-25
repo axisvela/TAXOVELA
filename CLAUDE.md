@@ -1,88 +1,76 @@
 # ArchHarness — Enterprise Architecture Design & Validation
 
+> This file is the Claude Code rules file (`CLAUDE.md`). OpenCode, Codex, GitHub
+> Copilot, and Cursor read the equivalent `AGENTS.md`. Both files carry the same
+> shared body — the block delimited by `archharness-shared` markers below — and CI
+> fails when the two drift (`tests/test_rules_files_in_sync.py`).
+
+<!-- archharness-shared:start -->
 ## What this is
 
-ArchHarness is a Claude Code skill pack for enterprise architecture work.
-It turns Claude into a team of architecture specialists you summon on demand.
+ArchHarness is a multi-tool architecture skill pack for enterprise architecture
+work. It runs natively in **Claude Code** and **OpenCode** and is discovered by
+**Codex**, **GitHub Copilot**, and **Cursor**. It turns the AI into a team of
+architecture specialists you summon on demand, backed by a real CLI
+(`python -m archharness`), versioned contracts, and a deterministic gate.
 
-## Available skills
+## Available agents and skills
 
-| Skill | Command | Role |
-|-------|---------|------|
-| arch-workflow   | `/arch-workflow`     | Pipeline gatekeeper — enforces stage order and PASS/WARN/BLOCK gate; blocks skipping |
-| arch-requirements   | `/arch-requirements`    | Orchestrator — interview + multi-source intake, outputs REQ.md + req.yaml |
-| arch-req-from-diagram | `/arch-req-from-diagram` | Reader — draw.io / D2 / arch YAML / PNG (vision) → partial req.yaml |
-| arch-req-from-doc  | `/arch-req-from-doc`   | Reader — PDF / DOCX / MD / TXT via LLM → partial req.yaml |
-| arch-req-from-api  | `/arch-req-from-api`   | Reader — CMDB / ServiceNow / CSV → partial req.yaml |
-| arch-req-merge     | `/arch-req-merge`      | Merger — combine partials, conflict detection, gap report | Requirements specialist — structured interview, outputs REQ.md + req.yaml for arch-design |
-| arch-validate | `/arch-validate` | Paranoid security architect — validates a diagram image against all rules |
-| arch-design   | `/arch-design`   | Senior architect — designs from requirements, picks patterns, generates YAML |
-| arch-diagram  | `/arch-diagram`  | Diagram generator — converts Architecture YAML → draw.io file + PNG |
-| arch-enforce  | `/arch-enforce`  | CI enforcement gate — applies arch-gate-policy.yaml to validate JSON, emits PASS/WARN/BLOCK |
-| arch-security | `/arch-security` | Security auditor — focused exclusively on auth, credentials, network boundaries |
-| arch-review   | `/arch-review`   | Architecture committee reviewer — checks standard compliance, scores dimensions |
-| arch-report   | `/arch-report`   | Technical writer — generates executive summaries and Confluence-ready docs |
-| arch-optimize | `/arch-optimize` | Staff architect — identifies improvements, generates prioritized fix list |
+| Agent | Claude Code | OpenCode | Role |
+|---|---|---|---|
+| arch-workflow | `/arch-workflow` | `@arch-workflow` | Pipeline gatekeeper — enforces stage order and the PASS/WARN/BLOCK gate; blocks skipping |
+| arch-requirements | `/arch-requirements` | `@arch-requirements` | Orchestrator — interview + multi-source intake → REQ.md + req.yaml |
+| arch-req-from-diagram | `/arch-req-from-diagram` | `@arch-req-from-diagram` | Reader — draw.io / D2 / arch YAML / PNG (vision) → partial req.yaml |
+| arch-req-from-doc | `/arch-req-from-doc` | `@arch-req-from-doc` | Reader — PDF / DOCX / MD / TXT via LLM → partial req.yaml |
+| arch-req-from-api | `/arch-req-from-api` | `@arch-req-from-api` | Reader — CMDB / ServiceNow / CSV → partial req.yaml |
+| arch-req-merge | `/arch-req-merge` | `@arch-req-merge` | Merger — combine partials, conflict detection, gap report |
+| arch-design | `/arch-design` | `@arch-design` | Senior architect — requirements → architecture YAML blueprint |
+| arch-diagram | `/arch-diagram` | `@arch-diagram` | Diagram generator — Architecture YAML → draw.io / D2 / PNG / PlantUML |
+| arch-validate | `/arch-validate` | `@arch-validate` | Paranoid security architect — diagram → scored JSON (6 dimensions) |
+| arch-enforce | `/arch-enforce` | `@arch-enforce` | CI enforcement gate — gate policy → PASS/WARN/BLOCK + exit code |
+| arch-security | `/arch-security` | `@arch-security` | Security auditor — auth / credentials / network boundary deep-dive |
+| arch-review | `/arch-review` | `@arch-review` | Review board — APPROVED / APPROVED WITH CONDITIONS / REJECTED |
+| arch-optimize | `/arch-optimize` | `@arch-optimize` | Staff architect — prioritized fix backlog (P0–P3) |
+| arch-report | `/arch-report` | `@arch-report` | Technical writer — Confluence pages, executive summaries, risk briefs |
 
 ## Configuration
 
-All company-specific values live in **`config.yaml`** at the project root.
-Edit it before first use — this is the only file you need to change.
+All company-specific values (DC names, platform names, classification labels)
+live in **`config.yaml`** at the repository root. Edit it before first use — it is
+the only file you need to change. Skills and rules load these values at runtime:
+`company.name`, `datacenters` (names, locations, zones), and `platforms` (API
+gateway, message bus, K8s platform).
 
-Key fields:
-- `company.name` — used in report headers and classification labels
-- `datacenters` — your DC names, locations, and network zones
-- `platforms` — API gateway, message bus, K8s platform names
+## Multi-project workspace
 
-```yaml
-# config.yaml (excerpt)
-company:
-  name: "Acme Corp"
-datacenters:
-  - id: "dc-primary"
-    aliases: ["Primary DC"]
-    location: { city: "Tokyo", country: "JP" }
-    zones: ["DMZ", "App Zone", "DB Zone"]
-platforms:
-  api_gateway: "Kong API Gateway"
-  message_bus: "RabbitMQ"
-```
+One checkout supports many isolated projects. Create projects with the CLI
+(`python -m archharness`): `init-workspace`, `init-project`, `list-projects`,
+`doctor`. Each project lives under `projects/<id>/` with its own `input/`,
+`working/`, `output/`, and a `project.yaml` describing `id`, `name`, `platform`,
+and `data_classification`.
 
-Inputs and outputs are managed per project under `projects/<id>/` — not via
-top-level `input/`/`output/` folders.
-
-## Diagram generation tool
-
-`tools/arch-diagram-gen/` — Python tool that converts Architecture YAML to draw.io XML and PNG.
-
-```bash
-# Install
-pip install -e ".[all]"
-
-# Generate (output goes to the active project output/diagrams, or ./ relative to cwd)
-python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml
-
-# Equivalent, and directory-independent once `archharness` is on PATH:
-python -m archharness diagram -i arch.yaml
-
-# Override output explicitly
-python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml -o out.drawio --png out.png
-
-# Target a specific workspace project
-python tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml --project payments
-```
-
-See `tools/arch-diagram-gen/README.md` and `arch-schema-reference.yaml` for full docs.
-The tool produces standard architecture shapes: hexagons for F5/FW, parallelograms for
-API gateways, cylinders for databases, dashed zones, status colors.
+Working session rules:
+- If the cwd is inside `projects/<id>/`, that project is the **active project**.
+- Use `--project <id>` to select a project from anywhere in the workspace.
+- Inputs resolve against the active project `input/`; generated files land in the
+  active project `output/` (subfolders `requirements/`, `designs/`, `diagrams/`,
+  `validation/`, `reports/`).
+- Project data dirs are git-ignored. Do not scatter generated files in the
+  repository root when a workspace project is active — target the project `output/`.
 
 ## Standards in scope
 
-All skills load company-specific values from `config.yaml` at runtime.
-The `standards/` directory holds the platform-agnostic rules and topology requirements:
+All skills load company-specific values from `config.yaml` at runtime. The
+`standards/` directory holds the platform-agnostic rules and topology
+requirements. Six deployment targets are supported, each with a standard, a
+placement-rule family (`E-*`), a design template, and a worked example:
+
 - `private-cloud-standard.yaml` — F5 ingress model, east-west isolation, PAW, DC zone models
 - `aws-standard.yaml` — Hub-Spoke, ALB/WAF, API Gateway in Spoke VPC, IAM + Secrets Manager
 - `azure-standard.yaml` — Hub-Spoke, App Gateway WAF v2, APIM in Spoke VNET, Key Vault
+- `gcp-standard.yaml` — Shared VPC host + service projects, global HTTPS LB + Cloud Armor, Cloud NAT, CMEK (`E-GCP-*`)
+- `aliyun-standard.yaml` — resource directory + central VPC, Anti-DDoS → WAF → SLB, CEN, RAM roles + STS (`E-ALI-*`)
+- `microsoft-saas-standard.yaml` — black-box tenant/environment containers, one boundary component, Entra ID + DLP; Microsoft 365 / Power Platform / Dynamics 365 (`E-MS-*`)
 
 ## Diagram shape spec
 
@@ -97,7 +85,7 @@ Skills load rules from `.claude/skills/arch-validate/rules/`:
 - `interaction-rules.yaml` — W- series: arrow direction, protocol, integration platform
 - `security-rules.yaml` — S- series: auth, user auth, credential protection
 - `accuracy-rules.yaml` — E- series: DC location, network segments, component completeness
-- `platform-rules.yaml` — AWS/Azure/private-cloud platform-specific rules
+- `platform-rules.yaml` — platform-specific rules for private cloud, AWS, Azure, GCP, Alibaba Cloud, Microsoft SaaS
 - `compliance/terminology.yaml` — cloud terminology and ISO27001/TOGAF mapping
 
 ## Scoring
@@ -108,43 +96,17 @@ Six dimensions, 10 points total:
 
 ## Usage pattern
 
-1. **Design** → `/arch-design` to generate architecture YAML from requirements
-2. **Validate** → `/arch-validate` with diagram image to get scored JSON report
-3. **Enforce** → `/arch-enforce` to apply the CI gate policy (or skip for human review)
-4. **Deep-dive security** → `/arch-security` for auth/credential/network boundary audit
-5. **Standards check** → `/arch-review` for committee-style compliance scoring
-6. **Fix it** → `/arch-optimize` for prioritized improvement suggestions
-7. **Document it** → `/arch-report` for executive summary or Confluence page
-
-## If skills aren't loading
-
-Check that `.claude/skills/` is on the project path. Skills follow the
-Claude Code Agent Skills open standard — each directory under `.claude/skills/`
-with a `SKILL.md` is automatically registered as a slash command.
-
-## Multi-project workspace
-
-One ArchHarness checkout supports many isolated architecture projects.
-Initialize once, then create one project per system/integration:
-
-```bash
-python -m archharness init-workspace .
-python -m archharness init-project <id> [--name "..."] [--default]
-python -m archharness list-projects
-python -m archharness doctor [--project <id>]
-```
-
-Each project owns `projects/<id>/{input,working,output}` plus a `project.yaml`
-(`id`, `name`, `platform`, `data_classification`). When you open a session inside
-`projects/<id>/`, skills and CLI tools (`arch_diagram_gen.py`,
-`tools/arch-req-readers/req_reader.py`) auto-detect the active project and write
-into that project's `output/`. `--project <id>` selects explicitly from anywhere
-in the workspace. Project data dirs are git-ignored; only `project.yaml` and the
-project `README.md` are tracked.
+1. **Design** → run the design skill to generate architecture YAML from requirements
+2. **Validate** → run the validation skill on the diagram image for a scored JSON report
+3. **Enforce** → run the enforce skill to apply the CI gate policy (or skip for human review)
+4. **Deep-dive security** → run the security skill for an auth/credential/network boundary audit
+5. **Standards check** → run the review skill for committee-style compliance scoring
+6. **Fix it** → run the optimize skill for prioritized improvement suggestions
+7. **Document it** → run the report skill for an executive summary or Confluence page
 
 ## Pipeline discipline (mandatory order)
 
-Stages must run in the order defined by `standards/workflow.yaml`:
+Architecture stages run in the order defined by `standards/workflow.yaml`:
 
 ```
 Requirements → design → draw (export PNG) → validate → enforce gate
@@ -158,24 +120,32 @@ Gate rules (fail-closed, enforced by the `arch-workflow` gatekeeper):
   active project `output/`/`working/`.
 - Never fabricate predecessor outputs and never skip a stage.
 - After the enforce gate, continue only on PASS or WARN. BLOCK requires fixing
-  findings and re-running validate → enforce.
-- Ask `/arch-workflow status` or `/arch-workflow can <stage>` when in doubt.
+  the findings and re-running validate → enforce.
+- Invoke `arch-workflow status` / `arch-workflow can <stage>` (`@arch-workflow`
+  in OpenCode) before starting a stage when in doubt.
+<!-- archharness-shared:end -->
 
-## OpenCode usage
+## Claude Code specifics
 
-This project also supports OpenCode. Use `@agent-name` instead of `/skill-name`:
+**Discovery.** Claude Code registers each directory under `.claude/skills/` that
+contains a `SKILL.md` as a `/arch-*` slash command — the Claude Code Agent Skills
+open standard.
+
+**Install from the chat window (plugin marketplace).**
 
 ```
-@arch-workflow    →  check stage gate / pipeline status (gatekeeper)
-@arch-validate   →  validate a diagram image
-@arch-design     →  design from requirements
-@arch-enforce    →  CI gate decision (PASS/WARN/BLOCK)
-@arch-security   →  security deep-dive
-@arch-review     →  committee gate decision
-@arch-optimize   →  prioritized fix backlog
-@arch-report     →  Confluence page / exec summary
+/plugin marketplace add axisrobo/ea-harness
+/plugin install archharness@archharness-marketplace
+/reload-plugins
 ```
 
-Agent definitions live in `.opencode/agents/`. They point to the same
-`SKILL.md` files in `.claude/skills/` that Claude Code uses.
-The `AGENTS.md` in this directory is the OpenCode-native equivalent of this file.
+Plugin skills are namespaced `/archharness:arch-validate`, `/archharness:arch-design`,
+etc. For shared resources (`standards/`, `tools/`, `config.yaml`) run
+`pip install "archharness[all]"` once, or set `ARCHHARNESS_HOME` to a checkout.
+
+**Diagram tool.** `tools/arch-diagram-gen/arch_diagram_gen.py -i arch.yaml` is
+equivalent to `python -m archharness diagram -i arch.yaml`; both write into the
+active project `output/diagrams/` and emit draw.io, D2, PlantUML, and PNG.
+
+**If skills aren't loading**, confirm the working directory is the repository root
+(or a project directory) and that `.claude/skills/` exists.

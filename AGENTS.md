@@ -1,57 +1,46 @@
 # ArchHarness — Enterprise Architecture Design & Validation
 
-> This file is the OpenCode native rules file (`AGENTS.md`).
-> Claude Code reads the equivalent `CLAUDE.md` in the same directory.
-> Both files are kept in sync — do not edit one without updating the other.
+> This file is the multi-tool rules file (`AGENTS.md`), read by **OpenCode**,
+> **Codex**, **GitHub Copilot**, and **Cursor**. Claude Code reads the equivalent
+> `CLAUDE.md`. Both files carry the same shared body — the block delimited by
+> `archharness-shared` markers below — and CI fails when the two drift
+> (`tests/test_rules_files_in_sync.py`).
 
+<!-- archharness-shared:start -->
 ## What this is
 
-ArchHarness is a multi-tool architecture skill pack for enterprise architecture work.
-It works natively in **OpenCode** and **Claude Code**.
-It turns the AI into a team of architecture specialists you summon on demand.
+ArchHarness is a multi-tool architecture skill pack for enterprise architecture
+work. It runs natively in **Claude Code** and **OpenCode** and is discovered by
+**Codex**, **GitHub Copilot**, and **Cursor**. It turns the AI into a team of
+architecture specialists you summon on demand, backed by a real CLI
+(`python -m archharness`), versioned contracts, and a deterministic gate.
 
 ## Available agents and skills
 
-### In OpenCode
-Agents are invoked with `@agent-name`. Skills are loaded on-demand by the agent.
-
-| Agent | Invoke | Role |
-|-------|--------|------|
-| arch-workflow | `@arch-workflow` | Pipeline gatekeeper — enforces stage order and PASS/WARN/BLOCK gate; blocks skipping |
-| arch-requirements     | `@arch-requirements`      | Orchestrator — interview + multi-source intake, outputs REQ.md + req.yaml |
-| arch-req-from-diagram | `@arch-req-from-diagram` | Reader — draw.io / D2 / arch YAML / PNG (vision) → partial req.yaml |
-| arch-req-from-doc     | `@arch-req-from-doc`     | Reader — PDF / DOCX / MD / TXT via LLM → partial req.yaml |
-| arch-req-from-api     | `@arch-req-from-api`     | Reader — CMDB / ServiceNow / CSV → partial req.yaml |
-| arch-req-merge        | `@arch-req-merge`        | Merger — combine partials, conflict detection, gap report | Requirements specialist — structured interview, outputs REQ.md + req.yaml |
-| arch-validate | `@arch-validate` | Paranoid security architect — validates diagram, scores six dimensions |
-| arch-design   | `@arch-design`   | Senior architect — designs from requirements, produces YAML blueprint |
-| arch-enforce  | `@arch-enforce`  | CI enforcement gate — applies arch-gate-policy.yaml to validate JSON, emits PASS/WARN/BLOCK |
-| arch-security | `@arch-security` | Security auditor — auth/credentials/network boundary deep-dive |
-| arch-review   | `@arch-review`   | Review board — gate decision: APPROVED / CONDITIONS / REJECTED |
-| arch-diagram   | `@arch-diagram`  | Diagram generator — YAML → draw.io + PNG |
-| arch-report   | `@arch-report`   | Technical writer — Confluence pages, executive summaries, risk briefs |
-| arch-optimize | `@arch-optimize` | Staff architect — prioritized fix backlog (P0/P1/P2/P3) |
-
-### In Claude Code
-Same agents are available as slash commands: `/arch-validate`, `/arch-design`, etc.
-
-## Available skills
-
-| Skill | Description |
-|-------|---------|
-| arch-validate | Paranoid security architect — validates a diagram image against your enterprise standards (loaded from config.yaml) |
-| arch-design   | Senior architect — designs from requirements, picks patterns, generates YAML |
-| arch-enforce  | CI enforcement gate — applies arch-gate-policy.yaml to validation JSON, emits PASS/WARN/BLOCK with exit code |
-| arch-security | Security auditor — focused exclusively on auth, credentials, network boundaries |
-| arch-review   | Architecture committee reviewer — checks standard compliance, scores dimensions |
-| arch-diagram  | Diagram generator — converts Architecture YAML → draw.io file + PNG |
-| arch-report   | Technical writer — generates executive summaries and Confluence-ready docs |
-| arch-optimize | Staff architect — identifies improvements, generates prioritized fix list |
+| Agent | Claude Code | OpenCode | Role |
+|---|---|---|---|
+| arch-workflow | `/arch-workflow` | `@arch-workflow` | Pipeline gatekeeper — enforces stage order and the PASS/WARN/BLOCK gate; blocks skipping |
+| arch-requirements | `/arch-requirements` | `@arch-requirements` | Orchestrator — interview + multi-source intake → REQ.md + req.yaml |
+| arch-req-from-diagram | `/arch-req-from-diagram` | `@arch-req-from-diagram` | Reader — draw.io / D2 / arch YAML / PNG (vision) → partial req.yaml |
+| arch-req-from-doc | `/arch-req-from-doc` | `@arch-req-from-doc` | Reader — PDF / DOCX / MD / TXT via LLM → partial req.yaml |
+| arch-req-from-api | `/arch-req-from-api` | `@arch-req-from-api` | Reader — CMDB / ServiceNow / CSV → partial req.yaml |
+| arch-req-merge | `/arch-req-merge` | `@arch-req-merge` | Merger — combine partials, conflict detection, gap report |
+| arch-design | `/arch-design` | `@arch-design` | Senior architect — requirements → architecture YAML blueprint |
+| arch-diagram | `/arch-diagram` | `@arch-diagram` | Diagram generator — Architecture YAML → draw.io / D2 / PNG / PlantUML |
+| arch-validate | `/arch-validate` | `@arch-validate` | Paranoid security architect — diagram → scored JSON (6 dimensions) |
+| arch-enforce | `/arch-enforce` | `@arch-enforce` | CI enforcement gate — gate policy → PASS/WARN/BLOCK + exit code |
+| arch-security | `/arch-security` | `@arch-security` | Security auditor — auth / credentials / network boundary deep-dive |
+| arch-review | `/arch-review` | `@arch-review` | Review board — APPROVED / APPROVED WITH CONDITIONS / REJECTED |
+| arch-optimize | `/arch-optimize` | `@arch-optimize` | Staff architect — prioritized fix backlog (P0–P3) |
+| arch-report | `/arch-report` | `@arch-report` | Technical writer — Confluence pages, executive summaries, risk briefs |
 
 ## Configuration
 
-All company-specific values (DC names, platform names) live in **`config.yaml`**
-at the project root. Edit it before first use — see `CLAUDE.md` for full reference.
+All company-specific values (DC names, platform names, classification labels)
+live in **`config.yaml`** at the repository root. Edit it before first use — it is
+the only file you need to change. Skills and rules load these values at runtime:
+`company.name`, `datacenters` (names, locations, zones), and `platforms` (API
+gateway, message bus, K8s platform).
 
 ## Multi-project workspace
 
@@ -68,15 +57,21 @@ Working session rules:
   active project `output/` (subfolders `requirements/`, `designs/`, `diagrams/`,
   `validation/`, `reports/`).
 - Project data dirs are git-ignored. Do not scatter generated files in the
-  repo root when a workspace project is active — target the project `output/`.
+  repository root when a workspace project is active — target the project `output/`.
 
 ## Standards in scope
 
-All skills load company-specific values from `config.yaml` at runtime.
-The `standards/` directory holds the platform-agnostic rules and topology requirements:
+All skills load company-specific values from `config.yaml` at runtime. The
+`standards/` directory holds the platform-agnostic rules and topology
+requirements. Six deployment targets are supported, each with a standard, a
+placement-rule family (`E-*`), a design template, and a worked example:
+
 - `private-cloud-standard.yaml` — F5 ingress model, east-west isolation, PAW, DC zone models
 - `aws-standard.yaml` — Hub-Spoke, ALB/WAF, API Gateway in Spoke VPC, IAM + Secrets Manager
 - `azure-standard.yaml` — Hub-Spoke, App Gateway WAF v2, APIM in Spoke VNET, Key Vault
+- `gcp-standard.yaml` — Shared VPC host + service projects, global HTTPS LB + Cloud Armor, Cloud NAT, CMEK (`E-GCP-*`)
+- `aliyun-standard.yaml` — resource directory + central VPC, Anti-DDoS → WAF → SLB, CEN, RAM roles + STS (`E-ALI-*`)
+- `microsoft-saas-standard.yaml` — black-box tenant/environment containers, one boundary component, Entra ID + DLP; Microsoft 365 / Power Platform / Dynamics 365 (`E-MS-*`)
 
 ## Diagram shape spec
 
@@ -91,7 +86,7 @@ Skills load rules from `.claude/skills/arch-validate/rules/`:
 - `interaction-rules.yaml` — W- series: arrow direction, protocol, integration platform
 - `security-rules.yaml` — S- series: auth, user auth, credential protection
 - `accuracy-rules.yaml` — E- series: DC location, network segments, component completeness
-- `platform-rules.yaml` — AWS/Azure/private-cloud platform-specific rules
+- `platform-rules.yaml` — platform-specific rules for private cloud, AWS, Azure, GCP, Alibaba Cloud, Microsoft SaaS
 - `compliance/terminology.yaml` — cloud terminology and ISO27001/TOGAF mapping
 
 ## Scoring
@@ -102,13 +97,13 @@ Six dimensions, 10 points total:
 
 ## Usage pattern
 
-1. **Design** → `/arch-design` to generate architecture YAML from requirements
-2. **Validate** → `/arch-validate` with diagram image to get scored JSON report
-3. **Enforce** → `/arch-enforce` to apply the CI gate policy (or skip for human review)
-4. **Deep-dive security** → `/arch-security` for auth/credential/network boundary audit
-5. **Standards check** → `/arch-review` for committee-style compliance scoring
-6. **Fix it** → `/arch-optimize` for prioritized improvement suggestions
-7. **Document it** → `/arch-report` for executive summary or Confluence page
+1. **Design** → run the design skill to generate architecture YAML from requirements
+2. **Validate** → run the validation skill on the diagram image for a scored JSON report
+3. **Enforce** → run the enforce skill to apply the CI gate policy (or skip for human review)
+4. **Deep-dive security** → run the security skill for an auth/credential/network boundary audit
+5. **Standards check** → run the review skill for committee-style compliance scoring
+6. **Fix it** → run the optimize skill for prioritized improvement suggestions
+7. **Document it** → run the report skill for an executive summary or Confluence page
 
 ## Pipeline discipline (mandatory order)
 
@@ -127,11 +122,22 @@ Gate rules (fail-closed, enforced by the `arch-workflow` gatekeeper):
 - Never fabricate predecessor outputs and never skip a stage.
 - After the enforce gate, continue only on PASS or WARN. BLOCK requires fixing
   the findings and re-running validate → enforce.
-- Invoke `@arch-workflow status` / `@arch-workflow can <stage>` before starting
-  a stage when in doubt.
+- Invoke `arch-workflow status` / `arch-workflow can <stage>` (`@arch-workflow`
+  in OpenCode) before starting a stage when in doubt.
+<!-- archharness-shared:end -->
 
-## If skills aren't loading
+## Host specifics
 
-Check that `.claude/skills/` is on the project path. Skills follow the
-Claude Code Agent Skills open standard — each directory under `.claude/skills/`
-with a `SKILL.md` is automatically registered as a slash command.
+**Discovery.** OpenCode reads this file and the agents under `.opencode/agents/`,
+invoked as `@arch-*`. Codex reads this file and discovers skills under
+`.agents/skills/`. GitHub Copilot discovers the `@arch-*` custom agents under
+`.github/agents/`. Cursor reads this file and, in supported builds, the skills
+under `.claude/skills/`.
+
+**Mirrors.** `.agents/skills/` is a generated mirror of `.claude/skills/`; update
+it with `python scripts/sync_agents_skills.py` after editing a skill. CI fails
+when the mirror drifts.
+
+**If skills aren't loading**, confirm the working directory is the repository
+root (or a project directory) so `.opencode/agents/`, `.agents/skills/`,
+`standards/`, `tools/`, and `config.yaml` are all found.

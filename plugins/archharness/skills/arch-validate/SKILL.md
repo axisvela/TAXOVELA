@@ -68,7 +68,7 @@ Is this a technical architecture diagram? Must have at least one of: network ent
 technical components, technical interactions. If not → score 0, explain, stop.
 
 **Step 1 — Platform detection**
-Identify: AWS / Azure / private cloud / mixed. Note the `detected_platform` field.
+Identify: private cloud / AWS / Azure / Google Cloud / Alibaba Cloud / Microsoft SaaS / mixed. Note the `detected_platform` field.
 
 **Step 2 — Entity inventory**
 List every visible: cloud/DC node (name, location, owner), network segment, tech component

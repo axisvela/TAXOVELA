@@ -7,9 +7,36 @@ ArchHarness turns your AI coding assistant into a team of architecture specialis
 a requirements analyst, a senior architect, a paranoid security auditor, a committee reviewer,
 and a technical writer — each invocable on demand with a single command.
 
+<img src="docs/images/hero.png" alt="Rendered ArchHarness outputs: Azure Hub-Spoke, AWS hybrid, and a private-cloud active-active architecture" width="880">
+
 > **Not yet another README-only repo.** `archharness` ships a real CLI
 > (`python -m archharness`), a multi-project workspace layout, and platform skills that
-> load enterprise values from a single config file.
+> load enterprise values from a single config file — then proves the result: every
+> artifact is hash-verified and the gate is deterministic.
+
+## Example gallery
+
+Six worked examples, one per platform standard — each end-to-end and runnable:
+requirements, a `req/v2` inventory, an architecture blueprint, a rendered
+diagram, and a standards check. Click a tile to open its example.
+
+<table>
+  <tr>
+    <td width="33%"><a href="examples/01-ecommerce-azure/"><img src="docs/images/examples/01-ecommerce-azure.png" alt="Azure Hub-Spoke e-commerce architecture" width="270"></a><br><b>Azure</b> — Hub-Spoke VNET + ExpressRoute</td>
+    <td width="33%"><a href="examples/03-order-query-aws-hybrid/"><img src="docs/images/examples/03-order-query-aws-hybrid.png" alt="AWS hybrid order-query architecture" width="270"></a><br><b>AWS</b> — Hub-Spoke VPC + Direct Connect</td>
+    <td width="33%"><a href="examples/05-supply-chain-order-private-cloud/"><img src="docs/images/examples/05-supply-chain-order-private-cloud.png" alt="Private-cloud active-active supply-chain architecture" width="270"></a><br><b>Private cloud</b> — active-active CN + NA</td>
+  </tr>
+  <tr>
+    <td width="33%"><a href="examples/09-analytics-gcp-shared-vpc/"><img src="docs/images/examples/09-analytics-gcp-shared-vpc.png" alt="Google Cloud Shared VPC analytics architecture" width="270"></a><br><b>Google Cloud</b> — Shared VPC + Interconnect</td>
+    <td width="33%"><a href="examples/10-power-platform-governed/"><img src="docs/images/examples/10-power-platform-governed.png" alt="Governed Power Platform architecture" width="270"></a><br><b>Microsoft SaaS</b> — Power Platform + DLP</td>
+    <td width="33%"><a href="examples/11-aliyun-landing-zone/"><img src="docs/images/examples/11-aliyun-landing-zone.png" alt="Alibaba Cloud landing-zone architecture" width="270"></a><br><b>Alibaba Cloud</b> — resource directory + CEN</td>
+  </tr>
+</table>
+
+Eleven examples in total: `01`–`06` cover private cloud, AWS, and Azure, `09`–`11`
+add Google Cloud, Microsoft SaaS, and Alibaba Cloud, and `07`–`08` are scaffolds
+awaiting input. Each is self-contained and version-controlled; see
+[`examples/README.md`](./examples/README.md) for the full matrix and how to run one.
 
 ## What it does
 
@@ -70,7 +97,10 @@ in [CHANGELOG.md](./CHANGELOG.md). A step-by-step walkthrough from a fresh
 checkout to a gated diagram, with the diagnosis for each common failure, is in
 [docs/first-run.md](./docs/first-run.md); the recipe for running the gate on
 every pull request, with the evidence archived, is in
-[docs/ci-pipeline.md](./docs/ci-pipeline.md).
+[docs/ci-pipeline.md](./docs/ci-pipeline.md); and the engine↔platform boundary
+with AXISRobo-PAMP — including the privacy-preserving `metrics/v1`
+observability contract — is in
+[docs/pamp-integration.md](./docs/pamp-integration.md).
 
 ## Setup
 
@@ -250,6 +280,12 @@ install the Python package, initialise the workspace, and run `doctor`.
 | `python -m archharness workflow can <stage>` | Exit 0 only if that stage may start |
 | `python -m archharness workflow verify [--json]` | Re-verify recorded artifact digests |
 | `python -m archharness enforce --validation validate_result.json` | Apply the gate policy (PASS/WARN/BLOCK) |
+| `python -m archharness validate-check -v validate_result.json -r req.yaml -b blueprint.yaml` | Prove each finding cites an element that exists |
+| `python -m archharness backlog -v validate_result.json -r req.yaml -b blueprint.yaml` | Ordered remediation list (`backlog/v1`) grouped by element |
+| `python -m archharness metrics --project <id> [--json]` | Aggregate governance metrics with no architecture payloads |
+| `python -m archharness schema-check --baseline <ref>` | Classify a contract change as breaking / additive / cosmetic |
+| `python -m archharness migrate-status` | req/v2 migration state across the examples |
+| `python -m archharness view "<question>"` | Recommend a viewpoint for a question |
 | `python -m archharness sketch "Browser -> API -> DB" -o d.drawio` | One-shot sketch without a YAML file |
 | `python -m archharness model diff old.yaml new.yaml` | Semantic model diff |
 | `python -m archharness plugins` | List discovered plugins and capabilities |
@@ -271,7 +307,7 @@ ships `tools/`, `standards/`, and the skill tree inside the package, so
 work from any working directory:
 
 ```bash
-pip install "archharness[all]"              # PyPI (once published), or:
+pip install "archharness[all]"              # from PyPI, or pin the release:
 pip install https://github.com/axisrobo/ea-harness/releases/download/v1.0.1/archharness-1.0.1-py3-none-any.whl
 python -m archharness root        # → …/site-packages/archharness/data
 python -m archharness doctor
@@ -370,7 +406,7 @@ Rules live in `.claude/skills/arch-validate/rules/`:
 | `interaction-rules.yaml` | W- | Protocol, auth, integration platform placement |
 | `security-rules.yaml` | S- | System auth, user auth, credential protection |
 | `accuracy-rules.yaml` | E- | DC location, network segments, component completeness |
-| `platform-rules.yaml` | — | AWS / Azure / private cloud specific rules |
+| `platform-rules.yaml` | — | Platform-specific rules: private cloud, AWS, Azure, GCP, Alibaba Cloud, Microsoft SaaS (`E-*` families) |
 | `compliance/terminology.yaml` | — | Cloud terms, ISO 27001 / TOGAF mapping |
 
 ## Enforcement gate
@@ -405,11 +441,18 @@ Current completed candidate results are documented in `benchmark/EXPERIMENT_STAT
 
 ## Supported platforms
 
-Standards in `standards/` cover three deployment targets:
+Standards in `standards/` cover six deployment targets. Each has a placement
+model, a zone model, identity and secret handling, data classification, matching
+placement rules, a design template, and a worked example:
 
-- **Private cloud** — F5 ingress, east-west isolation via integration platform, PAW/ADFS
-- **AWS** — Hub-Spoke VPC, ALB+WAF, API Gateway in Spoke VPC, IAM + Secrets Manager
-- **Azure** — Hub-Spoke VNET, App Gateway WAF v2, APIM in Spoke VNET, Key Vault
+| Platform | Standard | Model | Example |
+|---|---|---|---|
+| **Private cloud** | `private-cloud-standard.yaml` | F5 ingress, east-west isolation via integration platform, PAW/ADFS | [`05`](./examples/05-supply-chain-order-private-cloud/) |
+| **AWS** | `aws-standard.yaml` | Hub-Spoke VPC, ALB+WAF, API Gateway in Spoke VPC, IAM + Secrets Manager | [`03`](./examples/03-order-query-aws-hybrid/) |
+| **Azure** | `azure-standard.yaml` | Hub-Spoke VNET, App Gateway WAF v2, APIM in Spoke VNET, Key Vault | [`01`](./examples/01-ecommerce-azure/) |
+| **Google Cloud** | `gcp-standard.yaml` | Shared VPC host + service projects, global HTTPS LB + Cloud Armor, Cloud NAT, CMEK | [`09`](./examples/09-analytics-gcp-shared-vpc/) |
+| **Alibaba Cloud** | `aliyun-standard.yaml` | Resource directory + central VPC, Anti-DDoS → WAF → SLB, CEN, RAM roles + STS | [`11`](./examples/11-aliyun-landing-zone/) |
+| **Microsoft SaaS** | `microsoft-saas-standard.yaml` | Black-box tenant/environment containers, one boundary component, Entra ID + DLP (M365 / Power Platform / Dynamics 365) | [`10`](./examples/10-power-platform-governed/) |
 
 All platform-specific names (API gateway, message bus, K8s platform) are read
 from `config.yaml` — no hardcoding in rules or skill files.
@@ -426,6 +469,10 @@ ea-harness/
 ├── archharness/             ← `python -m archharness` CLI (workspace + tools)
 ├── install.ps1 / install.sh ← cross-platform installers
 ├── benchmark/               ← Experiment scripts, prompts, status, and generated results
+├── examples/                ← 11 worked examples (registry, req/v2, blueprint, diagram)
+├── docs/                    ← first-run guide, CI recipe, platform recipes, integrations
+├── schemas/                 ← Versioned contracts (req/v2, artifact/v1, validation/v1,
+│                              enforcement/v1, metrics/v1)
 ├── projects/<id>/           ← Workspace projects (init with `archharness init-project`)
 ├── standards/               ← Platform-agnostic rules, topology specs, and gate policy
 ├── tools/

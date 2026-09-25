@@ -24,7 +24,7 @@ The following capabilities are in place:
 - requirements readers (document, diagram, API/CSV), merge, and `req/v2`
   validation;
 - architecture-YAML design flow and platform standards for private cloud, AWS,
-  and Azure;
+  Azure, Google Cloud, Alibaba Cloud, and Microsoft SaaS;
 - draw.io, D2, PlantUML, and PNG diagram outputs;
 - artifact-gated workflow: requirements → design → draw → validate → enforce →
   security/review → optimize → report;

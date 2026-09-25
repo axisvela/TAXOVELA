@@ -304,8 +304,8 @@ consensus from both the architecture and security functions.
 
 ## Standards provenance
 
-Standards in `standards/` encode topology and security rules for three deployment targets:
-AWS, Azure, and private cloud. They were authored to reflect common enterprise patterns
+Standards in `standards/` encode topology and security rules for six deployment targets:
+private cloud, AWS, Azure, Google Cloud, Alibaba Cloud, and Microsoft SaaS. They were authored to reflect common enterprise patterns
 (Hub-Spoke networking, DMZ/App/DB zone segmentation, API gateway placement, east-west
 isolation via integration platforms) aligned with ISO 27001 and TOGAF conventions.
 

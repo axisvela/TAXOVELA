@@ -7,7 +7,11 @@ ArchHarness turns your AI coding assistant into a team of architecture specialis
 a requirements analyst, a senior architect, a paranoid security auditor, a committee reviewer,
 and a technical writer — each invocable on demand with a single command.
 
-<img src="docs/images/hero.png" alt="Rendered ArchHarness outputs: Azure Hub-Spoke, AWS hybrid, and a private-cloud active-active architecture" width="880">
+<img src="docs/images/hero-d2.png" alt="Rendered ArchHarness output — Azure Hub-Spoke with on-premises DCs (D2 render)" width="880">
+
+> **Rendered with D2.** One architecture model compiles to both renderers:
+> **draw.io** for the editable source, **D2** for the crisp presentation output.
+> The images on this page are D2 renders.
 
 > **Not yet another README-only repo.** `archharness` ships a real CLI
 > (`python -m archharness`), a multi-project workspace layout, and platform skills that
@@ -18,18 +22,21 @@ and a technical writer — each invocable on demand with a single command.
 
 Six worked examples, one per platform standard — each end-to-end and runnable:
 requirements, a `req/v2` inventory, an architecture blueprint, a rendered
-diagram, and a standards check. Click a tile to open its example.
+diagram, and a standards check. Tiles show the **D2** render; click one to open
+the example, which also carries the editable draw.io source.
 
 <table>
   <tr>
-    <td width="33%"><a href="examples/01-ecommerce-azure/"><img src="docs/images/examples/01-ecommerce-azure.png" alt="Azure Hub-Spoke e-commerce architecture" width="270"></a><br><b>Azure</b> — Hub-Spoke VNET + ExpressRoute</td>
-    <td width="33%"><a href="examples/03-order-query-aws-hybrid/"><img src="docs/images/examples/03-order-query-aws-hybrid.png" alt="AWS hybrid order-query architecture" width="270"></a><br><b>AWS</b> — Hub-Spoke VPC + Direct Connect</td>
-    <td width="33%"><a href="examples/05-supply-chain-order-private-cloud/"><img src="docs/images/examples/05-supply-chain-order-private-cloud.png" alt="Private-cloud active-active supply-chain architecture" width="270"></a><br><b>Private cloud</b> — active-active CN + NA</td>
+    <td width="50%"><a href="examples/01-ecommerce-azure/"><img src="docs/images/examples/01-ecommerce-azure-d2.png" alt="Azure Hub-Spoke architecture (D2 render)" width="410"></a><br><b>Azure</b> — Hub-Spoke VNET + ExpressRoute · <i>D2 render</i></td>
+    <td width="50%"><a href="examples/03-order-query-aws-hybrid/"><img src="docs/images/examples/03-order-query-aws-hybrid-d2.png" alt="AWS hybrid architecture (D2 render)" width="410"></a><br><b>AWS</b> — Hub-Spoke VPC + Direct Connect · <i>D2 render</i></td>
   </tr>
   <tr>
-    <td width="33%"><a href="examples/09-analytics-gcp-shared-vpc/"><img src="docs/images/examples/09-analytics-gcp-shared-vpc.png" alt="Google Cloud Shared VPC analytics architecture" width="270"></a><br><b>Google Cloud</b> — Shared VPC + Interconnect</td>
-    <td width="33%"><a href="examples/10-power-platform-governed/"><img src="docs/images/examples/10-power-platform-governed.png" alt="Governed Power Platform architecture" width="270"></a><br><b>Microsoft SaaS</b> — Power Platform + DLP</td>
-    <td width="33%"><a href="examples/11-aliyun-landing-zone/"><img src="docs/images/examples/11-aliyun-landing-zone.png" alt="Alibaba Cloud landing-zone architecture" width="270"></a><br><b>Alibaba Cloud</b> — resource directory + CEN</td>
+    <td width="50%"><a href="examples/06-factory-mes-industrial/"><img src="docs/images/examples/06-factory-mes-industrial-d2.png" alt="Factory MES architecture (D2 render)" width="410"></a><br><b>Private cloud</b> — plant edge + central DCs · <i>D2 render</i></td>
+    <td width="50%"><a href="examples/09-analytics-gcp-shared-vpc/"><img src="docs/images/examples/09-analytics-gcp-shared-vpc-d2.png" alt="Google Cloud Shared VPC architecture (D2 render)" width="410"></a><br><b>Google Cloud</b> — Shared VPC + Interconnect · <i>D2 render</i></td>
+  </tr>
+  <tr>
+    <td width="50%"><a href="examples/10-power-platform-governed/"><img src="docs/images/examples/10-power-platform-governed-d2.png" alt="Governed Power Platform architecture (D2 render)" width="410"></a><br><b>Microsoft SaaS</b> — Power Platform + DLP · <i>D2 render</i></td>
+    <td width="50%"><a href="examples/11-aliyun-landing-zone/"><img src="docs/images/examples/11-aliyun-landing-zone-d2.png" alt="Alibaba Cloud landing-zone architecture (D2 render)" width="410"></a><br><b>Alibaba Cloud</b> — resource directory + CEN · <i>D2 render</i></td>
   </tr>
 </table>
 
@@ -37,6 +44,25 @@ Eleven examples in total: `01`–`06` cover private cloud, AWS, and Azure, `09`�
 add Google Cloud, Microsoft SaaS, and Alibaba Cloud, and `07`–`08` are scaffolds
 awaiting input. Each is self-contained and version-controlled; see
 [`examples/README.md`](./examples/README.md) for the full matrix and how to run one.
+
+## Two renderers, one model
+
+Every example ships the same model in both formats, and each renderer has a job:
+
+| Renderer | Artifacts | Why |
+|---|---|---|
+| **draw.io** | `diagram-v<N>.drawio` + PNG | **Editable source.** Open in the draw.io desktop app to hand-tweak layout or annotations. The PNG export is convenient, but its image quality is lower and is still being improved. |
+| **D2** | `diagram-v<N>.d2` + PNG/SVG | **Presentation output.** One command (`d2 --layout elk diagram.d2 out.png`), crisper and more consistent — so the gallery above and the hero use D2. |
+
+The same model (example 09) through both renderers:
+
+**draw.io — editable source**
+
+<img src="docs/images/renderers-drawio.png" alt="Example 09 rendered with draw.io" width="560">
+
+**D2 — presentation render**
+
+<img src="docs/images/renderers-d2.png" alt="Example 09 rendered with D2" width="880">
 
 ## What it does
 

@@ -1,0 +1,86 @@
+# req.yaml — Order Service Platform (ORD) on Alibaba Cloud, req/v2
+# Generated from input/systems-registry.md + output/designs/blueprint.yaml
+
+schema_version: req/v2
+
+requirements:
+  project:
+    name: "Order Service Platform (ORD) - Alibaba Cloud Landing Zone with On-Premises ERP"
+    id: "ORD-ALI-001"
+    scope: "e2e"
+    department: "Cloud Platform"
+    author: "TBD"
+    date: "2026-09-24"
+    data_classification: "Acme Confidential"
+
+  infra:
+    - {id: "INF-01", name: "Alibaba Cloud central VPC", node_kind: "iaas_vpc_vnet", infra_type: "public_cloud", network_type: "prod_network", country: "CN", vendor: "Alibaba Cloud", status: "active"}
+    - {id: "INF-02", name: "Edge vSwitch", node_kind: "subnet", infra_type: "public_cloud", network_type: "dmz", parent_id: "INF-01", country: "CN", status: "active"}
+    - {id: "INF-03", name: "Shared services vSwitch", node_kind: "subnet", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-01", country: "CN", status: "active"}
+    - {id: "INF-04", name: "Alibaba Cloud business VPC", node_kind: "iaas_vpc_vnet", infra_type: "public_cloud", network_type: "prod_network", country: "CN", vendor: "Alibaba Cloud", status: "active"}
+    - {id: "INF-05", name: "Application vSwitch (AZ-A)", node_kind: "subnet", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-04", country: "CN", status: "active"}
+    - {id: "INF-06", name: "Application vSwitch (AZ-B)", node_kind: "subnet", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-04", country: "CN", status: "active"}
+    - {id: "INF-07", name: "Data vSwitch (AZ-A)", node_kind: "subnet", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-04", country: "CN", status: "active"}
+    - {id: "INF-08", name: "Primary DC", node_kind: "data_center", infra_type: "private_cloud", network_type: "prod_network", country: "CN", infra_owner: "InfraSec", status: "active"}
+    - {id: "INF-09", name: "Primary DC Intranet", node_kind: "network_zone", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-08", country: "CN", status: "active"}
+    - {id: "INF-10", name: "Anti-DDoS", node_kind: "security_gateway", infra_type: "public_cloud", network_type: "dmz", parent_id: "INF-02", country: "CN", status: "active"}
+    - {id: "INF-11", name: "Web application firewall", node_kind: "waf", infra_type: "public_cloud", network_type: "dmz", parent_id: "INF-02", country: "CN", status: "active"}
+    - {id: "INF-12", name: "Server load balancer", node_kind: "load_balancer", infra_type: "public_cloud", network_type: "dmz", parent_id: "INF-02", country: "CN", status: "active"}
+    - {id: "INF-13", name: "Cloud firewall", node_kind: "firewall", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-03", country: "CN", status: "active"}
+    - {id: "INF-14", name: "NAT gateway", node_kind: "router", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-03", country: "CN", status: "active"}
+    - {id: "INF-15", name: "Cloud Enterprise Network", node_kind: "router", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-03", country: "CN", status: "active"}
+    - {id: "INF-16", name: "Log service", node_kind: "logging_service", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-03", country: "CN", status: "active"}
+    - {id: "INF-17", name: "KMS secret manager", node_kind: "key_management", infra_type: "public_cloud", network_type: "prod_network", parent_id: "INF-07", country: "CN", status: "active"}
+    - {id: "INF-18", name: "Enterprise IdP", node_kind: "identity_provider", infra_type: "private_cloud", network_type: "prod_network", parent_id: "INF-09", country: "CN", status: "active"}
+
+  systems:
+    - {id: "APP-01", name: "Order service platform", type: "new", owner: "org_it", vendor: "Alibaba Cloud"}
+    - {id: "APP-02", name: "On-premises ERP landscape", type: "existing", owner: "org_it", vendor: "-"}
+
+  components:
+    - {id: "CMP-01", system_id: "APP-01", name: "Order service", kind: "service", layer: "be", component_role: "backend_service", sensitivity: "Acme Confidential", status: "active"}
+    - {id: "CMP-02", system_id: "APP-01", name: "Order service (AZ-B)", kind: "service", layer: "be", component_role: "backend_service", sensitivity: "Acme Confidential", status: "active"}
+    - {id: "CMP-03", system_id: "APP-01", name: "Order database", kind: "component", layer: "db", component_role: "database", sensitivity: "Acme Confidential", encryption_at_rest: "KMS", status: "active"}
+    - {id: "CMP-04", system_id: "APP-01", name: "Object storage bucket", kind: "component", layer: "db", component_role: "object_storage", sensitivity: "Acme Confidential", encryption_at_rest: "KMS", status: "active"}
+    - {id: "CMP-05", system_id: "APP-02", name: "ERP integration boundary", kind: "component", layer: "ip", component_role: "integration_service", sensitivity: "Acme Confidential", status: "active"}
+    - {id: "CMP-06", system_id: "APP-02", name: "ERP core", kind: "component", layer: "be", component_role: "application_service", sensitivity: "Acme Restricted", encryption_at_rest: "AES-256", status: "active"}
+
+  deployments:
+    - {id: "DEP-01", component_id: "CMP-01", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-05", runtime_type: "container", runtime_detail: "ACK cluster", instance_count: 2, status: "active"}
+    - {id: "DEP-02", component_id: "CMP-02", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-06", runtime_type: "container", runtime_detail: "ACK cluster", instance_count: 2, status: "active"}
+    - {id: "DEP-03", component_id: "CMP-03", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-07", runtime_type: "serverless", status: "active"}
+    - {id: "DEP-04", component_id: "CMP-04", environment: "prod", deployment_type: "public_cloud", location_type: "public_cloud_region", infra_id: "INF-07", runtime_type: "serverless", status: "active"}
+    - {id: "DEP-05", component_id: "CMP-05", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "container", runtime_detail: "Internal K8s", instance_count: 2, status: "active"}
+    - {id: "DEP-06", component_id: "CMP-06", environment: "prod", deployment_type: "private_cloud", location_type: "data_center", infra_id: "INF-09", runtime_type: "physical", instance_count: 1, status: "active"}
+
+  # Flows are component-to-component calls; entry hops and hybrid transit sit in
+  # `via`, and user sign-in is declared in `auth`.
+  flows:
+    - {id: "FLOW-01", source_component_id: "CMP-01", target_component_id: "CMP-03", protocol: "JDBC", port: "3306", auth_method: "UserPassword", encryption: "TLS1.3", cross_border: false, notes: "Credentials come from INF-17; private endpoint only"}
+    - {id: "FLOW-02", source_component_id: "CMP-02", target_component_id: "CMP-03", protocol: "JDBC", port: "3306", auth_method: "UserPassword", encryption: "TLS1.3", cross_border: false, notes: "Cross-AZ access inside the business VPC"}
+    - {id: "FLOW-03", source_component_id: "CMP-01", target_component_id: "CMP-04", protocol: "HTTPS", port: "443", auth_method: "IAM_Role", encryption: "TLS1.3", cross_border: false, notes: "Runtime RAM role with STS token"}
+    - {id: "FLOW-04", source_component_id: "CMP-01", target_component_id: "CMP-05", protocol: "HTTPS", port: "443", auth_method: "ClientCertificate", encryption: "IPSec", cross_border: false, via: ["INF-13", "INF-15"], notes: "Order status over CEN and Express Connect"}
+    - {id: "FLOW-05", source_component_id: "CMP-05", target_component_id: "CMP-06", protocol: "JDBC", port: "1433", auth_method: "UserPassword", encryption: "TLS1.2", cross_border: false, notes: "Boundary service is the only reader of the ERP schema"}
+
+  network_links:
+    - {id: "LNK-01", source_infra_id: "INF-04", target_infra_id: "INF-01", method: "vpc_peering", encrypted: true, encryption_method: "CEN private transport", managed_by: "Cloud Platform", redundancy: "primary", notes: "Attached through CEN rather than a direct peering"}
+    - {id: "LNK-02", source_infra_id: "INF-08", target_infra_id: "INF-01", method: "leased_line", encrypted: true, encryption_method: "IPSec over Express Connect", managed_by: "InfraSec", redundancy: "primary", notes: "Hybrid path for ERP order status"}
+
+  auth:
+    - {id: "AUTH-01", subject: "user", applies_to: "CMP-01", auth_server: "INF-18", protocol: "SAML2", authorization: "RBAC", mfa: true, notes: "Federated to RAM SSO; privilege policy TBD"}
+    - {id: "AUTH-02", subject: "application", applies_to: "CMP-04", auth_server: "INF-18", protocol: "OIDC", authorization: "RBAC", notes: "RAM role assumed with STS tokens"}
+
+  credentials:
+    - {environment: "private_dc", solution: "Enterprise vault for ERP credentials with automated rotation"}
+    - {environment: "other", solution: "KMS 凭据管家 holds database passwords; RAM roles issue STS tokens to workloads"}
+
+  constraints:
+    - "No workload holds an Elastic IP; all egress goes through the NAT gateway"
+    - "Cross-VPC and hybrid traffic travels through CEN, never the public internet"
+    - "Workloads assume RAM roles with STS tokens; long-lived AccessKeys are prohibited"
+    - "Acme Restricted data stays in the on-premises ERP"
+
+  open_items:
+    - {id: "TBD-001", description: "Confirm the resource-directory folder layout and account naming", owner: "Cloud Platform", blocking: true}
+    - {id: "TBD-002", description: "Confirm CEN bandwidth packages and the Express Connect circuit", owner: "Network team", blocking: true}
+    - {id: "TBD-003", description: "Confirm KMS key rotation and the OSS bucket policy for the restricted bucket", owner: "Security", blocking: false}

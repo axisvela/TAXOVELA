@@ -1,0 +1,233 @@
+# Order Service Platform (ORD) - Alibaba Cloud Landing Zone with On-Premises ERP
+# ID: ORD-ALI-001-TechDiagram-V1.0  |  Platform: hybrid_cloud  |  Version: V1.0  |  Owner team: Cloud Platform  |  Author: TBD  |  Last modified: 2026-09-24
+
+direction: right
+
+internet: Internet {
+  shape: cloud
+  style {
+    fill: "#E8E8E8"
+  }
+}
+
+aliyun_central_vpc: "Alibaba Cloud central VPC (hub) [cn-hangzhou] [InfraSec]" {
+  shape: cloud
+  style {
+    fill: "#FAFAFA"
+    stroke: "#FF6A00"
+    stroke-width: 2
+  }
+
+  central_edge: "Edge vSwitch (AZ-A)" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    INF_10: "INF-10 | Anti-DDoS\nAlibaba Cloud managed service" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    INF_11: "INF-11 | Web application firewall\nAlibaba Cloud managed service" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    INF_12: "INF-12 | Server load balancer\nAlibaba Cloud managed service" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+  }
+
+  central_shared: "Shared services vSwitch (AZ-A)" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    INF_13: "INF-13 | Cloud firewall\nAlibaba Cloud managed service" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    INF_14: "INF-14 | NAT gateway\nAlibaba Cloud managed service" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    INF_15: "INF-15 | Cloud Enterprise Network\nAlibaba Cloud managed service" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+    INF_16: "INF-16 | Log service\nAlibaba Cloud managed service" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+          }
+    }
+  }
+
+}
+
+aliyun_business_vpc: "Alibaba Cloud business VPC [cn-hangzhou] [Business IT]" {
+  shape: cloud
+  style {
+    fill: "#FAFAFA"
+    stroke: "#FF6A00"
+    stroke-width: 2
+  }
+
+  business_az_a: "Application vSwitch (AZ-A)" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_01: "⚠ CMP-01 | Order service\njava-17, spring boot-3.5.2 · ACK cluster" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+  business_az_b: "Application vSwitch (AZ-B)" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_02: "⚠ CMP-02 | Order service (AZ-B)\njava-17, spring boot-3.5.2 · ACK cluster" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+  }
+
+  business_data: "Data vSwitch (AZ-A)" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_03: "⚠ CMP-03 | Order database" {
+      shape: cylinder
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            bold: true
+          }
+    }
+    CMP_04: "⚠ CMP-04 | Object storage bucket" {
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            bold: true
+          }
+    }
+    INF_17: "INF-17 | KMS secret manager\nAlibaba Cloud managed service" {
+      shape: oval
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+  }
+
+}
+
+dc_primary: "Primary DC [CN] [InfraSec]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  dc_intranet: "Intranet" {
+    style {
+      fill: "#F3E5F5"
+      stroke: "#7B1FA2"
+      stroke-dash: 6
+    }
+
+    CMP_05: "⚠ CMP-05 | ERP integration boundary\nK8s" {
+      shape: parallelogram
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    CMP_06: "⚠ CMP-06 | ERP core" {
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    INF_18: "INF-18 | Enterprise IdP\nOn-premises identity service" {
+      shape: oval
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+  }
+
+}
+
+# ── Interactions ──────────────────────────────────────
+
+aliyun_business_vpc.business_az_a.CMP_01 -> aliyun_business_vpc.business_data.CMP_03: "P-JDBC\n(AU-P1)"
+aliyun_business_vpc.business_az_b.CMP_02 -> aliyun_business_vpc.business_data.CMP_03: "P-JDBC\n(AU-P1)"
+aliyun_business_vpc.business_az_a.CMP_01 -> aliyun_business_vpc.business_data.CMP_04: "P-HTTPS\n(AU-I1)"
+aliyun_business_vpc.business_az_a.CMP_01 -> dc_primary.dc_intranet.CMP_05: "P-HTTPS\n(AU-C1)"
+dc_primary.dc_intranet.CMP_05 -> dc_primary.dc_intranet.CMP_06: "P-JDBC\n(AU-P1)"
+
+# ── Security declarations ─────────────────────────
+# Key Management [private_dc]: Enterprise vault for ERP credentials; automated rotation
+# Key Management [other]: KMS 凭据管家 with per-class CMKs for the database and the bucket
+# User Auth (Internal): INF-18 | Enterprise IdP / SAML 2.0 with MFA, federated to RAM SSO

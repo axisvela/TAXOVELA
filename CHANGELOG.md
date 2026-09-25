@@ -10,6 +10,11 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Added
 
+- `examples/11-aliyun-landing-zone` — a worked Alibaba Cloud reference: a
+  central hub VPC and a business VPC linked by Cloud Enterprise Network, an
+  Anti-DDoS → WAF → SLB ingress with no Elastic IP on any workload, NAT-only
+  egress, cloud-firewall east-west inspection, RAM roles with STS tokens, and a
+  KMS-encrypted data tier across two availability zones.
 - `examples/10-power-platform-governed` — a worked Microsoft SaaS reference:
   a Power Platform tenant drawn as a black box (environments as zones, no
   customer network inside), an on-premises data gateway as the only inbound

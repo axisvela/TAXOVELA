@@ -1,0 +1,21 @@
+# Example-specific overlay, deep-merged on top of the root config.yaml.
+
+datacenters:
+  - id: "ali-hangzhou"
+    aliases: ["Alibaba Cloud central VPC", "ali-hangzhou"]
+    location: { city: "Hangzhou", country: "CN" }
+    model: "landing_zone"
+    zones: ["Edge vSwitch", "Shared services vSwitch"]
+    region: "APAC-CN"
+    notes: "Central account hub VPC; business workloads live in a separate VPC linked by CEN"
+
+platforms:
+  api_gateway: "Server load balancer (ALB/SLB)"
+  message_bus: "Message Queue for Apache Kafka"
+  k8s_platform: "ACK cluster"
+  integration_platforms:
+    - "Cloud Enterprise Network"
+    - "Cloud firewall"
+  auth_internal: "Enterprise IdP (federated to RAM SSO)"
+  auth_external: "Enterprise IdP (federated to RAM SSO)"
+  authz_platform: "RAM policies + STS"

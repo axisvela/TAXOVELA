@@ -7,15 +7,20 @@ style.
 ## Quick start
 
 ```bash
-# Install
+# Install (the D2 CLI renders the PNG image)
 pip install pyyaml matplotlib
+#   and install d2:  https://d2lang.com
 
-# Generate .drawio
+# Generate .drawio (the editable source)
 python arch_diagram_gen.py -i my_arch.yaml -o diagram.drawio
 
-# Generate .drawio + PNG
-python arch_diagram_gen.py -i my_arch.yaml -o diagram.drawio --png diagram.png
+# Generate .drawio + .d2 + PNG (the image is rendered by D2)
+python arch_diagram_gen.py -i my_arch.yaml -o diagram.drawio --d2 diagram.d2 --png diagram.png
 ```
+
+draw.io is the **editable source**; the image is produced by **D2** (matplotlib
+is the fallback when D2 is not installed). A draw.io render is available only
+when asked for: `--png-engine drawio`.
 
 ## Output
 
@@ -41,14 +46,19 @@ Shapes match the official Company template:
 
 ### PNG file
 
-Two export paths:
+The image is rendered by **D2** by default:
 
-1. **draw.io CLI** (high fidelity) — install [draw.io desktop](https://github.com/jgraph/drawio-desktop/releases),
-   ensure `drawio` is on your PATH. The tool tries this automatically.
+1. **D2 CLI** (default) — install [d2](https://d2lang.com) and ensure `d2` is on
+   your PATH. The tool renders the `.d2` (compiling a temporary one if `--d2`
+   was not given). For a very large diagram, add `--d2-scale 0.2`.
 
-2. **matplotlib fallback** — pure Python, no external tools needed.
-   Renders distinct shapes, colored zones, directional arrows with
-   protocol/auth labels, header, and legend. Good for quick preview.
+2. **matplotlib fallback** — pure Python, no external tools needed. Used when D2
+   is unavailable. Renders distinct shapes, colored zones, directional arrows
+   with protocol/auth labels, header, and legend.
+
+3. **draw.io CLI** (opt-in) — `--png-engine drawio` renders through
+   [draw.io desktop](https://github.com/jgraph/drawio-desktop/releases). Kept for
+   compatibility; draw.io is otherwise the editable source, not the image renderer.
 
 ## YAML format
 
@@ -127,8 +137,8 @@ arch-diagram-gen/
 
 - Layout is auto-computed (2-column grid). Complex diagrams may need manual
   adjustment in draw.io after generation.
-- PNG via matplotlib: simplified shapes (no true hexagon/parallelogram/cylinder
-  fidelity beyond the renderer's approximations). Use draw.io CLI for print-quality.
+- PNG via matplotlib (the fallback): simplified shapes. Install the D2 CLI for
+  the default, routed image; `--png-engine drawio` renders through draw.io desktop.
 - Edges between cross-region components (not in `interactions:`) are not drawn.
   Always list all cross-DC interactions explicitly.
 

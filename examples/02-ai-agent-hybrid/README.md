@@ -12,8 +12,8 @@ and the model service.
 | Artifact | What it is |
 |---|---|
 | `output/diagrams/diagram.drawio` / `.png` | Artwork the recorded validation and enforcement decision were produced from, on the retired `SYS-nn` id space. |
-| `output/diagrams/diagram-v2.drawio` / `.d2` / `.png` | Rendered from the migrated blueprint, where every node carries its registry code. |
-| `output/diagrams/diagram-v2-d2.png` | **D2/ELK preview** rendered from `diagram-v2.d2`; its automatic layout differs from the draw.io artwork, so it is not the validation target. |
+| `output/diagrams/diagram-v2.drawio` / `.d2` | Editable source and image source, rendered from the migrated blueprint where every node carries its registry code. |
+| `output/diagrams/diagram-v2.png` | **D2 render** of `diagram-v2.d2` — the image. Its automatic layout differs from the retired draw.io artwork, so it is not the validation target. |
 
 The blueprint was migrated after the recorded validation: nodes now use the
 registry's typed codes and the internal K8s platform is no longer a node — the

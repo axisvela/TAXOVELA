@@ -19,7 +19,7 @@ pipeline:
     produces: ["blueprint.yaml"]
     next: [draw]
   - id: draw
-    summary: Draw the architecture in draw.io and export a PNG
+    summary: Draw the architecture — draw.io editable source + D2-rendered PNG
     requires: ["blueprint.yaml"]
     produces: ["diagram.png", "diagram.drawio"]
     next: [validate]

@@ -72,8 +72,8 @@ SAP, and external 3PL partners.
 | Artifact | What it is |
 |---|---|
 | `output/diagrams/diagram.drawio` / `.png` | Artwork the recorded validation and enforcement decision were produced from, on the earlier `SYS-nn` id space. |
-| `output/diagrams/diagram-v2.drawio` / `.d2` / `.png` | Rendered from the migrated blueprint, where appliances are `INF-` L4 nodes and every service carries its `CMP-` code. |
-| `output/diagrams/diagram-v2-d2.png` | **D2/ELK preview** rendered from `diagram-v2.d2`; its automatic layout differs from the draw.io artwork, so it is not the validation target. |
+| `output/diagrams/diagram-v2.drawio` / `.d2` | Editable source and image source, rendered from the migrated blueprint where appliances are `INF-` L4 nodes and every service carries its `CMP-` code. |
+| `output/diagrams/diagram-v2.png` | **D2 render** of `diagram-v2.d2` — the image. Its automatic layout differs from the retired draw.io artwork, so it is not the validation target. |
 
 The blueprint and requirements were migrated to the req/v2 model after the
 recorded validation: the router, F5, ADFS, and the external IdP are now infra

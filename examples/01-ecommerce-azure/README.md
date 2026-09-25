@@ -11,7 +11,7 @@ Network and security appliances are INF nodes. Kubernetes is runtime detail on D
 ## Artifacts
 
 - `diagram.drawio` / `diagram.png` and validation artifacts are frozen v1 history.
-- `diagram-v2.drawio`, `diagram-v2.d2`, `diagram-v2.png`, and its preview are regenerated from the typed blueprint.
+- `diagram-v2.drawio`, `diagram-v2.d2`, and `diagram-v2.png` (the D2 render) are regenerated from the typed blueprint.
 
 ## Verify
 

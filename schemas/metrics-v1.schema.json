@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/axisrobo/ea-harness/schemas/metrics-v1.schema.json",
+  "title": "ArchHarness Governance Metrics",
+  "version": "metrics/v1",
+  "description": "Privacy-preserving aggregate metrics over a project's governance artifacts. It carries counts, fixed enums, and standard rule/dimension labels only \u2014 never entity names, ids, subjects, evidence, notes, or artifact paths \u2014 so it can feed an external governance dashboard (for example AXISRobo-PAMP) without shipping an architecture payload.",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "scope", "workflow", "validation", "routing", "turnaround", "privacy"],
+  "properties": {
+    "schema_version": { "const": "metrics/v1" },
+    "generated_at": {
+      "type": "string",
+      "description": "ISO-8601 timestamp of aggregation. Injected for deterministic tests."
+    },
+    "scope": {
+      "type": "object",
+      "description": "How many artifacts went into this roll-up.",
+      "required": ["projects", "validation_reports", "enforcement_decisions", "routing_reports", "manifests"],
+      "properties": {
+        "projects": { "type": "integer", "minimum": 0 },
+        "validation_reports": { "type": "integer", "minimum": 0 },
+        "enforcement_decisions": { "type": "integer", "minimum": 0 },
+        "routing_reports": { "type": "integer", "minimum": 0 },
+        "manifests": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "required": ["stages_total", "stages_completed", "completion_ratio", "stages_ready", "artifacts_recorded", "integrity_failures", "enforce_decision"],
+      "properties": {
+        "stages_total": { "type": "integer", "minimum": 0 },
+        "stages_completed": { "type": "integer", "minimum": 0 },
+        "completion_ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "stages_ready": { "type": "integer", "minimum": 0 },
+        "artifacts_recorded": { "type": "integer", "minimum": 0 },
+        "integrity_failures": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Recorded manifests that no longer match the bytes on disk (only checked when a base directory is known)."
+        },
+        "enforce_decision": {
+          "type": ["string", "null"],
+          "enum": ["PASS", "WARN", "BLOCK", null]
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["reports", "findings_total", "by_severity", "by_disposition", "by_dimension", "by_rule_family", "scores"],
+      "properties": {
+        "reports": { "type": "integer", "minimum": 0 },
+        "findings_total": { "type": "integer", "minimum": 0 },
+        "by_severity": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "by_disposition": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "by_dimension": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "by_rule_family": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" },
+          "description": "Findings grouped by the leading token of their rule id (V/W/S/E \u2026)."
+        },
+        "scores": {
+          "type": "object",
+          "required": ["samples", "mean_total_score", "min_total_score", "max_total_score", "must_fix"],
+          "properties": {
+            "samples": { "type": "integer", "minimum": 0 },
+            "mean_total_score": { "type": ["number", "null"], "minimum": 0, "maximum": 10 },
+            "min_total_score": { "type": ["number", "null"], "minimum": 0, "maximum": 10 },
+            "max_total_score": { "type": ["number", "null"], "minimum": 0, "maximum": 10 },
+            "must_fix": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "routing": {
+      "type": "object",
+      "required": ["reports", "edges_total", "fallback_edges", "fallback_ratio", "by_strategy", "waypoint_buckets", "readability_defects", "total_planning_ms"],
+      "properties": {
+        "reports": { "type": "integer", "minimum": 0 },
+        "edges_total": { "type": "integer", "minimum": 0 },
+        "fallback_edges": { "type": "integer", "minimum": 0 },
+        "fallback_ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "by_strategy": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "waypoint_buckets": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" },
+          "description": "Edges bucketed by waypoint count (<=2, 3-5, >=6) as a readability proxy."
+        },
+        "readability_defects": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Edges that fell back to automatic routing plus edges with >=6 waypoints."
+        },
+        "total_planning_ms": { "type": "number", "minimum": 0 }
+      }
+    },
+    "turnaround": {
+      "type": "object",
+      "description": "Elapsed time between consecutive pipeline stages whose timestamps are known.",
+      "required": ["transitions"],
+      "properties": {
+        "transitions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["samples", "median_seconds"],
+            "properties": {
+              "samples": { "type": "integer", "minimum": 0 },
+              "median_seconds": { "type": "number", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "required": ["payload_fields", "note"],
+      "properties": {
+        "payload_fields": { "const": "excluded" },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

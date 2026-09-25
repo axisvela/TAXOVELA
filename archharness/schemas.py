@@ -16,7 +16,8 @@ import json
 import re
 from pathlib import Path
 
-SCHEMA_IDS = ("req/v1", "req/v2", "artifact/v1", "validation/v1", "enforcement/v1")
+SCHEMA_IDS = ("req/v1", "req/v2", "artifact/v1", "validation/v1", "enforcement/v1",
+              "metrics/v1")
 
 _SCHEMA_FILES = {
     "req/v1": "req-v1.schema.json",
@@ -24,6 +25,7 @@ _SCHEMA_FILES = {
     "artifact/v1": "artifact-v1.schema.json",
     "validation/v1": "validation-v1.schema.json",
     "enforcement/v1": "enforcement-v1.schema.json",
+    "metrics/v1": "metrics-v1.schema.json",
 }
 
 
@@ -172,3 +174,8 @@ def validate_validation_result(doc: object) -> None:
 def validate_enforcement_result(doc: object) -> None:
     """Validate an enforcement decision against ``enforcement/v1``."""
     validate(doc, "enforcement/v1")
+
+
+def validate_metrics(doc: object) -> None:
+    """Validate a governance metrics roll-up against ``metrics/v1``."""
+    validate(doc, "metrics/v1")

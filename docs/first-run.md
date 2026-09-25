@@ -160,6 +160,17 @@ A profile may tighten the baseline freely; a looser one has to declare
 `allow_looser: true` with a rationale. `backlog` orders the findings by
 severity and disposition and groups them by the element that has to change.
 
+`archharness metrics` rolls the same artifacts up into a `metrics/v1` summary —
+workflow completion, findings by category, routing readability, and stage
+turnaround — with counts and standard labels only, no architecture payloads:
+
+```bash
+archharness metrics --project orders --json -o metrics.json
+```
+
+See [docs/pamp-integration.md](pamp-integration.md) for using that roll-up as a
+governance-dashboard feed.
+
 ## 10. Keep the pipeline honest
 
 ```bash

@@ -37,7 +37,8 @@ class SchemaRegistryTests(unittest.TestCase):
     def test_known_schema_ids_load(self):
         self.assertEqual(
             set(SCHEMA_IDS),
-            {"req/v1", "req/v2", "artifact/v1", "validation/v1", "enforcement/v1"},
+            {"req/v1", "req/v2", "artifact/v1", "validation/v1", "enforcement/v1",
+             "metrics/v1"},
         )
         for schema_id in SCHEMA_IDS:
             schema = load_schema(schema_id)

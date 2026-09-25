@@ -96,6 +96,22 @@ def build_parser() -> argparse.ArgumentParser:
         sub.add_argument("--workspace", default=None)
         sub.add_argument("--project", default=None)
 
+    metrics = commands.add_parser(
+        "metrics",
+        help="Aggregate governance metrics (no architecture payloads)",
+    )
+    metrics.add_argument("--workspace", default=None)
+    metrics.add_argument("--project", default=None)
+    metrics.add_argument("--validation", action="append", default=[],
+                         help="A validation/v1 result file (repeatable; default: discover under the project)")
+    metrics.add_argument("--enforcement", action="append", default=[],
+                         help="An enforcement/v1 decision file (repeatable)")
+    metrics.add_argument("--routing", action="append", default=[],
+                         help="A routing-diagnostics/v1 file (repeatable)")
+    metrics.add_argument("--output", default=None, help="Write the roll-up here (JSON with --json, else Markdown)")
+    metrics.add_argument("--json", action="store_true", dest="as_json",
+                         help="Emit metrics/v1 JSON instead of the human summary")
+
     commands.add_parser("root", help="Print the ArchHarness resource root directory")
 
     commands.add_parser("plugins", help="List discovered plugins and their capabilities")
@@ -553,6 +569,84 @@ def _run_workflow(subcommand: str, args) -> int:
     return 2
 
 
+def _run_metrics(args) -> int:
+    """Aggregate a project's governance artifacts into a metrics/v1 roll-up."""
+    import json
+
+    from . import metrics as metrics_mod
+    from .workspace import discover_project, get_project
+    from .workflow import WorkflowError, load_spec, load_state
+
+    if args.workspace or args.project:
+        try:
+            context = get_project(args.workspace, args.project)
+        except (FileNotFoundError, ValueError) as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
+    else:
+        context = discover_project()
+
+    validations = metrics_mod.load_documents(args.validation, "validation/v1")
+    enforcements = metrics_mod.load_documents(args.enforcement, "enforcement/v1")
+    routings = metrics_mod.load_documents(args.routing, "routing-diagnostics/v1")
+    manifests: list[dict] = []
+    state = None
+    spec = None
+    base_dir = None
+
+    if context is not None:
+        context.ensure_dirs()
+        base_dir = context.project_root
+        try:
+            spec = load_spec()
+        except WorkflowError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
+        try:
+            state = load_state(context.working_path / "workflow-state.json")
+        except WorkflowError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
+        if not (validations or enforcements or routings):
+            found = metrics_mod.discover_documents([context.output_path, context.working_path])
+            validations = found["validation"]
+            enforcements = found["enforcement"]
+            routings = found["routing"]
+            manifests = found["manifests"]
+
+    if not (validations or enforcements or routings or manifests or state):
+        print("ERROR: no validation, enforcement, routing, or workflow artifacts found",
+              file=sys.stderr)
+        return 1
+
+    document = metrics_mod.summarize(
+        validations=validations,
+        enforcements=enforcements,
+        routings=routings,
+        manifests=manifests,
+        state=state,
+        spec=spec,
+        base_dir=base_dir,
+    )
+
+    if args.as_json:
+        rendered = json.dumps(document, indent=2)
+    else:
+        rendered = metrics_mod.render_markdown(document)
+    print(rendered)
+
+    if args.output:
+        from .files import atomic_write_text
+
+        try:
+            atomic_write_text(args.output, rendered)
+        except OSError as exc:
+            print(f"ERROR: Could not write {args.output}: {exc}", file=sys.stderr)
+            return 2
+        print(f"✓ Metrics: {args.output}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args_list = list(sys.argv[1:] if argv is None else argv)
 
@@ -594,6 +688,8 @@ def main(argv: list[str] | None = None) -> int:
             return validate_main([args.path, *(["--json"] if args.as_json else [])])
         elif args.command == "workflow":
             return _run_workflow(args.workflow_command, args)
+        elif args.command == "metrics":
+            return _run_metrics(args)
         return 0
     except (FileExistsError, FileNotFoundError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

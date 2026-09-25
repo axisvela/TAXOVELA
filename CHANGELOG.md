@@ -10,6 +10,22 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Added
 
+- `archharness metrics` and the `metrics/v1` contract: a privacy-preserving
+  roll-up of workflow completion, validation findings by severity / disposition
+  / dimension / rule family, routing fallback ratio and waypoint buckets
+  (readability defects), and median stage turnaround. It reads validation
+  results, enforcement decisions, routing diagnostics, and workflow state —
+  including by discovery under a project — and emits counts, fixed enums, and
+  standard labels only, so it can feed an external governance dashboard without
+  shipping an architecture payload. `tests/test_metrics.py` asserts that
+  distinctive payload tokens never appear in the JSON or Markdown.
+- `docs/pamp-integration.md` fixes the boundary between ArchHarness (offline,
+  deterministic engine) and AXISRobo-PAMP (governance platform): who owns users,
+  workflow, and storage; which versioned contracts cross the boundary
+  (`req/v2`, `artifact/v1`, `validation/v1`, `enforcement/v1`, `metrics/v1`);
+  the six-dimension correspondence between PAMP's review `score_breakdown` and
+  ArchHarness validation; and the credential remediation the PAMP integration
+  docs require.
 - `docs/first-run.md` ends with a **platform recipe** per standard — private
   cloud, AWS, Azure, Google Cloud, Alibaba Cloud, and Microsoft SaaS. Each names
   the template to copy, the region kind, the zone model, the ingress and egress

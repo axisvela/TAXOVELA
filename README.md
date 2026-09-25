@@ -51,8 +51,8 @@ Every example ships the same model in both formats, and each renderer has a job:
 
 | Renderer | Artifacts | Why |
 |---|---|---|
-| **draw.io** | `diagram-v<N>.drawio` + PNG | **Editable source.** Open in the draw.io desktop app to hand-tweak layout or annotations. The PNG export is convenient, but its image quality is lower and is still being improved. |
-| **D2** | `diagram-v<N>.d2` + PNG/SVG | **Presentation output.** One command (`d2 --layout elk diagram.d2 out.png`), crisper and more consistent — so the gallery above and the hero use D2. A very large diagram can exhaust d2's raster backend at full size; pass `--d2-scale 0.2` (or render the `.d2` yourself with `d2 --scale`) to bring it back. |
+| **draw.io** | `diagram-v<N>.drawio` | **Editable source only.** Open it in the draw.io desktop app to hand-tweak layout or annotations. It no longer produces the image by default; `--png-engine drawio` opts back into a draw.io PNG render. |
+| **D2** | `diagram-v<N>.d2` + PNG/SVG | **The image renderer (default).** One command (`d2 --layout elk diagram.d2 out.png`), crisper and more consistent — so the gallery above and the hero use D2. When the d2 CLI is absent the tool falls back to matplotlib. A very large diagram can exhaust d2's raster backend at full size; pass `--d2-scale 0.2` (or render the `.d2` yourself with `d2 --scale`) to bring it back. |
 
 The same model (example 09) through both renderers:
 
@@ -297,7 +297,8 @@ install the Python package, initialise the workspace, and run `doctor`.
 | `python -m archharness list-projects` | List the projects in a workspace |
 | `python -m archharness diagram -i arch.yaml` | Run the diagram generator (draw.io/PNG/D2/PlantUML) |
 | `python -m archharness diagram -i arch.yaml --routing-diagnostics routes.json` | Also record per-edge routing strategy, lane, and fallback |
-| `python -m archharness diagram -i arch.yaml --png out.png --png-engine d2 --d2-scale 0.2` | Render the PNG with the d2 CLI; `--d2-scale` shrinks very large diagrams |
+| `python -m archharness diagram -i arch.yaml --d2 out.d2 --png out.png` | Render the PNG — D2 by default, matplotlib fallback (`--d2-scale` shrinks very large diagrams) |
+| `python -m archharness diagram -i arch.yaml --png out.png --png-engine drawio` | Opt into a draw.io PNG render (draw.io is otherwise edit-only) |
 | `python -m archharness arch-check -i blueprint.yaml [--json]` | Deterministic rules on an architecture model (A-01…A-06) |
 | `python -m archharness trace-check -r req.yaml -b blueprint.yaml` | Verify a req/v2 inventory traces to typed blueprint nodes |
 | `python -m archharness req --doc brief.md` | Run the requirements readers + merger |

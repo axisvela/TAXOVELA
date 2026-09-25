@@ -18,6 +18,11 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Changed
 
+- The PNG export now defaults to the **D2** renderer (`--png-engine auto`:
+  D2, then matplotlib). draw.io is the editable source, not the image renderer;
+  its export method is unchanged and remains available as an explicit opt-in via
+  `--png-engine drawio`. `archharness sketch --png` renders through D2 too, with
+  the same matplotlib fallback.
 - Regenerated two example D2 renders that had been committed at full size and
   were too large to open in most viewers: `04-service-delivery-private-cloud`
   (7.8 MB → 332 KB) and `05-supply-chain-order-private-cloud` (10 MB → 253 KB),

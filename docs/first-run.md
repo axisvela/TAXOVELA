@@ -121,7 +121,10 @@ The same YAML always produces the same XML, so diagrams are reviewable in
 version control. `--routing-diagnostics routes.json` records per-edge routing
 strategy, lane, waypoint count, and whether a route fell back to draw.io.
 
-Add `--png-engine d2` to render the PNG with the d2 CLI instead of draw.io.
+The PNG is rendered by the **d2 CLI by default** (matplotlib is the fallback
+when d2 is absent); the `.drawio` file is the editable source, not the image
+renderer. `--png-engine drawio` opts into a draw.io PNG render instead.
+
 A very large diagram can exhaust d2's raster backend at full size, so pass
 `--d2-scale 0.2` (or render the `.d2` yourself with `d2 --scale`) to bring it
 back; `--d2-timeout` raises the export timeout when a big diagram needs longer.

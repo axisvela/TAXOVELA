@@ -176,15 +176,17 @@ def render_sketch(
         if not _write(model_path, yaml.safe_dump(arch, allow_unicode=True, sort_keys=False), "model"):
             return 2
     if png_path:
-        from .command import _export_png_via_drawio_cli, _export_png_via_matplotlib
+        # D2 renders the image (draw.io is the editable source, not the PNG
+        # engine); _export_png_via_d2 compiles a temporary .d2 for us.
+        from .command import _export_png_via_d2, _export_png_via_matplotlib
 
         print(f"  Attempting PNG export → {png_path}")
-        if _export_png_via_drawio_cli(out_path, png_path):
-            print(f"  ✓ PNG via draw.io CLI: {png_path}")
+        if _export_png_via_d2(arch, png_path):
+            print(f"  ✓ PNG via D2 CLI: {png_path}")
         elif _export_png_via_matplotlib(arch, png_path):
             print(f"  ✓ PNG via matplotlib: {png_path}")
         else:
-            print("  ✗ PNG export failed. Install drawio CLI or: pip install matplotlib",
+            print("  ✗ PNG export failed. Install the D2 CLI, or: pip install matplotlib",
                   file=_sys.stderr)
             return 2
     return 0

@@ -33,8 +33,10 @@ The generator (`archharness diagram`) reads an Architecture YAML and produces:
    Layout: regions in a 2-column grid, zones stacked inside each DC, components
    arranged in rows inside zones.
 
-2. **`.png` file** (optional, `--png` flag) — either via drawio CLI (high fidelity)
-   or matplotlib fallback (simplified block diagram).
+2. **`.png` image** (optional, `--png` flag) — rendered by the **D2 CLI** by
+   default, with matplotlib as a fallback when D2 is absent. The `.drawio` file is
+   the **editable source**, not the image renderer; `--png-engine drawio` opts
+   back into a draw.io render.
 
 3. **`.d2` / `.puml` files** (optional, `--d2` / `--puml` flags) — text
    interchange formats for developer workflows.
@@ -140,8 +142,8 @@ Component technology stacks are lower-cased and compressed (`Java (version TBD)`
 # Generate .drawio only
 archharness diagram -i arch.yaml -o diagram.drawio
 
-# Generate .drawio + PNG
-archharness diagram -i arch.yaml -o diagram.drawio --png diagram.png
+# Generate .drawio (editable) + .d2 + PNG (the PNG is rendered by D2)
+archharness diagram -i arch.yaml -o diagram.drawio --d2 diagram.d2 --png diagram.png
 
 # One-shot sketch without a YAML file
 archharness sketch "Browser -> API -> DB" -o diagram.drawio
@@ -154,10 +156,12 @@ still works via a compatibility shim; prefer the CLI above.)
 
 ```
 pip install pyyaml          # required
-pip install matplotlib      # optional, for PNG fallback
+pip install matplotlib      # optional, PNG fallback
 ```
 
-For high-fidelity PNG, install draw.io desktop and ensure `drawio` is on PATH.
+For the PNG image, install the **D2 CLI** (`d2 --version`). draw.io desktop is
+only needed to edit the `.drawio` source, not to produce an image. For a very
+large diagram, pass `--d2-scale 0.2` (d2's raster backend can fail at full size).
 
 ## When asked to generate a diagram
 
@@ -165,5 +169,7 @@ For high-fidelity PNG, install draw.io desktop and ensure `drawio` is on PATH.
 2. If YAML content is provided inline, write it to a temp file first.
 3. Run the tool and report what was generated.
 4. If the output .drawio path is in the project, confirm it's ready to open.
-5. If PNG was requested but drawio CLI is unavailable, note that matplotlib
-   fallback was used and recommend installing draw.io desktop for full fidelity.
+5. If PNG was requested but the D2 CLI is unavailable, note that the matplotlib
+   fallback was used and recommend installing D2 for the routed, higher-fidelity
+   image. `--png-engine drawio` is available when a draw.io render is explicitly
+   wanted.

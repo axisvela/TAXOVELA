@@ -126,7 +126,9 @@ every pull request, with the evidence archived, is in
 [docs/ci-pipeline.md](./docs/ci-pipeline.md); and the engine↔platform boundary
 with AXISRobo-PAMP — including the privacy-preserving `metrics/v1`
 observability contract — is in
-[docs/pamp-integration.md](./docs/pamp-integration.md).
+[docs/pamp-integration.md](./docs/pamp-integration.md). Re-validating an example
+against its current (D2) image, with the measured binding status, is in
+[docs/revalidation-guide.md](./docs/revalidation-guide.md).
 
 ## Setup
 

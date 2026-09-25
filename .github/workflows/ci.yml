@@ -20,7 +20,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install test dependencies
-        run: pip install --quiet pyyaml pytest
+        # matplotlib is optional at runtime, but installing it here makes the
+        # PNG renderer and the draw.io/PNG shape-parity test actually run
+        # instead of skipping.
+        run: pip install --quiet pyyaml pytest matplotlib
 
       - name: Unit tests (workspace)
         run: python -m pytest tests -q

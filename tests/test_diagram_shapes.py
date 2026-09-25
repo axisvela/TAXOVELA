@@ -16,7 +16,10 @@ sys.path.insert(0, str(ROOT))
 from archharness.diagrams import styles  # noqa: E402
 from archharness.diagrams.d2_generator import generate_d2  # noqa: E402
 from archharness.diagrams.generator import generate_drawio  # noqa: E402
-from archharness.diagrams.png_renderer import PNG_STANDARD_SHAPES  # noqa: E402
+
+# png_renderer pulls in matplotlib at import time. That is an optional
+# dependency, so importing it here would abort collection of the whole suite
+# when matplotlib is absent; the test that needs it imports it under guard.
 
 # Shapes the standard defines but that need no special draw.io style, so they
 # are absent from styles.STANDARD_SHAPES by design.
@@ -43,6 +46,13 @@ def _arch(shapes: list[str]) -> dict:
 
 class ShapeCoverageTests(unittest.TestCase):
     def test_every_drawio_standard_shape_has_a_png_renderer(self):
+        try:
+            from archharness.diagrams.png_renderer import PNG_STANDARD_SHAPES
+        except ImportError as exc:
+            if "matplotlib" in str(exc):
+                self.skipTest("matplotlib is optional")
+            raise
+
         missing = sorted(set(styles.STANDARD_SHAPES) - set(PNG_STANDARD_SHAPES))
         self.assertEqual(missing, [], f"PNG renderer lacks a drawer for {missing}")
 

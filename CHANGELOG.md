@@ -6,6 +6,23 @@ publish when the tag and the package version disagree.
 
 See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
+## Unreleased
+
+### Added
+
+- `archharness diagram --d2-scale <float>` and `--d2-timeout <seconds>`:
+  the D2 CLI's raster backend can exit non-zero on a very large diagram at its
+  default size, so the export now accepts a render scale (and a longer timeout).
+  Both are plumbed through `_export_png_via_d2_cli` and covered by
+  `tests/test_d2_export.py`.
+
+### Changed
+
+- Regenerated two example D2 renders that had been committed at full size and
+  were too large to open in most viewers: `04-service-delivery-private-cloud`
+  (7.8 MB → 332 KB) and `05-supply-chain-order-private-cloud` (10 MB → 253 KB),
+  both now ~2600 px wide. The repository shrinks by about 17 MB.
+
 ## v1.0.1 — 2026-09-25
 
 ### Fixed

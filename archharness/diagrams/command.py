@@ -68,8 +68,16 @@ def _export_png_via_drawio_cli(drawio_path: str, png_path: str) -> bool:
     return False
 
 
-def _export_png_via_d2_cli(d2_path: str, png_path: str) -> bool:
-    """Render the PNG from D2 — its auto-layout routes edges around nodes."""
+def _export_png_via_d2_cli(d2_path: str, png_path: str, *,
+                           scale: float | None = None,
+                           timeout: int = 300) -> bool:
+    """Render the PNG from D2 — its auto-layout routes edges around nodes.
+
+    ``scale`` maps to d2's ``--scale``. A very large diagram can exhaust the
+    raster backend at its default size (the process exits non-zero after
+    repeatedly failing to convert), and a smaller scale renders it reliably at a
+    sane file size.
+    """
     import subprocess
     candidates = [
         "d2",
@@ -78,11 +86,12 @@ def _export_png_via_d2_cli(d2_path: str, png_path: str) -> bool:
         "/usr/bin/d2",
     ]
     for cmd in candidates:
+        argv = [cmd, "--layout", "elk"]
+        if scale is not None:
+            argv += ["--scale", str(scale)]
+        argv += [d2_path, png_path]
         try:
-            result = subprocess.run(
-                [cmd, "--layout", "elk", d2_path, png_path],
-                capture_output=True, timeout=180,
-            )
+            result = subprocess.run(argv, capture_output=True, timeout=timeout)
             if result.returncode == 0 and Path(png_path).is_file():
                 return True
         except (FileNotFoundError, subprocess.TimeoutExpired):
@@ -128,6 +137,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--png-engine", default="auto", choices=["auto", "drawio", "d2", "matplotlib"],
                         help="Which renderer produces the PNG (auto: draw.io, then D2, then matplotlib)")
     parser.add_argument("--d2",   default=None, help="Output D2 file (.d2)")
+    parser.add_argument("--d2-scale", type=float, default=None,
+                        help="Scale for the D2-rendered PNG (d2 --scale); large "
+                             "diagrams may need e.g. 0.2 to render")
+    parser.add_argument("--d2-timeout", type=int, default=300,
+                        help="Seconds allowed for the D2 PNG export (default 300)")
     parser.add_argument("--puml", default=None, help="Output PlantUML file (.puml)")
     parser.add_argument("--routing-diagnostics", default=None,
                         help="Output routing diagnostics JSON")
@@ -233,7 +247,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  ✓ PNG via draw.io CLI: {args.png}")
                 exported = True
         if not exported and engine in ("auto", "d2") and args.d2 and Path(args.d2).is_file():
-            if _export_png_via_d2_cli(args.d2, args.png):
+            if _export_png_via_d2_cli(args.d2, args.png,
+                                      scale=args.d2_scale, timeout=args.d2_timeout):
                 print(f"  ✓ PNG via D2 CLI: {args.png}")
                 exported = True
         if not exported and engine in ("auto", "matplotlib"):

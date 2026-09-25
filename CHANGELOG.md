@@ -6,6 +6,24 @@ publish when the tag and the package version disagree.
 
 See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
+## v1.0.1 — 2026-09-25
+
+### Fixed
+
+- `artifact/v1` manifests are now portable across platforms. Paths are stored
+  with POSIX separators — a Windows backslash path is a literal filename on
+  POSIX, so recorded artifacts could not be resolved on Linux — and legacy
+  backslash paths still resolve when read. A `.gitattributes` rule pins text
+  checkouts to LF so a recorded SHA-256 no longer depends on the recording
+  platform, and every shipped example manifest was re-recorded against the
+  committed bytes. `tests/test_example_artifacts.py` and
+  `tests/test_contract_schemas.py` guard both rules.
+- CI ran the diagram shape suite with an unguarded module-level import of the
+  optional matplotlib renderer, which aborted test collection on runners
+  without it and hid the integrity failure above. The import is guarded, and CI
+  installs matplotlib so the PNG renderer and the shape-parity test run instead
+  of silently skipping.
+
 ## v1.0.0 — 2026-09-25
 
 ArchHarness 1.0 freezes the **core contracts and the CLI**: `req/v2`,
@@ -306,7 +324,7 @@ enterprise feature), and viewpoint taxonomies are still converging.
 |---|---|---|
 | `req/v1` | stable | Still accepted by the readers and validator. |
 | `req/v2` | stable | Frozen at 1.0. The entity-separated model; every example with source input migrated, while examples 07–08 remain input-less scaffolds. |
-| `artifact/v1` | stable | The document shape is unchanged, but digests are re-verified when a workflow gate runs: an artifact edited after it was recorded blocks the stage until it is re-recorded. |
+| `artifact/v1` | stable | The document shape is unchanged, but digests are re-verified when a workflow gate runs: an artifact edited after it was recorded blocks the stage until it is re-recorded. Since 1.0.1 paths are stored with POSIX separators (backslash paths from earlier records still resolve when read). |
 | `validation/v1`, `enforcement/v1` | stable | Unchanged shapes; `workflow verify` can surface stale bindings. |
 | `metrics/v1` | new at 1.0 | Aggregate governance roll-up; carries counts, fixed enums, and standard labels only — no architecture payloads. |
 | `standards/diagram-style.yaml` | v2.0 | Gained a `routing` block (`gutter`, `lane_gap`, `max_visibility_nodes`). Renderers fall back to built-in defaults when a key is absent. |

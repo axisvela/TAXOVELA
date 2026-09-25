@@ -272,7 +272,7 @@ work from any working directory:
 
 ```bash
 pip install "archharness[all]"              # PyPI (once published), or:
-pip install https://github.com/axisrobo/ea-harness/releases/download/v1.0.0/archharness-1.0.0-py3-none-any.whl
+pip install https://github.com/axisrobo/ea-harness/releases/download/v1.0.1/archharness-1.0.1-py3-none-any.whl
 python -m archharness root        # → …/site-packages/archharness/data
 python -m archharness doctor
 ```

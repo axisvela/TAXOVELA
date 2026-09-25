@@ -6,7 +6,7 @@ publish when the tag and the package version disagree.
 
 See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
-## Unreleased
+## v1.1.0 — 2026-09-25
 
 ### Added
 
@@ -367,5 +367,6 @@ enterprise feature), and viewpoint taxonomies are still converging.
 | `metrics/v1` | new at 1.0 | Aggregate governance roll-up; carries counts, fixed enums, and standard labels only — no architecture payloads. |
 | `standards/diagram-style.yaml` | v2.0 | Gained a `routing` block (`gutter`, `lane_gap`, `max_visibility_nodes`). Renderers fall back to built-in defaults when a key is absent. |
 | `standards/workflow.yaml` | stable | Stage order and `requires` unchanged. |
+| PNG rendering | changed at 1.1.0 | The PNG image is rendered by **D2** by default (`--png-engine auto`: D2, then matplotlib). draw.io remains the editable source; a draw.io PNG render requires `--png-engine drawio`. |
 | Plugin API (`PLUGIN_API_VERSION`) | stable | Discovery and capability contract unchanged. |
 | Diagram XML | changed | Cell IDs are now stable sequential ids instead of random GUIDs. Regenerating an older diagram produces a one-off ID diff, then repeated runs are byte-identical. |

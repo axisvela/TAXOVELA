@@ -10,7 +10,7 @@
       "name": "archharness",
       "source": "./plugins/archharness",
       "description": "Enterprise architecture skill pack (requirements -> design -> validate -> enforce gate -> review/optimize/report)",
-      "version": "1.0.1",
+      "version": "1.1.0",
       "author": { "name": "axisrobo" },
       "repository": "https://github.com/axisrobo/ea-harness",
       "license": "MIT"

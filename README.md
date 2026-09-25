@@ -522,7 +522,8 @@ ea-harness/
 
 - Claude Code, OpenCode, Codex, GitHub Copilot, or Cursor
 - Python 3.10+ (`pip install -e ".[all]"` pulls everything; `pyyaml matplotlib` is the minimal set)
-- draw.io desktop app (optional, for high-fidelity PNG export)
+- D2 CLI ([d2lang.com](https://d2lang.com)) — renders the PNG image; matplotlib is
+  the fallback, and draw.io desktop is needed only to edit the `.drawio` source
 
 ## License
 

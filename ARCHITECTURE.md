@@ -177,7 +177,7 @@ and produces unfocused output. Each agent is a different cognitive mode:
 Requirements → @arch-design (or /arch-design)
                     │  YAML blueprint + draw.io guidance
                     ▼
-             Draw in draw.io, export PNG
+   Draw: draw.io source (.drawio) + D2-rendered PNG
                     │
                     ▼
              @arch-validate

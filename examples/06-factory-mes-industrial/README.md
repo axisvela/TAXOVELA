@@ -62,8 +62,8 @@ is plant-local; integration with central planning/ERP is asynchronous via Kafka.
 | Artifact | What it is |
 |---|---|
 | `output/diagrams/diagram-v11.drawio` / `.png` | Artwork the recorded validation and enforcement decision were produced from. The PNG is a draw.io CLI export, so it needs draw.io desktop to reproduce. |
-| `output/diagrams/diagram-v12.drawio` / `.d2` | Regenerated with the current generator, including deterministic edge routing. |
-| `output/diagrams/diagram-v12.png` | **Preview only** — rendered by the D2 engine (ELK layout), not a draw.io export. It is not the reviewed artwork. |
+| `output/diagrams/diagram-v12.drawio` / `.d2` | Editable source and image source, regenerated with the current generator (deterministic edge routing). |
+| `output/diagrams/diagram-v12.png` | **D2 render** of `diagram-v12.d2` — the current image. It is not yet the reviewed artwork. |
 
-Promoting v12 means re-running validate → enforce against a draw.io export of
-`diagram-v12.drawio`, then re-recording `diagram.png` in the workflow state.
+Promoting v12 means re-running validate → enforce against `diagram-v12.png` (the
+D2 render), then re-recording the workflow state.

@@ -1,6 +1,6 @@
 {
   "schema_version": "artifact/v1",
-  "id": "diagram-v2-d2",
+  "id": "diagram-v2.d2",
   "type": "technical-deployment-view",
   "schema": "text/d2",
   "path": "output/diagrams/diagram-v2.d2",

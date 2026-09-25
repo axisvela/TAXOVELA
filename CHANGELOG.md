@@ -6,7 +6,17 @@ publish when the tag and the package version disagree.
 
 See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
-## Unreleased
+## v1.0.0 — 2026-09-25
+
+ArchHarness 1.0 freezes the **core contracts and the CLI**: `req/v2`,
+`artifact/v1`, `validation/v1`, `enforcement/v1`, `metrics/v1`, the workflow
+stage order, and the plugin API. A breaking change to any of them ships under a
+new contract id (enforced by `schema-check`), never as a silent edit.
+
+Integrations are outside this promise and version independently by design: the
+AXISRobo-PAMP boundary is deliberately long-term ([docs/pamp-integration.md](docs/pamp-integration.md)),
+the CMDB reader's connector profiles may move or change shape (a possible
+enterprise feature), and viewpoint taxonomies are still converging.
 
 ### Added
 
@@ -295,9 +305,10 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 | Interface | Version | Notes |
 |---|---|---|
 | `req/v1` | stable | Still accepted by the readers and validator. |
-| `req/v2` | new | Entity-separated model; examples migrate individually. |
-| `artifact/v1` | stable | The document shape is unchanged, but digests are now re-verified when a workflow gate runs: an artifact edited after it was recorded blocks the stage until it is re-recorded. |
+| `req/v2` | stable | Frozen at 1.0. The entity-separated model; every example with source input migrated, while examples 07–08 remain input-less scaffolds. |
+| `artifact/v1` | stable | The document shape is unchanged, but digests are re-verified when a workflow gate runs: an artifact edited after it was recorded blocks the stage until it is re-recorded. |
 | `validation/v1`, `enforcement/v1` | stable | Unchanged shapes; `workflow verify` can surface stale bindings. |
+| `metrics/v1` | new at 1.0 | Aggregate governance roll-up; carries counts, fixed enums, and standard labels only — no architecture payloads. |
 | `standards/diagram-style.yaml` | v2.0 | Gained a `routing` block (`gutter`, `lane_gap`, `max_visibility_nodes`). Renderers fall back to built-in defaults when a key is absent. |
 | `standards/workflow.yaml` | stable | Stage order and `requires` unchanged. |
 | Plugin API (`PLUGIN_API_VERSION`) | stable | Discovery and capability contract unchanged. |

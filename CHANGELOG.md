@@ -10,6 +10,12 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Added
 
+- CMDB/EA adapter coverage: `tests/test_req_from_api.py` exercises the
+  ServiceNow and generic REST field mappings, the HTTP auth headers
+  (basic / bearer / API key), the unset-configuration and API-error gaps, DC
+  normalization and runtime inference, and the CSV alias and tech-stack
+  expansion — the `--api` and `--csv` paths the CLI exposes beyond the CSV
+  happy path. Credentials are asserted to come from the environment only.
 - `examples/11-aliyun-landing-zone` — a worked Alibaba Cloud reference: a
   central hub VPC and a business VPC linked by Cloud Enterprise Network, an
   Anti-DDoS → WAF → SLB ingress with no Elastic IP on any workload, NAT-only
@@ -39,6 +45,11 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Fixed
 
+- The CSV CMDB adapter referenced a deployment's infra by the raw DC name
+  (`Hohhot DC / App Zone`) while it created the infra node under the
+  normalized name (`Neimeng DC (Hohhot) / App Zone`), so the merger could not
+  resolve the deployment's `infra` and recorded a critical gap. Both now use
+  one canonical name, guarded by a merge regression test.
 - The shipped Microsoft 365 template could not be rendered at all: its
   components sat directly under a SaaS region, which the layout never places,
   so twelve interaction references were unresolved. It now models the tenant

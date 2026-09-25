@@ -336,14 +336,15 @@ def csv_to_partial(rows: list[dict], source_file: str) -> PartialReq:
         platform = row.get("platform") or ""
         dc = row.get("dc_or_region", "")
         zone = row.get("zone", "")
-        infra_name = f"{dc} / {zone}" if zone else dc
+        normalized, country = _normalize_dc(dc)
+        if not platform:
+            platform = _infer_platform(normalized)
+        # One canonical infra name, used both for the node and for the
+        # deployment reference — otherwise the merger cannot resolve the
+        # deployment's infra ref (it resolves references by normalized name).
+        infra_name = f"{normalized} / {zone}" if zone else normalized
         if infra_name:
-            normalized, country = _normalize_dc(dc)
-            explicit_country = row.get("country") or country
-            if not platform:
-                platform = _infer_platform(normalized)
-            _add_infra(req, f"{normalized} / {zone}" if zone else normalized,
-                       explicit_country, platform, SRC)
+            _add_infra(req, infra_name, row.get("country") or country, platform, SRC)
 
         # Tech stack columns -> component + stacks + deployment
         lang = row.get("language", "")

@@ -10,6 +10,12 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Added
 
+- `examples/10-power-platform-governed` — a worked Microsoft SaaS reference:
+  a Power Platform tenant drawn as a black box (environments as zones, no
+  customer network inside), an on-premises data gateway as the only inbound
+  path, a DLP policy as a first-class governance node, and Acme Restricted data
+  that never leaves the company database. Like example 09 it ships without a
+  validation record, which the README states.
 - `examples/09-analytics-gcp-shared-vpc` — a worked Google Cloud reference:
   Shared VPC host project, Cloud Armor and global HTTPS LB ingress, Cloud NAT
   egress, Cloud Interconnect to an on-premises ERP, and a CMEK data tier, with

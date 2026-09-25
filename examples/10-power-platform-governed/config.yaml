@@ -1,0 +1,21 @@
+# Example-specific overlay, deep-merged on top of the root config.yaml.
+
+datacenters:
+  - id: "power-platform-saas"
+    aliases: ["Power Platform tenant", "power-platform-saas"]
+    location: { city: "TBD", country: "SG" }
+    model: "saas_tenant"
+    zones: ["Production environment", "Governance and identity"]
+    region: "APAC"
+    notes: "Microsoft-operated tenant; environments are the working areas, not network zones"
+
+platforms:
+  api_gateway: "Power Platform connectors"
+  message_bus: "Dataverse + Power Automate"
+  k8s_platform: "Internal K8s Platform"
+  integration_platforms:
+    - "On-premises data gateway"
+    - "Power Automate"
+  auth_internal: "Entra ID"
+  auth_external: "Entra ID"
+  authz_platform: "Entra ID roles + security roles"

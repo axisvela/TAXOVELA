@@ -1,0 +1,170 @@
+# Expense Approval App (EXP) - Governed Power Platform with On-Premises Backend
+# ID: PPGOV-001-TechDiagram-V1.0  |  Platform: hybrid_cloud  |  Version: V1.0  |  Owner team: Business Platform  |  Author: TBD  |  Last modified: 2026-09-24
+
+direction: right
+
+internet: Internet {
+  shape: cloud
+  style {
+    fill: "#E8E8E8"
+  }
+}
+
+power_platform_tenant: "Power Platform tenant (Acme) [SG/HK] [Microsoft]" {
+  style {
+    fill: "#FAF5FA"
+    stroke: "#742774"
+    stroke-width: 2
+    stroke-dash: 6
+  }
+
+  pp_prod_env: "Production environment (Managed)" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    CMP_01: "⚠ CMP-01 | Expense approval app\npower apps canvas app · Power Platform managed environment" {
+      shape: rectangle
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_02: "⚠ CMP-02 | Approval flow\npower automate · Power Platform managed environment" {
+      style {
+            fill: "#8E24AA"
+            stroke: "#6A1B9A"
+            font-color: "#FFFFFF"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_03: "⚠ CMP-03 | Dataverse table" {
+      shape: cylinder
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            bold: true
+          }
+    }
+  }
+
+  pp_governance: "Governance and identity" {
+    style {
+      fill: "#FAFAFA"
+      stroke: "#BDBDBD"
+      stroke-dash: 6
+    }
+
+    INF_04: "INF-04 | Entra ID\nMicrosoft Entra ID" {
+      shape: oval
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+    INF_05: "INF-05 | DLP policy\nPower Platform admin center" {
+      shape: hexagon
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+          }
+    }
+  }
+
+}
+
+dc_primary: "Primary DC [CN] [InfraSec]" {
+  shape: rectangle
+  style {
+    fill: "#FAFAFA"
+    stroke: "#444444"
+    stroke-width: 2
+    double-border: true
+  }
+
+  dc_dmz: "DMZ" {
+    style {
+      fill: "#FFFDE7"
+      stroke: "#F9A825"
+      stroke-dash: 6
+    }
+
+    INF_08: "INF-08 | Boundary firewall\nPM" {
+      shape: hexagon
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+    CMP_04: "⚠ CMP-04 | On-premises data gateway\nHardened Windows host" {
+      shape: parallelogram
+      style {
+            fill: "#D32F2F"
+            stroke: "#D32F2F"
+            font-color: "#FFFFFF"
+            bold: true
+          }
+    }
+  }
+
+  dc_app_zone: "App Zone" {
+    style {
+      fill: "#F1F8E9"
+      stroke: "#558B2F"
+      stroke-dash: 6
+    }
+
+    CMP_05: "⚠ CMP-05 | Expense service\njava-17, spring boot-3.5.2 · K8s" {
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            stroke-dash: 5
+            bold: true
+          }
+    }
+    CMP_06: "⚠ CMP-06 | Expense database" {
+      shape: cylinder
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+            bold: true
+          }
+    }
+    INF_10: "INF-10 | Enterprise vault\nEnterprise vault with HSM" {
+      shape: oval
+      style {
+            fill: "#FFFFFF"
+            stroke: "#000000"
+            font-color: "#000000"
+          }
+    }
+  }
+
+}
+
+# ── Interactions ──────────────────────────────────────
+
+user -> power_platform_tenant.pp_prod_env.CMP_01: "P-HTTPS\n(AU-T2)"
+power_platform_tenant.pp_prod_env.CMP_01 -> power_platform_tenant.pp_prod_env.CMP_02: "P-HTTPS"
+power_platform_tenant.pp_prod_env.CMP_02 -> power_platform_tenant.pp_prod_env.CMP_03: "P-HTTPS\n(AU-T1)"
+power_platform_tenant.pp_prod_env.CMP_02 -> dc_primary.dc_dmz.CMP_04: "P-HTTPS\n(AU-P1)"
+dc_primary.dc_dmz.CMP_04 -> dc_primary.dc_app_zone.CMP_06: "P-JDBC\n(AU-P1)"
+dc_primary.dc_dmz.CMP_04 -> dc_primary.dc_app_zone.INF_10: "P-HTTPS\n(AU-C1)"
+power_platform_tenant.pp_governance.INF_04 -> power_platform_tenant.pp_prod_env.CMP_01: "P-HTTPS\n(AU-T2)"
+
+# ── Security declarations ─────────────────────────
+# Key Management [private_dc]: Enterprise vault holds and rotates the gateway service account secret
+# Key Management [other]: Entra ID app registrations use certificate credentials; no client secrets
+# User Auth (Internal): INF-04 | Entra ID / OIDC with MFA and conditional access

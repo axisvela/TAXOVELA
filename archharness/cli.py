@@ -112,6 +112,23 @@ def build_parser() -> argparse.ArgumentParser:
     metrics.add_argument("--json", action="store_true", dest="as_json",
                          help="Emit metrics/v1 JSON instead of the human summary")
 
+    manifest = commands.add_parser(
+        "manifest",
+        help="Create an artifact/v1 provenance manifest for a file",
+    )
+    manifest.add_argument("--file", required=True, help="Artifact file to record")
+    manifest.add_argument("--id", default=None, help="Artifact id (default: the file stem)")
+    manifest.add_argument("--type", default="artifact",
+                          help="Artifact kind, e.g. technical-deployment-view")
+    manifest.add_argument("--schema", default="artifact",
+                          help="Schema/version of the artifact payload, e.g. diagram/png")
+    manifest.add_argument("--input", action="append", default=[],
+                          help="Lineage: id of a source artifact (repeatable)")
+    manifest.add_argument("-o", "--output", default=None,
+                          help="Write the manifest JSON here (default: stdout)")
+    manifest.add_argument("--workspace", default=None)
+    manifest.add_argument("--project", default=None)
+
     commands.add_parser("root", help="Print the ArchHarness resource root directory")
 
     commands.add_parser("plugins", help="List discovered plugins and their capabilities")
@@ -647,6 +664,59 @@ def _run_metrics(args) -> int:
     return 0
 
 
+def _run_manifest(args) -> int:
+    """Create an artifact/v1 provenance manifest for an existing file."""
+    import json
+    from pathlib import Path
+
+    from .artifacts import make_manifest
+    from .schemas import SchemaError
+    from .workspace import discover_project, get_project
+
+    target = Path(args.file)
+    if not target.is_file():
+        print(f"ERROR: file not found: {args.file}", file=sys.stderr)
+        return 2
+
+    if args.workspace or args.project:
+        try:
+            context = get_project(args.workspace, args.project)
+        except (FileNotFoundError, ValueError) as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
+    else:
+        context = discover_project()
+    project_root = context.project_root if context else Path.cwd()
+
+    try:
+        document = make_manifest(
+            artifact_id=args.id or target.stem,
+            artifact_type=args.type,
+            schema=args.schema,
+            path=target,
+            project_root=project_root,
+            producer=f"archharness/{__version__}",
+            input_artifacts=args.input,
+        )
+    except (SchemaError, OSError, ValueError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+
+    rendered = json.dumps(document, indent=2)
+    if args.output:
+        from .files import atomic_write_text
+
+        try:
+            atomic_write_text(args.output, rendered)
+        except OSError as exc:
+            print(f"ERROR: Could not write {args.output}: {exc}", file=sys.stderr)
+            return 2
+        print(f"✓ Manifest: {args.output}")
+    else:
+        print(rendered)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args_list = list(sys.argv[1:] if argv is None else argv)
 
@@ -690,6 +760,8 @@ def main(argv: list[str] | None = None) -> int:
             return _run_workflow(args.workflow_command, args)
         elif args.command == "metrics":
             return _run_metrics(args)
+        elif args.command == "manifest":
+            return _run_manifest(args)
         return 0
     except (FileExistsError, FileNotFoundError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

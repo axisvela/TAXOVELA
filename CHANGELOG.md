@@ -10,6 +10,13 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
 
 ### Added
 
+- `archharness manifest --file <path> --id <name> --type <kind> --schema <id>`
+  builds an `artifact/v1` provenance manifest for any file (project-relative
+  POSIX path, exact SHA-256). `make_manifest` was previously reachable only from
+  Python, so re-recording a re-rendered diagram needed ad-hoc code.
+- [docs/revalidation-guide.md](docs/revalidation-guide.md) is the runbook for
+  re-validating an example against its current D2 image, with the measured
+  binding status per example and the exact record/verify commands.
 - `archharness diagram --d2-scale <float>` and `--d2-timeout <seconds>`:
   the D2 CLI's raster backend can exit non-zero on a very large diagram at its
   default size, so the export now accepts a render scale (and a longer timeout).
@@ -27,6 +34,15 @@ See [Compatibility](#compatibility) for the interfaces that consumers pin.
   were too large to open in most viewers: `04-service-delivery-private-cloud`
   (7.8 MB → 332 KB) and `05-supply-chain-order-private-cloud` (10 MB → 253 KB),
   both now ~2600 px wide. The repository shrinks by about 17 MB.
+
+### Fixed
+
+- Example `06-factory-mes-industrial`'s recorded validation binds
+  `output/diagrams/diagram.png`, which no longer exists, and its recorded hash
+  matches neither `diagram-v11.png` nor `diagram-v12.png` — the binding is
+  broken. It is acknowledged in `tests/test_validation_bindings.py` and must be
+  re-validated (see the runbook); examples 01–05 still bind their frozen v1
+  image intact.
 
 ## v1.0.1 — 2026-09-25
 

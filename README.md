@@ -307,6 +307,7 @@ install the Python package, initialise the workspace, and run `doctor`.
 | `python -m archharness workflow status` | Show per-stage readiness |
 | `python -m archharness workflow can <stage>` | Exit 0 only if that stage may start |
 | `python -m archharness workflow verify [--json]` | Re-verify recorded artifact digests |
+| `python -m archharness manifest --file out/diagram-v2.png --id diagram.png --type diagram --schema diagram/png` | Build an `artifact/v1` provenance manifest for a file |
 | `python -m archharness enforce --validation validate_result.json` | Apply the gate policy (PASS/WARN/BLOCK) |
 | `python -m archharness validate-check -v validate_result.json -r req.yaml -b blueprint.yaml` | Prove each finding cites an element that exists |
 | `python -m archharness backlog -v validate_result.json -r req.yaml -b blueprint.yaml` | Ordered remediation list (`backlog/v1`) grouped by element |

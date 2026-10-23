@@ -530,6 +530,20 @@ ea-harness/
 - D2 CLI ([d2lang.com](https://d2lang.com)) — renders the PNG image; matplotlib is
   the fallback, and draw.io desktop is needed only to edit the `.drawio` source
 
+## AI-native development
+
+This repository is intentionally AI-native, and that is part of the product:
+
+- `.claude/`, `.opencode/`, `.agents/`, `.github/agents/`, and `.claude-plugin/`
+  contain the actual skill and agent definitions that users install or discover.
+  They are source, not leaked editor state.
+- Mirrored copies under `.agents/` and `plugins/` are generated from the canonical
+  skill files by `scripts/sync_agents_skills.py`. Edit the canonical source, then
+  re-run the sync.
+- Design, implementation, tests, and documentation were produced with AI coding
+  assistants under human review. Every change still has to pass the same CI gates
+  as any human-authored change.
+
 ## License
 
 MIT — see `LICENSE`.

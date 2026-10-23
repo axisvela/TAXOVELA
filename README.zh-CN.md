@@ -133,7 +133,7 @@ Requirements → arch-design → draw in draw.io → arch-validate
 ### 1. 克隆
 
 ```bash
-git clone https://github.com/axisrobo/ea-harness.git
+git clone https://github.com/axisvela/ea-harness.git
 cd ea-harness
 ```
 
@@ -263,7 +263,7 @@ opencode .
 **Claude Code —— 可以，通过插件市场。** 在 Claude Code 聊天窗口中：
 
 ```
-/plugin marketplace add axisrobo/ea-harness
+/plugin marketplace add axisvela/ea-harness
 /plugin install archharness@archharness-marketplace
 /reload-plugins
 ```
@@ -332,7 +332,7 @@ python -m archharness diagram -i arch.yaml
 
 ```bash
 pip install "archharness[all]"              # 从 PyPI 安装，或钉住某个发布版本：
-pip install https://github.com/axisrobo/ea-harness/releases/download/v1.1.0/archharness-1.1.0-py3-none-any.whl
+pip install https://github.com/axisvela/ea-harness/releases/download/v1.1.0/archharness-1.1.0-py3-none-any.whl
 python -m archharness root        # → …/site-packages/archharness/data
 python -m archharness doctor
 ```

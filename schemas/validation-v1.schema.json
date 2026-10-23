@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/axisrobo/ea-harness/schemas/validation-v1.schema.json",
+  "$id": "https://github.com/axisvela/ea-harness/schemas/validation-v1.schema.json",
   "title": "ArchHarness Validation Result",
   "version": "validation/v1",
   "description": "Machine-readable output of architecture validation. The single input to deterministic policy enforcement: scores, typed findings, and the exact source binding. Policy thresholds compare raw_score (0-10); total_score is the weighted aggregate.",

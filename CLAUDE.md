@@ -134,7 +134,7 @@ open standard.
 **Install from the chat window (plugin marketplace).**
 
 ```
-/plugin marketplace add axisrobo/ea-harness
+/plugin marketplace add axisvela/ea-harness
 /plugin install archharness@archharness-marketplace
 /reload-plugins
 ```

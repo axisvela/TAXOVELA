@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/axisrobo/ea-harness/schemas/req-v1.schema.json",
+  "$id": "https://github.com/axisvela/ea-harness/schemas/req-v1.schema.json",
   "title": "ArchHarness Final Requirements",
   "version": "req/v1",
   "description": "Single stable output of `archharness req`, regardless of the number of input sources. Produced only by the normalize -> merge -> validate -> serialize pipeline.",

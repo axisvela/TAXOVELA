@@ -1,6 +1,6 @@
 # Integrating ArchHarness with AXISRobo-PAMP
 
-[AXISRobo-PAMP](https://github.com/axisrobo/AXISRobo-PAMP) is an enterprise
+[AXISRobo-PAMP](https://github.com/axisvela/AXISRobo-PAMP) is an enterprise
 architecture management and governance platform (FastAPI + PostgreSQL, RBAC,
 review workflow, AVDM decision chain). ArchHarness is the offline, deterministic
 architecture engine. They are complements, and this page fixes the boundary

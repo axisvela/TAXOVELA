@@ -523,6 +523,16 @@ ea-harness/
 - D2 CLI（[d2lang.com](https://d2lang.com)）——渲染 PNG 图片；matplotlib 是
   回退方案；draw.io 桌面版仅在编辑 `.drawio` 源文件时需要
 
+## AI 原生开发
+
+本仓库刻意采用 AI 原生方式开发，这也是产品的一部分：
+
+- `.claude/`、`.opencode/`、`.agents/`、`.github/agents/` 与 `.claude-plugin/`
+  存放的是用户实际安装或发现的技能与 Agent 定义，属于产品源码，而非误提交的编辑器状态。
+- `.agents/` 与 `plugins/` 下的镜像副本由 `scripts/sync_agents_skills.py`
+  从规范技能文件生成。请修改规范源文件，再重新运行同步脚本。
+- 设计、实现、测试与文档均在人工评审下借助 AI 编程助手完成；所有改动仍需通过与人类作者相同的 CI 门禁。
+
 ## 许可证
 
 MIT —— 见 `LICENSE`。

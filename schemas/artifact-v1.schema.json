@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/axisrobo/ea-harness/schemas/artifact-v1.schema.json",
+  "$id": "https://github.com/axisvela/ea-harness/schemas/artifact-v1.schema.json",
   "title": "ArchHarness Artifact Manifest",
   "version": "artifact/v1",
   "description": "Provenance record for one governed artifact. Workflow gates and reviews bind to manifests, never to bare filenames.",

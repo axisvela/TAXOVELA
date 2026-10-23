@@ -26,10 +26,10 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/axisrobo/ea-harness"
-Repository = "https://github.com/axisrobo/ea-harness"
-Releases = "https://github.com/axisrobo/ea-harness/releases"
-Documentation = "https://github.com/axisrobo/ea-harness#readme"
+Homepage = "https://github.com/axisvela/ea-harness"
+Repository = "https://github.com/axisvela/ea-harness"
+Releases = "https://github.com/axisvela/ea-harness/releases"
+Documentation = "https://github.com/axisvela/ea-harness#readme"
 
 [project.optional-dependencies]
 diagram = ["matplotlib>=3.7"]

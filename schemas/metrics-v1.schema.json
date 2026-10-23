@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/axisrobo/ea-harness/schemas/metrics-v1.schema.json",
+  "$id": "https://github.com/axisvela/ea-harness/schemas/metrics-v1.schema.json",
   "title": "ArchHarness Governance Metrics",
   "version": "metrics/v1",
   "description": "Privacy-preserving aggregate metrics over a project's governance artifacts. It carries counts, fixed enums, and standard rule/dimension labels only \u2014 never entity names, ids, subjects, evidence, notes, or artifact paths \u2014 so it can feed an external governance dashboard (for example AXISRobo-PAMP) without shipping an architecture payload.",

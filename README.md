@@ -137,7 +137,7 @@ against its current (D2) image, with the measured binding status, is in
 ### 1. Clone
 
 ```bash
-git clone https://github.com/axisrobo/ea-harness.git
+git clone https://github.com/axisvela/ea-harness.git
 cd ea-harness
 ```
 
@@ -270,7 +270,7 @@ the mirror stays in sync (`scripts/check_repo.py` validates the whole pack).
 **Claude Code — yes, via the plugin marketplace.** In the Claude Code chat window:
 
 ```
-/plugin marketplace add axisrobo/ea-harness
+/plugin marketplace add axisvela/ea-harness
 /plugin install archharness@archharness-marketplace
 /reload-plugins
 ```
@@ -341,7 +341,7 @@ work from any working directory:
 
 ```bash
 pip install "archharness[all]"              # from PyPI, or pin the release:
-pip install https://github.com/axisrobo/ea-harness/releases/download/v1.1.0/archharness-1.1.0-py3-none-any.whl
+pip install https://github.com/axisvela/ea-harness/releases/download/v1.1.0/archharness-1.1.0-py3-none-any.whl
 python -m archharness root        # → …/site-packages/archharness/data
 python -m archharness doctor
 ```

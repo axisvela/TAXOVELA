@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/axisrobo/ea-harness/schemas/req-v2.schema.json",
+  "$id": "https://github.com/axisvela/ea-harness/schemas/req-v2.schema.json",
   "title": "ArchHarness Final Requirements (v2 — entity-separated)",
   "version": "req/v2",
   "status": "draft",

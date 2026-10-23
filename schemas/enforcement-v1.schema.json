@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/axisrobo/ea-harness/schemas/enforcement-v1.schema.json",
+  "$id": "https://github.com/axisvela/ea-harness/schemas/enforcement-v1.schema.json",
   "title": "ArchHarness Enforcement Decision",
   "version": "enforcement/v1",
   "description": "Deterministic policy gate output. Produced only by evaluating a validation/v1 result against a versioned policy. PASS and WARN exit 0; BLOCK exits 1.",
